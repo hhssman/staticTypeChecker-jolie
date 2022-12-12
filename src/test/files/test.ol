@@ -1,5 +1,7 @@
 type InputType: void {
 	name: string
+	dog: int
+	owners[1, 5]: string
 }
 
 interface MyInterface {
