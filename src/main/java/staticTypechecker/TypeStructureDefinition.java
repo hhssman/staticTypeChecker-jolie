@@ -7,6 +7,7 @@ import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Range;
 
 /**
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
@@ -14,15 +15,21 @@ import jolie.lang.parse.context.ParsingContext;
 public class TypeStructureDefinition extends OLSyntaxNode {
 	private BasicTypeDefinition basicType; // the type of the root node
 	private HashMap<String, TypeStructureDefinition> subtypes; // the subtypes of the root node, not subtypes are defined recursively as other TypeStructureDefintions
+	private Range cardinality; // the cardinality of the root node
 
-	public TypeStructureDefinition(BasicTypeDefinition basicType, ParsingContext context){
+	public TypeStructureDefinition(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
 		super(context);
 		this.basicType = basicType;
 		this.subtypes = new HashMap<>();
+		this.cardinality = cardinality;
 	}
 
 	public BasicTypeDefinition basicType(){
 		return this.basicType;
+	}
+
+	public Range cardinality(){
+		return this.cardinality;
 	}
 
 	/**

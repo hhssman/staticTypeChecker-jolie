@@ -82,7 +82,7 @@ public class Main {
 	}
 
 	private static void customVisitor(Program p){
-		TypeChecker v = new TypeChecker();
+		TypeChecker<Void, Void> v = new TypeChecker<>();
 		v.visit(p, null);
 	}
 }
