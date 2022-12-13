@@ -65,7 +65,6 @@ public class Main {
 				semVerConfig,
 				INCLUDE_DOCUMENTATION );
 
-			// printProgram(program);
 			// prettyPrintProgram(program);
 			customVisitor(program);
 
@@ -80,12 +79,6 @@ public class Main {
 		JoliePrettyPrinter printer = new JoliePrettyPrinter();
 		printer.visit(p);
 		System.out.println(printer.toString());
-	}
-
-	private static void printProgram(Program p){
-		for(OLSyntaxNode n : p.children()){
-			System.out.println(n.context());
-		}
 	}
 
 	private static void customVisitor(Program p){

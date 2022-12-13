@@ -94,21 +94,17 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
  */
 public class TypeChecker implements OLVisitor<String, Void> {
 	public Void visit(Program p, String ctx){
-		System.out.println("Start visit " + p);
-
 		for(OLSyntaxNode n : p.children()){
-			System.out.println("Start visit " + n);
 			n.accept(this, null);
-			System.out.println("Done visit " + n);
 		}
 
-		System.out.println("Done visit " + p);
-		
 		return null;
 	}
 
 	public Void visit(TypeInlineDefinition t, String ctx ){
 		System.out.println("Basic type: " + t.basicType().nativeType());
+		System.out.println("Cardinality: " + t.cardinality().min() + "-" + t.cardinality().max());
+
 		if(t.subTypes() != null){ // has subtypes
 			for(Map.Entry<String, TypeDefinition> key : t.subTypes()){
 				key.getValue().accept(this, null);
