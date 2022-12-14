@@ -1,26 +1,7 @@
-/*
- * Copyright (C) 2021 Valentino Picotti
- * Copyright (C) 2021 Fabrizio Montesi <famontesi@gmail.com>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
- */
-
 package staticTypechecker;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import jolie.Interpreter;
 import jolie.JolieURLStreamHandlerFactory;
@@ -28,7 +9,6 @@ import jolie.cli.CommandLineException;
 import jolie.lang.CodeCheckingException;
 import jolie.lang.parse.ParserException;
 import jolie.lang.parse.SemanticVerifier;
-import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.lang.parse.ast.Program;
 import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
@@ -66,7 +46,9 @@ public class Main {
 				INCLUDE_DOCUMENTATION );
 
 			// prettyPrintProgram(program);
-			customVisitor(program);
+			HashMap<String, TypeStructureDefinition> symbols = getSymbolTable(program);
+			System.out.println(symbols);
+			// typeCheck(program);
 
 		} catch( CommandLineException e ) {
 			System.out.println( e.getMessage() );
@@ -81,8 +63,13 @@ public class Main {
 		System.out.println(printer.toString());
 	}
 
-	private static void customVisitor(Program p){
-		TypeChecker<Void, Void> v = new TypeChecker<>();
+	private static HashMap<String, TypeStructureDefinition> getSymbolTable(Program p){
+		SymbolTable table = new SymbolTable(p);
+		return table.table();
+	}
+
+	private static void typeCheck(Program p){
+		TypeChecker v = new TypeChecker();
 		v.visit(p, null);
 	}
 }

@@ -2,6 +2,11 @@ type InputType: void {
 	name: string
 	dog: int
 	owners[1, 5]: string
+	yeppers: SubType
+}
+
+type SubType: int {
+	subtypeName: string
 }
 
 interface MyInterface {

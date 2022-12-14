@@ -90,13 +90,10 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 /**
  * Typechecker for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
  * 
- * @param <C> The type of the context carried along the visit
- * @param <R> The return type of the visit
- * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class TypeChecker<C, R> implements OLVisitor<C, R> {
-	public R visit(Program p, C ctx){
+public class TypeChecker implements OLVisitor<Void, Void> {
+	public Void visit(Program p, Void ctx){
 		for(OLSyntaxNode n : p.children()){
 			n.accept(this, null);
 		}
@@ -104,7 +101,7 @@ public class TypeChecker<C, R> implements OLVisitor<C, R> {
 		return null;
 	}
 
-	public R visit(TypeInlineDefinition t, C ctx ){
+	public Void visit(TypeInlineDefinition t, Void ctx){
 		System.out.println("Basic type: " + t.basicType().nativeType() + "[" + t.cardinality().min() + ", " + t.cardinality().max() + "]");
 
 		if(t.subTypes() != null){ // has subtypes
@@ -116,335 +113,335 @@ public class TypeChecker<C, R> implements OLVisitor<C, R> {
 		return null;
 	}
 
-	public R visit(TypeNameDefinition t, C ctx){
+	public Void visit(TypeNameDefinition t, Void ctx){
 		return null;
 	}
 
-	public R visit(TypeStructureDefinition t, C ctx){
+	public Void visit(TypeStructureDefinition t, Void ctx){
 		return null;
 	}
 
-	public R visit( OneWayOperationDeclaration decl, C ctx ){
+	public Void visit( OneWayOperationDeclaration decl, Void ctx ){
 		return null;
 	};
 
-	public R visit( RequestResponseOperationDeclaration decl, C ctx ){
+	public Void visit( RequestResponseOperationDeclaration decl, Void ctx ){
 		return null;
 	};
 
-	public R visit( DefinitionNode n, C ctx ){
+	public Void visit( DefinitionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ParallelStatement n, C ctx ){
+	public Void visit( ParallelStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SequenceStatement n, C ctx ){
+	public Void visit( SequenceStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( NDChoiceStatement n, C ctx ){
+	public Void visit( NDChoiceStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( OneWayOperationStatement n, C ctx ){
+	public Void visit( OneWayOperationStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( RequestResponseOperationStatement n, C ctx ){
+	public Void visit( RequestResponseOperationStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( NotificationOperationStatement n, C ctx ){
+	public Void visit( NotificationOperationStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SolicitResponseOperationStatement n, C ctx ){
+	public Void visit( SolicitResponseOperationStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( LinkInStatement n, C ctx ){
+	public Void visit( LinkInStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( LinkOutStatement n, C ctx ){
+	public Void visit( LinkOutStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( AssignStatement n, C ctx ){
+	public Void visit( AssignStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( AddAssignStatement n, C ctx ){
+	public Void visit( AddAssignStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SubtractAssignStatement n, C ctx ){
+	public Void visit( SubtractAssignStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( MultiplyAssignStatement n, C ctx ){
+	public Void visit( MultiplyAssignStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( DivideAssignStatement n, C ctx ){
+	public Void visit( DivideAssignStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( IfStatement n, C ctx ){
+	public Void visit( IfStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( DefinitionCallStatement n, C ctx ){
+	public Void visit( DefinitionCallStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( WhileStatement n, C ctx ){
+	public Void visit( WhileStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( OrConditionNode n, C ctx ){
+	public Void visit( OrConditionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( AndConditionNode n, C ctx ){
+	public Void visit( AndConditionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( NotExpressionNode n, C ctx ){
+	public Void visit( NotExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CompareConditionNode n, C ctx ){
+	public Void visit( CompareConditionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ConstantIntegerExpression n, C ctx ){
+	public Void visit( ConstantIntegerExpression n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ConstantDoubleExpression n, C ctx ){
+	public Void visit( ConstantDoubleExpression n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ConstantBoolExpression n, C ctx ){
+	public Void visit( ConstantBoolExpression n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ConstantLongExpression n, C ctx ){
+	public Void visit( ConstantLongExpression n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ConstantStringExpression n, C ctx ){
+	public Void visit( ConstantStringExpression n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ProductExpressionNode n, C ctx ){
+	public Void visit( ProductExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SumExpressionNode n, C ctx ){
+	public Void visit( SumExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( VariableExpressionNode n, C ctx ){
+	public Void visit( VariableExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( NullProcessStatement n, C ctx ){
+	public Void visit( NullProcessStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( Scope n, C ctx ){
+	public Void visit( Scope n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InstallStatement n, C ctx ){
+	public Void visit( InstallStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CompensateStatement n, C ctx ){
+	public Void visit( CompensateStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ThrowStatement n, C ctx ){
+	public Void visit( ThrowStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ExitStatement n, C ctx ){
+	public Void visit( ExitStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ExecutionInfo n, C ctx ){
+	public Void visit( ExecutionInfo n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CorrelationSetInfo n, C ctx ){
+	public Void visit( CorrelationSetInfo n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InputPortInfo n, C ctx ){
+	public Void visit( InputPortInfo n, Void ctx ){
 		return null;
 	};
 
-	public R visit( OutputPortInfo n, C ctx ){
+	public Void visit( OutputPortInfo n, Void ctx ){
 		return null;
 	};
 
-	public R visit( PointerStatement n, C ctx ){
+	public Void visit( PointerStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( DeepCopyStatement n, C ctx ){
+	public Void visit( DeepCopyStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( RunStatement n, C ctx ){
+	public Void visit( RunStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( UndefStatement n, C ctx ){
+	public Void visit( UndefStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ValueVectorSizeExpressionNode n, C ctx ){
+	public Void visit( ValueVectorSizeExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( PreIncrementStatement n, C ctx ){
+	public Void visit( PreIncrementStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( PostIncrementStatement n, C ctx ){
+	public Void visit( PostIncrementStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( PreDecrementStatement n, C ctx ){
+	public Void visit( PreDecrementStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( PostDecrementStatement n, C ctx ){
+	public Void visit( PostDecrementStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ForStatement n, C ctx ){
+	public Void visit( ForStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ForEachSubNodeStatement n, C ctx ){
+	public Void visit( ForEachSubNodeStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ForEachArrayItemStatement n, C ctx ){
+	public Void visit( ForEachArrayItemStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SpawnStatement n, C ctx ){
+	public Void visit( SpawnStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( IsTypeExpressionNode n, C ctx ){
+	public Void visit( IsTypeExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InstanceOfExpressionNode n, C ctx ){
+	public Void visit( InstanceOfExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( TypeCastExpressionNode n, C ctx ){
+	public Void visit( TypeCastExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SynchronizedStatement n, C ctx ){
+	public Void visit( SynchronizedStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CurrentHandlerStatement n, C ctx ){
+	public Void visit( CurrentHandlerStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( EmbeddedServiceNode n, C ctx ){
+	public Void visit( EmbeddedServiceNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InstallFixedVariableExpressionNode n, C ctx ){
+	public Void visit( InstallFixedVariableExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( VariablePathNode n, C ctx ){
+	public Void visit( VariablePathNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( TypeDefinitionLink n, C ctx ){
+	public Void visit( TypeDefinitionLink n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InterfaceDefinition n, C ctx ){
+	public Void visit( InterfaceDefinition n, Void ctx ){
 		return null;
 	};
 
-	public R visit( DocumentationComment n, C ctx ){
+	public Void visit( DocumentationComment n, Void ctx ){
 		return null;
 	};
 
-	public R visit( FreshValueExpressionNode n, C ctx ){
+	public Void visit( FreshValueExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CourierDefinitionNode n, C ctx ){
+	public Void visit( CourierDefinitionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( CourierChoiceStatement n, C ctx ){
+	public Void visit( CourierChoiceStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( NotificationForwardStatement n, C ctx ){
+	public Void visit( NotificationForwardStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SolicitResponseForwardStatement n, C ctx ){
+	public Void visit( SolicitResponseForwardStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InterfaceExtenderDefinition n, C ctx ){
+	public Void visit( InterfaceExtenderDefinition n, Void ctx ){
 		return null;
 	};
 
-	public R visit( InlineTreeExpressionNode n, C ctx ){
+	public Void visit( InlineTreeExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( VoidExpressionNode n, C ctx ){
+	public Void visit( VoidExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ProvideUntilStatement n, C ctx ){
+	public Void visit( ProvideUntilStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( TypeChoiceDefinition n, C ctx ){
+	public Void visit( TypeChoiceDefinition n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ImportStatement n, C ctx ){
+	public Void visit( ImportStatement n, Void ctx ){
 		return null;
 	};
 
-	public R visit( ServiceNode n, C ctx ){
+	public Void visit( ServiceNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( EmbedServiceNode n, C ctx ){
+	public Void visit( EmbedServiceNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( SolicitResponseExpressionNode n, C ctx ){
+	public Void visit( SolicitResponseExpressionNode n, Void ctx ){
 		return null;
 	};
 
-	public R visit( IfExpressionNode n, C Ctx ){
+	public Void visit( IfExpressionNode n, Void Ctx ){
 		return null;
 	};
 }
