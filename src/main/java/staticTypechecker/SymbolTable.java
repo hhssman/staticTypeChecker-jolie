@@ -1,5 +1,6 @@
 package staticTypechecker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -24,6 +25,7 @@ import jolie.lang.parse.ast.ForEachSubNodeStatement;
 import jolie.lang.parse.ast.ForStatement;
 import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
+import jolie.lang.parse.ast.ImportSymbolTarget;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
 import jolie.lang.parse.ast.InstallStatement;
@@ -85,349 +87,59 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.typeStructures.TypeStructure;
 
-public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructureDefinition>> {
-	private HashMap<String, TypeStructureDefinition> table;
+public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructure>> {
+	private HashMap<String, TypeStructure> table;
 	
 	public SymbolTable(Program p){
-		this.table = p.accept(this, null);
+		this.table = new HashMap<>();
+		p.accept(this, null);
 	}
 
-	public HashMap<String, TypeStructureDefinition> table(){
+	public HashMap<String, TypeStructure> table(){
 		return this.table;
 	}
 
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(Program p, Void ctx) {
-		HashMap<String, TypeStructureDefinition> tmp = new HashMap<>();
+	public boolean contains(String key){
+		return this.table.containsKey(key);
+	}
 
+	public TypeStructure getStructure(String key){
+		return this.table.get(key);
+	}
+
+	public ArrayList<String> getNames(TypeStructure structure){
+		ArrayList<String> names = new ArrayList<>();
+
+		for(Entry<String, TypeStructure> entry : this.table.entrySet()){
+			if(structure.isEquivalent(entry.getValue())){
+				names.add(entry.getKey());
+			}
+		}
+
+		return names;
+	}
+
+	public void addType(String name, TypeStructure structure){
+		this.table.put(name, structure); // TODO: decide if overwrite or not
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(Program p, Void ctx) {
+		// accept all children of the program and store them in a hashmap
 		p.children()
 			.stream()
 			.map(node -> node.accept(this, null))
-			.forEach(map -> tmp.putAll(map));
+			.forEach(map -> this.table.putAll(map));
 
-		return tmp;
+		return null;
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(OneWayOperationDeclaration decl, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(RequestResponseOperationDeclaration decl, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(DefinitionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ParallelStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SequenceStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(NDChoiceStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(OneWayOperationStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(RequestResponseOperationStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(NotificationOperationStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SolicitResponseOperationStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(LinkInStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(LinkOutStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(AssignStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(AddAssignStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SubtractAssignStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(MultiplyAssignStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(DivideAssignStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(IfStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(DefinitionCallStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(WhileStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(OrConditionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(AndConditionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(NotExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CompareConditionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ConstantIntegerExpression n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ConstantDoubleExpression n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ConstantBoolExpression n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ConstantLongExpression n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ConstantStringExpression n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ProductExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SumExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(VariableExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(NullProcessStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(Scope n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InstallStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CompensateStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ThrowStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ExitStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ExecutionInfo n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CorrelationSetInfo n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InputPortInfo n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(OutputPortInfo n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(PointerStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(DeepCopyStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(RunStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(UndefStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ValueVectorSizeExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(PreIncrementStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(PostIncrementStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(PreDecrementStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(PostDecrementStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ForStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ForEachSubNodeStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ForEachArrayItemStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SpawnStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(IsTypeExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InstanceOfExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(TypeCastExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SynchronizedStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CurrentHandlerStatement n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(EmbeddedServiceNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InstallFixedVariableExpressionNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(VariablePathNode n, Void ctx) {
-		return new HashMap<>();
-	}
-
-	@Override
-	public HashMap<String, TypeStructureDefinition> visit(TypeInlineDefinition n, Void ctx) {
-		HashMap<String, TypeStructureDefinition> ret = new HashMap<>();
-		TypeStructureDefinition structure = TypeConverter.convert(n);
+	public HashMap<String, TypeStructure> visit(TypeInlineDefinition n, Void ctx) {
+		HashMap<String, TypeStructure> ret = new HashMap<>();
+		TypeStructure structure = TypeConverter.convert(n, this);
 
 		ret.put(n.name(), structure);
 
@@ -435,82 +147,417 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(TypeDefinitionLink n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(TypeDefinitionLink n, Void ctx) {
+		HashMap<String, TypeStructure> ret = new HashMap<>();
+		TypeStructure structure = TypeConverter.convert(n, this);
+
+		ret.put(n.name(), structure);
+
+		return ret;
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(TypeChoiceDefinition n, Void ctx) {
+		HashMap<String, TypeStructure> ret = new HashMap<>();
+		TypeStructure structure = TypeConverter.convert(n, this);
+
+		ret.put(n.name(), structure);
+
+		return ret;
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ImportStatement n, Void ctx) {
+		HashMap<String, TypeStructure> ret = new HashMap<>();
+
+		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			ret.put(s.localSymbolName(), null); // TODO: figure out how to get the type structure
+		}
+
+		return ret;
+	}
+
+	public String toString(){
+		return table.toString();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(OneWayOperationDeclaration decl, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InterfaceDefinition n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(RequestResponseOperationDeclaration decl, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(DocumentationComment n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(DefinitionNode n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(FreshValueExpressionNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(ParallelStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CourierDefinitionNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(SequenceStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(CourierChoiceStatement n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(NDChoiceStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(NotificationForwardStatement n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(OneWayOperationStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(SolicitResponseForwardStatement n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(RequestResponseOperationStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InterfaceExtenderDefinition n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(NotificationOperationStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(InlineTreeExpressionNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(SolicitResponseOperationStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(VoidExpressionNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(LinkInStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ProvideUntilStatement n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(LinkOutStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(TypeChoiceDefinition n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(AssignStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ImportStatement n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(AddAssignStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(ServiceNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(SubtractAssignStatement n, Void ctx) {
 		return new HashMap<>();
 	}
 
 	@Override
-	public HashMap<String, TypeStructureDefinition> visit(EmbedServiceNode n, Void ctx) {
+	public HashMap<String, TypeStructure> visit(MultiplyAssignStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(DivideAssignStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(IfStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(DefinitionCallStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(WhileStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(OrConditionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(AndConditionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(NotExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CompareConditionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ConstantIntegerExpression n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ConstantDoubleExpression n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ConstantBoolExpression n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ConstantLongExpression n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ConstantStringExpression n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ProductExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(SumExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(VariableExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(NullProcessStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(Scope n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InstallStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CompensateStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ThrowStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ExitStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ExecutionInfo n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CorrelationSetInfo n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InputPortInfo n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(OutputPortInfo n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(PointerStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(DeepCopyStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(RunStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(UndefStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ValueVectorSizeExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(PreIncrementStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(PostIncrementStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(PreDecrementStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(PostDecrementStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ForStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ForEachSubNodeStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ForEachArrayItemStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(SpawnStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(IsTypeExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InstanceOfExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(TypeCastExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(SynchronizedStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CurrentHandlerStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(EmbeddedServiceNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InstallFixedVariableExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(VariablePathNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InterfaceDefinition n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(DocumentationComment n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(FreshValueExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CourierDefinitionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(CourierChoiceStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(NotificationForwardStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(SolicitResponseForwardStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InterfaceExtenderDefinition n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(InlineTreeExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(VoidExpressionNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ProvideUntilStatement n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(ServiceNode n, Void ctx) {
+		return new HashMap<>();
+	}
+
+	@Override
+	public HashMap<String, TypeStructure> visit(EmbedServiceNode n, Void ctx) {
 		return new HashMap<>();
 	}
 	

@@ -86,6 +86,10 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.slicerLib.IfExpressionNode;
+import staticTypechecker.slicerLib.SolicitResponseExpressionNode;
+import staticTypechecker.typeStructures.TypeNameDefinition;
+import staticTypechecker.typeStructures.TypeStructure;
 
 /**
  * Typechecker for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
@@ -117,7 +121,7 @@ public class TypeChecker implements OLVisitor<Void, Void> {
 		return null;
 	}
 
-	public Void visit(TypeStructureDefinition t, Void ctx){
+	public Void visit(TypeStructure t, Void ctx){
 		return null;
 	}
 

@@ -1,6 +1,7 @@
 package staticTypechecker;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.HashMap;
 
 import jolie.Interpreter;
@@ -12,6 +13,9 @@ import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.ast.Program;
 import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
+import staticTypechecker.slicerLib.JoliePrettyPrinter;
+import staticTypechecker.slicerLib.JolieSlicerCommandLineParser;
+import staticTypechecker.typeStructures.TypeStructure;
 
 
 public class Main {
@@ -46,8 +50,10 @@ public class Main {
 				INCLUDE_DOCUMENTATION );
 
 			// prettyPrintProgram(program);
-			HashMap<String, TypeStructureDefinition> symbols = getSymbolTable(program);
-			System.out.println(symbols);
+			HashMap<String, TypeStructure> symbols = getSymbolTable(program);
+			printTable(symbols);
+
+			// System.out.println(symbols);
 			// typeCheck(program);
 
 		} catch( CommandLineException e ) {
@@ -63,7 +69,7 @@ public class Main {
 		System.out.println(printer.toString());
 	}
 
-	private static HashMap<String, TypeStructureDefinition> getSymbolTable(Program p){
+	private static HashMap<String, TypeStructure> getSymbolTable(Program p){
 		SymbolTable table = new SymbolTable(p);
 		return table.table();
 	}
@@ -71,5 +77,13 @@ public class Main {
 	private static void typeCheck(Program p){
 		TypeChecker v = new TypeChecker();
 		v.visit(p, null);
+	}
+
+	private static void printTable(HashMap<String, TypeStructure> symbols){
+		System.out.println("--------------------------------");
+		for(Entry<String, TypeStructure> e : symbols.entrySet()){
+			System.out.println(e.getKey() + " = " + e.getValue());
+		}
+		System.out.println("--------------------------------");
 	}
 }

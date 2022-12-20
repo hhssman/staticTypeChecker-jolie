@@ -1,23 +1,24 @@
-package staticTypechecker;
+package staticTypechecker.typeStructures;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 
 /**
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name. New children can be added until the finalize function is called (open record vs closed record). 
+ * 
+ * @author Kasper Bergstedt
  */
-public class TypeStructureDefinition {
+public class TypeInlineStructure extends TypeStructure {
 	private BasicTypeDefinition basicType; // the type of the root node
-	private HashMap<String, TypeStructureDefinition> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
+	private HashMap<String, TypeStructure> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
 	private Range cardinality; // the cardinality of the root node
 	private boolean finalized; // indicates whether this type is open to new children or not. If true, the structure is done and we do not allow more children
 
-	public TypeStructureDefinition(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
+	public TypeInlineStructure(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
 		this.basicType = basicType;
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
@@ -37,7 +38,7 @@ public class TypeStructureDefinition {
 	 * @param structure the structure of the child
 	 * @return true if this node contains a child with the specified name, false otherwise
 	 */
-	public boolean hasChild(String name, TypeStructureDefinition structure){
+	public boolean hasChild(String name, TypeStructure structure){
 		if(!this.children.containsKey(name)){ // key does not exist
 			return false;
 		}
@@ -45,7 +46,7 @@ public class TypeStructureDefinition {
 		return this.children.get(name).isEquivalent(structure); // if they are equivalent, return true, and false otherwise
 	}
 
-	public TypeStructureDefinition getChild(String name){
+	public TypeStructure getChild(String name){
 		return this.children.get(name);
 	}
 
@@ -54,7 +55,7 @@ public class TypeStructureDefinition {
 	 * @param name the name of the child (what key to associate it to)
 	 * @param child the structure of the child
 	 */
-	public void addChild(String name, TypeStructureDefinition child){
+	public void addChild(String name, TypeStructure child){
 		if(!this.finalized){
 			// TODO: decide if we override existing keys or throw error
 			this.children.put(name, child);
@@ -66,11 +67,11 @@ public class TypeStructureDefinition {
 	}
 
 	/**
-	 * Checks equality for the two TypeStructureDefintions
+	 * Checks equality for the two TypeInlineStructures
 	 * @param other the other object
 	 * @return true if the objects are structural equivalent and false otherwise
 	 */
-	public boolean isEquivalent(TypeStructureDefinition other){
+	public boolean isEquivalent(TypeInlineStructure other){
 		if(this == other){ // pointers match
 			return true;
 		}
@@ -80,9 +81,9 @@ public class TypeStructureDefinition {
 		}
 
 		// iterate through each child and check their equivalence
-		for(Entry<String, TypeStructureDefinition> entry : this.children.entrySet()){
+		for(Entry<String, TypeStructure> entry : this.children.entrySet()){
 			String currKey = entry.getKey();
-			TypeStructureDefinition currStructure = entry.getValue();
+			TypeStructure currStructure = entry.getValue();
 
 			if(!other.children.containsKey(currKey)){ // other does not have child with this key
 				return false;
@@ -91,13 +92,12 @@ public class TypeStructureDefinition {
 			if(!other.children.get(currKey).isEquivalent(currStructure)){ // the other structure with this key is different from ours 
 				return false;
 			}
+
+			// a child with same key has equivalent structure, we can update our structure pointer
+			this.children.put(currKey, other.children.get(currKey));
 		}
 
 		return true;
-	}
-
-	public <C, R> R accept(OLVisitor<C,R> v, C ctx){
-		return null;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class TypeStructureDefinition {
 		return this.prettyString(0);
 	}
 
-	private String prettyString(int level){
+	public String prettyString(int level){
 		String prettyString = "";
 
 		prettyString += this.basicType.nativeType().id();
@@ -119,7 +119,7 @@ public class TypeStructureDefinition {
 		prettyString += " {";
 		
 		if(this.children.size() != 0){
-			for(Entry<String, TypeStructureDefinition> child : this.children.entrySet()){
+			for(Entry<String, TypeStructure> child : this.children.entrySet()){
 				prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+1);
 			}
 			prettyString += "\n" + "\t".repeat(level) + "}";

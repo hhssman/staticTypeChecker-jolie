@@ -1,3 +1,7 @@
+from .types import ImportedType
+
+type TypeAlias: InputType
+
 type InputType: void {
 	name: string
 	dog: int
@@ -8,6 +12,12 @@ type InputType: void {
 type SubType: int {
 	subtypeName: string
 }
+
+// type RecursiveType: int {
+// 	SubRec: RecursiveType
+// }
+
+type ChoiceType: int | InputType | string
 
 interface MyInterface {
 	RequestResponse:

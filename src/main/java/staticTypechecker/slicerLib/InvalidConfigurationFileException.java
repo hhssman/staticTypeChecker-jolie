@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package staticTypechecker;
+package staticTypechecker.slicerLib;
 
 public class InvalidConfigurationFileException extends Exception {
 

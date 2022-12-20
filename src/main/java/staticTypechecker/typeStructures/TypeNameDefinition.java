@@ -1,18 +1,15 @@
-package staticTypechecker;
+package staticTypechecker.typeStructures;
 
 import jolie.lang.parse.OLVisitor;
-import jolie.lang.parse.ast.OLSyntaxNode;
-import jolie.lang.parse.context.ParsingContext;
 
 /**
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
-public class TypeNameDefinition extends OLSyntaxNode {
+public class TypeNameDefinition {
 	private String name;
-	private TypeStructureDefinition structure;
+	private TypeStructure structure;
 
-	public TypeNameDefinition(String name, TypeStructureDefinition structure, ParsingContext context){
-		super(context);
+	public TypeNameDefinition(String name, TypeStructure structure){
 		this.name = name;
 		this.structure = structure;
 	}
@@ -27,7 +24,7 @@ public class TypeNameDefinition extends OLSyntaxNode {
 	/**
 	 * @return the structure of this type
 	 */
-	public TypeStructureDefinition structure(){
+	public TypeStructure structure(){
 		return this.structure;
 	}
 

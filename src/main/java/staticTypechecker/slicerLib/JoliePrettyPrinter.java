@@ -18,7 +18,7 @@
  * MA 02110-1301  USA
  */
 
-package staticTypechecker;
+package staticTypechecker.slicerLib;
 
 import java.util.ArrayList;
 import java.util.Arrays;

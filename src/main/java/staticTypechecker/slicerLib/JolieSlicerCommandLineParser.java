@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package staticTypechecker;
+package staticTypechecker.slicerLib;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +47,9 @@ public class JolieSlicerCommandLineParser extends CommandLineParser {
 			System.out.println( "Generating output files at: " + argHandler.outputDirectory );
 		}
 
-		if( argHandler.configFile == null ) {
-			throw new CommandLineException( "Missing configuration file (--config config_file)" );
-		}
+		// if( argHandler.configFile == null ) {
+		// 	throw new CommandLineException( "Missing configuration file (--config config_file)" );
+		// }
 	}
 
 	public static JolieSlicerCommandLineParser create( String[] args, ClassLoader parentClassLoader )
