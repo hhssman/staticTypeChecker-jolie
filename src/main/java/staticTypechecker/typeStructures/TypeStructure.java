@@ -13,9 +13,8 @@ import jolie.util.Range;
  */
 public abstract class TypeStructure {
 	
+	// TODO
 	public boolean isEquivalent(TypeStructure other){
-		// TODO
-
 		return false;
 	}
 
@@ -25,4 +24,5 @@ public abstract class TypeStructure {
 
 	public abstract String prettyString();
 	public abstract String prettyString(int level);
+
 }

@@ -51,7 +51,8 @@ public class Main {
 
 			// prettyPrintProgram(program);
 			HashMap<String, TypeStructure> symbols = getSymbolTable(program);
-			printTable(symbols);
+			// printTable(symbols);
+			prettyPrintTable(symbols);
 
 			// System.out.println(symbols);
 			// typeCheck(program);
@@ -83,6 +84,15 @@ public class Main {
 		System.out.println("--------------------------------");
 		for(Entry<String, TypeStructure> e : symbols.entrySet()){
 			System.out.println(e.getKey() + " = " + e.getValue());
+		}
+		System.out.println("--------------------------------");
+	}
+
+	private static void prettyPrintTable(HashMap<String, TypeStructure> symbols){
+		System.out.println("--------------------------------");
+		for(Entry<String, TypeStructure> e : symbols.entrySet()){
+			System.out.println(e.getKey() + " = " + e.getValue().prettyString());
+			System.out.println();
 		}
 		System.out.println("--------------------------------");
 	}

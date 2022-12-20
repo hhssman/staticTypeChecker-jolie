@@ -27,10 +27,10 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(){
-		return this.prettyString(0);
+		return this.left.prettyString(0) + "\n|\n" + this.right.prettyString(0);
 	}
 
 	public String prettyString(int level){
-		return "";
+		return this.left.prettyString(level) + "\n|\n" + this.right.prettyString(level);
 	}
 }
