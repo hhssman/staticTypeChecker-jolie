@@ -1,36 +1,22 @@
 package staticTypechecker;
 
-import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.HashMap;
 
-import jolie.Interpreter;
-import jolie.JolieURLStreamHandlerFactory;
-import jolie.cli.CommandLineException;
-import jolie.lang.CodeCheckingException;
-import jolie.lang.parse.ParserException;
-import jolie.lang.parse.SemanticVerifier;
-import jolie.lang.parse.ast.InterfaceDefinition;
-import jolie.lang.parse.ast.OLSyntaxNode;
-import jolie.lang.parse.ast.OperationDeclaration;
 import jolie.lang.parse.ast.Program;
-import jolie.lang.parse.ast.RequestResponseOperationDeclaration;
-import jolie.lang.parse.ast.courier.CourierChoiceStatement.OperationRequestResponseBranch;
-import jolie.lang.parse.module.ModuleException;
-import jolie.lang.parse.util.ParsingUtils;
 import staticTypechecker.slicerLib.JoliePrettyPrinter;
-import staticTypechecker.slicerLib.JolieSlicerCommandLineParser;
-import staticTypechecker.typeStructures.TypeChoiceStructure;
-import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 
 
 public class Main {
 
 	public static void main( String[] args ) {
-		Module m = new Module(args[0]);
+		HashMap<String, Module> modules = loadModules(args);
 
-		tester(m.program(), m.symbols());
+		for(Entry<String, Module> m : modules.entrySet()){
+			tester(m.getValue());
+		}
+
 
 		// try
 		// ( 
@@ -95,8 +81,22 @@ public class Main {
 		System.out.println("--------------------------------");
 	}
 
-	private static void tester(Program p, SymbolTable symbols){
-		TypeInlineStructure t = (TypeInlineStructure)symbols.getStructure("RecursiveType");
-		System.out.println(t.prettyString());
+	private static void tester(Module m){
+		System.out.println("Types in " + m.name());
+		for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
+			System.out.println(e.getKey() + ":");
+			System.out.println(e.getValue().prettyString());
+			System.out.println();
+		}
+	}
+
+	private static HashMap<String, Module> loadModules(String[] moduleNames){
+		HashMap<String, Module> modules = new HashMap<>();
+
+		for(int i = 0; i < moduleNames.length; i++){
+			modules.put(moduleNames[i], new Module(moduleNames[i]));
+		}
+
+		return modules;
 	}
 }

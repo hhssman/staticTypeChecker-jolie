@@ -2,10 +2,12 @@ package staticTypechecker;
 
 import java.io.IOException;
 
+import jolie.Interpreter;
 import jolie.cli.CommandLineException;
 import jolie.cli.CommandLineParser;
 import jolie.lang.CodeCheckingException;
 import jolie.lang.parse.ParserException;
+import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.ast.Program;
 import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
@@ -39,20 +41,26 @@ public class Module {
 		try{
 			final CommandLineParser cmdParser = new CommandLineParser(args, Module.class.getClassLoader());
 
+			Interpreter.Configuration intConf = cmdParser.getInterpreterConfiguration();
+
+			SemanticVerifier.Configuration semVerConfig = new SemanticVerifier.Configuration( intConf.executionTarget() );
+			semVerConfig.setCheckForMain( false );
+
 			Program program = ParsingUtils.parseProgram(
-				cmdParser.getInterpreterConfiguration().inputStream(),
-				cmdParser.getInterpreterConfiguration().programFilepath().toURI(),
-				cmdParser.getInterpreterConfiguration().charset(),
-				cmdParser.getInterpreterConfiguration().includePaths(),
-				cmdParser.getInterpreterConfiguration().packagePaths(),
-				cmdParser.getInterpreterConfiguration().jolieClassLoader(),
-				cmdParser.getInterpreterConfiguration().constants(),
-				cmdParser.getInterpreterConfiguration().executionTarget(),
-				true );
+				intConf.inputStream(),
+				intConf.programFilepath().toURI(),
+				intConf.charset(),
+				intConf.includePaths(),
+				intConf.packagePaths(),
+				intConf.jolieClassLoader(),
+				intConf.constants(),
+				semVerConfig,
+				false 
+			);
 
-				cmdParser.close();
+			cmdParser.close();
 
-				return program;
+			return program;
 		}
 		catch(CommandLineException | IOException | ParserException | CodeCheckingException | ModuleException e){
 			System.out.println("Error parsing the module: " + e);
