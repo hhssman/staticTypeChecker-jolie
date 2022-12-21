@@ -104,10 +104,10 @@ public class TypeInlineStructure extends TypeStructure {
 	 * Get a nice string representing this structure
 	 */
 	public String prettyString(){
-		return this.prettyString(0);
+		return this.prettyString(0, new HashMap<>());
 	}
 
-	public String prettyString(int level){
+	public String prettyString(int level, HashMap<String, Void> recursive){
 		String prettyString = "";
 
 		prettyString += this.basicType.nativeType().id();
@@ -120,7 +120,13 @@ public class TypeInlineStructure extends TypeStructure {
 		
 		if(this.children.size() != 0){
 			for(Entry<String, TypeStructure> child : this.children.entrySet()){
-				prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+1);
+				if(recursive.containsKey(child.getKey())){
+					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
+				}
+				else{
+					recursive.put(child.getKey(), null);
+					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+1, recursive);
+				}
 			}
 			prettyString += "\n" + "\t".repeat(level) + "}";
 		}

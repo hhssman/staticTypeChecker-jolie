@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import jolie.lang.NativeType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -84,9 +85,12 @@ import jolie.lang.parse.ast.expression.ProductExpressionNode;
 import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Range;
+import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 
 public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructure>> {
@@ -94,7 +98,17 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	
 	public SymbolTable(Program p){
 		this.table = new HashMap<>();
+		this.addBaseTypes();
 		p.accept(this, null);
+	}
+
+	private void addBaseTypes(){
+		NativeType[] baseTypes = NativeType.values();
+		for(NativeType t : baseTypes){
+			TypeInlineStructure typeStruct = new TypeInlineStructure(BasicTypeDefinition.of(t), new Range(1, 1), null);
+
+			this.table.put(t.id(), typeStruct);
+		}
 	}
 
 	public HashMap<String, TypeStructure> table(){
@@ -139,7 +153,7 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	@Override
 	public HashMap<String, TypeStructure> visit(TypeInlineDefinition n, Void ctx) {
 		HashMap<String, TypeStructure> ret = new HashMap<>();
-		TypeStructure structure = TypeConverter.convert(n, this);
+		TypeStructure structure = TypeConverter.convert(n, new HashMap<>());
 
 		ret.put(n.name(), structure);
 
@@ -149,7 +163,7 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	@Override
 	public HashMap<String, TypeStructure> visit(TypeDefinitionLink n, Void ctx) {
 		HashMap<String, TypeStructure> ret = new HashMap<>();
-		TypeStructure structure = TypeConverter.convert(n, this);
+		TypeStructure structure = TypeConverter.convert(n, new HashMap<>());
 
 		ret.put(n.name(), structure);
 
@@ -159,7 +173,7 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	@Override
 	public HashMap<String, TypeStructure> visit(TypeChoiceDefinition n, Void ctx) {
 		HashMap<String, TypeStructure> ret = new HashMap<>();
-		TypeStructure structure = TypeConverter.convert(n, this);
+		TypeStructure structure = TypeConverter.convert(n, new HashMap<>());
 
 		ret.put(n.name(), structure);
 

@@ -1,6 +1,7 @@
 package staticTypechecker;
 
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
@@ -18,54 +19,48 @@ import staticTypechecker.typeStructures.TypeStructure;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class TypeConverter {
-	// VERSION USING TYPENAMEDEFINITIONS INSTEAD OF STRINGS
-	// public static Entry<TypeNameDefinition, TypeStructure> convert(TypeInlineDefinition type){
-	// 	return null;
-	// }
-
-	// public static Entry<TypeNameDefinition, TypeStructure> convert(TypeChoiceDefinition type){
-	// 	return null;
-	// }
-
-	// public static Entry<TypeNameDefinition, TypeStructure> convert(TypeDefinitionLink type){
-	// 	return null;
-	// }
-
-	// public static Entry<TypeNameDefinition, TypeStructure> convert(TypeDefinitionUndefined type){
-	// 	return null;
-	// }
-
-
-	// VERSION USING STRINGS
-	public static TypeStructure convert(TypeDefinition type, SymbolTable symbols){
+	public static TypeStructure convert(TypeDefinition type, HashMap<String, TypeStructure> recursiveTable){
 		if(type instanceof TypeInlineDefinition){
-			return TypeConverter.convert((TypeInlineDefinition)type, symbols);
+			return TypeConverter.convert((TypeInlineDefinition)type, recursiveTable);
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return TypeConverter.convert((TypeChoiceDefinition)type, symbols);
+			return TypeConverter.convert((TypeChoiceDefinition)type, recursiveTable);
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return TypeConverter.convert((TypeDefinitionLink)type, symbols);
+			return TypeConverter.convert((TypeDefinitionLink)type, recursiveTable);
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
-			return TypeConverter.convert((TypeDefinitionUndefined)type, symbols);
+			return TypeConverter.convert((TypeDefinitionUndefined)type, recursiveTable);
 		}
 
 		return null;
 	}
 
-	private static TypeInlineStructure convert(TypeInlineDefinition type, SymbolTable symbols){
+	private static TypeInlineStructure convert(TypeInlineDefinition type, HashMap<String, TypeStructure> recursiveTable){
 		TypeInlineStructure structure = new TypeInlineStructure(type.basicType(), type.cardinality(), type.context());
+
+		recursiveTable.put(type.name(), structure);
 
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
-				String name = child.getKey();
-				TypeStructure subStructure = TypeConverter.convert(child.getValue(), symbols);
+				String childName = child.getKey();
+				String typeName = "";
 
-				structure.addChild(name, subStructure);
+				if(child.getValue() instanceof TypeDefinitionLink){
+					TypeDefinitionLink subtype = (TypeDefinitionLink)child.getValue();
+					typeName = subtype.linkedTypeName();
+				}
+
+				if(recursiveTable.containsKey(typeName)){
+					structure.addChild(childName, recursiveTable.get(typeName));
+				}
+				else{
+					TypeStructure subStructure = TypeConverter.convert(child.getValue(), recursiveTable);
+					structure.addChild(childName, subStructure);
+				}
 			}
 		}
 
@@ -74,18 +69,18 @@ public class TypeConverter {
 		return structure;
 	}
 
-	private static TypeStructure convert(TypeChoiceDefinition type, SymbolTable symbols){
-		TypeStructure left = TypeConverter.convert(type.left(), symbols);
-		TypeStructure right = TypeConverter.convert(type.right(), symbols);
+	private static TypeStructure convert(TypeChoiceDefinition type, HashMap<String, TypeStructure> recursiveTable){
+		TypeStructure left = TypeConverter.convert(type.left(), recursiveTable);
+		TypeStructure right = TypeConverter.convert(type.right(), recursiveTable);
 
 		return new TypeChoiceStructure(left, right);
 	}
 
-	private static TypeStructure convert(TypeDefinitionLink type, SymbolTable symbols){
-		return TypeConverter.convert(type.linkedType(), symbols);
+	private static TypeStructure convert(TypeDefinitionLink type, HashMap<String, TypeStructure> recursiveTable){
+		return TypeConverter.convert(type.linkedType(), recursiveTable);
 	}
 
-	private static TypeStructure convert(TypeDefinitionUndefined type, SymbolTable symbols){
+	private static TypeStructure convert(TypeDefinitionUndefined type, HashMap<String, TypeStructure> recursiveTable){
 		return null;
 	}
 }

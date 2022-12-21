@@ -1,0 +1,6 @@
+Generating output files at: /home/kasper-bergstedt/Desktop/sdu/speciale/staticTypechecker/./src/test/files/test
+int {
+	SubRec: int {
+		SubRec (recursive structure)
+	}
+}

@@ -1,5 +1,7 @@
 package staticTypechecker.typeStructures;
 
+import java.util.HashMap;
+
 /**
  * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
  * 
@@ -27,10 +29,11 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(){
-		return this.left.prettyString(0) + "\n|\n" + this.right.prettyString(0);
+		HashMap<String, Void> recursive = new HashMap<>();
+		return this.left.prettyString(0, recursive) + "\n|\n" + this.right.prettyString(0, recursive);
 	}
 
-	public String prettyString(int level){
-		return this.left.prettyString(level) + "\n|\n" + this.right.prettyString(level);
+	public String prettyString(int level, HashMap<String, Void> recursive){
+		return this.left.prettyString(level, recursive) + "\n|\n" + this.right.prettyString(level, recursive);
 	}
 }
