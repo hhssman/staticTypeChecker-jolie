@@ -1,6 +1,80 @@
-Generating output files at: /home/kasper-bergstedt/Desktop/sdu/speciale/staticTypechecker/./src/test/files/test
+./src/test/files/test.ol
+./src/test/files/types.ol
+-----------------------------------------------------------
+Types in ./src/test/files/types.ol
+void:
+void {}
+
+string:
+string {}
+
+bool:
+bool {}
+
+double:
+double {}
+
+raw:
+raw {}
+
+SecondImportedType:
+int {}
+
+any:
+any {}
+
+int:
+int {}
+
+long:
+long {}
+
+ImportedType:
+string {
+	importSubtypeTwo: double {}
+	importSubtypeOne: int {}
+}
+
+-----------------------------------------------------------
+Types in ./src/test/files/test.ol
+ImportedTypeAlias:
+null
+
+void:
+void {}
+
+string:
+string {}
+
+bool:
+bool {}
+
+InputType:
+void {
+	name: string {}
+	owners: string[1,5] {}
+	dog: int {}
+}
+
+double:
+double {}
+
+raw:
+raw {}
+
+any:
+any {}
+
+int:
+int {}
+
+long:
+long {}
+
+RecursiveType:
 int {
 	SubRec: int {
 		SubRec (recursive structure)
 	}
 }
+

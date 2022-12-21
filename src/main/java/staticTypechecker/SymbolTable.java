@@ -183,9 +183,19 @@ public class SymbolTable implements OLVisitor<Void, HashMap<String, TypeStructur
 	@Override
 	public HashMap<String, TypeStructure> visit(ImportStatement n, Void ctx) {
 		HashMap<String, TypeStructure> ret = new HashMap<>();
+		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol";
 
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
-			ret.put(s.localSymbolName(), null); // TODO: figure out how to get the type structure
+			String typeNameAlias = s.localSymbolName();
+			String originalTypeName = s.originalSymbolName();
+
+			if(!ModuleHandler.contains(moduleName)){
+				ModuleHandler.loadModule(moduleName);
+			}
+
+			TypeStructure structure = ModuleHandler.get(moduleName).symbols().getStructure(originalTypeName);
+
+			ret.put(typeNameAlias, structure); // TODO: figure out how to get the type structure
 		}
 
 		return ret;

@@ -1,6 +1,7 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import jolie.lang.parse.ast.Program;
@@ -11,9 +12,14 @@ import staticTypechecker.typeStructures.TypeStructure;
 public class Main {
 
 	public static void main( String[] args ) {
-		HashMap<String, Module> modules = loadModules(args);
+		// ModuleHandler.loadModules(Arrays.stream(args).map(a -> {
+		// 	return a.split("/")[4];
+		// }).toArray(String[]::new));
 
-		for(Entry<String, Module> m : modules.entrySet()){
+		ModuleHandler.loadModules(args);
+
+		for(Entry<String, Module> m : ModuleHandler.modules()){
+			// System.out.println(m.getValue().name());
 			tester(m.getValue());
 		}
 
@@ -82,21 +88,17 @@ public class Main {
 	}
 
 	private static void tester(Module m){
+		System.out.println("-----------------------------------------------------------");
 		System.out.println("Types in " + m.name());
 		for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
 			System.out.println(e.getKey() + ":");
-			System.out.println(e.getValue().prettyString());
+			if(e.getValue() != null){
+				System.out.println(e.getValue().prettyString());
+			}
+			else{
+				System.out.println("null");
+			}
 			System.out.println();
 		}
-	}
-
-	private static HashMap<String, Module> loadModules(String[] moduleNames){
-		HashMap<String, Module> modules = new HashMap<>();
-
-		for(int i = 0; i < moduleNames.length; i++){
-			modules.put(moduleNames[i], new Module(moduleNames[i]));
-		}
-
-		return modules;
 	}
 }

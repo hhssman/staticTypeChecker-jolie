@@ -1,4 +1,4 @@
-// from .types import ImportedType
+from .types import ImportedType as ImportedTypeAlias
 
 // type TypeAlias: InputType
 
