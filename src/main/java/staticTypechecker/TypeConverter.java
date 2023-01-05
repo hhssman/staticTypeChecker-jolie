@@ -1,6 +1,5 @@
 package staticTypechecker;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -19,7 +18,69 @@ import staticTypechecker.typeStructures.TypeStructure;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class TypeConverter {
-	public static TypeStructure convert(TypeDefinition type, HashMap<String, TypeStructure> recursiveTable){
+	/**
+	 * Adds the children to the specified structure using the given type. NOTE: the instance will be finalized after this method have been called.
+	 * @param structure the structure object to add the children to
+	 * @param type the type to create the children from
+	 */
+	public static void finalizeBaseStructure(TypeInlineStructure structure, TypeInlineDefinition type){
+		TypeInlineStructure tmp = TypeConverter.convert(type, new HashMap<String, TypeStructure>()); // create the structure in order to copy the children into the given structure
+
+		for(Entry<String, TypeStructure> child : tmp.children().entrySet()){
+			structure.addChild(child.getKey(), child.getValue());
+		}
+
+		structure.finalize(); // we can finalize the structure now
+	}
+
+	/**
+	 * Adds the children to the specified structure using the given type. NOTE: the instance will be finalized after this method have been called.
+	 * @param structure the structure object to add the children to
+	 * @param type the type to create the children from
+	 */
+	public static void finalizeBaseStructure(TypeChoiceStructure structure, TypeChoiceDefinition type){
+		TypeChoiceStructure tmp = (TypeChoiceStructure)TypeConverter.convert(type, new HashMap<String, TypeStructure>());
+
+		structure.setLeft(tmp.left());
+		structure.setRight(tmp.right());
+	}
+
+	/**
+	 * Creates a base instance of the structure of the specified type. "Base" in this case meaning only the root node have been made, it has no children.
+	 * @param type the type to make the base instance from
+	 * @return the base instance
+	 */
+	public static TypeStructure createBaseStructure(TypeDefinition type){
+		if(type instanceof TypeInlineDefinition){
+			TypeInlineDefinition tmp = (TypeInlineDefinition)type;
+			return new TypeInlineStructure(tmp.basicType(), tmp.cardinality(), tmp.context());
+		}
+
+		if(type instanceof TypeChoiceDefinition){
+			return new TypeChoiceStructure(null, null);
+		}
+
+		if(type instanceof TypeDefinitionLink){
+			return null;
+		}
+
+		if(type instanceof TypeDefinitionUndefined){
+			return null;
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Creates a structure instance representing the structure of the given type.
+	 * @param type the type to create the structure from
+	 * @return the structure instance representing the specified type
+	 */
+	public static TypeStructure convert(TypeDefinition type){
+		return TypeConverter.convert(type, new HashMap<String, TypeStructure>());
+	}
+
+	private static TypeStructure convert(TypeDefinition type, HashMap<String, TypeStructure> recursiveTable){
 		if(type instanceof TypeInlineDefinition){
 			return TypeConverter.convert((TypeInlineDefinition)type, recursiveTable);
 		}
@@ -49,7 +110,7 @@ public class TypeConverter {
 				String childName = child.getKey();
 				String typeName = "";
 
-				if(child.getValue() instanceof TypeDefinitionLink){
+				if(child.getValue() instanceof TypeDefinitionLink){ // subtype is an alias for an existing type. In this case, we look for the linked type name instead of the alias
 					TypeDefinitionLink subtype = (TypeDefinitionLink)child.getValue();
 					typeName = subtype.linkedTypeName();
 				}

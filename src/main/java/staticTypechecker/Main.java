@@ -1,7 +1,6 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import jolie.lang.parse.ast.Program;
@@ -18,11 +17,11 @@ public class Main {
 
 		ModuleHandler.loadModules(args);
 
-		for(Entry<String, Module> m : ModuleHandler.modules()){
-			// System.out.println(m.getValue().name());
-			tester(m.getValue());
-		}
+		tester();
 
+		// for(Entry<String, Module> m : ModuleHandler.modules()){
+		// 	printAllTypes(m.getValue());
+		// }
 
 		// try
 		// ( 
@@ -87,7 +86,7 @@ public class Main {
 		System.out.println("--------------------------------");
 	}
 
-	private static void tester(Module m){
+	private static void printAllTypes(Module m){
 		System.out.println("-----------------------------------------------------------");
 		System.out.println("Types in " + m.name());
 		for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
@@ -100,5 +99,17 @@ public class Main {
 			}
 			System.out.println();
 		}
+	}
+
+	private static void tester(){
+		ModuleHandler.modules().forEach(entry -> {
+			Module m = entry.getValue();
+
+			System.out.println("-----------------------------------------------------------");
+			System.out.println("Types in " + m.name());
+			for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
+				System.out.println(e.getKey() + ": " + e.getValue());
+			}
+		});
 	}
 }

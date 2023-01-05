@@ -1,6 +1,7 @@
-type ImportedType: string {
-	importSubtypeOne: int
-	importSubtypeTwo: double
+from .test import A
+
+type B: string {
+	bSub: A
 }
 
 type SecondImportedType: int

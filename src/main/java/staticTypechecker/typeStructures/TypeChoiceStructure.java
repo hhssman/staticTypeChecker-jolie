@@ -16,6 +16,14 @@ public class TypeChoiceStructure extends TypeStructure {
 		this.right = right;
 	}
 
+	public void setLeft(TypeStructure newLeft){
+		this.left = newLeft;
+	}
+
+	public void setRight(TypeStructure newRight){
+		this.right = newRight;
+	}
+
 	public TypeStructure left(){
 		return this.left;
 	}

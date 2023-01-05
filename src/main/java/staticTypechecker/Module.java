@@ -20,7 +20,11 @@ public class Module {
 	public Module(String name){
 		this.name = name;
 		this.program = Module.parseProgram(name);
-		this.symbols = new SymbolTable(this.program);
+		this.symbols = new SymbolTable();
+	}
+
+	public void initializeSymbolTable(){
+		this.symbols.initialize(this.program);
 	}
 
 	public String name(){
@@ -36,6 +40,7 @@ public class Module {
 	}
 
 	public static Program parseProgram(String name){
+		// System.out.println("Name of file: " + name);
 		String[] args = {name};
 
 		try{

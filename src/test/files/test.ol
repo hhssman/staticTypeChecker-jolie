@@ -1,27 +1,24 @@
-from .types import ImportedType as ImportedTypeAlias
-
+from .types import B
 // type TypeAlias: InputType
 
-type InputType: void {
-	name: string
-	dog: int
-	owners[1, 5]: string
-	// yeppers: SubType
+type A: void {
+	tmp: B
 }
+
 
 // type SubType: int {
 // 	subtypeName: string
 // }
 
-type RecursiveType: int {
-	SubRec: RecursiveType
-}
+// type RecursiveType: int {
+// 	SubRec: RecursiveType
+// }
 
 // type ChoiceType: int | InputType | string
 
 interface MyInterface {
 	RequestResponse:
-		hello( InputType )( string )
+		// hello( InputType )( string )
 }
 
 service MyService {

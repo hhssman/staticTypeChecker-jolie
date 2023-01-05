@@ -17,11 +17,21 @@ public class TypeInlineStructure extends TypeStructure {
 	private HashMap<String, TypeStructure> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
 	private Range cardinality; // the cardinality of the root node
 	private boolean finalized; // indicates whether this type is open to new children or not. If true, the structure is done and we do not allow more children
+	private ParsingContext context;
 
 	public TypeInlineStructure(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
 		this.basicType = basicType;
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
+		this.context = context;
+		this.finalized = false;
+	}
+
+	public void reset(){
+		this.basicType = null;
+		this.children = null;
+		this.cardinality = null;
+		this.context = null;
 		this.finalized = false;
 	}
 
@@ -31,6 +41,22 @@ public class TypeInlineStructure extends TypeStructure {
 
 	public Range cardinality(){
 		return this.cardinality;
+	}
+
+	public ParsingContext context(){
+		return this.context;
+	}
+
+	public void setBasicType(BasicTypeDefinition basicType){
+		this.basicType = basicType;
+	}
+
+	public void setCardinality(Range cardinality){
+		this.cardinality = cardinality;
+	}
+
+	public void setContext(ParsingContext context){
+		this.context = context;
 	}
 
 	/**
@@ -48,6 +74,10 @@ public class TypeInlineStructure extends TypeStructure {
 
 	public TypeStructure getChild(String name){
 		return this.children.get(name);
+	}
+
+	public HashMap<String, TypeStructure> children(){
+		return this.children;
 	}
 
 	/**

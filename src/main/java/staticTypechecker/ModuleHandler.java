@@ -9,24 +9,21 @@ public class ModuleHandler {
 
 	public static void loadModules(String[] moduleNames){
 		for(int i = 0; i < moduleNames.length; i++){
-			if(!ModuleHandler.modules.containsKey(moduleNames[i])){
-				ModuleHandler.modules.put(moduleNames[i], new Module(moduleNames[i]));
-			}
+			System.out.println("In load ALL modules: " + moduleNames[i]);
+			ModuleHandler.loadModule(moduleNames[i]);
 		}
 	}
 
 	public static void loadModule(String moduleName){
 		if(!ModuleHandler.modules.containsKey(moduleName)){
+			System.out.println("Adding module " + moduleName + " to module handler");
 			ModuleHandler.modules.put(moduleName, new Module(moduleName));
+			ModuleHandler.modules.get(moduleName).initializeSymbolTable();
 		}
 	}
 
 	public static Module get(String name){
 		return ModuleHandler.modules.get(name);
-	}
-
-	public static void addModule(String name){
-		ModuleHandler.modules.put(name, new Module(name));
 	}
 
 	public static boolean contains(String name){

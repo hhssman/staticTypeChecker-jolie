@@ -1,80 +1,28 @@
-./src/test/files/test.ol
-./src/test/files/types.ol
+In load ALL modules: ./src/test/files/test.ol
+Adding module ./src/test/files/test.ol to module handler
+Adding module ./src/test/files/types.ol to module handler
 -----------------------------------------------------------
 Types in ./src/test/files/types.ol
-void:
-void {}
-
-string:
-string {}
-
-bool:
-bool {}
-
-double:
-double {}
-
-raw:
-raw {}
-
-SecondImportedType:
-int {}
-
-any:
-any {}
-
-int:
-int {}
-
-long:
-long {}
-
-ImportedType:
-string {
-	importSubtypeTwo: double {}
-	importSubtypeOne: int {}
-}
-
+A: staticTypechecker.typeStructures.TypeInlineStructure@3f0ee7cb
+B: staticTypechecker.typeStructures.TypeInlineStructure@75bd9247
+void: staticTypechecker.typeStructures.TypeInlineStructure@7d417077
+string: staticTypechecker.typeStructures.TypeInlineStructure@7dc36524
+bool: staticTypechecker.typeStructures.TypeInlineStructure@35bbe5e8
+double: staticTypechecker.typeStructures.TypeInlineStructure@2c8d66b2
+raw: staticTypechecker.typeStructures.TypeInlineStructure@5a39699c
+SecondImportedType: staticTypechecker.typeStructures.TypeInlineStructure@3cb5cdba
+any: staticTypechecker.typeStructures.TypeInlineStructure@56cbfb61
+int: staticTypechecker.typeStructures.TypeInlineStructure@1134affc
+long: staticTypechecker.typeStructures.TypeInlineStructure@d041cf
 -----------------------------------------------------------
 Types in ./src/test/files/test.ol
-ImportedTypeAlias:
-null
-
-void:
-void {}
-
-string:
-string {}
-
-bool:
-bool {}
-
-InputType:
-void {
-	name: string {}
-	owners: string[1,5] {}
-	dog: int {}
-}
-
-double:
-double {}
-
-raw:
-raw {}
-
-any:
-any {}
-
-int:
-int {}
-
-long:
-long {}
-
-RecursiveType:
-int {
-	SubRec: int {
-		SubRec (recursive structure)
-	}
-}
-
+A: staticTypechecker.typeStructures.TypeInlineStructure@3f0ee7cb
+B: staticTypechecker.typeStructures.TypeInlineStructure@75bd9247
+void: staticTypechecker.typeStructures.TypeInlineStructure@129a8472
+string: staticTypechecker.typeStructures.TypeInlineStructure@1b0375b3
+bool: staticTypechecker.typeStructures.TypeInlineStructure@2f7c7260
+double: staticTypechecker.typeStructures.TypeInlineStructure@2d209079
+raw: staticTypechecker.typeStructures.TypeInlineStructure@6bdf28bb
+any: staticTypechecker.typeStructures.TypeInlineStructure@6b71769e
+int: staticTypechecker.typeStructures.TypeInlineStructure@2752f6e2
+long: staticTypechecker.typeStructures.TypeInlineStructure@e580929
