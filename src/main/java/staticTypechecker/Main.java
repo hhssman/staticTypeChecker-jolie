@@ -4,58 +4,92 @@ import java.util.Map.Entry;
 import java.util.HashMap;
 
 import jolie.lang.parse.ast.Program;
+import jolie.lang.parse.ast.types.TypeDefinition;
+import jolie.lang.parse.ast.types.TypeDefinitionLink;
+import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.slicerLib.JoliePrettyPrinter;
+import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 
 
 public class Main {
 
 	public static void main( String[] args ) {
-		// ModuleHandler.loadModules(Arrays.stream(args).map(a -> {
-		// 	return a.split("/")[4];
-		// }).toArray(String[]::new));
-
+		
+		
+		// stage 0: parse the modules
 		ModuleHandler.loadModules(args);
+		
+		// TMP TESTER
+		// ModuleHandler.modules().values().forEach(module -> {
+		// 	module.program().children().forEach(child -> {
+		// 		if(child instanceof TypeInlineDefinition){
+		// 			TypeInlineDefinition tmp = (TypeInlineDefinition)child;
+		// 			for(Entry<String, TypeDefinition> ent : tmp.subTypes()){
+		// 				if(ent.getValue() instanceof TypeDefinitionLink){
+		// 					TypeDefinitionLink tmp2 = (TypeDefinitionLink)ent.getValue();
+		// 					System.out.println(tmp2.linkedType());
+		// 					System.out.println(((TypeInlineDefinition)tmp2.linkedType()).subTypes());
+		// 				}
+		// 			}
 
-		tester();
+		// 			// WHAT WAS I DOING? Trying to figure out how the type stores the structure of the imported type
+		// 		}
+		// 	});
+		// });
 
-		// for(Entry<String, Module> m : ModuleHandler.modules()){
-		// 	printAllTypes(m.getValue());
-		// }
+		// // stage 1: discover symbols in all modules
+		System.out.println("STAGE 1: discover symbols");
+		SymbolCollector sCollector = new SymbolCollector();
+		
+		ModuleHandler.modules().values().forEach(m -> {
+			sCollector.collect(m);
+		});
 
-		// try
-		// ( 
-		// 	JolieSlicerCommandLineParser cmdLnParser = JolieSlicerCommandLineParser.create( args, Main.class.getClassLoader() ) 
-		// )
-		// {
+		printAllSymbols();
 
-		// 	Interpreter.Configuration intConf = cmdLnParser.getInterpreterConfiguration();
+		// stage 2: process type definitions in all modules
+		System.out.println("STAGE 2: process types");
+		TypeProcessor tProcessor = new TypeProcessor();
+		
+		// run through all types and make base structures
+		System.out.println("Creating bases...");
+		ModuleHandler.modules().values().forEach(m -> {
+			tProcessor.process(m);
+		});
 
-		// 	SemanticVerifier.Configuration semVerConfig = new SemanticVerifier.Configuration( intConf.executionTarget() );
-		// 	semVerConfig.setCheckForMain( false );
+		printAllSymbols();
 
-		// 	Program program = ParsingUtils.parseProgram(
-		// 		intConf.inputStream(),
-		// 		intConf.programFilepath().toURI(),
-		// 		intConf.charset(),
-		// 		intConf.includePaths(),
-		// 		intConf.packagePaths(),
-		// 		intConf.jolieClassLoader(),
-		// 		intConf.constants(),
-		// 		semVerConfig,
-		// 		INCLUDE_DOCUMENTATION );
+		// run through them again and actually create the trees
+		System.out.println("Finishing bases...");
+		ModuleHandler.modules().values().forEach(m -> {
+			tProcessor.process(m);
+		});
 
-			// SymbolTable symbols = new SymbolTable(program);
-			// tester(program, symbols);
+		printAllSymbols();
 
+		// stage 3: process interfaces in all modules
+		// stage 4: process service-parameters and input ports in all services
+		// stage 5.a: process output ports in all services
+		// stage 5.b: process embeddings in all services
+		// stage 6: process service behaviors
+	}
 
-		// 	// typeCheck(program);
-
-		// } catch( CommandLineException e ) {
-		// 	System.out.println( e.getMessage() );
-		// } catch( IOException | ParserException | CodeCheckingException | ModuleException e ) {
-		// 	e.printStackTrace();
-		// }
+	private static void printAllSymbols(){
+		System.out.println("-----------------------------------------");
+		for(Module m : ModuleHandler.modules().values()){
+			System.out.println("Module: " + m.name());
+			for(Entry<String, TypeStructure> symbol : m.symbols().entrySet()){
+				if(symbol.getValue() != null){
+					System.out.println("\n" + symbol.getKey() + ": " + symbol.getValue().prettyString());
+				}
+				else{
+					System.out.println("\n" + symbol.getKey() + ": " + null);
+				}
+			}
+			System.out.println("--");
+		}
+		System.out.println("-----------------------------------------");
 	}
 
 	private static void prettyPrintProgram(Program p){
@@ -84,32 +118,5 @@ public class Main {
 			System.out.println();
 		}
 		System.out.println("--------------------------------");
-	}
-
-	private static void printAllTypes(Module m){
-		System.out.println("-----------------------------------------------------------");
-		System.out.println("Types in " + m.name());
-		for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
-			System.out.println(e.getKey() + ":");
-			if(e.getValue() != null){
-				System.out.println(e.getValue().prettyString());
-			}
-			else{
-				System.out.println("null");
-			}
-			System.out.println();
-		}
-	}
-
-	private static void tester(){
-		ModuleHandler.modules().forEach(entry -> {
-			Module m = entry.getValue();
-
-			System.out.println("-----------------------------------------------------------");
-			System.out.println("Types in " + m.name());
-			for(Entry<String, TypeStructure> e : m.symbols().table().entrySet()){
-				System.out.println(e.getKey() + ": " + e.getValue());
-			}
-		});
 	}
 }

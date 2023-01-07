@@ -4,4 +4,8 @@ type B: string {
 	bSub: A
 }
 
+type C: int {
+	luna: int
+}
+
 type SecondImportedType: int

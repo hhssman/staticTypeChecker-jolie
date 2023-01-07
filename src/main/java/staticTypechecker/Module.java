@@ -15,16 +15,12 @@ import jolie.lang.parse.util.ParsingUtils;
 public class Module {
 	private String name;
 	private Program program;
-	private SymbolTable symbols;
+	private SymbolTable_new symbols;
 
 	public Module(String name){
 		this.name = name;
 		this.program = Module.parseProgram(name);
-		this.symbols = new SymbolTable();
-	}
-
-	public void initializeSymbolTable(){
-		this.symbols.initialize(this.program);
+		this.symbols = null;
 	}
 
 	public String name(){
@@ -35,8 +31,12 @@ public class Module {
 		return this.program;
 	}
 
-	public SymbolTable symbols(){
+	public SymbolTable_new symbols(){
 		return this.symbols;
+	}
+
+	public void setSymbols(SymbolTable_new newSymbols){
+		this.symbols = newSymbols;
 	}
 
 	public static Program parseProgram(String name){

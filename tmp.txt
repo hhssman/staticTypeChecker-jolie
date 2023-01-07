@@ -1,28 +1,106 @@
-In load ALL modules: ./src/test/files/test.ol
-Adding module ./src/test/files/test.ol to module handler
-Adding module ./src/test/files/types.ol to module handler
------------------------------------------------------------
-Types in ./src/test/files/types.ol
-A: staticTypechecker.typeStructures.TypeInlineStructure@3f0ee7cb
-B: staticTypechecker.typeStructures.TypeInlineStructure@75bd9247
-void: staticTypechecker.typeStructures.TypeInlineStructure@7d417077
-string: staticTypechecker.typeStructures.TypeInlineStructure@7dc36524
-bool: staticTypechecker.typeStructures.TypeInlineStructure@35bbe5e8
-double: staticTypechecker.typeStructures.TypeInlineStructure@2c8d66b2
-raw: staticTypechecker.typeStructures.TypeInlineStructure@5a39699c
-SecondImportedType: staticTypechecker.typeStructures.TypeInlineStructure@3cb5cdba
-any: staticTypechecker.typeStructures.TypeInlineStructure@56cbfb61
-int: staticTypechecker.typeStructures.TypeInlineStructure@1134affc
-long: staticTypechecker.typeStructures.TypeInlineStructure@d041cf
------------------------------------------------------------
-Types in ./src/test/files/test.ol
-A: staticTypechecker.typeStructures.TypeInlineStructure@3f0ee7cb
-B: staticTypechecker.typeStructures.TypeInlineStructure@75bd9247
-void: staticTypechecker.typeStructures.TypeInlineStructure@129a8472
-string: staticTypechecker.typeStructures.TypeInlineStructure@1b0375b3
-bool: staticTypechecker.typeStructures.TypeInlineStructure@2f7c7260
-double: staticTypechecker.typeStructures.TypeInlineStructure@2d209079
-raw: staticTypechecker.typeStructures.TypeInlineStructure@6bdf28bb
-any: staticTypechecker.typeStructures.TypeInlineStructure@6b71769e
-int: staticTypechecker.typeStructures.TypeInlineStructure@2752f6e2
-long: staticTypechecker.typeStructures.TypeInlineStructure@e580929
+STAGE 1: discover symbols
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: null
+
+B: null
+
+C: null
+
+SecondImportedType: null
+--
+Module: ./src/test/files/test.ol
+
+helloReqRes: null
+
+A: null
+
+MyInputPort: null
+
+C: null
+
+MyService: null
+
+MyInterface: null
+
+helloOneway: null
+--
+-----------------------------------------
+STAGE 2: process types
+Creating bases...
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: null
+
+B: string {}
+
+C: int {}
+
+SecondImportedType: int {}
+--
+Module: ./src/test/files/test.ol
+
+helloReqRes: null
+
+A: void {}
+
+MyInputPort: null
+
+C: int {}
+
+MyService: null
+
+MyInterface: null
+
+helloOneway: null
+--
+-----------------------------------------
+Finishing bases...
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+B: string {
+	bSub: void {
+		tmp: int {
+			luna: int {}
+		}
+	}
+}
+
+C: int {
+	luna: int {}
+}
+
+SecondImportedType: int {}
+--
+Module: ./src/test/files/test.ol
+
+helloReqRes: null
+
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+MyInputPort: null
+
+C: int {
+	luna: int {}
+}
+
+MyService: null
+
+MyInterface: null
+
+helloOneway: null
+--
+-----------------------------------------

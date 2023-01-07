@@ -19,33 +19,6 @@ import staticTypechecker.typeStructures.TypeStructure;
  */
 public class TypeConverter {
 	/**
-	 * Adds the children to the specified structure using the given type. NOTE: the instance will be finalized after this method have been called.
-	 * @param structure the structure object to add the children to
-	 * @param type the type to create the children from
-	 */
-	public static void finalizeBaseStructure(TypeInlineStructure structure, TypeInlineDefinition type){
-		TypeInlineStructure tmp = TypeConverter.convert(type, new HashMap<String, TypeStructure>()); // create the structure in order to copy the children into the given structure
-
-		for(Entry<String, TypeStructure> child : tmp.children().entrySet()){
-			structure.addChild(child.getKey(), child.getValue());
-		}
-
-		structure.finalize(); // we can finalize the structure now
-	}
-
-	/**
-	 * Adds the children to the specified structure using the given type. NOTE: the instance will be finalized after this method have been called.
-	 * @param structure the structure object to add the children to
-	 * @param type the type to create the children from
-	 */
-	public static void finalizeBaseStructure(TypeChoiceStructure structure, TypeChoiceDefinition type){
-		TypeChoiceStructure tmp = (TypeChoiceStructure)TypeConverter.convert(type, new HashMap<String, TypeStructure>());
-
-		structure.setLeft(tmp.left());
-		structure.setRight(tmp.right());
-	}
-
-	/**
 	 * Creates a base instance of the structure of the specified type. "Base" in this case meaning only the root node have been made, it has no children.
 	 * @param type the type to make the base instance from
 	 * @return the base instance
@@ -61,7 +34,8 @@ public class TypeConverter {
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return null;
+			TypeDefinitionLink tmp1 = (TypeDefinitionLink)type;
+			return TypeConverter.createBaseStructure(tmp1.linkedType());
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
@@ -69,6 +43,59 @@ public class TypeConverter {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Finalizes the given structure using the given type. 
+	 * NOTE: if the structure is of type TypeInlineStructure, it will be finalized after this method.
+	 * @param structure the structure object to finalize
+	 * @param type the type definition to use when finalizing the struture
+	 */
+	public static void finalizeBaseStructure(TypeStructure struct, TypeDefinition type){
+		// case where struct is a standard type definition
+		if(struct instanceof TypeInlineStructure){
+			TypeInlineStructure castedStruct = (TypeInlineStructure)struct;
+
+			if(type instanceof TypeInlineDefinition){ // structure and definition are compatible, finalize the object
+				TypeInlineDefinition castedType = (TypeInlineDefinition)type;
+				TypeInlineStructure tmpStruct = (TypeInlineStructure)TypeConverter.convert(castedType); // create the structure in order to copy the children into the given structure
+
+				for(Entry<String, TypeStructure> child : tmpStruct.children().entrySet()){
+					castedStruct.addChild(child.getKey(), child.getValue());
+				}
+			}
+			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
+				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
+			}
+			else{ // struct and type def are incompatible, maybe throw error here TODO
+				System.out.println("Incompatible struct and types");
+				return;
+			}
+
+			castedStruct.finalize();
+			return;
+		}
+
+		// case where struct is a choice type definition
+		if(struct instanceof TypeChoiceStructure){
+			TypeChoiceStructure castedStruct = (TypeChoiceStructure)struct;
+			
+			if(type instanceof TypeChoiceDefinition){ // struct and type def match
+				TypeChoiceDefinition castedType = (TypeChoiceDefinition)type;
+				TypeChoiceStructure tmpStruct = (TypeChoiceStructure)TypeConverter.convert(castedType);
+
+				castedStruct.setLeft(tmpStruct.left());
+				castedStruct.setRight(tmpStruct.right());
+
+			}
+			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type def
+				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
+			}
+			else{ // struct and type def are incompatible, maybe throw error here TODO
+				System.out.println("Incompatible struct and types");
+				return;
+			}
+		}
 	}
 	
 	/**

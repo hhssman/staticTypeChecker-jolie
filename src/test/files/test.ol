@@ -1,38 +1,38 @@
-from .types import B
-// type TypeAlias: InputType
+from .types import C
 
 type A: void {
-	tmp: B
+	tmp: C
 }
 
-
-// type SubType: int {
-// 	subtypeName: string
-// }
+// type aliasA: A
 
 // type RecursiveType: int {
 // 	SubRec: RecursiveType
 // }
 
-// type ChoiceType: int | InputType | string
+// type ChoiceType: int | A | string
 
 interface MyInterface {
 	RequestResponse:
-		// hello( InputType )( string )
+		helloReqRes( A )( string )
+	OneWay:
+		helloOneway( A )
 }
 
 service MyService {
 	execution{ concurrent }
 
-	inputPort PortName {
+	inputPort MyInputPort {
 		Location: "localhost:8080"
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
 
 	main {
-		hello( input )( output ){
+		helloReqRes( input )( output ){
 			output = "Hello!" + input.name
 		}
+
+		helloOneway( input )
 	}
 }

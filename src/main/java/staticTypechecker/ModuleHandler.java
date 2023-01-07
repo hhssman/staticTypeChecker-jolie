@@ -9,16 +9,13 @@ public class ModuleHandler {
 
 	public static void loadModules(String[] moduleNames){
 		for(int i = 0; i < moduleNames.length; i++){
-			System.out.println("In load ALL modules: " + moduleNames[i]);
 			ModuleHandler.loadModule(moduleNames[i]);
 		}
 	}
 
 	public static void loadModule(String moduleName){
 		if(!ModuleHandler.modules.containsKey(moduleName)){
-			System.out.println("Adding module " + moduleName + " to module handler");
 			ModuleHandler.modules.put(moduleName, new Module(moduleName));
-			ModuleHandler.modules.get(moduleName).initializeSymbolTable();
 		}
 	}
 
@@ -30,7 +27,7 @@ public class ModuleHandler {
 		return ModuleHandler.modules.containsKey(name);
 	}
 
-	public static Collection<Entry<String, Module>> modules(){
-		return ModuleHandler.modules.entrySet();
+	public static HashMap<String, Module> modules(){
+		return ModuleHandler.modules;
 	}
 }
