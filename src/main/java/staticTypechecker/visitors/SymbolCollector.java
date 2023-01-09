@@ -1,4 +1,4 @@
-package staticTypechecker;
+package staticTypechecker.visitors;
 
 import java.util.HashMap;
 
@@ -86,6 +86,8 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.entities.Module;
+import staticTypechecker.entities.SymbolTable_new;
 
 /**
  * This class collects all symbols in a given module with the method "collect". A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module can be found in the symbol table for this module, even though it is not declared here.

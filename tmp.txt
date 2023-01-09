@@ -9,55 +9,25 @@ B: null
 C: null
 
 SecondImportedType: null
---
+______________
 Module: ./src/test/files/test.ol
 
-helloReqRes: null
-
 A: null
-
-MyInputPort: null
 
 C: null
 
-MyService: null
-
 MyInterface: null
-
-helloOneway: null
---
------------------------------------------
-STAGE 2: process types
-Creating bases...
------------------------------------------
-Module: ./src/test/files/types.ol
-
-A: null
-
-B: string {}
-
-C: int {}
-
-SecondImportedType: int {}
---
-Module: ./src/test/files/test.ol
 
 helloReqRes: null
 
-A: void {}
-
 MyInputPort: null
-
-C: int {}
 
 MyService: null
 
-MyInterface: null
-
 helloOneway: null
---
+______________
 -----------------------------------------
-Finishing bases...
+STAGE 2: process types
 -----------------------------------------
 Module: ./src/test/files/types.ol
 
@@ -80,10 +50,8 @@ C: int {
 }
 
 SecondImportedType: int {}
---
+______________
 Module: ./src/test/files/test.ol
-
-helloReqRes: null
 
 A: void {
 	tmp: int {
@@ -91,16 +59,126 @@ A: void {
 	}
 }
 
+C: int {
+	luna: int {}
+}
+
+MyInterface: null
+
+helloReqRes: null
+
 MyInputPort: null
+
+MyService: null
+
+helloOneway: null
+______________
+-----------------------------------------
+STAGE 3: process interfaces
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+B: string {
+	bSub: void {
+		tmp: int {
+			luna: int {}
+		}
+	}
+}
 
 C: int {
 	luna: int {}
 }
 
+SecondImportedType: int {}
+______________
+Module: ./src/test/files/test.ol
+
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+C: int {
+	luna: int {}
+}
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(A)
+
+	RequestResponse:
+		helloReqRes(A)(string)
+
+helloReqRes: helloReqRes(A)(string)
+
+MyInputPort: null
+
 MyService: null
 
-MyInterface: null
+helloOneway: helloOneway(A)
+______________
+-----------------------------------------
+STAGE 4: process input ports and service parameters
+-----------------------------------------
+Module: ./src/test/files/types.ol
 
-helloOneway: null
---
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+B: string {
+	bSub: void {
+		tmp: int {
+			luna: int {}
+		}
+	}
+}
+
+C: int {
+	luna: int {}
+}
+
+SecondImportedType: int {}
+______________
+Module: ./src/test/files/test.ol
+
+A: void {
+	tmp: int {
+		luna: int {}
+	}
+}
+
+C: int {
+	luna: int {}
+}
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(A)
+
+	RequestResponse:
+		helloReqRes(A)(string)
+
+helloReqRes: helloReqRes(A)(string)
+
+MyInputPort: null
+
+MyService: MyService
+	InputPorts:
+		MyInputPort
+	OutputPorts:
+
+
+helloOneway: helloOneway(A)
+______________
 -----------------------------------------

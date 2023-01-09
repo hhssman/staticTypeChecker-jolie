@@ -1,4 +1,4 @@
-package staticTypechecker;
+package staticTypechecker.typeStructures;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -8,9 +8,6 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.typeStructures.TypeChoiceStructure;
-import staticTypechecker.typeStructures.TypeInlineStructure;
-import staticTypechecker.typeStructures.TypeStructure;
 
 /**
  * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely TypeNameDefinition and TypeStructure.

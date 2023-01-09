@@ -92,7 +92,9 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Range;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.typeStructures.TypeChoiceStructure;
+import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 

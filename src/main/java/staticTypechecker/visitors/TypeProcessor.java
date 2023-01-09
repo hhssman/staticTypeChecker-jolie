@@ -1,4 +1,4 @@
-package staticTypechecker;
+package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 
@@ -87,6 +87,10 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.entities.SymbolTable_new;
+import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
 
 public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
@@ -142,7 +146,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
 			symbols.put(n.name(), baseStruct);
 		}
 		else{ // structure have been initialized, finish it
-			TypeConverter.finalizeBaseStructure(symbols.get(n.name()), n);
+			TypeConverter.finalizeBaseStructure((TypeStructure)symbols.get(n.name()), n);
 		}
 	}
 
@@ -154,7 +158,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
 			String alias = s.localSymbolName();
 			String originalName = s.originalSymbolName();
 
-			TypeStructure structure = ModuleHandler.get(moduleName).symbols().get(originalName);
+			TypeStructure structure = (TypeStructure)ModuleHandler.get(moduleName).symbols().get(originalName);
 			
 			symbols.put(alias, structure);
 		}

@@ -1,4 +1,4 @@
-package staticTypechecker;
+package staticTypechecker.entities;
 
 import java.io.IOException;
 

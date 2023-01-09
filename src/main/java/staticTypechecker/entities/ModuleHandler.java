@@ -1,8 +1,6 @@
-package staticTypechecker;
+package staticTypechecker.entities;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 public class ModuleHandler {
 	private static HashMap<String, Module> modules = new HashMap<>();

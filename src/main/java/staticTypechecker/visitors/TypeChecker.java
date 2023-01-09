@@ -1,4 +1,4 @@
-package staticTypechecker;
+package staticTypechecker.visitors;
 
 import java.util.Map;
 
@@ -86,8 +86,6 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.slicerLib.IfExpressionNode;
-import staticTypechecker.slicerLib.SolicitResponseExpressionNode;
 import staticTypechecker.typeStructures.TypeNameDefinition;
 import staticTypechecker.typeStructures.TypeStructure;
 
@@ -438,14 +436,6 @@ public class TypeChecker implements OLVisitor<Void, Void> {
 	};
 
 	public Void visit( EmbedServiceNode n, Void ctx ){
-		return null;
-	};
-
-	public Void visit( SolicitResponseExpressionNode n, Void ctx ){
-		return null;
-	};
-
-	public Void visit( IfExpressionNode n, Void Ctx ){
 		return null;
 	};
 }

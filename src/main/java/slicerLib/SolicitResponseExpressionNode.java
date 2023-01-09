@@ -1,4 +1,4 @@
-package staticTypechecker.slicerLib;
+package slicerLib;
 
 public class SolicitResponseExpressionNode {
 
