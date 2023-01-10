@@ -89,6 +89,7 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable_new;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
@@ -158,7 +159,8 @@ public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
 			String alias = s.localSymbolName();
 			String originalName = s.originalSymbolName();
 
-			TypeStructure structure = (TypeStructure)ModuleHandler.get(moduleName).symbols().get(originalName);
+			// ask the symbols table in the corresponding Module for the structure of the type
+			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
 			
 			symbols.put(alias, structure);
 		}

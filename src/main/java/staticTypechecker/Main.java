@@ -11,6 +11,7 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
+import staticTypechecker.visitors.OutputPortProcessor;
 import staticTypechecker.visitors.SymbolCollector;
 import staticTypechecker.visitors.TypeChecker;
 import staticTypechecker.visitors.TypeProcessor;
@@ -95,6 +96,15 @@ public class Main {
 		printAllSymbols();
 
 		// stage 5.a: process output ports in all services
+		System.out.println("STAGE 5: process output ports");
+
+		OutputPortProcessor opProcessor = new OutputPortProcessor();
+		ModuleHandler.modules().values().forEach(m -> {
+			opProcessor.process(m);
+		});
+
+		printAllSymbols();
+
 		// stage 5.b: process embeddings in all services
 		// stage 6: process service behaviors
 	}

@@ -191,6 +191,17 @@ public class SymbolCollector implements OLVisitor<SymbolTable_new, Void> {
 	}
 
 	@Override
+	public Void visit(OutputPortInfo n, SymbolTable_new symbols) {
+		if(symbols.containsKey(n.id())){ // symbol exists, TODO throw error?
+			return null;
+		}
+		else{ // new symbol
+			symbols.put(n.id(), null);
+		}
+		return null;
+	}
+
+	@Override
 	public Void visit(DefinitionNode n, SymbolTable_new symbols) {
 		// System.out.println("Definition node: " + n.id() + ", body: " + n.body());
 
@@ -397,11 +408,6 @@ public class SymbolCollector implements OLVisitor<SymbolTable_new, Void> {
 
 	@Override
 	public Void visit(CorrelationSetInfo n, SymbolTable_new symbols) {
-		return null;
-	}
-
-	@Override
-	public Void visit(OutputPortInfo n, SymbolTable_new symbols) {
 		return null;
 	}
 

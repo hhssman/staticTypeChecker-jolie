@@ -35,16 +35,16 @@ public class Service implements Symbol {
 	}
 
 	public String prettyString(){
-		String ret = this.name + "\n";
+		String ret = this.name;
 
-		ret += "\tInputPorts:\n";
+		ret += "\n\tInputPorts:";
 		for(Entry<String, InputPort> ent : this.inputPorts.entrySet()){
-			ret += "\t\t" + ent.getKey();
+			ret += "\n\t\t" + ent.getKey();
 		}
 
-		ret += "\n\tOutputPorts:\n";
+		ret += "\n\tOutputPorts:";
 		for(Entry<String, OutputPort> ent : this.outputPorts.entrySet()){
-			ret += "\t\t" + ent.getKey();
+			ret += "\n\t\t" + ent.getKey();
 		}
 
 		return ret;

@@ -30,17 +30,17 @@ public class Interface implements Symbol {
 	public String prettyString(){
 		String ret = this.name + "\n";
 
-		ret += "\tOneWay:\n";
+		ret += "\tOneWay:";
 		for(Entry<String, Operation> ent : this.operations.entrySet()){
 			if(ent.getValue().type() == OperationType.ONEWAY){
-				ret += "\t\t" + ent.getValue().prettyString();
+				ret += "\n\t\t" + ent.getValue().prettyString();
 			}
 		}
 		
-		ret += "\n\n\tRequestResponse:\n";
+		ret += "\n\tRequestResponse:";
 		for(Entry<String, Operation> ent : this.operations.entrySet()){
 			if(ent.getValue().type() == OperationType.REQRES){
-				ret += "\t\t" + ent.getValue().prettyString();
+				ret += "\n\t\t" + ent.getValue().prettyString();
 			}
 		}
 

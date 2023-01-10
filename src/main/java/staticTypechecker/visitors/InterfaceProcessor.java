@@ -23,6 +23,7 @@ import jolie.lang.parse.ast.ForEachSubNodeStatement;
 import jolie.lang.parse.ast.ForStatement;
 import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
+import jolie.lang.parse.ast.ImportSymbolTarget;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
 import jolie.lang.parse.ast.InstallStatement;
@@ -89,7 +90,9 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable_new;
 import staticTypechecker.entities.Operation.OperationType;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Interface;
 
 public class InterfaceProcessor implements OLVisitor<SymbolTable_new, Void> {
@@ -164,6 +167,23 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable_new, Void> {
 	}
 
 	@Override
+	public Void visit(ImportStatement n, SymbolTable_new symbols) {
+		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		
+		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			String alias = s.localSymbolName();
+			String originalName = s.originalSymbolName();
+
+			// ask the symbols table in the corresponding Module for the structure of the type
+			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
+			
+			symbols.put(alias, structure);
+		}
+
+		return null;
+	}
+
+	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable_new symbols) {
 		return null;
 	}
@@ -175,11 +195,6 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable_new, Void> {
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable_new symbols) {
-		return null;
-	}
-
-	@Override
-	public Void visit(ImportStatement n, SymbolTable_new symbols) {
 		return null;
 	}
 

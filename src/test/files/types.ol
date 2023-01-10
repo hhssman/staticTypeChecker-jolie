@@ -5,7 +5,12 @@ type B: string {
 }
 
 type C: int {
-	luna: int
+	luna: double
 }
 
 type SecondImportedType: int
+
+
+interface ImportedInterface {
+
+}

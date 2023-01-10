@@ -90,10 +90,11 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable_new;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 
-public class InputPortProcessor implements OLVisitor<SymbolTable_new, Void> {
-	public InputPortProcessor(){}
+public class OutputPortProcessor implements OLVisitor<SymbolTable_new, Void> {
+	public OutputPortProcessor(){}
 
 	public void process(Module module){
 		module.program().accept(this, module.symbols());
@@ -110,28 +111,12 @@ public class InputPortProcessor implements OLVisitor<SymbolTable_new, Void> {
  
 	@Override
 	public Void visit(ServiceNode n, SymbolTable_new symbols) {
-		String serviceName = n.name();
+		Service service = (Service)symbols.get(n.name());
 
-		if(symbols.get(serviceName) != null){ // service has already been initialized, error? TODO
-			System.out.println("ERROR: service " + serviceName + " has already been initialized");
-		}
-
-		if(!n.parameterConfiguration().isEmpty()){ // there is a service parameter
-			TypeDefinitionLink type = (TypeDefinitionLink)n.parameterConfiguration().get().type();
-			String typeName = type.linkedTypeName();
-			if(!symbols.containsKey(typeName)){ // type is not present, TODO throw error
-				System.out.println("ERROR: type " + typeName + " does not exist");
-				return null;
-			}
-		}
-
-		Service service = new Service(serviceName);		
-		symbols.put(serviceName, service);
-
-		// for each input port of the service, create an InputPort instance and add it to the symbol table and service object
+		// for each input port of the service, create an OutputPort instance and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
-			if(child instanceof InputPortInfo){
-				InputPortInfo parsedChild = (InputPortInfo)child;
+			if(child instanceof OutputPortInfo){
+				OutputPortInfo parsedChild = (OutputPortInfo)child;
 
 				String portName = parsedChild.id();
 				String location = ((ConstantStringExpression)parsedChild.location()).value();
@@ -146,10 +131,10 @@ public class InputPortProcessor implements OLVisitor<SymbolTable_new, Void> {
 					}
 				}
 
-				InputPort port = new InputPort(portName, location, protocol, interfaces);
+				OutputPort port = new OutputPort(portName, location, protocol, interfaces);
 
 				symbols.put(portName, port);
-				service.addInputPort(portName, port);
+				service.addOutputPort(portName, port);
 			}
 		}
 		
@@ -158,14 +143,6 @@ public class InputPortProcessor implements OLVisitor<SymbolTable_new, Void> {
 
 	@Override
 	public Void visit(InputPortInfo n, SymbolTable_new symbols) {
-		String location = ((ConstantStringExpression)n.location()).value();
-		String protocol = n.protocolId();
-
-		// InputPort port = new InputPort(n.id(), location, protocol);
-
-		System.out.println(n.redirectionMap());
-
-		// check that the interface exists, TODO
 		return null;
 	}
 

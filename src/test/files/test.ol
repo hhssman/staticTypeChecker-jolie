@@ -1,4 +1,4 @@
-from .types import C
+from .types import C, ImportedInterface
 
 type A: void {
 	tmp: C
@@ -19,13 +19,19 @@ interface MyInterface {
 		helloOneway( A )
 }
 
-service MyService {
+service MyService(param: A) {
 	execution{ concurrent }
 
 	inputPort MyInputPort {
 		Location: "localhost:8080"
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
+	}
+
+	outputPort MyOutputPort {
+		Location: "localhost:8081"
+		Protocol: http { format = "json" }
+		Interfaces: ImportedInterface
 	}
 
 	main {

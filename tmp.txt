@@ -8,6 +8,8 @@ B: null
 
 C: null
 
+ImportedInterface: null
+
 SecondImportedType: null
 ______________
 Module: ./src/test/files/test.ol
@@ -16,7 +18,11 @@ A: null
 
 C: null
 
+MyOutputPort: null
+
 MyInterface: null
+
+ImportedInterface: null
 
 helloReqRes: null
 
@@ -33,21 +39,23 @@ Module: ./src/test/files/types.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 B: string {
 	bSub: void {
 		tmp: int {
-			luna: int {}
+			luna: double {}
 		}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
+
+ImportedInterface: null
 
 SecondImportedType: int {}
 ______________
@@ -55,15 +63,19 @@ Module: ./src/test/files/test.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
 
+MyOutputPort: null
+
 MyInterface: null
+
+ImportedInterface: null
 
 helloReqRes: null
 
@@ -80,21 +92,25 @@ Module: ./src/test/files/types.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 B: string {
 	bSub: void {
 		tmp: int {
-			luna: int {}
+			luna: double {}
 		}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
+
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
 
 SecondImportedType: int {}
 ______________
@@ -102,20 +118,25 @@ Module: ./src/test/files/test.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
+
+MyOutputPort: null
 
 MyInterface: MyInterface
 	OneWay:
 		helloOneway(A)
-
 	RequestResponse:
 		helloReqRes(A)(string)
+
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
 
 helloReqRes: helloReqRes(A)(string)
 
@@ -132,21 +153,25 @@ Module: ./src/test/files/types.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 B: string {
 	bSub: void {
 		tmp: int {
-			luna: int {}
+			luna: double {}
 		}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
+
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
 
 SecondImportedType: int {}
 ______________
@@ -154,30 +179,100 @@ Module: ./src/test/files/test.ol
 
 A: void {
 	tmp: int {
-		luna: int {}
+		luna: double {}
 	}
 }
 
 C: int {
-	luna: int {}
+	luna: double {}
 }
+
+MyOutputPort: null
 
 MyInterface: MyInterface
 	OneWay:
 		helloOneway(A)
-
 	RequestResponse:
 		helloReqRes(A)(string)
 
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
+
 helloReqRes: helloReqRes(A)(string)
 
-MyInputPort: null
+MyInputPort: MyInputPort at localhost:8080 via http using [MyInterface]
 
 MyService: MyService
 	InputPorts:
 		MyInputPort
 	OutputPorts:
 
+helloOneway: helloOneway(A)
+______________
+-----------------------------------------
+STAGE 5: process output ports
+Adding output port MyOutputPort to staticTypechecker.entities.Service@5594a1b5
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: void {
+	tmp: int {
+		luna: double {}
+	}
+}
+
+B: string {
+	bSub: void {
+		tmp: int {
+			luna: double {}
+		}
+	}
+}
+
+C: int {
+	luna: double {}
+}
+
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
+
+SecondImportedType: int {}
+______________
+Module: ./src/test/files/test.ol
+
+A: void {
+	tmp: int {
+		luna: double {}
+	}
+}
+
+C: int {
+	luna: double {}
+}
+
+MyOutputPort: MyOutputPort at localhost:8081 via http using [ImportedInterface]
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(A)
+	RequestResponse:
+		helloReqRes(A)(string)
+
+ImportedInterface: ImportedInterface
+	OneWay:
+	RequestResponse:
+
+helloReqRes: helloReqRes(A)(string)
+
+MyInputPort: MyInputPort at localhost:8080 via http using [MyInterface]
+
+MyService: MyService
+	InputPorts:
+		MyInputPort
+	OutputPorts:
+		MyOutputPort
 
 helloOneway: helloOneway(A)
 ______________
