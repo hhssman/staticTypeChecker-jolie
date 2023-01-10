@@ -3,6 +3,7 @@ package staticTypechecker.entities;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import jolie.lang.parse.ast.InterfaceDefinition;
 import staticTypechecker.entities.Operation.OperationType;
 
 public class Interface implements Symbol {
@@ -24,6 +25,14 @@ public class Interface implements Symbol {
 
 	public String name(){
 		return this.name;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public static Interface getBaseInterface(){
+		return new Interface(null);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package staticTypechecker.typeStructures;
 
 import java.util.HashMap;
 
+import jolie.lang.parse.ast.types.TypeChoiceDefinition;
+
 /**
  * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
  * 
@@ -30,6 +32,10 @@ public class TypeChoiceStructure extends TypeStructure {
 
 	public TypeStructure right(){
 		return this.right;
+	}
+
+	public static TypeChoiceStructure getBaseSymbol(TypeChoiceDefinition typeDef){
+		return (TypeChoiceStructure)TypeConverter.createBaseStructure(typeDef);
 	}
 
 	public String toString(){

@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.lang.parse.ast.types.TypeDefinition;
+import jolie.lang.parse.ast.types.TypeDefinitionLink;
+import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 
@@ -128,6 +131,14 @@ public class TypeInlineStructure extends TypeStructure {
 		}
 
 		return true;
+	}
+
+	public static TypeInlineStructure getBaseSymbol(TypeInlineDefinition typeDef){
+		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
+	}
+
+	public static TypeInlineStructure getBaseSymbol(TypeDefinitionLink typeDef){
+		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
 	}
 
 	/**

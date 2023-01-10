@@ -9,10 +9,10 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Range;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 
-public class SymbolTable_new {
+public class SymbolTable {
 	private HashMap<String, Symbol> table;
 	
-	public SymbolTable_new(){
+	public SymbolTable(){
 		this.table = new HashMap<>();
 		this.addBaseTypes();
 	}

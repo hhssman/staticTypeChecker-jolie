@@ -15,7 +15,7 @@ import jolie.lang.parse.util.ParsingUtils;
 public class Module {
 	private String name;
 	private Program program;
-	private SymbolTable_new symbols;
+	private SymbolTable symbols;
 
 	public Module(String name){
 		this.name = name;
@@ -31,11 +31,11 @@ public class Module {
 		return this.program;
 	}
 
-	public SymbolTable_new symbols(){
+	public SymbolTable symbols(){
 		return this.symbols;
 	}
 
-	public void setSymbols(SymbolTable_new newSymbols){
+	public void setSymbols(SymbolTable newSymbols){
 		this.symbols = newSymbols;
 	}
 
@@ -68,7 +68,8 @@ public class Module {
 			return program;
 		}
 		catch(CommandLineException | IOException | ParserException | CodeCheckingException | ModuleException e){
-			System.out.println("Error parsing the module: " + e);
+			System.out.println("Error parsing module: " + name + ":\n" + e);
+			System.exit(0);
 			return null;
 		}
 	}

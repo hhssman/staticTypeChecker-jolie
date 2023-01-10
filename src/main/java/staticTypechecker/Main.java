@@ -1,6 +1,7 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
@@ -24,33 +25,28 @@ public class Main {
 		
 		// stage 0: parse the modules
 		ModuleHandler.loadModules(args);
-		
-		// TMP TESTER
-		// ModuleHandler.modules().values().forEach(module -> {
-		// 	module.program().children().forEach(child -> {
-		// 		if(child instanceof TypeInlineDefinition){
-		// 			TypeInlineDefinition tmp = (TypeInlineDefinition)child;
-		// 			for(Entry<String, TypeDefinition> ent : tmp.subTypes()){
-		// 				if(ent.getValue() instanceof TypeDefinitionLink){
-		// 					TypeDefinitionLink tmp2 = (TypeDefinitionLink)ent.getValue();
-		// 					System.out.println(tmp2.linkedType());
-		// 					System.out.println(((TypeInlineDefinition)tmp2.linkedType()).subTypes());
-		// 				}
-		// 			}
-
-		// 			// WHAT WAS I DOING? Trying to figure out how the type stores the structure of the imported type
-		// 		}
-		// 	});
-		// });
-
-		// // stage 1: discover symbols in all modules
+	
+		// stage 1: discover symbols in all modules
 		System.out.println("STAGE 1: discover symbols");
 		
 		SymbolCollector sCollector = new SymbolCollector();
-		
+		ArrayList<Module> failedModules = new ArrayList<>();
+
 		ModuleHandler.modules().values().forEach(m -> {
-			sCollector.collect(m);
+			try{
+				System.out.println("Collecting from " + m.name());
+				sCollector.collect(m);
+			}
+			catch(NullPointerException e){
+				System.out.println(m.name() + " failed!");
+				failedModules.add(m);
+			}
 		});
+		
+		for(Module failedMod : failedModules){
+			System.out.println("Collecting from " + failedMod.name());
+			sCollector.collect(failedMod);
+		}
 
 		printAllSymbols();
 

@@ -1,4 +1,5 @@
 from .types import C, ImportedInterface
+from .otherservice import EmbedMe
 
 type A: void {
 	tmp: C
@@ -19,8 +20,10 @@ interface MyInterface {
 		helloOneway( A )
 }
 
-service MyService(param: A) {
+service MyService(param: any) {
 	execution{ concurrent }
+
+	embed EmbedMe as EmbedMeInterface
 
 	inputPort MyInputPort {
 		Location: "localhost:8080"

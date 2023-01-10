@@ -31,6 +31,26 @@ public class OutputPort implements Symbol {
 		return this.interfaces;
 	}
 
+	public static OutputPort getBasePort(){
+		return new OutputPort(null, null, null, null);
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public void setLocation(String location){
+		this.location = location;
+	}
+
+	public void setProtocol(String protocol){
+		this.protocol = protocol;
+	}
+
+	public void setInterfaces(List<String> interfaces){
+		this.interfaces = interfaces;
+	}
+
 	public String prettyString(){
 		return this.name + " at " + this.location + " via " + this.protocol + " using " + this.interfaces;
 	}

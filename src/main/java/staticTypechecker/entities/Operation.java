@@ -8,13 +8,13 @@ public class Operation implements Symbol {
 	private String name; // the name of the operation
 	private String requestType; // the name of the type of the input
 	private String responseType; // the name of the type of the output
-	private OperationType opType; // the type of operation (oneway or reqres)
+	private OperationType operationType; // the type of operation (oneway or reqres)
 
-	public Operation(String name, String requestType, String responseType, OperationType opType){
+	public Operation(String name, String requestType, String responseType, OperationType operationType){
 		this.name = name;
 		this.requestType = requestType;
 		this.responseType = responseType;
-		this.opType = opType;
+		this.operationType = operationType;
 	}
 
 	public String name(){
@@ -30,11 +30,31 @@ public class Operation implements Symbol {
 	}
 
 	public OperationType type(){
-		return this.opType;
+		return this.operationType;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	public void setRequestType(String requestType){
+		this.requestType = requestType;
+	}
+
+	public void setResponseType(String responseType){
+		this.responseType = responseType;
+	}
+
+	public void setOperationType(OperationType operationType){
+		this.operationType = operationType;
+	}
+
+	public static Operation getBaseOperation(){
+		return new Operation(null, null, null, null);
 	}
 
 	public String prettyString(){
-		if(this.opType == OperationType.REQRES){
+		if(this.operationType == OperationType.REQRES){
 			return this.name + "(" + this.requestType() + ")" + "(" + this.responseType() + ")";
 		}
 		else{

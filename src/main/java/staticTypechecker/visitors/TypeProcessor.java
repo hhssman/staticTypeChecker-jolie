@@ -90,11 +90,11 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Symbol;
-import staticTypechecker.entities.SymbolTable_new;
+import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
 
-public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
+public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 	public TypeProcessor(){}
 
 	public void process(Module module){
@@ -102,49 +102,38 @@ public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
 	}
 
 	@Override
-	public Void visit(Program p, SymbolTable_new symbols) {
-		// ArrayList<OLSyntaxNode> importNodes = new ArrayList<>(); // list of import nodes in the given program
-
-		// accept all children of the program, EXCEPT for the import statements. These are stored and processed afterwards, since they may 
+	public Void visit(Program p, SymbolTable symbols) {
+		// accept all children of the program 
 		for(OLSyntaxNode child : p.children()){
-			// if(child instanceof ImportStatement){
-				// importNodes.add(child);
-			// }
-			// else{
-				child.accept(this, symbols);
-			// }
+			child.accept(this, symbols);
 		}
-
-		// process the import nodes
-		// for(OLSyntaxNode importNode : importNodes){
-		// 	importNode.accept(this, symbols);
-		// }
 
 		return null;
 	}
 
 	@Override
-	public Void visit(TypeInlineDefinition n, SymbolTable_new symbols) {
+	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
 		processTypeDef(n, symbols);		
 		return null;
 	}
 
 	@Override
-	public Void visit(TypeDefinitionLink n, SymbolTable_new symbols) {
+	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
 		processTypeDef(n, symbols);	
 		return null;
 	}
 
 	@Override
-	public Void visit(TypeChoiceDefinition n, SymbolTable_new symbols) {
+	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
 		processTypeDef(n, symbols);			
 		return null;
 	}
 
-	private void processTypeDef(TypeDefinition n, SymbolTable_new symbols){
+	private void processTypeDef(TypeDefinition n, SymbolTable symbols){
 		if(symbols.get(n.name()) == null){ // structure have not been initialized yet, create base structure 
-			TypeStructure baseStruct = TypeConverter.createBaseStructure(n);
-			symbols.put(n.name(), baseStruct);
+			// TypeStructure baseStruct = TypeConverter.createBaseStructure(n);
+			// symbols.put(n.name(), baseStruct);
+			System.out.println("We should never reach this branch of execution...");
 		}
 		else{ // structure have been initialized, finish it
 			TypeConverter.finalizeBaseStructure((TypeStructure)symbols.get(n.name()), n);
@@ -152,399 +141,399 @@ public class TypeProcessor implements OLVisitor<SymbolTable_new, Void> {
 	}
 
 	@Override
-	public Void visit(ImportStatement n, SymbolTable_new symbols) {
-		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+	public Void visit(ImportStatement n, SymbolTable symbols) {
+		// String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
 		
-		for(ImportSymbolTarget s : n.importSymbolTargets()){
-			String alias = s.localSymbolName();
-			String originalName = s.originalSymbolName();
+		// for(ImportSymbolTarget s : n.importSymbolTargets()){
+		// 	String alias = s.localSymbolName();
+		// 	String originalName = s.originalSymbolName();
 
-			// ask the symbols table in the corresponding Module for the structure of the type
-			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
+		// 	// ask the symbols table in the corresponding Module for the structure of the type
+		// 	Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
 			
-			symbols.put(alias, structure);
-		}
+		// 	symbols.put(alias, structure);
+		// }
 
 		return null;
 	}
 
 	@Override
-	public Void visit(InterfaceDefinition n, SymbolTable_new symbols) {
+	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ServiceNode n, SymbolTable_new symbols) {
+	public Void visit(ServiceNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InputPortInfo n, SymbolTable_new symbols) {
+	public Void visit(InputPortInfo n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(DefinitionNode n, SymbolTable_new symbols) {
+	public Void visit(DefinitionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SequenceStatement n, SymbolTable_new symbols) {
+	public Void visit(SequenceStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(OneWayOperationDeclaration decl, SymbolTable_new symbols) {
+	public Void visit(OneWayOperationDeclaration decl, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(RequestResponseOperationDeclaration decl, SymbolTable_new symbols) {
+	public Void visit(RequestResponseOperationDeclaration decl, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ParallelStatement n, SymbolTable_new symbols) {
+	public Void visit(ParallelStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(NDChoiceStatement n, SymbolTable_new symbols) {
+	public Void visit(NDChoiceStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(OneWayOperationStatement n, SymbolTable_new symbols) {
+	public Void visit(OneWayOperationStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(RequestResponseOperationStatement n, SymbolTable_new symbols) {
+	public Void visit(RequestResponseOperationStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(NotificationOperationStatement n, SymbolTable_new symbols) {
+	public Void visit(NotificationOperationStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SolicitResponseOperationStatement n, SymbolTable_new symbols) {
+	public Void visit(SolicitResponseOperationStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(LinkInStatement n, SymbolTable_new symbols) {
+	public Void visit(LinkInStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(LinkOutStatement n, SymbolTable_new symbols) {
+	public Void visit(LinkOutStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(AssignStatement n, SymbolTable_new symbols) {
+	public Void visit(AssignStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(AddAssignStatement n, SymbolTable_new symbols) {
+	public Void visit(AddAssignStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SubtractAssignStatement n, SymbolTable_new symbols) {
+	public Void visit(SubtractAssignStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(MultiplyAssignStatement n, SymbolTable_new symbols) {
+	public Void visit(MultiplyAssignStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(DivideAssignStatement n, SymbolTable_new symbols) {
+	public Void visit(DivideAssignStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(IfStatement n, SymbolTable_new symbols) {
+	public Void visit(IfStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(DefinitionCallStatement n, SymbolTable_new symbols) {
+	public Void visit(DefinitionCallStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(WhileStatement n, SymbolTable_new symbols) {
+	public Void visit(WhileStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(OrConditionNode n, SymbolTable_new symbols) {
+	public Void visit(OrConditionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(AndConditionNode n, SymbolTable_new symbols) {
+	public Void visit(AndConditionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(NotExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(NotExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CompareConditionNode n, SymbolTable_new symbols) {
+	public Void visit(CompareConditionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ConstantIntegerExpression n, SymbolTable_new symbols) {
+	public Void visit(ConstantIntegerExpression n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ConstantDoubleExpression n, SymbolTable_new symbols) {
+	public Void visit(ConstantDoubleExpression n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ConstantBoolExpression n, SymbolTable_new symbols) {
+	public Void visit(ConstantBoolExpression n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ConstantLongExpression n, SymbolTable_new symbols) {
+	public Void visit(ConstantLongExpression n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ConstantStringExpression n, SymbolTable_new symbols) {
+	public Void visit(ConstantStringExpression n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ProductExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(ProductExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SumExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(SumExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(VariableExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(VariableExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(NullProcessStatement n, SymbolTable_new symbols) {
+	public Void visit(NullProcessStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(Scope n, SymbolTable_new symbols) {
+	public Void visit(Scope n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InstallStatement n, SymbolTable_new symbols) {
+	public Void visit(InstallStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CompensateStatement n, SymbolTable_new symbols) {
+	public Void visit(CompensateStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ThrowStatement n, SymbolTable_new symbols) {
+	public Void visit(ThrowStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ExitStatement n, SymbolTable_new symbols) {
+	public Void visit(ExitStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ExecutionInfo n, SymbolTable_new symbols) {
+	public Void visit(ExecutionInfo n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CorrelationSetInfo n, SymbolTable_new symbols) {
+	public Void visit(CorrelationSetInfo n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(OutputPortInfo n, SymbolTable_new symbols) {
+	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(PointerStatement n, SymbolTable_new symbols) {
+	public Void visit(PointerStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(DeepCopyStatement n, SymbolTable_new symbols) {
+	public Void visit(DeepCopyStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(RunStatement n, SymbolTable_new symbols) {
+	public Void visit(RunStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(UndefStatement n, SymbolTable_new symbols) {
+	public Void visit(UndefStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ValueVectorSizeExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(ValueVectorSizeExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(PreIncrementStatement n, SymbolTable_new symbols) {
+	public Void visit(PreIncrementStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(PostIncrementStatement n, SymbolTable_new symbols) {
+	public Void visit(PostIncrementStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(PreDecrementStatement n, SymbolTable_new symbols) {
+	public Void visit(PreDecrementStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(PostDecrementStatement n, SymbolTable_new symbols) {
+	public Void visit(PostDecrementStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ForStatement n, SymbolTable_new symbols) {
+	public Void visit(ForStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ForEachSubNodeStatement n, SymbolTable_new symbols) {
+	public Void visit(ForEachSubNodeStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ForEachArrayItemStatement n, SymbolTable_new symbols) {
+	public Void visit(ForEachArrayItemStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SpawnStatement n, SymbolTable_new symbols) {
+	public Void visit(SpawnStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(IsTypeExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(IsTypeExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InstanceOfExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(InstanceOfExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(TypeCastExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(TypeCastExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SynchronizedStatement n, SymbolTable_new symbols) {
+	public Void visit(SynchronizedStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CurrentHandlerStatement n, SymbolTable_new symbols) {
+	public Void visit(CurrentHandlerStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(EmbeddedServiceNode n, SymbolTable_new symbols) {
+	public Void visit(EmbeddedServiceNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InstallFixedVariableExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(InstallFixedVariableExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(VariablePathNode n, SymbolTable_new symbols) {
+	public Void visit(VariablePathNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(DocumentationComment n, SymbolTable_new symbols) {
+	public Void visit(DocumentationComment n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(FreshValueExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(FreshValueExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CourierDefinitionNode n, SymbolTable_new symbols) {
+	public Void visit(CourierDefinitionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(CourierChoiceStatement n, SymbolTable_new symbols) {
+	public Void visit(CourierChoiceStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(NotificationForwardStatement n, SymbolTable_new symbols) {
+	public Void visit(NotificationForwardStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(SolicitResponseForwardStatement n, SymbolTable_new symbols) {
+	public Void visit(SolicitResponseForwardStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InterfaceExtenderDefinition n, SymbolTable_new symbols) {
+	public Void visit(InterfaceExtenderDefinition n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(InlineTreeExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(InlineTreeExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(VoidExpressionNode n, SymbolTable_new symbols) {
+	public Void visit(VoidExpressionNode n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(ProvideUntilStatement n, SymbolTable_new symbols) {
+	public Void visit(ProvideUntilStatement n, SymbolTable symbols) {
 		return null;
 	}
 
 	@Override
-	public Void visit(EmbedServiceNode n, SymbolTable_new symbols) {
+	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
 		return null;
 	}
 }

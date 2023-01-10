@@ -1,6 +1,10 @@
 package staticTypechecker.entities;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import jolie.lang.parse.ast.expression.ConstantStringExpression;
+import jolie.lang.parse.ast.InputPortInfo;
 
 public class InputPort implements Symbol {
 	private String name; // the name of the port
@@ -29,6 +33,26 @@ public class InputPort implements Symbol {
 
 	public List<String> interfaces(){
 		return this.interfaces;
+	}
+
+	public static InputPort getBasePort(){
+		return new InputPort(null, null, null, null);
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public void setLocation(String location){
+		this.location = location;
+	}
+
+	public void setProtocol(String protocol){
+		this.protocol = protocol;
+	}
+
+	public void setInterfaces(List<String> interfaces){
+		this.interfaces = interfaces;
 	}
 
 	public String prettyString(){

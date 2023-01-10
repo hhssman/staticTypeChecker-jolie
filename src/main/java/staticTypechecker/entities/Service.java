@@ -7,15 +7,21 @@ public class Service implements Symbol {
 	private String name; // the name of the service
 	private HashMap<String, InputPort> inputPorts; // map names to input ports
 	private HashMap<String, OutputPort> outputPorts; // map names to output ports
+	private String parameter; // service parameter
 
-	public Service(String name){
-		this.name = name;
+	public Service(){
+		this.name = null;
 		this.inputPorts = new HashMap<>();
 		this.outputPorts = new HashMap<>();
+		this.parameter = null;
 	}
 
 	public String name(){
 		return this.name;
+	}
+
+	public void setName(String name){
+		this.name = name;
 	}
 
 	public InputPort getInputPort(String name){
@@ -32,6 +38,18 @@ public class Service implements Symbol {
 
 	public void addOutputPort(String name, OutputPort port){
 		this.outputPorts.put(name, port);
+	}
+
+	public String parameter(){
+		return this.parameter;
+	}
+
+	public void setParameter(String parameter){
+		this.parameter = parameter;
+	}
+
+	public static Service getBaseService(){
+		return new Service();
 	}
 
 	public String prettyString(){
