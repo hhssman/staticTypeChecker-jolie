@@ -2,11 +2,13 @@ STAGE 1: discover symbols
 -----------------------------------------
 Module: ./src/test/files/otherservice.ol
 
-EmbedMeInterface: null
+EmbedMeInterface1: null
 	OneWay:
 	RequestResponse:
 
-EmbeddedInputPort: null at null via null exposing null
+EmbedMeInterface2: null
+	OneWay:
+	RequestResponse:
 
 EmbedMe: null
 	InputPorts:
@@ -14,7 +16,11 @@ EmbedMe: null
 
 embedHelloOneWay: null(null)
 
+EmbeddedInputPort1: null at null via null exposing null
+
 embedHelloReqRes: null(null)
+
+EmbeddedInputPort2: null at null via null exposing null
 ______________
 Module: ./src/test/files/types.ol
 
@@ -48,11 +54,15 @@ ImportedInterface: null
 	OneWay:
 	RequestResponse:
 
-EmbedMeInterface: null
+EmbedMeInterface1: null
 	OneWay:
 	RequestResponse:
 
 EmbedMePort: null at null via null using null
+
+EmbedMeInterface2: null
+	OneWay:
+	RequestResponse:
 
 helloReqRes: null(null)
 
@@ -73,11 +83,13 @@ STAGE 2: process types
 -----------------------------------------
 Module: ./src/test/files/otherservice.ol
 
-EmbedMeInterface: null
+EmbedMeInterface1: null
 	OneWay:
 	RequestResponse:
 
-EmbeddedInputPort: null at null via null exposing null
+EmbedMeInterface2: null
+	OneWay:
+	RequestResponse:
 
 EmbedMe: null
 	InputPorts:
@@ -85,7 +97,11 @@ EmbedMe: null
 
 embedHelloOneWay: null(null)
 
+EmbeddedInputPort1: null at null via null exposing null
+
 embedHelloReqRes: null(null)
+
+EmbeddedInputPort2: null at null via null exposing null
 ______________
 Module: ./src/test/files/types.ol
 
@@ -137,11 +153,15 @@ ImportedInterface: null
 	OneWay:
 	RequestResponse:
 
-EmbedMeInterface: null
+EmbedMeInterface1: null
 	OneWay:
 	RequestResponse:
 
 EmbedMePort: null at null via null using null
+
+EmbedMeInterface2: null
+	OneWay:
+	RequestResponse:
 
 helloReqRes: null(null)
 
@@ -162,13 +182,17 @@ STAGE 3: process interfaces
 -----------------------------------------
 Module: ./src/test/files/otherservice.ol
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
 		embedHelloReqRes(string)(string)
 
-EmbeddedInputPort: null at null via null exposing null
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
 
 EmbedMe: null
 	InputPorts:
@@ -176,7 +200,11 @@ EmbedMe: null
 
 embedHelloOneWay: embedHelloOneWay(string)
 
+EmbeddedInputPort1: null at null via null exposing null
+
 embedHelloReqRes: embedHelloReqRes(string)(string)
+
+EmbeddedInputPort2: null at null via null exposing null
 ______________
 Module: ./src/test/files/types.ol
 
@@ -232,13 +260,19 @@ ImportedInterface: ImportedInterface
 	OneWay:
 	RequestResponse:
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
 		embedHelloReqRes(string)(string)
 
 EmbedMePort: null at null via null using null
+
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
 
 helloReqRes: helloReqRes(B)(string)
 
@@ -259,22 +293,31 @@ STAGE 4: process input ports and service parameters
 -----------------------------------------
 Module: ./src/test/files/otherservice.ol
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
 		embedHelloReqRes(string)(string)
 
-EmbeddedInputPort: EmbeddedInputPort at local via sodep exposing [EmbedMeInterface]
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
 
 EmbedMe: EmbedMe
 	InputPorts:
-		EmbeddedInputPort
+		EmbeddedInputPort1
+		EmbeddedInputPort2
 	OutputPorts:
 
 embedHelloOneWay: embedHelloOneWay(string)
 
+EmbeddedInputPort1: EmbeddedInputPort1 at local via sodep exposing [EmbedMeInterface1]
+
 embedHelloReqRes: embedHelloReqRes(string)(string)
+
+EmbeddedInputPort2: EmbeddedInputPort2 at local via sodep exposing [EmbedMeInterface2]
 ______________
 Module: ./src/test/files/types.ol
 
@@ -330,7 +373,7 @@ ImportedInterface: ImportedInterface
 	OneWay:
 	RequestResponse:
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
@@ -338,13 +381,20 @@ EmbedMeInterface: EmbedMeInterface
 
 EmbedMePort: null at null via null using null
 
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
+
 helloReqRes: helloReqRes(B)(string)
 
 MyInputPort: MyInputPort at socket://localhost:8080 via http exposing [MyInterface]
 
 EmbedMe: EmbedMe
 	InputPorts:
-		EmbeddedInputPort
+		EmbeddedInputPort1
+		EmbeddedInputPort2
 	OutputPorts:
 
 MyService: MyService
@@ -356,29 +406,40 @@ helloOneway: helloOneway(A)
 ______________
 -----------------------------------------
 STAGE 5: process output ports
-Service EmbedMe's children: [jolie.lang.parse.ast.ExecutionInfo@b684286, jolie.lang.parse.ast.InputPortInfo@880ec60, jolie.lang.parse.ast.DefinitionNode@3f3afe78]
-Service MyService's children: [jolie.lang.parse.ast.ExecutionInfo@7f63425a, jolie.lang.parse.ast.OutputPortInfo@36d64342, jolie.lang.parse.ast.EmbedServiceNode@39ba5a14, jolie.lang.parse.ast.InputPortInfo@511baa65, jolie.lang.parse.ast.OutputPortInfo@340f438e, jolie.lang.parse.ast.DefinitionNode@30c7da1e]
+Service EmbedMe's children: [jolie.lang.parse.ast.ExecutionInfo@30c7da1e, jolie.lang.parse.ast.InputPortInfo@5b464ce8, jolie.lang.parse.ast.InputPortInfo@57829d67, jolie.lang.parse.ast.DefinitionNode@19dfb72a]
+Service MyService's children: [jolie.lang.parse.ast.ExecutionInfo@17c68925, jolie.lang.parse.ast.OutputPortInfo@7e0ea639, jolie.lang.parse.ast.EmbedServiceNode@3d24753a, jolie.lang.parse.ast.InputPortInfo@59a6e353, jolie.lang.parse.ast.OutputPortInfo@7a0ac6e3, jolie.lang.parse.ast.DefinitionNode@71be98f5]
 output port EmbedMePort has interfaces count: 2
+[EmbedMeInterface1, EmbedMeInterface2]
 output port MyOutputPort has interfaces count: 1
+[ImportedInterface]
 -----------------------------------------
 Module: ./src/test/files/otherservice.ol
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
 		embedHelloReqRes(string)(string)
 
-EmbeddedInputPort: EmbeddedInputPort at local via sodep exposing [EmbedMeInterface]
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
 
 EmbedMe: EmbedMe
 	InputPorts:
-		EmbeddedInputPort
+		EmbeddedInputPort1
+		EmbeddedInputPort2
 	OutputPorts:
 
 embedHelloOneWay: embedHelloOneWay(string)
 
+EmbeddedInputPort1: EmbeddedInputPort1 at local via sodep exposing [EmbedMeInterface1]
+
 embedHelloReqRes: embedHelloReqRes(string)(string)
+
+EmbeddedInputPort2: EmbeddedInputPort2 at local via sodep exposing [EmbedMeInterface2]
 ______________
 Module: ./src/test/files/types.ol
 
@@ -434,13 +495,19 @@ ImportedInterface: ImportedInterface
 	OneWay:
 	RequestResponse:
 
-EmbedMeInterface: EmbedMeInterface
+EmbedMeInterface1: EmbedMeInterface1
 	OneWay:
 		embedHelloOneWay(string)
 	RequestResponse:
 		embedHelloReqRes(string)(string)
 
-EmbedMePort: EmbedMePort at null via null using [EmbedMeInterface, EmbedMeInterface]
+EmbedMePort: EmbedMePort at null via null using [EmbedMeInterface1, EmbedMeInterface2]
+
+EmbedMeInterface2: EmbedMeInterface2
+	OneWay:
+		embedHelloOneWay(string)
+	RequestResponse:
+		embedHelloReqRes(string)(string)
 
 helloReqRes: helloReqRes(B)(string)
 
@@ -448,7 +515,8 @@ MyInputPort: MyInputPort at socket://localhost:8080 via http exposing [MyInterfa
 
 EmbedMe: EmbedMe
 	InputPorts:
-		EmbeddedInputPort
+		EmbeddedInputPort1
+		EmbeddedInputPort2
 	OutputPorts:
 
 MyService: MyService

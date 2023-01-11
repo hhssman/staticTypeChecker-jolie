@@ -136,7 +136,6 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
-		// TODO there is a problem where the same interface shows up twice in the interface list, NOT SOLVED YET
 		// ready the data
 		String portName = n.id();
 		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null;
@@ -144,9 +143,8 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
 												.stream()
 												.map(interfaceDef -> interfaceDef.name())
+												.distinct()
 												.collect(Collectors.toList()); 
-
-		System.out.println("output port " + portName + " has interfaces count: " + n.getInterfaceList().size());
 
 		// finish the base object
 		OutputPort port = (OutputPort)symbols.get(portName);

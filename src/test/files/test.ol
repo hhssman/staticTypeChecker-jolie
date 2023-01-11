@@ -1,5 +1,5 @@
 from .types import C, ImportedInterface
-from .otherservice import EmbedMe, EmbedMeInterface
+from .otherservice import EmbedMe, EmbedMeInterface1, EmbedMeInterface2
 
 type A: void {
 	tmp: C
