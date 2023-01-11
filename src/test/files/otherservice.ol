@@ -1,24 +1,17 @@
-interface Huh {
+interface EmbedMeInterface {
 	RequestResponse:
 		embedHelloReqRes( string )( string )
 	OneWay:
 		embedHelloOneWay( string )
 }
 
-interface MyInterface {
-	RequestResponse:
-		embedHelloReqRes( string )( string )
-	OneWay:
-		embedHelloOneWay( string )
-}
-
-service EmbedMe {
+service EmbedMe(count: int) {
 	execution{ concurrent }
 
 	inputPort EmbeddedInputPort {
-		Location: "localhost:8082"
-		Protocol: http { format = "json" }
-		Interfaces: MyInterface
+		Location: "local"
+		Protocol: sodep
+		Interfaces: EmbedMeInterface
 	}
 
 	main {

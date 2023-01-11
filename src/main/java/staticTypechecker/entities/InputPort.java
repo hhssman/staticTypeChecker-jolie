@@ -56,6 +56,6 @@ public class InputPort implements Symbol {
 	}
 
 	public String prettyString(){
-		return this.name + " at " + this.location + " via " + this.protocol + " using " + this.interfaces;
+		return this.name + " at " + this.location + " via " + this.protocol + " exposing " + this.interfaces;
 	}
 }

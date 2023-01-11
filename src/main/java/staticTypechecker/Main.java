@@ -34,17 +34,14 @@ public class Main {
 
 		ModuleHandler.modules().values().forEach(m -> {
 			try{
-				System.out.println("Collecting from " + m.name());
 				sCollector.collect(m);
 			}
 			catch(NullPointerException e){
-				System.out.println(m.name() + " failed!");
 				failedModules.add(m);
 			}
 		});
 		
 		for(Module failedMod : failedModules){
-			System.out.println("Collecting from " + failedMod.name());
 			sCollector.collect(failedMod);
 		}
 

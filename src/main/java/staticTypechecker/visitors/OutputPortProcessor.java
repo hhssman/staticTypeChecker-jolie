@@ -1,7 +1,6 @@
 package staticTypechecker.visitors;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.OLVisitor;
@@ -88,7 +87,6 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
-import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
@@ -116,6 +114,8 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 
 		service.setName(serviceName);
 
+		System.out.println("Service " + n.name() + "'s children: " + n.program().children());
+
 		// accept the program to process output ports and embeddings inside the service node
 		n.program().accept(this, symbols);
 
@@ -126,8 +126,9 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 				String portName = parsedChild.id();
 				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
 			}
-			// TODO embeddings here
-			// else if(child instanceof ) 
+			else if(child instanceof EmbedServiceNode){
+				// TODO here we check the parameter for the service
+			}
 		}
 		
 		return null;
@@ -135,19 +136,17 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
-		System.out.println(n.id());
-		System.out.println("location: " + n.location());
-		System.out.println("protocol: " + n.protocolId());
-
-
+		// TODO there is a problem where the same interface shows up twice in the interface list, NOT SOLVED YET
 		// ready the data
 		String portName = n.id();
-		String location = ((ConstantStringExpression)n.location()).value();
-		String protocol = n.protocolId();
+		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null;
+		String protocol = n.protocolId().equals("") ? null : n.protocolId();
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
 												.stream()
 												.map(interfaceDef -> interfaceDef.name())
 												.collect(Collectors.toList()); 
+
+		System.out.println("output port " + portName + " has interfaces count: " + n.getInterfaceList().size());
 
 		// finish the base object
 		OutputPort port = (OutputPort)symbols.get(portName);

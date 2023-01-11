@@ -1,8 +1,12 @@
 from .types import C, ImportedInterface
-from .otherservice import EmbedMe
+from .otherservice import EmbedMe, EmbedMeInterface
 
 type A: void {
 	tmp: C
+}
+
+type B: void {
+	name: string
 }
 
 // type aliasA: A
@@ -15,7 +19,7 @@ type A: void {
 
 interface MyInterface {
 	RequestResponse:
-		helloReqRes( A )( string )
+		helloReqRes( B )( string )
 	OneWay:
 		helloOneway( A )
 }
@@ -23,23 +27,28 @@ interface MyInterface {
 service MyService(param: any) {
 	execution{ concurrent }
 
-	embed EmbedMe as EmbedMeInterface
+	// outputPort EmbedMePort {
+	// 	Interfaces: EmbedMeInterface
+	// }
+
+	embed EmbedMe(10) as EmbedMePort
 
 	inputPort MyInputPort {
-		Location: "localhost:8080"
+		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
 
 	outputPort MyOutputPort {
-		Location: "localhost:8081"
+		Location: "socket://localhost:8081"
 		Protocol: http { format = "json" }
 		Interfaces: ImportedInterface
 	}
 
 	main {
 		helloReqRes( input )( output ){
-			output = "Hello!" + input.name
+			output = "Hello from test.ol" + input.name
+			embedHelloReqRes@EmbedMePort(output)(output)
 		}
 
 		helloOneway( input )
