@@ -53,7 +53,23 @@ public class Operation implements Symbol {
 		return new Operation(null, null, null, null);
 	}
 
+	public boolean isEqual(Operation other){
+		boolean isEqual = 	this.name.equals(other.name) && 
+							this.operationType.equals(other.operationType) && 
+							this.requestType.equals(other.requestType);
+
+		if(this.operationType == OperationType.REQRES){
+			isEqual = isEqual && this.responseType.equals(other.responseType);
+		}
+
+		return isEqual;
+	}
+
 	public String prettyString(){
+		if(this.name == null){
+			return "null";
+		}
+
 		if(this.operationType == OperationType.REQRES){
 			return this.name + "(" + this.requestType() + ")" + "(" + this.responseType() + ")";
 		}

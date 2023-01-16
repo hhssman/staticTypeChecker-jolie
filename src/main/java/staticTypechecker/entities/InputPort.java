@@ -56,6 +56,10 @@ public class InputPort implements Symbol {
 	}
 
 	public String prettyString(){
+		if(this.name == null){
+			return "null";
+		}
+		
 		return this.name + " at " + this.location + " via " + this.protocol + " exposing " + this.interfaces;
 	}
 }

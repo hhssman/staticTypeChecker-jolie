@@ -8,11 +8,35 @@ interface EmbedMeInterface1 {
 interface EmbedMeInterface2 {
 	RequestResponse:
 		embedHelloReqRes( string )( string )
-	OneWay:
-		embedHelloOneWay( string )
+	// OneWay:
+	// 	embedHelloOneWay( string )
 }
 
-service EmbedMe(count: int) {
+service EmbedInService(count: int) {
+	execution{ concurrent }
+
+	// inputPort EmbeddedInputPort1 {
+	// 	Location: "local"
+	// 	Protocol: sodep
+	// 	Interfaces: EmbedMeInterface1
+	// }
+
+	inputPort EmbeddedInputPort2 {
+		Location: "local"
+		Protocol: sodep
+		Interfaces: EmbedMeInterface2
+	}
+
+	main {
+		embedHelloReqRes( req )( res ){
+			res = "Hello " + req
+		}
+
+		embedHelloOneWay( req )
+	}
+}
+
+service EmbedAsService(count: int) {
 	execution{ concurrent }
 
 	inputPort EmbeddedInputPort1 {

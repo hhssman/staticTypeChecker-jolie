@@ -1,5 +1,5 @@
 from .types import C, ImportedInterface
-from .otherservice import EmbedMe, EmbedMeInterface1, EmbedMeInterface2
+from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
 type A: void {
 	tmp: C
@@ -27,11 +27,12 @@ interface MyInterface {
 service MyService(param: any) {
 	execution{ concurrent }
 
-	// outputPort EmbedMePort {
-	// 	Interfaces: EmbedMeInterface
-	// }
+	outputPort EmbedInPort {
+		Interfaces: EmbedMeInterface1
+	}
 
-	embed EmbedMe(10) as EmbedMePort
+	embed EmbedInService(10) in EmbedInPort
+	embed EmbedAsService(10) as EmbedAsPort
 
 	inputPort MyInputPort {
 		Location: "socket://localhost:8080"
@@ -48,7 +49,7 @@ service MyService(param: any) {
 	main {
 		helloReqRes( input )( output ){
 			output = "Hello from test.ol" + input.name
-			embedHelloReqRes@EmbedMePort(output)(output)
+			embedHelloReqRes@EmbedAsPort(output)(output)
 		}
 
 		helloOneway( input )

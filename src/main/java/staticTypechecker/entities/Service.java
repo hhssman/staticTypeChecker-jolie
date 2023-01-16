@@ -1,6 +1,7 @@
 package staticTypechecker.entities;
 
 import java.util.Map.Entry;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class Service implements Symbol {
@@ -40,6 +41,10 @@ public class Service implements Symbol {
 		this.outputPorts.put(name, port);
 	}
 
+	public Collection<Entry<String, InputPort>> inputPorts(){
+		return this.inputPorts.entrySet();
+	}
+
 	public String parameter(){
 		return this.parameter;
 	}
@@ -55,14 +60,18 @@ public class Service implements Symbol {
 	public String prettyString(){
 		String ret = this.name;
 
-		ret += "\n\tInputPorts:";
-		for(Entry<String, InputPort> ent : this.inputPorts.entrySet()){
-			ret += "\n\t\t" + ent.getKey();
+		if(!this.inputPorts.isEmpty()){
+			ret += "\n\tInputPorts:";
+			for(Entry<String, InputPort> ent : this.inputPorts.entrySet()){
+				ret += "\n\t\t" + ent.getKey();
+			}
 		}
 
-		ret += "\n\tOutputPorts:";
-		for(Entry<String, OutputPort> ent : this.outputPorts.entrySet()){
-			ret += "\n\t\t" + ent.getKey();
+		if(!this.inputPorts.isEmpty()){
+			ret += "\n\tOutputPorts:";
+			for(Entry<String, OutputPort> ent : this.outputPorts.entrySet()){
+				ret += "\n\t\t" + ent.getKey();
+			}
 		}
 
 		return ret;

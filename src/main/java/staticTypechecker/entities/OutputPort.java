@@ -52,6 +52,10 @@ public class OutputPort implements Symbol {
 	}
 
 	public String prettyString(){
+		if(this.name == null){
+			return "null";
+		}
+		
 		return this.name + " at " + this.location + " via " + this.protocol + " using " + this.interfaces;
 	}
 }

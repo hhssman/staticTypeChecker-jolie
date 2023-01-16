@@ -1,6 +1,8 @@
 package staticTypechecker.visitors;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.OLVisitor;
@@ -87,7 +89,10 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.InputPort;
+import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 
@@ -114,23 +119,27 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 
 		service.setName(serviceName);
 
-		System.out.println("Service " + n.name() + "'s children: " + n.program().children());
-
-		// accept the program to process output ports and embeddings inside the service node
-		n.program().accept(this, symbols);
+		// System.out.println("Service " + n.name() + "'s children: " + n.program().children());
 
 		// for each output port of the service, create an OutputPort instance and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
 			if(child instanceof OutputPortInfo){
+				child.accept(this, symbols);
 				OutputPortInfo parsedChild = (OutputPortInfo)child;
 				String portName = parsedChild.id();
 				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
 			}
-			else if(child instanceof EmbedServiceNode){
-				// TODO here we check the parameter for the service
-			}
 		}
 		
+		for(OLSyntaxNode child : n.program().children()){
+			if(child instanceof EmbedServiceNode){
+				child.accept(this, symbols);
+
+				String portName = ((EmbedServiceNode)child).bindingPort().id();
+				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+			}
+		}
+
 		return null;
 	}
 
@@ -138,12 +147,12 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		// ready the data
 		String portName = n.id();
-		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null;
-		String protocol = n.protocolId().equals("") ? null : n.protocolId();
+		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null; // the location of the port, if it exists, otherwise null
+		String protocol = n.protocolId().equals("") ? null : n.protocolId(); // the id of the protocol, if it exsist, otherwise null
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
 												.stream()
 												.map(interfaceDef -> interfaceDef.name())
-												.distinct()
+												.distinct() // for some reason each interface appears twice, so this will remove duplicates
 												.collect(Collectors.toList()); 
 
 		// finish the base object
@@ -152,6 +161,65 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 		port.setLocation(location);
 		port.setProtocol(protocol);
 		port.setInterfaces(interfaces);
+
+		return null;
+	}
+
+	@Override
+	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
+		OLSyntaxNode passingParameter = n.passingParameter(); // TODO, check this
+		String portName = n.bindingPort().id();
+		String serviceName = n.serviceName();
+		boolean isNewPort = n.isNewPort();
+
+		if(!isNewPort){ // this is an "embed-in" case, where we use an existing output port, check if interfaces are compatible
+			HashMap<String, Operation> requiredOperations = new HashMap<>(); // maps operation names to operation objects of all operations the port requires
+			HashMap<String, Operation> providedOperations = new HashMap<>(); // maps operation names to operation objects of all operations the service provides
+
+			OutputPort bindingPort = (OutputPort)symbols.get(portName);
+			Service service = (Service)symbols.get(serviceName);
+
+			// find required operations
+			for(String interfaceName : bindingPort.interfaces()){ // loop through each implemented interface of the output port
+				Interface inter = (Interface)symbols.get(interfaceName);
+				for(Entry<String, Operation> ent : inter.operations()){ // loop through each operation required by the interface
+					requiredOperations.put(ent.getKey(), ent.getValue()); // add the operation as required
+				}
+			}
+
+			// find provided operations
+			for(Entry<String, InputPort> IPEnt : service.inputPorts()){ // loop through each input port of the service
+				InputPort port = IPEnt.getValue();
+				for(String interfaceName : port.interfaces()){ // loop through each implemented interface of the port 
+					Interface inter = (Interface)symbols.get(interfaceName);
+					for(Entry<String, Operation> OPEnt : inter.operations()){ // loop through each operation required by the interface
+						providedOperations.put(OPEnt.getKey(), OPEnt.getValue()); // add the operation as provided
+					}
+				}
+			}
+
+			// check if all required operations are provided
+			boolean portSatisfied = true;
+			String scapeGoatOp = null;
+			for(Entry<String, Operation> ent : requiredOperations.entrySet()){
+				String operationName = ent.getKey();
+				Operation op = ent.getValue();
+
+				if(
+					!providedOperations.containsKey(operationName) || 	// if the provided operations does not contain the required operation name
+					!op.isEqual(providedOperations.get(operationName)) 	// if the two operations are not equal
+				){ 
+					portSatisfied = false;
+					scapeGoatOp = operationName;
+					break;
+				}
+			}
+
+			if(!portSatisfied){ // interface requirements are not met by the service
+				// TODO, throw error
+				System.out.println("Error: service '" + serviceName + "' does not provide operation '" + scapeGoatOp + "' required by port '" + portName + "'");
+			}
+		}
 
 		return null;
 	}
@@ -538,11 +606,6 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(ProvideUntilStatement n, SymbolTable symbols) {
-		return null;
-	}
-
-	@Override
-	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
 		return null;
 	}
 }

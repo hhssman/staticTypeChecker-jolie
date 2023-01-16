@@ -1,9 +1,10 @@
 package staticTypechecker.entities;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import jolie.lang.parse.ast.InterfaceDefinition;
 import staticTypechecker.entities.Operation.OperationType;
 
 public class Interface implements Symbol {
@@ -23,6 +24,10 @@ public class Interface implements Symbol {
 		return this.operations.get(name);
 	}
 
+	public Collection<Entry<String, Operation>> operations(){
+		return this.operations.entrySet();
+	}
+
 	public String name(){
 		return this.name;
 	}
@@ -37,19 +42,40 @@ public class Interface implements Symbol {
 
 	@Override
 	public String prettyString(){
-		String ret = this.name + "\n";
+		if(this.name == null){
+			return "null";
+		}
 
-		ret += "\tOneWay:";
+		String ret = this.name;
+
+		ArrayList<Operation> oneWay = new ArrayList<>();
+		ArrayList<Operation> reqRes = new ArrayList<>();
+
+		// sort the operations
 		for(Entry<String, Operation> ent : this.operations.entrySet()){
-			if(ent.getValue().type() == OperationType.ONEWAY){
-				ret += "\n\t\t" + ent.getValue().prettyString();
+			Operation op = ent.getValue();
+			
+			if(op.type() == OperationType.ONEWAY){ // of type one way
+				oneWay.add(op);
+			}
+			else{ // of type req res
+				reqRes.add(op);
 			}
 		}
 		
+		// add oneway operations if any
+		ret += "\n\tOneWay:";
+		if(!oneWay.isEmpty()){
+			for(Operation op : oneWay){
+				ret += "\n\t\t" + op.prettyString();
+			}
+		}
+
+		// add req res operations if any
 		ret += "\n\tRequestResponse:";
-		for(Entry<String, Operation> ent : this.operations.entrySet()){
-			if(ent.getValue().type() == OperationType.REQRES){
-				ret += "\n\t\t" + ent.getValue().prettyString();
+		if(!reqRes.isEmpty()){
+			for(Operation op : reqRes){
+				ret += "\n\t\t" + op.prettyString();
 			}
 		}
 

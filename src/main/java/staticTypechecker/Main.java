@@ -45,7 +45,7 @@ public class Main {
 			sCollector.collect(failedMod);
 		}
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");
@@ -66,7 +66,7 @@ public class Main {
 			tProcessor.process(m);
 		});
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 3: process interfaces in all modules
 		System.out.println("STAGE 3: process interfaces");
@@ -76,7 +76,7 @@ public class Main {
 			iProcessor.process(m);
 		});
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 4: process service-parameters and input ports in all services
 		System.out.println("STAGE 4: process input ports and service parameters");
@@ -86,7 +86,7 @@ public class Main {
 			ipProcessor.process(m);
 		});
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 5.a: process output ports in all services
 		System.out.println("STAGE 5: process output ports");
