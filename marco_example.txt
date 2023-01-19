@@ -1,0 +1,28 @@
+service S(p:T){
+  init {
+    // VoidTree[p := T]
+    undef(x)
+    // VoidTree[p := T]\x
+    undef(y)
+    // VoidTree[p := T]\x\y
+  }
+}
+
+// T_out = visit(B, T_in)
+
+// visit(B:behaviour,T:type_structure):type_structure
+
+visit(B,T){
+  // TODO: implement me
+  return T
+}
+
+visit(undef(p),T){
+  return T\p
+}
+
+visit(B1; B2,T0){
+  T1 = visit(B1, T0)
+  T2 = visit(B2, T1)
+  return T2
+}

@@ -8,8 +8,8 @@ interface EmbedMeInterface1 {
 interface EmbedMeInterface2 {
 	RequestResponse:
 		embedHelloReqRes( string )( string )
-	// OneWay:
-	// 	embedHelloOneWay( string )
+	OneWay:
+		embedHelloOneWay( string )
 }
 
 service EmbedInService(count: int) {

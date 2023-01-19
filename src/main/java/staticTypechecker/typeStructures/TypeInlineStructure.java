@@ -3,6 +3,7 @@ package staticTypechecker.typeStructures;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
@@ -67,12 +68,16 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param structure the structure of the child
 	 * @return true if this node contains a child with the specified name, false otherwise
 	 */
-	public boolean hasChild(String name, TypeStructure structure){
+	public boolean contains(String name, TypeStructure structure){
 		if(!this.children.containsKey(name)){ // key does not exist
 			return false;
 		}
 
 		return this.children.get(name).isEquivalent(structure); // if they are equivalent, return true, and false otherwise
+	}
+
+	public boolean contains(String name){
+		return this.children.containsKey(name);
 	}
 
 	public TypeStructure getChild(String name){
@@ -92,6 +97,12 @@ public class TypeInlineStructure extends TypeStructure {
 		if(!this.finalized){
 			// TODO: decide if we override existing keys or throw error
 			this.children.put(name, child);
+		}
+	}
+
+	public void removeChild(String name){
+		if(!this.finalized){
+			this.children.remove(name);
 		}
 	}
 
@@ -133,12 +144,20 @@ public class TypeInlineStructure extends TypeStructure {
 		return true;
 	}
 
+	public static TypeInlineStructure getBaseSymbol(){
+		return new TypeInlineStructure(null, null, null);
+	}
+
 	public static TypeInlineStructure getBaseSymbol(TypeInlineDefinition typeDef){
 		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
 	}
 
 	public static TypeInlineStructure getBaseSymbol(TypeDefinitionLink typeDef){
 		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
+	}
+
+	public static TypeInlineStructure getBasicType(NativeType type){
+		return new TypeInlineStructure(BasicTypeDefinition.of(type), null, null);
 	}
 
 	/**
@@ -151,9 +170,9 @@ public class TypeInlineStructure extends TypeStructure {
 	public String prettyString(int level, HashMap<String, Void> recursive){
 		String prettyString = "";
 
-		prettyString += this.basicType.nativeType().id();
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "null";
 
-		if(this.cardinality.min() != 1 || this.cardinality.max() != 1){ // no range
+		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // no range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
 		}
 

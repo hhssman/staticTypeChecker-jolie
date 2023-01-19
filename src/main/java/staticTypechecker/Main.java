@@ -9,7 +9,9 @@ import jolie.lang.parse.ast.Program;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
+import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;
@@ -88,18 +90,29 @@ public class Main {
 
 		// printAllSymbols();
 
-		// stage 5.a: process output ports in all services
-		System.out.println("STAGE 5: process output ports");
+		// stage 5: process output ports and embeddings in all services
+		System.out.println("STAGE 5: process output ports and embeddings");
 
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
 		ModuleHandler.modules().values().forEach(m -> {
 			opProcessor.process(m);
 		});
 
-		printAllSymbols();
-
-		// stage 5.b: process embeddings in all services
+		// printAllSymbols();
+		
 		// stage 6: process service behaviors
+		System.out.println("STAGE 6: process behaviors");
+
+		BehaviorProcessor bProcessor = new BehaviorProcessor();
+		HashMap<String, TypeInlineStructure> trees = new HashMap<>();
+
+		ModuleHandler.modules().values().forEach(m -> {
+			TypeInlineStructure tree = new TypeInlineStructure(null, null, null);
+			trees.put(m.name(), tree);
+			bProcessor.process(m, tree);
+		});
+
+		// printAllSymbols();
 	}
 
 	private static void printAllSymbols(){

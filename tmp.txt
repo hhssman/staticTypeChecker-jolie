@@ -2,133 +2,33 @@ STAGE 1: discover symbols
 STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
-STAGE 5: process output ports
-Error: service 'EmbedInService' does not implement operation 'embedHelloOneWay' required by port 'EmbedInPort'
------------------------------------------
-Module: ./src/test/files/otherservice.ol
+STAGE 5: process output ports and embeddings
+STAGE 6: process behaviors
 
-EmbedInService: EmbedInService
-	InputPorts:
-		EmbeddedInputPort2
-	OutputPorts:
-
-EmbedAsService: EmbedAsService
-	InputPorts:
-		EmbeddedInputPort1
-		EmbeddedInputPort2
-	OutputPorts:
-
-EmbedMeInterface1: EmbedMeInterface1
-	OneWay:
-		embedHelloOneWay(string)
-	RequestResponse:
-		embedHelloReqRes(string)(string)
-
-EmbedMeInterface2: EmbedMeInterface2
-	OneWay:
-	RequestResponse:
-		embedHelloReqRes(string)(string)
-
-embedHelloOneWay: embedHelloOneWay(string)
-
-EmbeddedInputPort1: EmbeddedInputPort1 at local via sodep exposing [EmbedMeInterface1]
-
-embedHelloReqRes: embedHelloReqRes(string)(string)
-
-EmbeddedInputPort2: EmbeddedInputPort2 at local via sodep exposing [EmbedMeInterface2]
-______________
-Module: ./src/test/files/types.ol
-
-A: void {
-	tmp: int {
-		luna: double {}
-	}
-}
-
-B: string {
-	bSub: void {
-		tmp: int {
-			luna: double {}
+--------------------------
+a.b.c = jolie.lang.parse.ast.expression.ConstantIntegerExpression@7907ec20
+New tree: null {
+	a: void {
+		b: void {
+			c: void {}
 		}
 	}
 }
 
-C: int {
-	luna: double {}
-}
-
-ImportedInterface: ImportedInterface
-	OneWay:
-	RequestResponse:
-
-SecondImportedType: int {}
-______________
-Module: ./src/test/files/test.ol
-
-A: void {
-	tmp: int {
-		luna: double {}
+--------------------------
+undef(a.b.c)
+New tree: null {
+	a: void {
+		b: void {}
 	}
 }
 
-B: void {
-	name: string {}
+--------------------------
+undef(a.b)
+New tree: null {
+	a: void {}
 }
 
-C: int {
-	luna: double {}
-}
-
-MyOutputPort: MyOutputPort at socket://localhost:8081 via http using [ImportedInterface]
-
-EmbedInService: EmbedInService
-	InputPorts:
-		EmbeddedInputPort2
-	OutputPorts:
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(A)
-	RequestResponse:
-		helloReqRes(B)(string)
-
-EmbedAsService: EmbedAsService
-	InputPorts:
-		EmbeddedInputPort1
-		EmbeddedInputPort2
-	OutputPorts:
-
-EmbedAsPort: EmbedAsPort at null via null using [EmbedMeInterface1, EmbedMeInterface2]
-
-ImportedInterface: ImportedInterface
-	OneWay:
-	RequestResponse:
-
-EmbedMeInterface1: EmbedMeInterface1
-	OneWay:
-		embedHelloOneWay(string)
-	RequestResponse:
-		embedHelloReqRes(string)(string)
-
-EmbedMeInterface2: EmbedMeInterface2
-	OneWay:
-	RequestResponse:
-		embedHelloReqRes(string)(string)
-
-helloReqRes: helloReqRes(B)(string)
-
-MyInputPort: MyInputPort at socket://localhost:8080 via http exposing [MyInterface]
-
-MyService: MyService
-	InputPorts:
-		MyInputPort
-	OutputPorts:
-		MyOutputPort
-		EmbedInPort
-		EmbedAsPort
-
-EmbedInPort: EmbedInPort at null via null using [EmbedMeInterface1]
-
-helloOneway: helloOneway(A)
-______________
------------------------------------------
+--------------------------
+undef(a)
+New tree: null {}
