@@ -56,12 +56,28 @@
 // 	}
 // }
 
+type A: any {
+	choice: B
+}
 
-service MyService(param: any) {
+type B: int { intSub: int } | string { stringSub: string }
+
+service MyService(param: A) {
 	main {
-		a.b.c = 10
-		undef(a.b.c)
-		undef(a.b)
-		undef(a)
+		// a = 10
+		// a = "10"
+		// c = 10 + 1
+		// d = 10.1
+		// e = a.f.e
+
+		param.choice.intSub = 10
+		param.choice.stringSub = "10"
+
+		// a.b.c = 10
+		// nullProcess
+		// undef(a.b.c)
+		// undef(a.b)
+		// undef(a)
+		// undef(param)
 	}
 }

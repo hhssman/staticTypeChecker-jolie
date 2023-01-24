@@ -42,12 +42,16 @@ public class TypeChoiceStructure extends TypeStructure {
 		return left.toString() + " | " + right.toString();
 	}
 
+	public TypeChoiceStructure copy(boolean finalize){
+		return new TypeChoiceStructure(this.left.copy(finalize), this.right.copy(finalize));
+	}
+
 	public String prettyString(){
 		HashMap<String, Void> recursive = new HashMap<>();
 		return this.left.prettyString(0, recursive) + "\n|\n" + this.right.prettyString(0, recursive);
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		return this.left.prettyString(level, recursive) + "\n|\n" + this.right.prettyString(level, recursive);
+		return this.left.prettyString(level, recursive) + "\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level) + this.right.prettyString(level, recursive);
 	}
 }

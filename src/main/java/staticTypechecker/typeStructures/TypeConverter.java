@@ -101,30 +101,34 @@ public class TypeConverter {
 	 * @return the structure instance representing the specified type
 	 */
 	public static TypeStructure convert(TypeDefinition type){
-		return TypeConverter.convert(type, new HashMap<String, TypeStructure>());
+		return TypeConverter.convert(type, true, new HashMap<String, TypeStructure>());
 	}
 
-	private static TypeStructure convert(TypeDefinition type, HashMap<String, TypeStructure> recursiveTable){
+	public static TypeStructure convertNoFinalize(TypeDefinition type){
+		return TypeConverter.convert(type, false, new HashMap<String, TypeStructure>());
+	}
+
+	private static TypeStructure convert(TypeDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
 		if(type instanceof TypeInlineDefinition){
-			return TypeConverter.convert((TypeInlineDefinition)type, recursiveTable);
+			return TypeConverter.convert((TypeInlineDefinition)type, finalize, recursiveTable);
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return TypeConverter.convert((TypeChoiceDefinition)type, recursiveTable);
+			return TypeConverter.convert((TypeChoiceDefinition)type, finalize, recursiveTable);
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return TypeConverter.convert((TypeDefinitionLink)type, recursiveTable);
+			return TypeConverter.convert((TypeDefinitionLink)type, finalize, recursiveTable);
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
-			return TypeConverter.convert((TypeDefinitionUndefined)type, recursiveTable);
+			return TypeConverter.convert((TypeDefinitionUndefined)type, finalize, recursiveTable);
 		}
 
 		return null;
 	}
 
-	private static TypeInlineStructure convert(TypeInlineDefinition type, HashMap<String, TypeStructure> recursiveTable){
+	private static TypeInlineStructure convert(TypeInlineDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
 		TypeInlineStructure structure = new TypeInlineStructure(type.basicType(), type.cardinality(), type.context());
 
 		recursiveTable.put(type.name(), structure);
@@ -143,29 +147,31 @@ public class TypeConverter {
 					structure.addChild(childName, recursiveTable.get(typeName));
 				}
 				else{
-					TypeStructure subStructure = TypeConverter.convert(child.getValue(), recursiveTable);
+					TypeStructure subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
 					structure.addChild(childName, subStructure);
 				}
 			}
 		}
 
-		structure.finalize();
+		if(finalize){
+			structure.finalize();
+		}
 
 		return structure;
 	}
 
-	private static TypeStructure convert(TypeChoiceDefinition type, HashMap<String, TypeStructure> recursiveTable){
-		TypeStructure left = TypeConverter.convert(type.left(), recursiveTable);
-		TypeStructure right = TypeConverter.convert(type.right(), recursiveTable);
+	private static TypeStructure convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
+		TypeStructure left = TypeConverter.convert(type.left(), finalize, recursiveTable);
+		TypeStructure right = TypeConverter.convert(type.right(), finalize, recursiveTable);
 
 		return new TypeChoiceStructure(left, right);
 	}
 
-	private static TypeStructure convert(TypeDefinitionLink type, HashMap<String, TypeStructure> recursiveTable){
-		return TypeConverter.convert(type.linkedType(), recursiveTable);
+	private static TypeStructure convert(TypeDefinitionLink type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
+		return TypeConverter.convert(type.linkedType(), finalize, recursiveTable);
 	}
 
-	private static TypeStructure convert(TypeDefinitionUndefined type, HashMap<String, TypeStructure> recursiveTable){
+	private static TypeStructure convert(TypeDefinitionUndefined type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
 		return null;
 	}
 }

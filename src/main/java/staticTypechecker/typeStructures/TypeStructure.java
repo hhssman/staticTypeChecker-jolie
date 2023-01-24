@@ -19,6 +19,8 @@ public abstract class TypeStructure implements Symbol {
 		return null;
 	}
 
+	public abstract TypeStructure copy(boolean finalize);
+
 	public abstract String prettyString();
 	public abstract String prettyString(int level, HashMap<String, Void> recursive);
 }

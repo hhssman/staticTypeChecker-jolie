@@ -90,6 +90,7 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeChoiceStructure;
+import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.entities.Module;
 
@@ -112,7 +113,19 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	@Override
 	public Void visit(ServiceNode n, TypeInlineStructure tree) {
 		// System.out.println("Service " + n.name() + "'s children: " + n.program().children());
+		
+		// if the service has a configuration parameter, add it to the tree
+		if(n.parameterConfiguration().isPresent()){
+			String configParamPath = n.parameterConfiguration().get().variablePath();
+			TypeStructure configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type());
 
+			tree.addChild(configParamPath, configParamStruct);
+
+			System.out.println("Adding config parameter for " + n.name());
+			System.out.println("New tree: " + tree.prettyString());
+		}
+
+		// accept each child of the program of the service node
 		for(OLSyntaxNode child : n.program().children()){
 			child.accept(this, tree);
 		}
@@ -182,42 +195,128 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	@Override
 	public Void visit(AssignStatement n, TypeInlineStructure tree) {
 		System.out.println("\n--------------------------");
+		// create a single string for the path name, note only used for printing purposes, can be removed later
 		String pathName =  n.variablePath()
 							.path()
 							.stream()
 							.map(p -> p.key().toString())
 							.collect(Collectors.joining("."));
 
-		System.out.println(pathName + " = " + n.expression().toString());
+		System.out.println(pathName + " = " + n.expression().getClass());
 
 		List<Pair<OLSyntaxNode, OLSyntaxNode>> path = n.variablePath().path();
 		OLSyntaxNode expression = n.expression(); // TODO use for derivation later
+		expression.accept(this, tree);
 		
-		TypeInlineStructure currStruct = tree;
-		
-		for(int i = 0; i < path.size(); i++){
+		// starting at the root, follow the path of children in the tree to find the parent of the newly assigned child
+		// creating new entries if they does not exist
+		TypeInlineStructure currNode = tree;
+
+		for(int i = 0; i < path.size()-1; i++){
 			String currName = path.get(i).key().toString();
 
-			if(currStruct.contains(currName)){ // entity already exists in tree
-				TypeStructure newStruct = currStruct.getChild(currName);
+			if(currNode.contains(currName)){ // child name exists for this node
+				TypeStructure newStruct = currNode.getChild(currName);
 	
 				if(newStruct instanceof TypeInlineStructure){
-					currStruct = (TypeInlineStructure)newStruct;
+					currNode = (TypeInlineStructure)newStruct;
 				}
 				else{ // it is a TypeChoiceStructure
-					// currStruct = (TypeChoiceStructure)newStruct; // TODO
+					// currNode = (TypeChoiceStructure)newStruct; // TODO
 				}
 			}
 			else{ // entity does not exist, create a new
-				TypeInlineStructure type = TypeInlineStructure.getBasicType(NativeType.VOID); // TODO derive the type of the key here from the assignemtn value maybe?
+				TypeInlineStructure type = TypeInlineStructure.getBasicType(NativeType.VOID); // simply assign void to this, as we have never seen it before
 
-				currStruct.addChild(currName, type);
-				currStruct = (TypeInlineStructure)currStruct.getChild(currName);
+				currNode.addChild(currName, type);
+				currNode = (TypeInlineStructure)currNode.getChild(currName);
 			}
 		}
 
+		// actually add the child
+		// TODO, decide whether it should be allowed or not to assign a "wrong" value to config parameter
+		String childName = path.get(path.size()-1).key().toString();
+		TypeStructure type = this.deriveType(expression, tree); // TODO derive the type of the key here from the assignemtn value maybe?
+		System.out.println("add child " + childName + " of value " + type.prettyString() + " to parent " + currNode.prettyString());
+		currNode.addChild(childName, type);
 		
 		System.out.println("New tree: " + tree.prettyString());
+		return null;
+	}
+
+	private TypeStructure deriveType(OLSyntaxNode expression, TypeInlineStructure tree){
+		if(expression instanceof ConstantIntegerExpression){
+			return TypeInlineStructure.getBasicType(NativeType.INT);
+		}
+		if(expression instanceof ConstantStringExpression){
+			return TypeInlineStructure.getBasicType(NativeType.STRING);
+		}
+		if(expression instanceof SumExpressionNode){
+			System.out.println(((SumExpressionNode)expression).operands().stream().map(pair -> pair.key().toString() + ": " + pair.value().toString()).collect(Collectors.joining()));
+			// TODO derive type of the sum
+		}
+		if(expression instanceof ConstantDoubleExpression){
+			return TypeInlineStructure.getBasicType(NativeType.DOUBLE);
+		}
+		if(expression instanceof ConstantLongExpression){
+			return TypeInlineStructure.getBasicType(NativeType.LONG);
+		}
+		if(expression instanceof ConstantBoolExpression){
+			return TypeInlineStructure.getBasicType(NativeType.BOOL);
+		}
+		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d
+			List<Pair<OLSyntaxNode, OLSyntaxNode>> path = ((VariableExpressionNode)expression).variablePath().path();
+			TypeStructure struct = this.getStruct(tree, path);
+
+			if(struct == null){ // structure at the path does not exist
+				// TODO throw error
+			}
+		}
+
+		return TypeInlineStructure.getBasicType(NativeType.VOID);
+	}
+	
+	/**
+	 * Retrieves the structure in the provided tree on the provided path, if it exists
+	 * @param tree the tree to look in
+	 * @param path the path to follow
+	 * @return the structure node if it exists in the tree, null otherwise
+	 */
+	private TypeInlineStructure getStruct(TypeInlineStructure tree, List<Pair<OLSyntaxNode, OLSyntaxNode>> path){
+		System.out.println("Getting struct");
+		TypeInlineStructure currNode = tree;
+
+		for(int i = 0; i < path.size(); i++){
+			String currName = path.get(i).key().toString();
+			System.out.println(currName);
+
+			if(!currNode.contains(currName)){ // current node does not have a child with the name provided by the path
+				System.out.println("ERROR! " + currName + " does not exist!");
+				return null;
+			}
+
+			TypeStructure newStruct = currNode.getChild(currName);
+
+			if(newStruct instanceof TypeInlineStructure){
+				currNode = (TypeInlineStructure)newStruct;
+			}
+			else{ // it is a TypeChoiceStructure
+				// currNode = (TypeChoiceStructure)newStruct; // TODO
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public Void visit(NullProcessStatement n, TypeInlineStructure tree) {
+		System.out.println("null process");
+		System.out.println("New tree: " + tree.prettyString());
+		return null;
+	}
+
+	@Override
+	public Void visit(ConstantIntegerExpression n, TypeInlineStructure tree) {
 		return null;
 	}
 
@@ -367,11 +466,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	}
 
 	@Override
-	public Void visit(ConstantIntegerExpression n, TypeInlineStructure tree) {
-		return null;
-	}
-
-	@Override
 	public Void visit(ConstantDoubleExpression n, TypeInlineStructure tree) {
 		return null;
 	}
@@ -403,11 +497,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 	@Override
 	public Void visit(VariableExpressionNode n, TypeInlineStructure tree) {
-		return null;
-	}
-
-	@Override
-	public Void visit(NullProcessStatement n, TypeInlineStructure tree) {
 		return null;
 	}
 

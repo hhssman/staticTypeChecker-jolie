@@ -161,6 +161,28 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	/**
+	 * Creates a deep copy of this structure
+	 * @param finalize whether or not the copy should be finalized
+	 * @return the deep copy
+	 */
+	public TypeInlineStructure copy(boolean finalize){
+		TypeInlineStructure struct = new TypeInlineStructure(this.basicType, this.cardinality, this.context);
+
+		this.children.entrySet().forEach(child -> {
+			String childName = child.getKey();
+			TypeStructure childStruct = child.getValue();
+
+			struct.addChild(childName, childStruct.copy(finalize));
+		});
+
+		if(finalize){
+			struct.finalize();
+		}
+		
+		return struct;
+	}
+
+	/**
 	 * Get a nice string representing this structure
 	 */
 	public String prettyString(){
@@ -176,9 +198,8 @@ public class TypeInlineStructure extends TypeStructure {
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
 		}
 
-		prettyString += " {";
-		
 		if(this.children.size() != 0){
+			prettyString += " {";
 			for(Entry<String, TypeStructure> child : this.children.entrySet()){
 				if(recursive.containsKey(child.getKey())){
 					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
@@ -189,9 +210,6 @@ public class TypeInlineStructure extends TypeStructure {
 				}
 			}
 			prettyString += "\n" + "\t".repeat(level) + "}";
-		}
-		else{
-			prettyString += "}";
 		}
 
 		return prettyString;
