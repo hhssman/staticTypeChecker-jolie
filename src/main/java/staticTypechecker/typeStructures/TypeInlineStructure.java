@@ -89,13 +89,12 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	/**
-	 * Adds a new child to this node iff the type has not been finalized.
+	 * Adds the entry {name, child} to this node iff the type has not been finalized. Owerwrites existing entries. 
 	 * @param name the name of the child (what key to associate it to)
 	 * @param child the structure of the child
 	 */
-	public void addChild(String name, TypeStructure child){
+	public void put(String name, TypeStructure child){
 		if(!this.finalized){
-			// TODO: decide if we override existing keys or throw error
 			this.children.put(name, child);
 		}
 	}
@@ -172,7 +171,7 @@ public class TypeInlineStructure extends TypeStructure {
 			String childName = child.getKey();
 			TypeStructure childStruct = child.getValue();
 
-			struct.addChild(childName, childStruct.copy(finalize));
+			struct.put(childName, childStruct.copy(finalize));
 		});
 
 		if(finalize){
@@ -192,14 +191,14 @@ public class TypeInlineStructure extends TypeStructure {
 	public String prettyString(int level, HashMap<String, Void> recursive){
 		String prettyString = "";
 
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "null";
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "";
 
 		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // no range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
 		}
 
 		if(this.children.size() != 0){
-			prettyString += " {";
+			prettyString += "{";
 			for(Entry<String, TypeStructure> child : this.children.entrySet()){
 				if(recursive.containsKey(child.getKey())){
 					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";

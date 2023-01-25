@@ -1,5 +1,6 @@
 package staticTypechecker.typeStructures;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -27,7 +28,7 @@ public class TypeConverter {
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return new TypeChoiceStructure(null, null);
+			return new TypeChoiceStructure();
 		}
 
 		if(type instanceof TypeDefinitionLink){
@@ -58,7 +59,7 @@ public class TypeConverter {
 				TypeInlineStructure tmpStruct = (TypeInlineStructure)TypeConverter.convert(castedType); // create the structure in order to copy the children into the given structure
 
 				for(Entry<String, TypeStructure> child : tmpStruct.children().entrySet()){
-					castedStruct.addChild(child.getKey(), child.getValue());
+					castedStruct.put(child.getKey(), child.getValue());
 				}
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
@@ -81,9 +82,7 @@ public class TypeConverter {
 				TypeChoiceDefinition castedType = (TypeChoiceDefinition)type;
 				TypeChoiceStructure tmpStruct = (TypeChoiceStructure)TypeConverter.convert(castedType);
 
-				castedStruct.setLeft(tmpStruct.left());
-				castedStruct.setRight(tmpStruct.right());
-
+				castedStruct.setChoices(tmpStruct.choices());
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type def
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
@@ -144,11 +143,11 @@ public class TypeConverter {
 				}
 
 				if(recursiveTable.containsKey(typeName)){
-					structure.addChild(childName, recursiveTable.get(typeName));
+					structure.put(childName, recursiveTable.get(typeName));
 				}
 				else{
 					TypeStructure subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
-					structure.addChild(childName, subStructure);
+					structure.put(childName, subStructure);
 				}
 			}
 		}
@@ -161,10 +160,19 @@ public class TypeConverter {
 	}
 
 	private static TypeStructure convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
-		TypeStructure left = TypeConverter.convert(type.left(), finalize, recursiveTable);
-		TypeStructure right = TypeConverter.convert(type.right(), finalize, recursiveTable);
+		ArrayList<TypeStructure> choices = new ArrayList<>();
+		TypeConverter.getChoices(type, choices, recursiveTable);
+		return new TypeChoiceStructure(choices);
+	}
 
-		return new TypeChoiceStructure(left, right);
+	private static void getChoices(TypeDefinition type, ArrayList<TypeStructure> list, HashMap<String, TypeStructure> recursiveTable){
+		if(type instanceof TypeChoiceDefinition){
+			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, recursiveTable);
+			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, recursiveTable);
+		}
+		else{
+			list.add( TypeConverter.convert(type, false, recursiveTable) );
+		}
 	}
 
 	private static TypeStructure convert(TypeDefinitionLink type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){

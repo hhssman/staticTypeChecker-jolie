@@ -1,6 +1,8 @@
 package staticTypechecker.typeStructures;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 
@@ -10,28 +12,26 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
  * @author Kasper Bergstedt
  */
 public class TypeChoiceStructure extends TypeStructure {
-	private TypeStructure left;
-	private TypeStructure right;
+	private ArrayList<TypeStructure> choices;
 
-	public TypeChoiceStructure(TypeStructure left, TypeStructure right){
-		this.left = left;
-		this.right = right;
+	public TypeChoiceStructure(){
+		this.choices = new ArrayList<>();
 	}
 
-	public void setLeft(TypeStructure newLeft){
-		this.left = newLeft;
+	public TypeChoiceStructure(ArrayList<TypeStructure> choices){
+		this.choices = choices;
 	}
 
-	public void setRight(TypeStructure newRight){
-		this.right = newRight;
+	public void addChoice(TypeStructure choice){
+		this.choices.add(choice);
 	}
 
-	public TypeStructure left(){
-		return this.left;
+	public ArrayList<TypeStructure> choices(){
+		return this.choices;
 	}
 
-	public TypeStructure right(){
-		return this.right;
+	public void setChoices(ArrayList<TypeStructure> choices){
+		this.choices = choices;
 	}
 
 	public static TypeChoiceStructure getBaseSymbol(TypeChoiceDefinition typeDef){
@@ -39,19 +39,30 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String toString(){
-		return left.toString() + " | " + right.toString();
+		String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
+		return toString;
 	}
 
 	public TypeChoiceStructure copy(boolean finalize){
-		return new TypeChoiceStructure(this.left.copy(finalize), this.right.copy(finalize));
+		TypeChoiceStructure copy = new TypeChoiceStructure();
+		this.choices.forEach(c -> copy.addChoice(c));
+		return copy;
 	}
 
 	public String prettyString(){
 		HashMap<String, Void> recursive = new HashMap<>();
-		return this.left.prettyString(0, recursive) + "\n|\n" + this.right.prettyString(0, recursive);
+		String toString = this.choices.stream()
+										.map(c -> c.prettyString(0, recursive))
+										.collect(Collectors.joining("\n|\n"));
+
+		return toString;
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		return this.left.prettyString(level, recursive) + "\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level) + this.right.prettyString(level, recursive);
+		String toString = this.choices.stream()
+										.map(c -> c.prettyString(level, recursive))
+										.collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
+
+		return toString;
 	}
 }

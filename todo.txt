@@ -1,0 +1,5 @@
+TODO liste:
+	- 
+
+Evt.
+	- hvordan giver man ordentligt parametre fra command line? I en json fil, men hvordan giver man knuderne værdier?

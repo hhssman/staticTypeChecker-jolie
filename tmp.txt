@@ -1,86 +1,53 @@
 STAGE 1: discover symbols
 STAGE 2: process types
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
-Adding child in typeinline
 Adding config parameter for MyService
-New tree: null {
-	param: any {
-		choice: int {
-			intSub: int
+New tree: {
+	param: int {
+		choice: string {
+			s: string 
 		}
 		|
-		string {
-			stringSub: string
+		int {
+			i: int 
 		}
 	}
 }
 
 --------------------------
-param.choice.intSub = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-add child intSub of value int to parent any {
-	choice: int {
-		intSub: int
-	}
-	|
-	string {
-		stringSub: string
-	}
-}
-Adding child in typeinline
-New tree: null {
-	param: any {
-		intSub: int
-		choice: int {
-			intSub (recursive structure)
+param.choice.k = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+only one possibility
+add child k of value staticTypechecker.typeStructures.TypeInlineStructure@357246de
+New tree: {
+	param: int {
+		choice: string {
+			s: string 
 		}
 		|
-		string {
-			stringSub: string
+		int {
+			i: int 
 		}
 	}
 }
 
 --------------------------
-param.choice.stringSub = class jolie.lang.parse.ast.expression.ConstantStringExpression
-add child stringSub of value string to parent any {
-	intSub: int
-	choice: int {
-		intSub (recursive structure)
-	}
-	|
-	string {
-		stringSub: string
-	}
-}
-Adding child in typeinline
-New tree: null {
-	param: any {
-		intSub: int
-		stringSub: string
-		choice: int {
-			intSub (recursive structure)
+tmp = class jolie.lang.parse.ast.expression.VariableExpressionNode
+multiple possibilities
+of type inline
+choices: [staticTypechecker.typeStructures.TypeInlineStructure@71c7db30, staticTypechecker.typeStructures.TypeInlineStructure@19bb089b]
+add child tmp of value staticTypechecker.typeStructures.TypeInlineStructure@71c7db30 | staticTypechecker.typeStructures.TypeInlineStructure@19bb089b
+New tree: {
+	param: int {
+		choice: string {
+			s: string 
 		}
 		|
-		string {
-			stringSub (recursive structure)
+		int {
+			i: int 
 		}
 	}
+	tmp: void 
 }
