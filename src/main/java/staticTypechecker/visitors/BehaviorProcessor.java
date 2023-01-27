@@ -1,7 +1,9 @@
 package staticTypechecker.visitors;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -219,45 +221,50 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			if(currNode instanceof TypeInlineStructure){
 				TypeInlineStructure parsedNode = (TypeInlineStructure)currNode;
 
-				if(!parsedNode.contains(currName)){ // current node does not have a child with the name provided by the path
+				if(parsedNode.contains(currName)){ 
+					currNode = parsedNode.getChild(currName);
+				}
+				else{ // current node does not have a child with the name provided by the path
 					TypeInlineStructure newNode = TypeInlineStructure.getBasicType(NativeType.VOID);
-
+	
 					parsedNode.put(currName, newNode);
 					currNode = newNode;
-					System.out.println("add child " + currName + " of value " + currNode);
 				}
-	
-				currNode = parsedNode.getChild(currName);
 			}
 			else{ // instanceof TypeChoiceStructure
-				TypeStructure node = this.searchChoices((TypeChoiceStructure)currNode, currName);
+				ArrayList<TypeStructure> choicesWithMatchingChild = this.choicesWithChild((TypeChoiceStructure)currNode, currName);
 				
 				// TODO await answer from Marco and do what he says regarding the path of choice types
 				// if(node == null){ // none of the choices had a 
 				// 	node
 				// }
 
-				currNode = node;
+				if(choicesWithMatchingChild.isEmpty()){
+					break;
+				}
+				currNode = choicesWithMatchingChild.get(0);
 			}
 		}
 
 		// update the type of the found node
-		currNode = this.updateType(currNode, n.expression(), tree);
-		
+		TypeStructure newNode = this.updateType(currNode, n.expression(), tree);
+		tree.put(currName, newNode);
+
 		System.out.println("New tree: " + tree.prettyString());
 		
 		return null;
 	}
 
 	/**
-	 * Updates the type of the provided node with the type of the provided expression. 
-	 * @param node the node to update the type of
+	 * Creates a new TypeStructure from the provided node but with the type of the provided expression. Note the node must be in the provided tree.
+	 * @param node the node to create the new node from
 	 * @param expression the expression to derive the type from
 	 * @param tree the tree containing the node
 	 */
 	private TypeStructure updateType(TypeStructure node, OLSyntaxNode expression, TypeInlineStructure tree){
 		ArrayList<BasicTypeDefinition> newTypes = new ArrayList<>();
 
+		// find the new type
 		if(expression instanceof ConstantIntegerExpression){
 			newTypes.add(BasicTypeDefinition.of(NativeType.INT));
 		}
@@ -279,58 +286,54 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		}
 		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d
 			List<Pair<OLSyntaxNode, OLSyntaxNode>> path = ((VariableExpressionNode)expression).variablePath().path();
-			newTypes = this.getType(path, tree);
+			newTypes = this.getTypeByPath(path, tree);
 		}
 
-
+		// update the type
 		if(newTypes.size() == 0){
 			System.out.println("no new type???");
-			return node;
+			return node.copy(false);
 		}
-		else if(newTypes.size() == 1){ // only one possibility of type, return a TypeInlineStructure
-			System.out.println("only one possibility");
-			if(node instanceof TypeInlineStructure){ // if node is already a TypeInlineStructure, update basic type and return it
-				((TypeInlineStructure)node).setBasicType(newTypes.get(0));
-				return node;
+		else if(newTypes.size() == 1){ // only one possibility of type
+			System.out.println("1 new type");
+			BasicTypeDefinition newType = newTypes.get(0);
+
+			if(node instanceof TypeInlineStructure){ // if node is a TypeInlineStructure, copy it and add the children to the new node
+				TypeInlineStructure newNode = (TypeInlineStructure)node.copy(false);
+				newNode.setBasicType(newType);
+				return newNode;
+			}
+			else{ // node is a TypeChoiceStructure, change the basic type of each choice
+				TypeChoiceStructure newNode = (TypeChoiceStructure)node.copy(false);
+				newNode.choices().stream().forEach(c -> c.setBasicType(newType));
+				return newNode;
 			}
 
-			// node is a choice type, create a new TypeInlineStructure
-			return new TypeInlineStructure(newTypes.get(0), null, null);
 		}
 		else{ // more possibilities for types, return a TypeChoiceStructure 
-			System.out.println("multiple possibilities");
-			if(node instanceof TypeInlineStructure){ // its not a choice type, create a new and for each possible basic type add a TypeInlineStructure with the children of node
-				System.out.println("of type inline");
-				TypeChoiceStructure ret = new TypeChoiceStructure();
+			System.out.println(newTypes.size() + " new types");
+			TypeChoiceStructure newNode = new TypeChoiceStructure();
 
-				// stream over the BasicTypeDefinitions, mapping them to TypeInlineStructures with them as basic type, and join them to an arraylist, which can be set as the choices for the choice type  
-				ret.setChoices( 
-					newTypes.stream()
-							.map(t -> {
-								TypeInlineStructure tmp = new TypeInlineStructure(t, null, null);
-								for(Entry<String, TypeStructure> entry : ((TypeInlineStructure)node).children().entrySet()){
-									tmp.put(entry.getKey(), entry.getValue());
-								}
-								return tmp;
-							})
-							.collect(Collectors.toCollection(ArrayList::new))
-				);
-
-				System.out.println("choices: " + ret.choices());
-
-				return ret;
-
+			if(node instanceof TypeInlineStructure){ // node is an inline type, add a TypeInlineStructure with the children of node for each possible basic type
+				for(BasicTypeDefinition type : newTypes){
+					TypeInlineStructure newChoice = (TypeInlineStructure)node.copy(false);
+					newChoice.setBasicType(type);
+					newNode.addChoice(newChoice);
+				}
 			}
-			else{ // node is already a choice, overwrite the choices
-				System.out.println("of choice type");
-				((TypeChoiceStructure)node).setChoices( 
-					newTypes.stream()
-							.map(t -> new TypeInlineStructure(t, null, null))
-							.collect(Collectors.toCollection(ArrayList::new))
-				);
+			else{ // node is a TypeChoiceStructure, add choices node.choices X newTypes
+				TypeChoiceStructure parsedNode = (TypeChoiceStructure)node;
 
-				return node;
+				for(BasicTypeDefinition type : newTypes){ // loop through new types
+					for(TypeInlineStructure oldChoice : parsedNode.choices()){ // loop through old choices
+						TypeInlineStructure newChoice = oldChoice.copy(false);
+						newChoice.setBasicType(type);
+						newNode.addChoice(newChoice);
+					}
+				}
 			}
+
+			return newNode;
 		}
 	}
 	
@@ -338,61 +341,72 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	 * Retrieves the type of the node at the provided path in the provided tree. Note if the path does not exist, return void type
 	 * @param path the path to follow
 	 * @param tree the tree to look in
-	 * @return the type of the node at the path in the tree
+	 * @return an arraylist with all the possible types of the node at the path in the tree
 	 */
-	private ArrayList<BasicTypeDefinition> getType(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeStructure tree){
-		ArrayList<BasicTypeDefinition> ret = new ArrayList<>();
-		TypeStructure currNode = tree;
+	private ArrayList<BasicTypeDefinition> getTypeByPath(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeStructure tree){
+		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
 
-		for(int i = 0; i < path.size(); i++){
-			String currName = path.get(i).key().toString();
-
-			if(currNode instanceof TypeInlineStructure){
-				TypeInlineStructure parsedNode = (TypeInlineStructure)currNode;
-
-				if(!parsedNode.contains(currName)){ // current node does not have a child with the name provided by the path
-					ret.add( BasicTypeDefinition.of(NativeType.VOID) );
-					return ret;
-				}
+		if(path.isEmpty()){ // path is empty, this means that tree is the correct node, thus return the type of it
+			if(tree == null){
+				types.add(BasicTypeDefinition.of(NativeType.VOID));
+			}
+			else{
+				types.addAll(this.getTypes(tree));
+			}
+			return types;
+		}
+		else{ // path is not empty, continue the search
+			String childToLookFor = path.get(0).key().toString();
+			List<Pair<OLSyntaxNode, OLSyntaxNode>> remainingPath = path.subList(1, path.size());
 	
-				currNode = parsedNode.getChild(currName);
+			if(tree instanceof TypeInlineStructure){ // easy case, check the children
+				TypeInlineStructure parsedTree = (TypeInlineStructure)tree;
+	
+				TypeStructure child = parsedTree.getChild(childToLookFor);
+				types.addAll( this.getTypeByPath(remainingPath, child) );
+				// if(parsedTree.contains(childToLookFor)){
+				// }
 			}
-			else{ // instanceof TypeChoiceStructure
-				TypeStructure node = this.searchChoices((TypeChoiceStructure)currNode, currName);
-				currNode = node;
+			else{ // choice case, check each choice
+				TypeChoiceStructure parsedTree = (TypeChoiceStructure)tree;
+				ArrayList<TypeStructure> possibleChoices = this.choicesWithChild(parsedTree, childToLookFor);
+	
+				possibleChoices.forEach(c -> types.addAll(this.getTypeByPath(remainingPath, c)));
 			}
 		}
 
-
-		if(currNode instanceof TypeInlineStructure){ // there is only one basic type possible
-			ret.add( ((TypeInlineStructure)currNode).basicType() );
-		}
-		else{ // there can be multiple, find them and add them to the list
-			((TypeChoiceStructure)currNode).choices()
-											.stream()
-											.map(c -> {
-												if(c instanceof TypeInlineStructure){
-													return ((TypeInlineStructure)c).basicType();
-												}
-												return null;
-											})
-											.filter(c -> c != null)
-											.forEach(c -> ret.add(c));
-		}
-
-		return ret;
+		return types;
 	}
 
-	private TypeStructure searchChoices(TypeChoiceStructure node, String name){
+	private ArrayList<BasicTypeDefinition> getTypes(TypeStructure node){
+		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
+		
+		if(node instanceof TypeInlineStructure){
+			TypeInlineStructure parsedTree = (TypeInlineStructure)node;
+			types.add(parsedTree.basicType());
+		}
+		else{
+			TypeChoiceStructure parsedTree = (TypeChoiceStructure)node;
+			parsedTree.choices().forEach(c -> {
+				types.addAll( this.getTypes(c) );
+			});
+		}
+
+		return types;
+	}
+
+	private ArrayList<TypeStructure> choicesWithChild(TypeChoiceStructure node, String name){
+		ArrayList<TypeStructure> ret = new ArrayList<>();
+		
 		for(int i = 0; i < node.choices().size(); i++){
 			TypeStructure choice = node.choices().get(i);
 			
 			if(choice instanceof TypeInlineStructure && ((TypeInlineStructure)choice).contains(name)){
-				return ((TypeInlineStructure)choice).getChild(name);
+				ret.add( ((TypeInlineStructure)choice).getChild(name) );
 			}
 		}
 
-		return null;
+		return ret;
 	}
 
 	@Override

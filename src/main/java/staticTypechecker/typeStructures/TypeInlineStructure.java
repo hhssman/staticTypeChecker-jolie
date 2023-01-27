@@ -55,6 +55,10 @@ public class TypeInlineStructure extends TypeStructure {
 		this.basicType = basicType;
 	}
 
+	public void setChildren(HashMap<String, TypeStructure> children){
+		this.children = children;
+	}
+
 	public void setCardinality(Range cardinality){
 		this.cardinality = cardinality;
 	}
@@ -189,8 +193,7 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String prettyString = "";
-
+		String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "";
 
 		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // no range
@@ -205,10 +208,11 @@ public class TypeInlineStructure extends TypeStructure {
 				}
 				else{
 					recursive.put(child.getKey(), null);
-					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+1, recursive);
+					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, recursive);
 				}
 			}
 			prettyString += "\n" + "\t".repeat(level) + "}";
+			// prettyString += "\n" + "\t".repeat(level+1) + "}";
 		}
 
 		return prettyString;

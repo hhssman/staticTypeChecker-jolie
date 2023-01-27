@@ -70,7 +70,7 @@ type C: int {
 
 service MyService(param: A) {
 	main {
-		param.choice.k = 10
-		tmp = param.choice
+		// param.choice.k = 10
+		param = param.choice
 	}
 }

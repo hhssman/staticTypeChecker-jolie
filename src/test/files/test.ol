@@ -10,14 +10,13 @@ service S(){
 	embed Console as Console
 
 	main{
+		a = 10
+		a.b = 10
+		a.c = 10
+
+		d = a
+
 		dumpState@Runtime()(s1)
 		print@Console(s1)()
-
-		print@Console("\n--------------\n")()
-
-		param.choice.i = 10
-
-		dumpState@Runtime()(s2)
-		print@Console(s2)()
 	}
 }

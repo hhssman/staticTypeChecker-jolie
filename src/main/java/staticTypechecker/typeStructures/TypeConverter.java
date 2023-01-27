@@ -160,18 +160,24 @@ public class TypeConverter {
 	}
 
 	private static TypeStructure convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
-		ArrayList<TypeStructure> choices = new ArrayList<>();
+		ArrayList<TypeInlineStructure> choices = new ArrayList<>();
 		TypeConverter.getChoices(type, choices, recursiveTable);
 		return new TypeChoiceStructure(choices);
 	}
 
-	private static void getChoices(TypeDefinition type, ArrayList<TypeStructure> list, HashMap<String, TypeStructure> recursiveTable){
+	private static void getChoices(TypeDefinition type, ArrayList<TypeInlineStructure> list, HashMap<String, TypeStructure> recursiveTable){
 		if(type instanceof TypeChoiceDefinition){
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, recursiveTable);
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, recursiveTable);
 		}
+		else if(type instanceof TypeInlineDefinition){
+			list.add( TypeConverter.convert((TypeInlineDefinition)type, false, recursiveTable) );
+		}
+		else if(type instanceof TypeDefinitionLink){
+			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, recursiveTable);
+		}
 		else{
-			list.add( TypeConverter.convert(type, false, recursiveTable) );
+			System.out.println("CONVERTION NOT SUPPORTED");
 		}
 	}
 
