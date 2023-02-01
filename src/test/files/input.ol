@@ -57,7 +57,7 @@
 // }
 
 type A: int {
-	choice: B | C
+	choice: int | string
 }
 
 type B: string {
@@ -70,7 +70,7 @@ type C: int {
 
 service MyService(param: A) {
 	main {
-		// param.choice.k = 10
-		param = param.choice
+		a = 2
+		b = param.choice - 5
 	}
 }

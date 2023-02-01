@@ -10,11 +10,11 @@ service S(){
 	embed Console as Console
 
 	main{
-		a = 10
-		a.b = 10
-		a.c = 10
-
-		d = a
+		a = "hey" + true
+		b = "hey" - true
+		c = "hey" * true
+		d = "hey" / true
+		e = "hey" % true
 
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

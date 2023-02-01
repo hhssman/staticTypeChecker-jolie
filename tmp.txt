@@ -10,41 +10,44 @@ New tree:
 	param: 
 		int {
 			choice: 
-				string {
-					s: string 
-				}
-				|
-				int {
-					i: int 
-				}
+				int 
+				|string 
 		}
 }
 
 --------------------------
-param = class jolie.lang.parse.ast.expression.VariableExpressionNode
-2 new types
+a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
 New tree: 
 {
+	a: int 
 	param: 
-		string {
-			choice: 
-				string {
-					s: string 
-				}
-				|
-				int {
-					i: int 
-				}
-		}
-		|
 		int {
 			choice: 
-				string {
-					s: string 
-				}
-				|
-				int {
-					i: int 
-				}
+				int 
+				|string 
+		}
+}
+
+--------------------------
+b = class jolie.lang.parse.ast.expression.SumExpressionNode
+ADD: param.choice
+SUBTRACT: jolie.lang.parse.ast.expression.ConstantIntegerExpression@6adca536
+deriving type of ADD void int
+deriven type: int
+deriving type of ADD void string
+deriven type: string
+deriving type of SUBTRACT int int
+deriven type: int
+deriving type of SUBTRACT string int
+deriven type: int
+New tree: 
+{
+	a: int 
+	b: int 
+	param: 
+		int {
+			choice: 
+				int 
+				|string 
 		}
 }

@@ -1,6 +1,9 @@
 package staticTypechecker.visitors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -8,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jolie.lang.NativeType;
+import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -265,28 +269,15 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		ArrayList<BasicTypeDefinition> newTypes = new ArrayList<>();
 
 		// find the new type
-		if(expression instanceof ConstantIntegerExpression){
-			newTypes.add(BasicTypeDefinition.of(NativeType.INT));
-		}
-		if(expression instanceof ConstantStringExpression){
-			newTypes.add(BasicTypeDefinition.of(NativeType.STRING));
-		}
-		if(expression instanceof SumExpressionNode){
-			System.out.println(((SumExpressionNode)expression).operands().stream().map(pair -> pair.key().toString() + ": " + pair.value().toString()).collect(Collectors.joining()));
-			// TODO derive type of the sum
-		}
-		if(expression instanceof ConstantDoubleExpression){
-			newTypes.add(BasicTypeDefinition.of(NativeType.DOUBLE));
-		}
-		if(expression instanceof ConstantLongExpression){
-			newTypes.add(BasicTypeDefinition.of(NativeType.LONG));
-		}
-		if(expression instanceof ConstantBoolExpression){
-			newTypes.add(BasicTypeDefinition.of(NativeType.BOOL));
-		}
 		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d
 			List<Pair<OLSyntaxNode, OLSyntaxNode>> path = ((VariableExpressionNode)expression).variablePath().path();
 			newTypes = this.getTypeByPath(path, tree);
+		}
+		else if(expression instanceof SumExpressionNode){
+			newTypes.addAll(this.deriveTypeOfSum((SumExpressionNode)expression, tree));
+		}
+		else{
+			newTypes.add(this.getBasicType(expression));
 		}
 
 		// update the type
@@ -295,7 +286,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			return node.copy(false);
 		}
 		else if(newTypes.size() == 1){ // only one possibility of type
-			System.out.println("1 new type");
 			BasicTypeDefinition newType = newTypes.get(0);
 
 			if(node instanceof TypeInlineStructure){ // if node is a TypeInlineStructure, copy it and add the children to the new node
@@ -311,7 +301,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 		}
 		else{ // more possibilities for types, return a TypeChoiceStructure 
-			System.out.println(newTypes.size() + " new types");
 			TypeChoiceStructure newNode = new TypeChoiceStructure();
 
 			if(node instanceof TypeInlineStructure){ // node is an inline type, add a TypeInlineStructure with the children of node for each possible basic type
@@ -335,6 +324,167 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 			return newNode;
 		}
+	}
+
+	private ArrayList<BasicTypeDefinition> deriveTypeOfSum(SumExpressionNode node, TypeInlineStructure tree){
+		HashSet<BasicTypeDefinition> typesOfSum = new HashSet<>();
+		typesOfSum.add(BasicTypeDefinition.of(NativeType.VOID)); // set initial type to void to make sure it will be overwritten by any other type
+
+		for(Pair<OperandType, OLSyntaxNode> p : node.operands()){
+			System.out.println(p.key() + ": " + p.value());
+		}
+
+		for(int i = 0; i < node.operands().size(); i++){
+
+			OperandType currOp = node.operands().get(i).key();
+			OLSyntaxNode currTerm = node.operands().get(i).value();
+			
+			ArrayList<BasicTypeDefinition> possibleTypesOfTerm;
+
+			if(currTerm instanceof VariableExpressionNode){ // a variable used in the sum, such as 10 + b
+				possibleTypesOfTerm = this.getTypeByPath(((VariableExpressionNode)currTerm).variablePath().path(), tree);
+			}
+			else{
+				BasicTypeDefinition typeOfCurrTerm = this.getBasicType(node.operands().get(i).value());
+				possibleTypesOfTerm = new ArrayList<>();
+				possibleTypesOfTerm.add(typeOfCurrTerm);
+			}
+
+			HashSet<BasicTypeDefinition> oldTypesOfSum = (HashSet<BasicTypeDefinition>)typesOfSum.clone();
+			typesOfSum.clear();
+
+			for(BasicTypeDefinition t1 : oldTypesOfSum){
+				for(BasicTypeDefinition t2 : possibleTypesOfTerm){
+					BasicTypeDefinition type = this.deriveTypeOfOperation(currOp, t1, t2);
+					System.out.println("deriven type: " + type.nativeType().id());
+					typesOfSum.add(type);
+				}
+			}
+
+		}
+
+		return new ArrayList<>(typesOfSum);
+	}
+	 
+	private BasicTypeDefinition getBasicType(OLSyntaxNode node){
+		if(node instanceof ConstantBoolExpression){
+			return BasicTypeDefinition.of(NativeType.BOOL);
+		}
+		if(node instanceof ConstantIntegerExpression){
+			return BasicTypeDefinition.of(NativeType.INT);
+		}
+		if(node instanceof ConstantLongExpression){
+			return BasicTypeDefinition.of(NativeType.LONG);
+		}
+		if(node instanceof ConstantDoubleExpression){
+			return BasicTypeDefinition.of(NativeType.DOUBLE);
+		}
+		if(node instanceof ConstantStringExpression){
+			return BasicTypeDefinition.of(NativeType.STRING);
+		}
+
+		return BasicTypeDefinition.of(NativeType.VOID);
+	}
+
+	private BasicTypeDefinition deriveTypeOfOperation(OperandType operand, BasicTypeDefinition t1, BasicTypeDefinition t2){
+		System.out.println("deriving type of " + operand.toString() + " " + t1.nativeType().id() + " " + t2.nativeType().id());
+
+		NativeType type1 = t1.nativeType();
+		NativeType type2 = t2.nativeType();
+
+		// if one of the types is void, return the other
+		if(type1 == NativeType.VOID){
+			return BasicTypeDefinition.of(type2);
+		}
+		else if(type2 == NativeType.VOID){
+			return BasicTypeDefinition.of(type1);
+		}
+
+		// check all combinations and return the appropriate type (NOTE the appropriate types have been deducted by doing all these sums and seeing what the runtime interpreter derives them to)
+		if(type1 == NativeType.BOOL){
+			if(type2 == NativeType.STRING){
+				if(operand == OperandType.ADD){ // adding a bool with a string results in string
+					return BasicTypeDefinition.of(NativeType.STRING);
+				}
+				else{ // all other cases are bools
+					return BasicTypeDefinition.of(NativeType.BOOL);
+				}
+			}
+			else{
+				return BasicTypeDefinition.of(type2);
+			}
+		}
+		else if(type1 == NativeType.INT){
+			if(type2 == NativeType.BOOL || type2 == NativeType.INT){
+				return BasicTypeDefinition.of(NativeType.INT);
+			}
+			else if(type2 == NativeType.LONG){
+				return BasicTypeDefinition.of(NativeType.LONG);
+			}
+			else if(type2 == NativeType.DOUBLE){
+				return BasicTypeDefinition.of(NativeType.DOUBLE);
+			}
+			else if(type2 == NativeType.STRING){
+				if(operand == OperandType.ADD){
+					return BasicTypeDefinition.of(NativeType.STRING);
+				}
+				if(operand == OperandType.SUBTRACT || operand == OperandType.MULTIPLY){
+					return BasicTypeDefinition.of(NativeType.INT);
+				}
+
+				// TODO throw warning, division and modulo with a string only allowed if string can be parsed to int
+				return BasicTypeDefinition.of(NativeType.INT);
+			}
+		}
+		else if(type1 == NativeType.LONG){
+			if(type2 == NativeType.BOOL || type2 == NativeType.INT){
+				return BasicTypeDefinition.of(NativeType.LONG);
+			}
+			if(type2 == NativeType.DOUBLE){
+				return BasicTypeDefinition.of(NativeType.DOUBLE);
+			}
+			if(type2 == NativeType.STRING){
+				if(operand == OperandType.ADD){
+					return BasicTypeDefinition.of(NativeType.STRING);
+				}
+				else if(operand == OperandType.SUBTRACT || operand == OperandType.MULTIPLY){
+					return BasicTypeDefinition.of(NativeType.LONG);
+				}
+
+				// TODO throw warning, division and modulo with a string only allowed if string can be parsed to int
+				return BasicTypeDefinition.of(NativeType.LONG);
+			}
+
+		}
+		else if(type1 == NativeType.DOUBLE){
+			if(type2 == NativeType.BOOL || type2 == NativeType.INT || type2 == NativeType.LONG || type2 == NativeType.DOUBLE){
+				return BasicTypeDefinition.of(NativeType.DOUBLE);
+			}
+			if(type2 == NativeType.STRING){
+				if(operand == OperandType.ADD){
+					return BasicTypeDefinition.of(NativeType.DOUBLE);
+				}
+				
+				return BasicTypeDefinition.of(NativeType.DOUBLE);
+			}
+		}
+		else if(type1 == NativeType.STRING){
+			if(type2 == NativeType.BOOL){
+				if(operand == OperandType.MULTIPLY){
+					return BasicTypeDefinition.of(NativeType.BOOL);
+				}
+
+				return BasicTypeDefinition.of(NativeType.STRING);
+			}
+
+			if(operand == OperandType.ADD){
+				return BasicTypeDefinition.of(NativeType.STRING);
+			}
+
+			return BasicTypeDefinition.of(type2);
+		}
+
+		return BasicTypeDefinition.of(NativeType.VOID);
 	}
 	
 	/**
@@ -363,13 +513,22 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				TypeInlineStructure parsedTree = (TypeInlineStructure)tree;
 	
 				TypeStructure child = parsedTree.getChild(childToLookFor);
+
+				if(child == null){ // node does not have child
+					types.add(BasicTypeDefinition.of(NativeType.VOID));
+					return types;
+				}
+
 				types.addAll( this.getTypeByPath(remainingPath, child) );
-				// if(parsedTree.contains(childToLookFor)){
-				// }
 			}
 			else{ // choice case, check each choice
 				TypeChoiceStructure parsedTree = (TypeChoiceStructure)tree;
 				ArrayList<TypeStructure> possibleChoices = this.choicesWithChild(parsedTree, childToLookFor);
+
+				if(possibleChoices.isEmpty()){
+					types.add(BasicTypeDefinition.of(NativeType.VOID));
+					return types;
+				}
 	
 				possibleChoices.forEach(c -> types.addAll(this.getTypeByPath(remainingPath, c)));
 			}
@@ -397,7 +556,11 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 	private ArrayList<TypeStructure> choicesWithChild(TypeChoiceStructure node, String name){
 		ArrayList<TypeStructure> ret = new ArrayList<>();
-		
+
+		if(node == null){
+			return ret;
+		}
+
 		for(int i = 0; i < node.choices().size(); i++){
 			TypeStructure choice = node.choices().get(i);
 			

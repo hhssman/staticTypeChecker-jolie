@@ -59,7 +59,7 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String toString = "";
+		String toString = "\n" + "\t".repeat(level);
 
 		for(int i = 0; i < this.choices.size()-1; i++){
 			HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
