@@ -7,47 +7,29 @@ STAGE 6: process behaviors
 Adding config parameter for MyService
 New tree: 
 {
-	param: 
-		int {
-			choice: 
-				int 
-				|string 
-		}
+	param:	
+			int {
+				choice:	string 
+						|
+						int 
+			}
 }
 
 --------------------------
-a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+param.choice.k = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+Looking for child param
+child found!
+Looking for child choice
+child found!
+UPDATING BASIC TYPE OF ALL CHOICES
+CHOICES BEFORE: int, string, 
+CHOICES AFTER: int, int, 
 New tree: 
 {
-	a: int 
-	param: 
-		int {
-			choice: 
-				int 
-				|string 
-		}
-}
-
---------------------------
-b = class jolie.lang.parse.ast.expression.SumExpressionNode
-ADD: param.choice
-SUBTRACT: jolie.lang.parse.ast.expression.ConstantIntegerExpression@6adca536
-deriving type of ADD void int
-deriven type: int
-deriving type of ADD void string
-deriven type: string
-deriving type of SUBTRACT int int
-deriven type: int
-deriving type of SUBTRACT string int
-deriven type: int
-New tree: 
-{
-	a: int 
-	b: int 
-	param: 
-		int {
-			choice: 
-				int 
-				|string 
-		}
+	param:	
+			int {
+				choice:	int 
+						|
+						int 
+			}
 }

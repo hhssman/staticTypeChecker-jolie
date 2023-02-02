@@ -1,20 +1,26 @@
 from runtime import Runtime
 from console import Console
 
-type A: void { i: int } | void { j: int }
+type A: int {
+	choice: int | string
+}
 
-service S(){
+type B: string {
+	s: string
+}
+
+type C: int {
+	i: int
+}
+
+service MyService() {
 	execution{ single }
 	
 	embed Runtime as Runtime
 	embed Console as Console
 
-	main{
-		a = "hey" + true
-		b = "hey" - true
-		c = "hey" * true
-		d = "hey" / true
-		e = "hey" % true
+	main {
+		a = "hello" % true
 
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

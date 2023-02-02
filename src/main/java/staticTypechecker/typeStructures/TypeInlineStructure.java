@@ -186,6 +186,39 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	/**
+	 * Dummy equals
+	 * TODO make it correct
+	 */
+	public boolean equals(Object other){
+		System.out.println("equals called!");
+		if(!(other instanceof TypeInlineStructure)){
+			return false;
+		}
+
+		TypeInlineStructure parsedOther = (TypeInlineStructure)other;
+
+		if(!this.basicType.equals(parsedOther.basicType())){
+			return false;
+		}
+
+		if(!this.cardinality.equals(parsedOther.cardinality)){
+			return false;
+		}
+
+		for(Entry<String, TypeStructure> child : this.children.entrySet()){
+			if(!parsedOther.contains(child.getKey())){
+				return false;
+			}
+
+			if(!parsedOther.getChild(child.getKey()).equals(child.getValue())){
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get a nice string representing this structure
 	 */
 	public String prettyString(){
@@ -208,11 +241,10 @@ public class TypeInlineStructure extends TypeStructure {
 				}
 				else{
 					recursive.put(child.getKey(), null);
-					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, recursive);
+					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ":\t" + child.getValue().prettyString(level+3, recursive);
 				}
 			}
 			prettyString += "\n" + "\t".repeat(level) + "}";
-			// prettyString += "\n" + "\t".repeat(level+1) + "}";
 		}
 
 		return prettyString;

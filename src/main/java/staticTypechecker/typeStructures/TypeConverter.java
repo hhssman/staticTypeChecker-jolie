@@ -2,6 +2,7 @@ package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
@@ -160,12 +161,12 @@ public class TypeConverter {
 	}
 
 	private static TypeStructure convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
-		ArrayList<TypeInlineStructure> choices = new ArrayList<>();
+		HashSet<TypeInlineStructure> choices = new HashSet<>();
 		TypeConverter.getChoices(type, choices, recursiveTable);
 		return new TypeChoiceStructure(choices);
 	}
 
-	private static void getChoices(TypeDefinition type, ArrayList<TypeInlineStructure> list, HashMap<String, TypeStructure> recursiveTable){
+	private static void getChoices(TypeDefinition type, HashSet<TypeInlineStructure> list, HashMap<String, TypeStructure> recursiveTable){
 		if(type instanceof TypeChoiceDefinition){
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, recursiveTable);
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, recursiveTable);

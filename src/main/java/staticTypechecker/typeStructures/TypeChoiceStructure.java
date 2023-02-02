@@ -2,8 +2,10 @@ package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 
 /**
@@ -12,13 +14,13 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
  * @author Kasper Bergstedt
  */
 public class TypeChoiceStructure extends TypeStructure {
-	private ArrayList<TypeInlineStructure> choices;
+	private HashSet<TypeInlineStructure> choices;
 
 	public TypeChoiceStructure(){
-		this.choices = new ArrayList<>();
+		this.choices = new HashSet<>();
 	}
 
-	public TypeChoiceStructure(ArrayList<TypeInlineStructure> choices){
+	public TypeChoiceStructure(HashSet<TypeInlineStructure> choices){
 		this.choices = choices;
 	}
 
@@ -27,15 +29,38 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public ArrayList<TypeInlineStructure> choices(){
-		return this.choices;
+		return new ArrayList<>(this.choices);
 	}
 
 	public void setChoices(ArrayList<TypeInlineStructure> choices){
-		this.choices = choices;
+		this.choices = new HashSet<>(choices);
 	}
 
 	public static TypeChoiceStructure getBaseSymbol(TypeChoiceDefinition typeDef){
 		return (TypeChoiceStructure)TypeConverter.createBaseStructure(typeDef);
+	}
+
+	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
+		System.out.println("UPDATING BASIC TYPE OF ALL CHOICES");
+		System.out.print("CHOICES BEFORE: ");
+		for(TypeInlineStructure choice : this.choices){
+			System.out.print(choice.basicType().nativeType().id() + ", ");
+		}
+		System.out.println();
+
+		this.choices = this.choices.stream()
+		.map(c -> {
+			c.setBasicType(newType);
+			return c;
+		})
+		.distinct()
+		.collect(Collectors.toCollection(HashSet::new));
+
+		System.out.print("CHOICES AFTER: ");
+		for(TypeInlineStructure choice : this.choices){
+			System.out.print(choice.basicType().nativeType().id() + ", ");
+		}
+		System.out.println();
 	}
 
 	public String toString(){
@@ -59,16 +84,11 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String toString = "\n" + "\t".repeat(level);
-
-		for(int i = 0; i < this.choices.size()-1; i++){
+		String toString = "";
+		toString += this.choices.stream().map(c -> {
 			HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
-			toString += this.choices.get(i).prettyString(level, rec);
-			toString += "\n" + "\t".repeat(level) + "|";
-		}
-
-		HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
-		toString += this.choices.get(this.choices.size()-1).prettyString(level, rec);
+			return c.prettyString(level, rec);
+		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
 		return toString;
 	}
