@@ -5,31 +5,54 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 Adding config parameter for MyService
-New tree: 
-{
-	param:	
-			int {
-				choice:	string 
-						|
-						int 
-			}
+New tree: {
+	param: 
+		string 
+		|
+		int 
 }
 
 --------------------------
-param.choice.k = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-Looking for child param
-child found!
-Looking for child choice
-child found!
-UPDATING BASIC TYPE OF ALL CHOICES
-CHOICES BEFORE: int, string, 
-CHOICES AFTER: int, int, 
-New tree: 
-{
-	param:	
-			int {
-				choice:	int 
-						|
-						int 
-			}
+a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+1 new type
+New tree: {
+	a: int 
+
+	param: 
+		string 
+		|
+		int 
+}
+
+--------------------------
+a.x = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+1 new type
+New tree: {
+	a: int {
+			x: int 
+		}
+
+	param: 
+		string 
+		|
+		int 
+}
+
+--------------------------
+a = class jolie.lang.parse.ast.expression.VariableExpressionNode
+multiple new types
+New tree: {
+	a: 
+		string {
+			x: int 
+		}
+		|
+		int {
+			x: int 
+		}
+
+	param: 
+		string 
+		|
+		int 
 }

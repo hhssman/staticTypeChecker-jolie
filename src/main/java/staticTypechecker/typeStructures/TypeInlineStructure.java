@@ -1,7 +1,9 @@
 package staticTypechecker.typeStructures;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
@@ -86,6 +88,15 @@ public class TypeInlineStructure extends TypeStructure {
 
 	public TypeStructure getChild(String name){
 		return this.children.get(name);
+	}
+
+	public String getChildName(TypeStructure struct){
+		for(Entry<String, TypeStructure> child : this.children.entrySet()){
+			if(child.getValue().equals(struct)){
+				return child.getKey();
+			}
+		}
+		return "";
 	}
 
 	public HashMap<String, TypeStructure> children(){
@@ -190,7 +201,6 @@ public class TypeInlineStructure extends TypeStructure {
 	 * TODO make it correct
 	 */
 	public boolean equals(Object other){
-		System.out.println("equals called!");
 		if(!(other instanceof TypeInlineStructure)){
 			return false;
 		}
@@ -201,9 +211,9 @@ public class TypeInlineStructure extends TypeStructure {
 			return false;
 		}
 
-		if(!this.cardinality.equals(parsedOther.cardinality)){
-			return false;
-		}
+		// if(!this.cardinality.equals(parsedOther.cardinality)){
+		// 	return false;
+		// }
 
 		for(Entry<String, TypeStructure> child : this.children.entrySet()){
 			if(!parsedOther.contains(child.getKey())){
@@ -218,6 +228,20 @@ public class TypeInlineStructure extends TypeStructure {
 		return true;
 	}
 
+	public int hashCode(){
+		int hashCode = 0;
+		
+		hashCode += this.basicType.hashCode();
+
+		int i = 1;
+		for(Entry<String, TypeStructure> child : this.children.entrySet()){
+			hashCode += (i * 31) * child.getValue().hashCode();
+			i++;
+		}
+
+		return hashCode;
+	}
+
 	/**
 	 * Get a nice string representing this structure
 	 */
@@ -226,24 +250,39 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
+		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
+		String prettyString = "";
 		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "";
 
-		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // no range
+		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
 		}
 
 		if(this.children.size() != 0){
+			// prettyString += "\n" + "\t".repeat(level) + "{";
 			prettyString += "{";
-			for(Entry<String, TypeStructure> child : this.children.entrySet()){
+
+			prettyString += this.children.entrySet().stream().map(child -> {
 				if(recursive.containsKey(child.getKey())){
-					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
+					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
 				}
 				else{
 					recursive.put(child.getKey(), null);
-					prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + ":\t" + child.getValue().prettyString(level+3, recursive);
+					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, recursive);
 				}
-			}
+			})
+			.collect(Collectors.joining("\n"));
+
+			// for(Entry<String, TypeStructure> child : this.children.entrySet()){
+			// 	if(recursive.containsKey(child.getKey())){
+			// 		prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
+			// 	}
+			// 	else{
+			// 		recursive.put(child.getKey(), null);
+			// 		prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + "(" + level + ")" + ": " + child.getValue().prettyString(level+2, recursive);
+			// 	}
+			// 	prettyString += "\n" + "\t".repeat(level+1);
+			// }
 			prettyString += "\n" + "\t".repeat(level) + "}";
 		}
 

@@ -41,13 +41,6 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
-		System.out.println("UPDATING BASIC TYPE OF ALL CHOICES");
-		System.out.print("CHOICES BEFORE: ");
-		for(TypeInlineStructure choice : this.choices){
-			System.out.print(choice.basicType().nativeType().id() + ", ");
-		}
-		System.out.println();
-
 		this.choices = this.choices.stream()
 		.map(c -> {
 			c.setBasicType(newType);
@@ -55,12 +48,6 @@ public class TypeChoiceStructure extends TypeStructure {
 		})
 		.distinct()
 		.collect(Collectors.toCollection(HashSet::new));
-
-		System.out.print("CHOICES AFTER: ");
-		for(TypeInlineStructure choice : this.choices){
-			System.out.print(choice.basicType().nativeType().id() + ", ");
-		}
-		System.out.println();
 	}
 
 	public String toString(){
@@ -84,7 +71,7 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String toString = "";
+		String toString = "\n" + "\t".repeat(level);
 		toString += this.choices.stream().map(c -> {
 			HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
 			return c.prettyString(level, rec);

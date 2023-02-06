@@ -56,20 +56,16 @@
 // 	}
 // }
 
-type A: int {
-	choice: int | string
-}
+type A: int | string
 
-type B: string {
-	s: string
-}
+type B: int { y: int } | string { z: string }
 
-type C: int {
-	i: int
-}
+type C: int { x: int }
 
 service MyService(param: A) {
 	main {
-		param.choice.k = 10
+		a = 10
+		a.x = 10
+		a = param
 	}
 }
