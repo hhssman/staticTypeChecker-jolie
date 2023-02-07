@@ -170,19 +170,21 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		System.out.println("undef(" + pathName + ")");
 
 		List<Pair<OLSyntaxNode, OLSyntaxNode>> path = n.variablePath().path();
-		ArrayList<Pair<TypeStructure, TypeInlineStructure>> nodesToRemove = this.findNodes(path, tree, false);
+		ArrayList<Pair<TypeInlineStructure, String>> nodesToRemove = this.findNodes(path, tree, false);
 
-		for(Pair<TypeStructure, TypeInlineStructure> pair : nodesToRemove){
-			if(pair.key() instanceof TypeInlineStructure){
-				((TypeInlineStructure)pair.key()).removeChild(pair.value());
-			}
-			else{
-				TypeChoiceStructure parsedParent = (TypeChoiceStructure)pair.key();
-				for(TypeInlineStructure choice : parsedParent.choices()){
-					choice.removeChild(pair.value());
-				}
-				parsedParent.removeDuplicates();
-			}
+		for(Pair<TypeInlineStructure, String> pair : nodesToRemove){
+			pair.key().removeChild(pair.value());
+
+			// if(pair.key() instanceof TypeInlineStructure){
+			// 	((TypeInlineStructure)pair.key()).removeChild(pair.value());
+			// }
+			// else{
+			// 	TypeChoiceStructure parsedParent = (TypeChoiceStructure)pair.key();
+			// 	for(TypeInlineStructure choice : parsedParent.choices()){
+			// 		choice.removeChild(pair.value());
+			// 	}
+			// 	parsedParent.removeDuplicates();
+			// }
 		}
 		
 		System.out.println("New tree: " + tree.prettyString());
@@ -195,23 +197,28 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		// create a single string for the path name, note only used for printing purposes, can be removed later
 		String pathName = this.pathToString(n.variablePath().path());
 		System.out.println(pathName + " = " + n.expression().getClass());
-
-		// starting at the root, follow the path in the tree to find the node to change the type of
-		// creating new entries if they does not exist
+		
 		List<Pair<OLSyntaxNode, OLSyntaxNode>> path = n.variablePath().path();
 		
-		ArrayList<Pair<TypeStructure, TypeInlineStructure>> nodesToUpdate = this.findNodes(path, tree, true);
-		nodesToUpdate.forEach(pair -> {
-			if(pair.key() instanceof TypeInlineStructure){
-				this.updateType(((TypeInlineStructure)pair.key()), pair.value(), n.expression(), tree);
-			}
-			else{
-				TypeChoiceStructure parsedParent = (TypeChoiceStructure)pair.key();
-				for(TypeInlineStructure choice : parsedParent.choices()){
-					this.updateType(choice, pair.value(), n.expression(), tree);
-				}
-			}
-		});
+		ArrayList<Pair<TypeInlineStructure, String>> nodesToUpdate = this.findNodes(path, tree, true);
+		for(Pair<TypeInlineStructure, String> pair : nodesToUpdate){
+			TypeInlineStructure parent = pair.key();
+			TypeStructure node = parent.getChild(pair.value());
+
+			this.updateType(pair.key(), node, n.expression(), tree);
+		}
+
+		// nodesToUpdate.forEach(pair -> {
+		// 	if(pair.key() instanceof TypeInlineStructure){
+		// 		this.updateType(((TypeInlineStructure)pair.key()), pair.value(), n.expression(), tree);
+		// 	}
+		// 	else{
+		// 		TypeChoiceStructure parsedParent = (TypeChoiceStructure)pair.key();
+		// 		for(TypeInlineStructure choice : parsedParent.choices()){
+		// 			this.updateType(choice, pair.value(), n.expression(), tree);
+		// 		}
+		// 	}
+		// });
 
 		System.out.println("New tree: " + tree.prettyString());
 		
@@ -225,12 +232,12 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	 * @param createPath if true creates the path with void nodes if it does not exist
 	 * @return an ArrayList of the nodes found at the path
 	 */
-	private ArrayList<Pair<TypeStructure, TypeInlineStructure>> findNodes(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeInlineStructure root, boolean createPath){
-		return this.findNodesRec(path, root, root, createPath);
+	private ArrayList<Pair<TypeInlineStructure, String>> findNodes(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeInlineStructure root, boolean createPath){
+		return this.findNodesRec(path, root, createPath);
 	}
 
-	private ArrayList<Pair<TypeStructure, TypeInlineStructure>> findNodesRec(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeInlineStructure root, TypeStructure useAsParent, boolean createPath){
-		ArrayList<Pair<TypeStructure, TypeInlineStructure>> ret = new ArrayList<>();
+	private ArrayList<Pair<TypeInlineStructure, String>> findNodesRec(List<Pair<OLSyntaxNode, OLSyntaxNode>> path, TypeInlineStructure root, boolean createPath){
+		ArrayList<Pair<TypeInlineStructure, String>> ret = new ArrayList<>();
 				
 		if(path.isEmpty()){
 			return ret;
@@ -246,22 +253,23 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				TypeInlineStructure parsedChild = (TypeInlineStructure)childNode;
 
 				if(path.size() == 1){ // this was the child to look for
-					ret.add(new Pair<TypeStructure, TypeInlineStructure>(useAsParent, parsedChild));
+					ret.add(new Pair<TypeInlineStructure, String>(root, childToLookFor));
 				}
 				else{ // continue the search
 					List<Pair<OLSyntaxNode, OLSyntaxNode>> remainingPath = path.subList(1, path.size());
-					ret.addAll(this.findNodesRec(remainingPath, parsedChild, parsedChild, createPath));
+					ret.addAll(this.findNodesRec(remainingPath, parsedChild, createPath));
 				}
 			}
 			else{ // child is choice node, continue search in all choices
 				TypeChoiceStructure parsedChild = (TypeChoiceStructure)childNode;
 				
 				if(path.size() == 1){ // this was the child to look for, add all the choices to ret
-					ret.addAll(parsedChild.choices().stream().map(c -> new Pair<TypeStructure, TypeInlineStructure>(useAsParent, c)).collect(Collectors.toList()));
+					// ret.addAll(parsedChild.choices().stream().map(c -> new Pair<TypeStructure, TypeInlineStructure>(useAsParent, c)).collect(Collectors.toList()));
+					ret.add(new Pair<TypeInlineStructure,String>(root, childToLookFor));
 				}
 				else{ // continue the search in each choice
 					List<Pair<OLSyntaxNode, OLSyntaxNode>> remainingPath = path.subList(1, path.size());
-					parsedChild.choices().forEach(c -> ret.addAll(this.findNodesRec(remainingPath, c, parsedChild, createPath)));
+					parsedChild.choices().forEach(c -> ret.addAll(this.findNodesRec(remainingPath, c, createPath)));
 				}
 			}
 		}
@@ -272,10 +280,10 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			root.put(childToLookFor, newChild);
 			
 			if(path.size() == 1){
-				ret.add(new Pair<TypeStructure,TypeInlineStructure>(useAsParent, newChild));
+				ret.add(new Pair<TypeInlineStructure,String>(root, childToLookFor));
 			}
 			else{
-				ret.addAll(this.findNodesRec(remainingPath, newChild, newChild, createPath));
+				ret.addAll(this.findNodesRec(remainingPath, newChild, createPath));
 			}
 		}
 
@@ -289,13 +297,13 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	}
 
 	/**
-	 * Updates the provided node (child) with the type given by expression.
+	 * Updates the provided node with the type given by expression.
 	 * @param parentNode the parent of the node to update
-	 * @param node the node to create the new node from
+	 * @param node the node to update
 	 * @param expression the expression to derive the type from
 	 * @param tree the tree containing the node
 	 */
-	private void updateType(TypeInlineStructure parentNode, TypeStructure child, OLSyntaxNode expression, TypeInlineStructure tree){
+	private TypeStructure updateType(TypeInlineStructure parentNode, TypeStructure child, OLSyntaxNode expression, TypeInlineStructure tree){
 		ArrayList<BasicTypeDefinition> newTypes = new ArrayList<>();
 
 		// find the new type(s)
@@ -318,6 +326,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		// update the type
 		if(newTypes.size() == 0){
 			System.out.println("no new type???");
+			return child;
 		}
 		else if(newTypes.size() == 1){ // only one possibility of type, overwrite existing basic types
 			BasicTypeDefinition newType = newTypes.get(0);
@@ -325,10 +334,11 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			if(child instanceof TypeInlineStructure){ // if node is a TypeInlineStructure, simply change the type
 				((TypeInlineStructure)child).setBasicType(newType);
 			}
-			else{ // node is a TypeChoiceStructure, change the basic type of each choice
+			else{ // child is a TypeChoiceStructure, change the basic type of each choice
 				((TypeChoiceStructure)child).updateBasicTypeOfChoices(newType);
 			}
-
+			
+			return child;
 		}
 		else{ // more possibilities for types, node must be converted to a choice type
 			if(child instanceof TypeInlineStructure){ // node is an inline type, add children of node to each possible type
@@ -341,6 +351,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				}
 
 				parentNode.put(childName, newNode); // update the child
+				return newNode;
 			}
 			else{ // node is a TypeChoiceStructure, for each old choice and for each new type: create a choice with the children of the old choice and the new type
 				TypeChoiceStructure parsedNode = (TypeChoiceStructure)child;
@@ -352,6 +363,8 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 						parsedNode.addChoice(newChoice);
 					}
 				}
+
+				return child;
 			}
 		}
 	}
@@ -604,14 +617,145 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		return ret;
 	}
 
+	/**
+	 * In a case of a deep copy, a << b, a will be overwritten with everything in b, both the root and all children. However, if a has some children, which b does not have, a will keep them. Ex:
+	 * 	a = 10 {
+	 * 		x = "hey"
+	 * 	}
+	 * 	
+	 * 	b = 20 {
+	 * 		y = 30
+	 * 	}
+	 * 
+	 * 	then
+	 * 
+	 * 	a << b ==>
+	 * 
+	 * 	a = 20 {
+	 * 		x = "hey"
+	 * 		y = 30
+	 * 	}
+	 */
 	@Override
 	public Void visit(DeepCopyStatement n, TypeInlineStructure tree) {
-		System.out.println("deep copy");
+		System.out.println("\n--------------------------");
+		List<Pair<OLSyntaxNode, OLSyntaxNode>> updatePath = n.leftPath().path();
+		System.out.println(this.pathToString(updatePath) + " << " + n.rightExpression());
 
-		List<Pair<OLSyntaxNode, OLSyntaxNode>> path = n.leftPath().path();
-		System.out.println("deep copy path: " + this.pathToString(path));
+		// find the nodes to update and their parents
+		// ArrayList<Pair<TypeStructure, TypeInlineStructure>> nodesToUpdate = this.findNodes(updatePath, tree, false);
+		ArrayList<Pair<TypeInlineStructure, String>> nodesToUpdate = this.findNodes(updatePath, tree, false);
 
-		System.out.println("Right expression class: " + n.rightExpression().getClass());
+		// find the new basic type(s)
+		OLSyntaxNode expression = n.rightExpression();
+		
+		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d, here we also must save the children
+			List<Pair<OLSyntaxNode, OLSyntaxNode>> expressionPath = ((VariableExpressionNode)expression).variablePath().path();
+			ArrayList<TypeInlineStructure> nodesToMerge = new ArrayList<>();
+			ArrayList<Pair<TypeInlineStructure, String>> nodesToCopy = this.findNodes(expressionPath, tree, false);
+
+			// run through the nodes and add the basic type and children to their respective data structures
+			for(Pair<TypeInlineStructure, String> pair : nodesToCopy){
+				TypeStructure node = pair.key().getChild(pair.value());
+				
+				if(node instanceof TypeInlineStructure){
+					nodesToMerge.add((TypeInlineStructure)node);
+				}
+				else{
+					for(TypeInlineStructure choice : ((TypeChoiceStructure)node).choices()){
+						nodesToMerge.add(choice);
+					}
+				}
+			}
+
+			for(Pair<TypeInlineStructure, String> u : nodesToUpdate){
+				TypeInlineStructure parent = u.key();
+				TypeStructure nodeToUpdate = u.key().getChild(u.value());
+	
+				if(nodesToMerge.size() == 1 && nodeToUpdate instanceof TypeInlineStructure){ // only case where newNode should be a TypeInlineStructure
+					TypeInlineStructure newNode = new TypeInlineStructure(null, null, null);
+					TypeInlineStructure newType = nodesToMerge.get(0);
+	
+					newNode.setBasicType(newType.basicType());
+					newNode.setChildren(newType.children());
+	
+					if(nodeToUpdate instanceof TypeInlineStructure){
+						newNode.addChildren(((TypeInlineStructure)nodeToUpdate).children());
+					}
+					else{
+						for(TypeInlineStructure choice : ((TypeChoiceStructure)nodeToUpdate).choices()){
+							newNode.addChildren(choice.children());
+						}
+					}
+	
+					parent.put(u.value(), newNode);
+				}
+				else{
+					TypeChoiceStructure newNode = new TypeChoiceStructure();
+	
+					for(TypeInlineStructure newType : nodesToMerge){
+						if(nodeToUpdate instanceof TypeInlineStructure){
+							TypeInlineStructure copy = (TypeInlineStructure)nodeToUpdate.copy(false);
+							copy.setBasicType(newType.basicType());
+							copy.addChildren(newType.children());
+	
+							newNode.addChoice(copy);
+						}
+						else{
+							for(TypeInlineStructure choice1 : ((TypeChoiceStructure)nodeToUpdate).choices()){
+								for(TypeInlineStructure choice2 : nodesToMerge){
+									TypeInlineStructure mergedChoice = new TypeInlineStructure(null, null, null);
+									
+									// use basic type of choice2 and also assign choice2's children last such that they overwrite any intersecting children of choice1
+									mergedChoice.setBasicType(choice2.basicType());
+									mergedChoice.addChildren(choice1.children());
+									mergedChoice.addChildren(choice2.children());
+	
+									newNode.addChoice(mergedChoice);
+								}
+							}
+						}
+					}
+	
+					parent.put(u.value(), newNode);
+				}
+			}	
+		}
+		else{
+			// TODO fix this part
+			ArrayList<BasicTypeDefinition> newTypes = new ArrayList<>();
+
+			if(expression instanceof SumExpressionNode){
+				newTypes.addAll(this.deriveTypeOfSum((SumExpressionNode)expression, tree));
+			}
+			else if(expression instanceof ProductExpressionNode){
+				newTypes.addAll(this.deriveTypeOfProduct((ProductExpressionNode)expression, tree));
+			}
+			else{
+				newTypes.add(this.getBasicType(expression));
+			}
+
+			for(Pair<TypeInlineStructure, String> pair : nodesToUpdate){
+				TypeStructure nodeToUpdate = pair.key().getChild(pair.value());
+
+				if(newTypes.size() == 1 && nodeToUpdate instanceof TypeInlineStructure){
+					((TypeInlineStructure)nodeToUpdate).setBasicType(newTypes.get(0));
+				}
+				else{
+					TypeChoiceStructure newNode = new TypeChoiceStructure();
+
+					for(BasicTypeDefinition type : newTypes){
+						for(TypeInlineStructure oldChoice : ((TypeChoiceStructure)nodeToUpdate).choices()){
+							TypeInlineStructure copy = (TypeInlineStructure)oldChoice.copy(false);
+							copy.setBasicType(type);
+							newNode.addChoice(newNode);
+						}
+					}
+				}
+			}
+		}
+
+		System.out.println("New tree: " + tree.prettyString());
 
 		return null;
 	}

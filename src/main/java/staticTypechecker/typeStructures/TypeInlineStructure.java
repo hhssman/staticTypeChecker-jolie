@@ -61,6 +61,10 @@ public class TypeInlineStructure extends TypeStructure {
 		this.children = children;
 	}
 
+	public void addChildren(HashMap<String, TypeStructure> children){
+		this.children.putAll(children);
+	}
+
 	public void setCardinality(Range cardinality){
 		this.cardinality = cardinality;
 	}
@@ -271,12 +275,13 @@ public class TypeInlineStructure extends TypeStructure {
 			prettyString += "{";
 
 			prettyString += this.children.entrySet().stream().map(child -> {
-				if(recursive.containsKey(child.getKey())){
+				if(recursive.containsKey(child.getKey()) && false){ // TODO, temporarily disabled recursive checking (IT IS WRONG TO ONLY CHECK THE CHILD NAME)
 					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
 				}
 				else{
 					recursive.put(child.getKey(), null);
-					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, recursive);
+					HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
+					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
 				}
 			})
 			.collect(Collectors.joining("\n"));

@@ -57,18 +57,18 @@
 // }
 
 type T: void {
+	a: A
 	b: B
 }
 
-type A: int | string
+type A: int { x: int } | string
 
-type B: int { x: int } | int { x: string }
+// type B: int
+type B: int | bool
 
-type C: int { x: int }
-
-service MyService(param: B) {
+service MyService(param: T) {
 	main {
-		a = param.x
+		param.a << param.b
 	}
 }
 

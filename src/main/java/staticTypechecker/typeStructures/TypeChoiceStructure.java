@@ -28,6 +28,21 @@ public class TypeChoiceStructure extends TypeStructure {
 		this.choices.add(choice);
 	}
 
+	public void addChoice(TypeChoiceStructure choice){
+		for(TypeInlineStructure newChoice : choice.choices()){
+			this.choices.add(newChoice);
+		}
+	}
+
+	public void addChoice(TypeStructure choice){
+		if(choice instanceof TypeInlineStructure){
+			this.addChoice((TypeInlineStructure)choice);
+		}
+		else{
+			this.addChoice((TypeChoiceStructure)choice);
+		}
+	}
+
 	public ArrayList<TypeInlineStructure> choices(){
 		return new ArrayList<>(this.choices);
 	}
