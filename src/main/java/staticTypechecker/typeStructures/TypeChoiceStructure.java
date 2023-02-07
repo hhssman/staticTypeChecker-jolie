@@ -50,6 +50,10 @@ public class TypeChoiceStructure extends TypeStructure {
 		.collect(Collectors.toCollection(HashSet::new));
 	}
 
+	public void removeDuplicates(){
+		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
+	}
+
 	public String toString(){
 		String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
 		return toString;

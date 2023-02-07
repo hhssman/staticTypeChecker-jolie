@@ -120,6 +120,14 @@ public class TypeInlineStructure extends TypeStructure {
 		}
 	}
 
+	public void removeChild(TypeInlineStructure child){
+		for(Entry<String, TypeStructure> ent : this.children.entrySet()){
+			if(ent.getValue().equals(child)){
+				this.children.remove(ent.getKey());
+			}
+		}
+	}
+
 	public void finalize(){
 		this.finalized = true;
 	}

@@ -56,16 +56,19 @@
 // 	}
 // }
 
+type T: void {
+	b: B
+}
+
 type A: int | string
 
-type B: int { y: int } | string { z: string }
+type B: int { x: int } | int { x: string }
 
 type C: int { x: int }
 
-service MyService(param: A) {
+service MyService(param: B) {
 	main {
-		a = 10
-		a.x = 10
-		a = param
+		a = param.x
 	}
 }
+

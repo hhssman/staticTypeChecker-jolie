@@ -20,7 +20,12 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a = "hello" % true
+		a = 10
+		a.x = "hey"
+		a.y = 20
+		a.z = true
+
+		b << a
 
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

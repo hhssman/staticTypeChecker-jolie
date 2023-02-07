@@ -7,52 +7,29 @@ STAGE 6: process behaviors
 Adding config parameter for MyService
 New tree: {
 	param: 
-		string 
-		|
-		int 
-}
-
---------------------------
-a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-1 new type
-New tree: {
-	a: int 
-
-	param: 
-		string 
-		|
-		int 
-}
-
---------------------------
-a.x = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-1 new type
-New tree: {
-	a: int {
-			x: int 
-		}
-
-	param: 
-		string 
-		|
-		int 
-}
-
---------------------------
-a = class jolie.lang.parse.ast.expression.VariableExpressionNode
-multiple new types
-New tree: {
-	a: 
-		string {
-			x: int 
+		int {
+			x: string 
 		}
 		|
 		int {
 			x: int 
 		}
+}
 
-	param: 
+--------------------------
+a = class jolie.lang.parse.ast.expression.VariableExpressionNode
+New tree: {
+	a: 
 		string 
 		|
 		int 
+
+	param: 
+		int {
+			x: string 
+		}
+		|
+		int {
+			x: int 
+		}
 }
