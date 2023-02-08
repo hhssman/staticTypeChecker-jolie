@@ -2,8 +2,10 @@ package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 
 /**
@@ -12,30 +14,59 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
  * @author Kasper Bergstedt
  */
 public class TypeChoiceStructure extends TypeStructure {
-	private ArrayList<TypeStructure> choices;
+	private HashSet<TypeInlineStructure> choices;
 
 	public TypeChoiceStructure(){
-		this.choices = new ArrayList<>();
+		this.choices = new HashSet<>();
 	}
 
-	public TypeChoiceStructure(ArrayList<TypeStructure> choices){
+	public TypeChoiceStructure(HashSet<TypeInlineStructure> choices){
 		this.choices = choices;
 	}
 
-	public void addChoice(TypeStructure choice){
+	public void addChoice(TypeInlineStructure choice){
 		this.choices.add(choice);
 	}
 
-	public ArrayList<TypeStructure> choices(){
-		return this.choices;
+	public void addChoice(TypeChoiceStructure choice){
+		for(TypeInlineStructure newChoice : choice.choices()){
+			this.choices.add(newChoice);
+		}
 	}
 
-	public void setChoices(ArrayList<TypeStructure> choices){
-		this.choices = choices;
+	public void addChoice(TypeStructure choice){
+		if(choice instanceof TypeInlineStructure){
+			this.addChoice((TypeInlineStructure)choice);
+		}
+		else{
+			this.addChoice((TypeChoiceStructure)choice);
+		}
+	}
+
+	public ArrayList<TypeInlineStructure> choices(){
+		return new ArrayList<>(this.choices);
+	}
+
+	public void setChoices(ArrayList<TypeInlineStructure> choices){
+		this.choices = new HashSet<>(choices);
 	}
 
 	public static TypeChoiceStructure getBaseSymbol(TypeChoiceDefinition typeDef){
 		return (TypeChoiceStructure)TypeConverter.createBaseStructure(typeDef);
+	}
+
+	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
+		this.choices = this.choices.stream()
+		.map(c -> {
+			c.setBasicType(newType);
+			return c;
+		})
+		.distinct()
+		.collect(Collectors.toCollection(HashSet::new));
+	}
+
+	public void removeDuplicates(){
+		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
 	}
 
 	public String toString(){
@@ -45,7 +76,7 @@ public class TypeChoiceStructure extends TypeStructure {
 
 	public TypeChoiceStructure copy(boolean finalize){
 		TypeChoiceStructure copy = new TypeChoiceStructure();
-		this.choices.forEach(c -> copy.addChoice(c));
+		this.choices.forEach(c -> copy.addChoice(c.copy(finalize)));
 		return copy;
 	}
 
@@ -59,9 +90,11 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(int level, HashMap<String, Void> recursive){
-		String toString = this.choices.stream()
-										.map(c -> c.prettyString(level, recursive))
-										.collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
+		String toString = "\n" + "\t".repeat(level);
+		toString += this.choices.stream().map(c -> {
+			HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
+			return c.prettyString(level, rec);
+		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
 		return toString;
 	}

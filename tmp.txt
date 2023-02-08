@@ -6,48 +6,41 @@ STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 Adding config parameter for MyService
 New tree: {
-	param: int {
-		choice: string {
-			s: string 
+	param: void {
+			a: 
+				string 
+				|
+				int {
+					x: int 
+				}
+
+			b: 
+				bool 
+				|
+				int 
 		}
-		|
-		int {
-			i: int 
-		}
-	}
 }
 
 --------------------------
-param.choice.k = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-only one possibility
-add child k of value staticTypechecker.typeStructures.TypeInlineStructure@357246de
+param.a << param.b
 New tree: {
-	param: int {
-		choice: string {
-			s: string 
-		}
-		|
-		int {
-			i: int 
-		}
-	}
-}
+	param: void {
+			a: 
+				int {
+					x: int 
+				}
+				|
+				bool {
+					x: int 
+				}
+				|
+				bool 
+				|
+				int 
 
---------------------------
-tmp = class jolie.lang.parse.ast.expression.VariableExpressionNode
-multiple possibilities
-of type inline
-choices: [staticTypechecker.typeStructures.TypeInlineStructure@71c7db30, staticTypechecker.typeStructures.TypeInlineStructure@19bb089b]
-add child tmp of value staticTypechecker.typeStructures.TypeInlineStructure@71c7db30 | staticTypechecker.typeStructures.TypeInlineStructure@19bb089b
-New tree: {
-	param: int {
-		choice: string {
-			s: string 
+			b: 
+				bool 
+				|
+				int 
 		}
-		|
-		int {
-			i: int 
-		}
-	}
-	tmp: void 
 }

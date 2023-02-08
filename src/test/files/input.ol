@@ -56,21 +56,19 @@
 // 	}
 // }
 
-type A: int {
-	choice: B | C
+type T: void {
+	a: A
+	b: B
 }
 
-type B: string {
-	s: string
-}
+type A: int { x: int } | string
 
-type C: int {
-	i: int
-}
+// type B: int
+type B: int | bool
 
-service MyService(param: A) {
+service MyService(param: T) {
 	main {
-		param.choice.k = 10
-		tmp = param.choice
+		param.a << param.b
 	}
 }
+
