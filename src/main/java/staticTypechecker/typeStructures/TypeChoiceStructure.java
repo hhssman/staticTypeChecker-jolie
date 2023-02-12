@@ -69,6 +69,23 @@ public class TypeChoiceStructure extends TypeStructure {
 		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
 	}
 
+	/**
+	 * Retrieves the choices of this structure which have a child with the provided name
+	 * @param childName the name of the child to look for
+	 * @return an ArrayList of TypeInlineStructures, all which have a child with the provided name
+	 */
+	public ArrayList<TypeInlineStructure> choicesWithChild(String childName){
+		ArrayList<TypeInlineStructure> ret = new ArrayList<>();
+
+		for(TypeInlineStructure choice : this.choices){
+			if(choice.contains(childName)){
+				ret.add(choice);
+			}
+		}
+
+		return ret;
+	}
+
 	public String toString(){
 		String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
 		return toString;

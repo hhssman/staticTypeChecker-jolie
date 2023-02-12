@@ -68,7 +68,7 @@ type B: int | bool
 
 service MyService(param: T) {
 	main {
-		param.a << param.b
+		sara << 10
 	}
 }
 

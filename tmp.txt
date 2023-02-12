@@ -8,21 +8,21 @@ Adding config parameter for MyService
 New tree: {
 	param: void {
 			a: 
-				string 
-				|
 				int {
 					x: int 
 				}
+				|
+				string 
 
 			b: 
-				bool 
-				|
 				int 
+				|
+				bool 
 		}
 }
 
 --------------------------
-param.a << param.b
+sara << jolie.lang.parse.ast.expression.ConstantIntegerExpression@256216b3
 New tree: {
 	param: void {
 			a: 
@@ -30,17 +30,13 @@ New tree: {
 					x: int 
 				}
 				|
-				bool {
-					x: int 
-				}
-				|
-				bool 
-				|
-				int 
+				string 
 
 			b: 
-				bool 
-				|
 				int 
+				|
+				bool 
 		}
+
+	sara: int 
 }
