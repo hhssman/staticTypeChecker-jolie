@@ -64,11 +64,11 @@ type T: void {
 type A: int { x: int } | string
 
 // type B: int
-type B: int | bool
+type B: int | bool | double
 
 service MyService(param: T) {
 	main {
-		sara << 10
+		param.a << param.b
 	}
 }
 

@@ -1,18 +1,6 @@
 from runtime import Runtime
 from console import Console
 
-type A: int {
-	choice: int | string
-}
-
-type B: string {
-	s: string
-}
-
-type C: int {
-	i: int
-}
-
 service MyService() {
 	execution{ single }
 	
@@ -20,7 +8,9 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a << 10 +2
+		a = 10
+		b = a instanceof int
+		c = a instanceof bool
 
 		dumpState@Runtime()(s1)
 		print@Console(s1)()
