@@ -1,5 +1,5 @@
 TODO liste:
-	- 
+	- check https://docs.jolie-lang.org/v1.10.x/language-tools-and-standard-library/basics/handling-simple-data/index.html?highlight=basi#basic-data-types ift. instanceof og type casting. Måske der er nogle weird objeckter til dette, som jeg skal tage højde for?
 
 Evt.
 	- hvordan giver man ordentligt parametre fra command line? I en json fil, men hvordan giver man knuderne værdier?
