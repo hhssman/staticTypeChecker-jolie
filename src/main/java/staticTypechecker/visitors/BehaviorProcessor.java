@@ -189,17 +189,18 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		return null;
 	}
 
+	
+	private ArrayList<Pair<TypeInlineStructure, String>> findParentAndName(Path path, TypeInlineStructure root, boolean createPath){
+		return this.findNodesRec(path, root, createPath);
+	}
+
 	/**
-	 * Return the node(s) at the specified path in the specified tree
+	 * Return the node(s) at the specified path in the specified tree. NOTE: if a choice node is at the end, its choices are returned rather than the node itself
 	 * @param path the path to follow
 	 * @param root the root node of the tree to search
 	 * @param createPath if true creates the path with void nodes if it does not exist
 	 * @return an ArrayList of the nodes found at the path
 	 */
-	private ArrayList<Pair<TypeInlineStructure, String>> findParentAndName(Path path, TypeInlineStructure root, boolean createPath){
-		return this.findNodesRec(path, root, createPath);
-	}
-
 	private ArrayList<TypeInlineStructure> findNodes(Path path, TypeInlineStructure root, boolean createPath){
 		ArrayList<TypeInlineStructure> ret = new ArrayList<>();
 		ArrayList<Pair<TypeInlineStructure, String>> parents = this.findParentAndName(path, root, createPath);
@@ -214,6 +215,26 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			else{
 				ret.addAll(((TypeChoiceStructure)child).choices());
 			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Finds the exact nodes at the specified path. That is, if it is a choice node at the end of the path, the choice node is returned, rather than the different choices as in the findNodes function.
+	 * @param path the path to follow
+	 * @param root the root of the tree to search
+	 * @param createPath whether the path should be created with void nodes if it is not present
+	 * @return an arraylist of the nodes found at the end of the path
+	 */
+	private ArrayList<TypeStructure> findNodesExact(Path path, TypeInlineStructure root, boolean createPath){
+		ArrayList<TypeStructure> ret = new ArrayList<>();
+		ArrayList<Pair<TypeInlineStructure, String>> parents = this.findParentAndName(path, root, createPath);
+
+		for(Pair<TypeInlineStructure, String> pair : parents){
+			TypeInlineStructure parent = pair.key();
+			TypeStructure child = parent.getChild(pair.value());
+			ret.add(child);
 		}
 
 		return ret;
@@ -699,12 +720,42 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		return null;
 	}
 
+	/**
+	 * Checks whether the node at the end of the given path is equivalent to the specified type.
+	 * @param path the path to follow
+	 * @param type the type to check for
+	 * @param tree the tree to search for the node
+	 * @return true if the node is equivalent to the given type, false otherwise
+	 */
 	private boolean check(Path path, TypeStructure type, TypeInlineStructure tree){
+		// TODO: talk to marco about what to do in a case of a choice (e.g. if A is a choice and only one of the choices has child X, and we check for A.X, will we return true or false?)
+		ArrayList<TypeStructure> nodesToCheck = this.findNodesExact(path, tree, false);
+		
+		for(TypeStructure node : nodesToCheck){
+			if(node.equals(type)){
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
 	private TypeStructure synthesize(Path path, TypeInlineStructure tree){
-		return null;
+		ArrayList<TypeInlineStructure> nodes = this.findNodes(path, tree, false);
+
+		if(nodes.isEmpty()){
+			return new TypeInlineStructure(BasicTypeDefinition.of(NativeType.VOID), null, null);
+		}
+		if(nodes.size() == 1){
+			return new TypeInlineStructure(nodes.get(0).basicType(), null, null);
+		}
+		else{
+			TypeChoiceStructure ret = new TypeChoiceStructure();
+			for(TypeInlineStructure choice : nodes){
+				ret.addChoice(choice);
+			}
+			return ret;
+		}
 	}
 
 	@Override
