@@ -9,6 +9,7 @@ import jolie.lang.parse.ast.Program;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
+import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.visitors.BehaviorProcessor;
@@ -113,6 +114,8 @@ public class Main {
 		});
 
 		// printAllSymbols();
+
+		printWarnings();
 	}
 
 	private static void printAllSymbols(){
@@ -134,6 +137,12 @@ public class Main {
 			System.out.println("______________");
 		}
 		System.out.println("-----------------------------------------");
+	}
+
+	private static void printWarnings(){
+		if(!WarningHandler.isEmpty()){
+			System.out.println(WarningHandler.prettyString());
+		}
 	}
 
 	private static void typeCheck(Program p){

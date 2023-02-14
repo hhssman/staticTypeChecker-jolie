@@ -69,6 +69,8 @@ type B: int | bool | double
 service MyService(param: T) {
 	main {
 		param.a << param.b
+		a = 10 % "eh"
+		b = 2 / "+2"
 	}
 }
 

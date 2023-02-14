@@ -97,6 +97,8 @@ import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
+import staticTypechecker.faults.Warning;
+import staticTypechecker.faults.WarningHandler;
 
 public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	public BehaviorProcessor(){}
@@ -483,6 +485,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				}
 
 				// TODO throw warning, division and modulo with a string only allowed if string can be parsed to int
+				WarningHandler.addWarning(new Warning("the operations 'int / string' and 'int % string' are only allowed if the string can be parsed to a number"));
 				return BasicTypeDefinition.of(NativeType.INT);
 			}
 		}
@@ -502,6 +505,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				}
 
 				// TODO throw warning, division and modulo with a string only allowed if string can be parsed to int
+				WarningHandler.addWarning(new Warning("the operations 'long / string' and 'long % string' are only allowed if the string can be parsed to a number"));
 				return BasicTypeDefinition.of(NativeType.LONG);
 			}
 
