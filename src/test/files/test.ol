@@ -8,10 +8,8 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a = 10
-		b = a instanceof int
-		c = a instanceof bool
-
+		a += 10
+		
 		dumpState@Runtime()(s1)
 		print@Console(s1)()
 	}

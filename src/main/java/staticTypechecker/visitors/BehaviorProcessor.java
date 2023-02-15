@@ -3,6 +3,7 @@ package staticTypechecker.visitors;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jolie.lang.NativeType;
 import jolie.lang.Constants.OperandType;
@@ -90,6 +91,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.runtime.expression.Expression.Operand;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeChoiceStructure;
@@ -397,7 +399,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 				possibleTypesOfTerm = this.getTypeByPath(new Path(((VariableExpressionNode)currTerm).variablePath().path()), tree);
 			}
 			else{
-				BasicTypeDefinition typeOfCurrTerm = this.getBasicType(operands.get(i).value());
+				BasicTypeDefinition typeOfCurrTerm = this.getBasicType(currTerm);
 				possibleTypesOfTerm = new ArrayList<>();
 				possibleTypesOfTerm.add(typeOfCurrTerm);
 			}
@@ -728,7 +730,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	 * Checks whether the node at the end of the given path is equivalent to the specified type.
 	 * @param path the path to follow
 	 * @param type the type to check for
-	 * @param tree the tree to search for the node
+	 * @param tree the tree in which to search for the node 
 	 * @return true if the node is equivalent to the given type, false otherwise
 	 */
 	private boolean check(Path path, TypeStructure type, TypeInlineStructure tree){
@@ -744,6 +746,12 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		return false;
 	}
 
+	/**
+	 * Synthesizes the type of the node at the end of the given path.
+	 * @param path the path to follow
+	 * @param tree the tree in which to search for the node 
+	 * @return the type of the node at the end of the path. If the node does not exist, return a void type
+	 */
 	private TypeStructure synthesize(Path path, TypeInlineStructure tree){
 		ArrayList<TypeInlineStructure> nodes = this.findNodes(path, tree, false);
 
@@ -767,8 +775,77 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		return null;
 	}
 
+	private void handleOperationAssignment(Path path, OperandType operand, OLSyntaxNode expression, TypeInlineStructure tree){
+		ArrayList<Pair<TypeInlineStructure, String>> parents = this.findParentAndName(path, tree, true);
+		ArrayList<BasicTypeDefinition> typesOfExpression = this.getTypesOfExpression(expression, tree);
+		
+		if(typesOfExpression.size() == 1){ // only one type for the expression, no inlines will be converted to choices, thus we just derive the new type
+			for(Pair<TypeInlineStructure, String> pair : parents){
+				TypeInlineStructure parent = pair.key();
+				TypeStructure child = parent.getChild(pair.value());
+
+				if(child instanceof TypeInlineStructure){
+					TypeInlineStructure parsedChild = (TypeInlineStructure)child;
+					parsedChild.setBasicType(this.deriveTypeOfOperation(operand, parsedChild.basicType(), typesOfExpression.get(0)));
+				}
+				else{
+					TypeChoiceStructure parsedChild = (TypeChoiceStructure)child;
+					
+					for(TypeInlineStructure choice : parsedChild.choices()){
+						choice.setBasicType(this.deriveTypeOfOperation(operand, choice.basicType(), typesOfExpression.get(0)));
+					}
+
+					parsedChild.removeDuplicates();
+				}
+			}
+		}
+		else{ // expression have multiple types, thus all nodes of the path must be converted to choice if not already
+			for(Pair<TypeInlineStructure, String> pair : parents){
+				TypeInlineStructure parent = pair.key();
+				TypeStructure child = parent.getChild(pair.value());
+
+				ArrayList<TypeInlineStructure> previousChoices = new ArrayList<>();
+	
+				if(child instanceof TypeInlineStructure){ // node was inline, create a new choice
+					previousChoices.add((TypeInlineStructure)child);
+				}
+				else{ // simply 
+					for(TypeInlineStructure choice : ((TypeChoiceStructure)child).choices()){
+						previousChoices.add(choice);
+					}
+				}
+
+				// create the new node and add the new choices
+				TypeChoiceStructure newNode = new TypeChoiceStructure();
+
+				for(TypeInlineStructure prevChoice : previousChoices){ // run through the previous choices
+					BasicTypeDefinition typeOfNode = prevChoice.basicType();
+		
+					for(BasicTypeDefinition typeOfExpression : typesOfExpression){ // run through the expression types
+						// create the merge of the two and add it as a choice
+						BasicTypeDefinition newType = this.deriveTypeOfOperation(operand, typeOfNode, typeOfExpression);
+	
+						newNode.addChoice(new TypeInlineStructure(newType, null, null));
+					}
+				}
+
+				newNode.removeDuplicates();
+
+				parent.put(pair.value(), newNode);
+			}
+		}
+	}
+
 	@Override
 	public Void visit(AddAssignStatement n, TypeInlineStructure tree) {
+		Path path = new Path(n.variablePath().path());
+		
+		System.out.println(path + " += " + n);
+		
+		this.handleOperationAssignment(path, OperandType.ADD, n.expression(), tree);		
+
+		System.out.println("New tree: " + tree.prettyString());
+
 		return null;
 	}
 

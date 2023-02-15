@@ -63,14 +63,11 @@ type T: void {
 
 type A: int { x: int } | string
 
-// type B: int
 type B: int | bool | double
 
 service MyService(param: T) {
 	main {
-		param.a << param.b
-		a = 10 % "eh"
-		b = 2 / "+2"
+		param.b += 10
 	}
 }
 

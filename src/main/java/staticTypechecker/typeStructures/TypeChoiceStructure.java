@@ -66,7 +66,9 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public void removeDuplicates(){
+		System.out.println("choice before: " + this.choices);
 		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
+		System.out.println("choice after: " + this.choices);
 	}
 
 	/**

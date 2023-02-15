@@ -22,115 +22,24 @@ New tree: {
 				int 
 		}
 }
-
---------------------------
-param.a << param.b
+param.b += jolie.lang.parse.ast.AddAssignStatement@16c0663d
+deriving type of ADD double int
+deriving type of ADD bool int
+deriving type of ADD int int
+choice before: [staticTypechecker.typeStructures.TypeInlineStructure@546a03af, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39]
+choice after: [staticTypechecker.typeStructures.TypeInlineStructure@546a03af, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39]
 New tree: {
 	param: void {
 			a: 
-				bool {
-					x: int 
-				}
-				|
 				int {
 					x: int 
 				}
 				|
-				double 
-				|
-				bool 
-				|
-				int 
-				|
-				double {
-					x: int 
-				}
+				string 
 
 			b: 
 				double 
 				|
-				bool 
-				|
 				int 
 		}
 }
-
---------------------------
-a = class jolie.lang.parse.ast.expression.ProductExpressionNode
-deriving type of MULTIPLY void int
-deriven type: int
-deriving type of MODULUS int string
-deriven type: int
-New tree: {
-	a: int 
-
-	param: void {
-			a: 
-				bool {
-					x: int 
-				}
-				|
-				int {
-					x: int 
-				}
-				|
-				double 
-				|
-				bool 
-				|
-				int 
-				|
-				double {
-					x: int 
-				}
-
-			b: 
-				double 
-				|
-				bool 
-				|
-				int 
-		}
-}
-
---------------------------
-b = class jolie.lang.parse.ast.expression.ProductExpressionNode
-deriving type of MULTIPLY void int
-deriven type: int
-deriving type of DIVIDE int string
-deriven type: int
-New tree: {
-	a: int 
-
-	b: int 
-
-	param: void {
-			a: 
-				bool {
-					x: int 
-				}
-				|
-				int {
-					x: int 
-				}
-				|
-				double 
-				|
-				bool 
-				|
-				int 
-				|
-				double {
-					x: int 
-				}
-
-			b: 
-				double 
-				|
-				bool 
-				|
-				int 
-		}
-}
-WARNING: the operations 'int / string' and 'int % string' are only allowed if the string can be parsed to a number
-WARNING: the operations 'int / string' and 'int % string' are only allowed if the string can be parsed to a number
