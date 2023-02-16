@@ -176,9 +176,20 @@ public class TypeInlineStructure extends TypeStructure {
 		return true;
 	}
 
+	/**
+	 * TODO
+	 */
 	public boolean isSubtypeOf(TypeStructure other){
-		return this == other;
+		return this.equals(other);
 	}
+
+	/**
+	 * TODO
+	 */
+	public TypeStructure merge(TypeStructure other){
+		return this;
+	}
+
 
 	public static TypeInlineStructure getBaseSymbol(){
 		return new TypeInlineStructure(null, null, null);
@@ -274,7 +285,7 @@ public class TypeInlineStructure extends TypeStructure {
 	public String prettyString(int level, HashMap<String, Void> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "";
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "";
 
 		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
@@ -282,7 +293,7 @@ public class TypeInlineStructure extends TypeStructure {
 
 		if(this.children.size() != 0){
 			// prettyString += "\n" + "\t".repeat(level) + "{";
-			prettyString += "{";
+			prettyString += " {";
 
 			prettyString += this.children.entrySet().stream().map(child -> {
 				if(recursive.containsKey(child.getKey()) && false){ // TODO, temporarily disabled recursive checking (IT IS WRONG TO ONLY CHECK THE CHILD NAME)

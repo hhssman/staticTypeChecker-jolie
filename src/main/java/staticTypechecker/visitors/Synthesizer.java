@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import jolie.lang.parse.OLVisitor;
@@ -85,12 +86,15 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.typeStructures.TypeChoiceStructure;
 import staticTypechecker.typeStructures.TypeInlineStructure;
 import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
-import staticTypechecker.entities.Operation.OperationType;;
+import staticTypechecker.entities.Path;
+import staticTypechecker.entities.Operation.OperationType;
+import staticTypechecker.faults.FaultHandler;
 
 /**
  * Synthesizer for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
@@ -149,32 +153,66 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 	};
 
 	public Void visit( OneWayOperationStatement n, TypeInlineStructure tree ){
+		Operation op = (Operation)this.module.symbols().get(n.id());
+
+		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.requestType()); // the data type which is EXPECTED by the oneway operation
+		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
+
+		// update the node at the path to the input type
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+
 		return null;
 	};
 
 	public Void visit( RequestResponseOperationStatement n, TypeInlineStructure tree ){
+		Operation op = (Operation)this.module.symbols().get(n.id());
+		
+		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data the operation EXPECTS as input
+		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.responseType()); // the type of the data RETURNED from the operation
+		
+		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given AS INPUT to the operation
+		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
+
+		// given that p_in is of type T_in find the type of the behaviour
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+		n.process().accept(this, tree);
+		
+		// check that p_out is a subtype of T_out 
+		ArrayList<TypeStructure> possibleTypes = TreeUtils.findNodesExact(p_out, tree, true); // the possible types of the output of the behaviour
+
+		if(possibleTypes.isEmpty()){
+			System.out.println("error, no output nodes???");
+			return null;
+		}
+		
+		TypeStructure p_out_type;
+		if(possibleTypes.size() == 1){
+			p_out_type = possibleTypes.get(0);
+		}
+		else{
+			p_out_type = new TypeChoiceStructure(possibleTypes);
+		}
+
+		if(!p_out_type.isSubtypeOf(T_out)){
+			FaultHandler.throwFault(p_out_type.prettyString() + " is not a subtype of " + T_out.prettyString());
+		}
+
 		return null;
 	};
 
 	public Void visit( NotificationOperationStatement n, TypeInlineStructure tree ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
-
-		if(op == null){ // operation does not exist, throw error? TODO
-			return null;
-		}
-
+		
 		if(op.type() != OperationType.ONEWAY){
-			// TODO error
+			FaultHandler.throwFault(n.id() + " is not a oneway operation");
 			return null;
 		}
+		
+		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
+		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the oneway operation
 
-		TypeStructure opInputType = (TypeStructure)this.module.symbols().get(op.requestType());
-		TypeStructure givenInputType = TreeUtils.getTypeOfExpression(n.outputExpression(), tree);
-
-		System.out.println("operation takes:\n" + opInputType.prettyString() + "\n\nand we are given:\n" + givenInputType.prettyString());
-
-		if(!givenInputType.isSubtypeOf(opInputType)){
-			// TODO error
+		if(!p_out.isSubtypeOf(T_out)){
+			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
 			return null;
 		}
 
@@ -182,6 +220,26 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 	};
 
 	public Void visit( SolicitResponseOperationStatement n, TypeInlineStructure tree ){
+		Operation op = (Operation)this.module.symbols().get(n.id());
+
+		if(op.type() != OperationType.REQRES){
+			FaultHandler.throwFault(n.id() + " is not a req res operation");
+			return null;
+		}
+
+		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.responseType()); // the type of the data which is RETURNED by the reqres operation
+		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the reqres operation
+		
+		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
+		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the reqres operation
+		
+		if(!p_out.isSubtypeOf(T_out)){
+			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
+			return null;
+		}
+
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+
 		return null;
 	};
 

@@ -108,6 +108,11 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 	public BehaviorProcessor(){}
 
+	private void printTree(TypeInlineStructure tree){
+		System.out.println("New tree: " + tree.prettyString());
+		System.out.println("\n--------------------------\n");
+	}
+
 	public void process(Module module, TypeInlineStructure tree){
 		this.module = module;
 		this.synthesizer = new Synthesizer(module);
@@ -127,8 +132,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
  
 	@Override
 	public Void visit(ServiceNode n, TypeInlineStructure tree) {
-		// System.out.println("Service " + n.name() + "'s children: " + n.program().children());
-		
 		// if the service has a configuration parameter, add it to the tree
 		if(n.parameterConfiguration().isPresent()){
 			String configParamPath = n.parameterConfiguration().get().variablePath();
@@ -137,7 +140,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			tree.put(configParamPath, configParamStruct);
 
 			System.out.println("Adding config parameter for " + n.name());
-			System.out.println("New tree: " + tree.prettyString());
+			this.printTree(tree);
 		}
 
 		// accept each child of the program of the service node
@@ -165,8 +168,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 	@Override
 	public Void visit(UndefStatement n, TypeInlineStructure tree) {
-		System.out.println("\n--------------------------");
-
 		Path path = new Path(n.variablePath().path());
 		System.out.println("undef(" + path + ")");
 
@@ -176,14 +177,12 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			pair.key().removeChild(pair.value());
 		}
 		
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 		return null;
 	}
 
 	@Override
 	public Void visit(AssignStatement n, TypeInlineStructure tree) {
-		System.out.println("\n--------------------------");
-		
 		Path path = new Path(n.variablePath().path());
 		System.out.println(path + " = " + n.expression().getClass());
 		
@@ -195,7 +194,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			TreeUtils.updateType(pair.key(), node, n.expression(), tree);
 		}
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 		
 		return null;
 	}
@@ -221,7 +220,6 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	 */
 	@Override
 	public Void visit(DeepCopyStatement n, TypeInlineStructure tree) {
-		System.out.println("\n--------------------------");
 		Path updatePath = new Path(n.leftPath().path());
 		System.out.println(updatePath.toString() + " << " + n.rightExpression());
 
@@ -299,7 +297,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 			}
 		}
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 
 		return null;
 	}
@@ -307,7 +305,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	@Override
 	public Void visit(NullProcessStatement n, TypeInlineStructure tree) {
 		System.out.println("null process");
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 		return null;
 	}
 
@@ -324,7 +322,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), tree);		
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 
 		return null;
 	}
@@ -337,7 +335,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), tree);		
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 
 		return null;
 	}
@@ -350,7 +348,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), tree);		
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 
 		return null;
 	}
@@ -363,7 +361,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), tree);		
 
-		System.out.println("New tree: " + tree.prettyString());
+		this.printTree(tree);
 
 		return null;
 	}
@@ -425,28 +423,47 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 	@Override
 	public Void visit(NDChoiceStatement n, TypeInlineStructure tree) {
+		System.out.println("Choice statement\n");
+
+		for(Pair<OLSyntaxNode, OLSyntaxNode> pair : n.children()){
+			OLSyntaxNode label = pair.key();
+			OLSyntaxNode behaviour = pair.value();
+
+			label.accept(this, tree);
+			behaviour.accept(this, tree);
+		}
+
 		return null;
 	}
 
 	@Override
 	public Void visit(OneWayOperationStatement n, TypeInlineStructure tree) {
+		System.out.println("Oneway operation statement");
+		this.synthesizer.synthesize(n, tree);
 		return null;
 	}
 
 	@Override
 	public Void visit(RequestResponseOperationStatement n, TypeInlineStructure tree) {
+		System.out.println("Request response operation statement");
+		this.synthesizer.synthesize(n, tree);
 		return null;
 	}
 
 	@Override
 	public Void visit(NotificationOperationStatement n, TypeInlineStructure tree) {
+		System.out.println("Notification: " + n.id() + "(" + n.outputExpression() + ")");
 		this.synthesizer.synthesize(n, tree);
+		this.printTree(tree);
 
 		return null;
 	}
 
 	@Override
 	public Void visit(SolicitResponseOperationStatement n, TypeInlineStructure tree) {
+		System.out.println("Solicit: " + n.id() + "(" + n.outputExpression() + ")" + "(" + new Path(n.inputVarPath().path()) + ")");
+		this.synthesizer.synthesize(n, tree);
+		this.printTree(tree);
 		return null;
 	}
 

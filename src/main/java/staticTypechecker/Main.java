@@ -100,7 +100,7 @@ public class Main {
 		// printAllSymbols();
 		
 		// stage 6: process service behaviors
-		System.out.println("STAGE 6: process behaviors");
+		System.out.println("STAGE 6: process behaviors\n");
 
 		BehaviorProcessor bProcessor = new BehaviorProcessor();
 		HashMap<String, TypeInlineStructure> trees = new HashMap<>();

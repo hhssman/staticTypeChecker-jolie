@@ -3,9 +3,9 @@
 
 interface MyInterface {
 	RequestResponse:
-		helloReqRes( B )( string )
+		helloReqRes( int )( string )
 	OneWay:
-		helloOneway( A )
+		helloOneway( int )
 }
 
 type T: void {
@@ -18,6 +18,11 @@ type A: int { x: int } | string
 type B: int | bool | double
 
 service MyService() {
+	inputPort in {
+		Location: "socket://localhost:8080"
+		Protocol: http { format = "json" }
+		Interfaces: MyInterface 
+	}
 	
 	outputPort out {
 		Location: "socket://localhost:8081"
@@ -27,6 +32,20 @@ service MyService() {
 
 	main {
 		a = 10
-		helloOneway@out(a)
+		// helloOneway@out(a)
+		// helloReqRes@out(a)(out)
+
+		// input = "hello"
+
+		// [helloOneway(input)]{
+		// 	input = 10
+		// }
+
+		[helloReqRes(input)(output.t.x){
+			input += 10
+			output = input
+		}]{
+			output = true
+		}
 	}
 }

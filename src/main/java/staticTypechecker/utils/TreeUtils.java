@@ -39,7 +39,7 @@ public class TreeUtils {
 		// find the new type(s)
 		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d
 			Path path = new Path( ((VariableExpressionNode)expression).variablePath().path() );
-			types = TreeUtils.getTypeByPath(path, tree);
+			types = TreeUtils.getBasicTypesByPath(path, tree);
 		}
 		else if(expression instanceof SumExpressionNode){
 			types.addAll(TreeUtils.deriveTypeOfSum((SumExpressionNode)expression, tree));
@@ -97,7 +97,7 @@ public class TreeUtils {
 	 * @param node the node to find the type(s) of
 	 * @return an ArrayList of BasicTypeDefinitions corresponding to the type(s) of the specified node
 	 */
-	public static ArrayList<BasicTypeDefinition> getTypesOfNode(TypeStructure node){
+	public static ArrayList<BasicTypeDefinition> getBasicTypesOfNode(TypeStructure node){
 		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
 		
 		if(node instanceof TypeInlineStructure){
@@ -107,7 +107,7 @@ public class TreeUtils {
 		else{
 			TypeChoiceStructure parsedTree = (TypeChoiceStructure)node;
 			parsedTree.choices().forEach(c -> {
-				types.addAll( TreeUtils.getTypesOfNode(c) );
+				types.addAll( TreeUtils.getBasicTypesOfNode(c) );
 			});
 		}
 
@@ -120,7 +120,7 @@ public class TreeUtils {
 	 * @param tree the tree to look in
 	 * @return an arraylist with all the possible types of the node at the path in the tree
 	 */
-	public static ArrayList<BasicTypeDefinition> getTypeByPath(Path path, TypeStructure tree){
+	public static ArrayList<BasicTypeDefinition> getBasicTypesByPath(Path path, TypeStructure tree){
 		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
 
 		if(path.isEmpty()){ // path is empty, TreeUtils means that tree is the correct node, thus return the type of it
@@ -128,7 +128,7 @@ public class TreeUtils {
 				types.add(BasicTypeDefinition.of(NativeType.VOID));
 			}
 			else{
-				types.addAll(TreeUtils.getTypesOfNode(tree));
+				types.addAll(TreeUtils.getBasicTypesOfNode(tree));
 			}
 			return types;
 		}
@@ -145,7 +145,7 @@ public class TreeUtils {
 					return types;
 				}
 
-				types.addAll( TreeUtils.getTypeByPath(path.remainder(), child) );
+				types.addAll( TreeUtils.getBasicTypesByPath(path.remainder(), child) );
 			}
 			else{ // choice case, check each choice
 				TypeChoiceStructure parsedTree = (TypeChoiceStructure)tree;
@@ -156,7 +156,7 @@ public class TreeUtils {
 					return types;
 				}
 	
-				possibleChoices.forEach(c -> types.addAll(TreeUtils.getTypeByPath(path.remainder(), c)));
+				possibleChoices.forEach(c -> types.addAll(TreeUtils.getBasicTypesByPath(path.remainder(), c)));
 			}
 		}
 
@@ -213,7 +213,7 @@ public class TreeUtils {
 		return ret;
 	}
 
-	public static ArrayList<Pair<TypeInlineStructure, String>> findNodesRec(Path path, TypeInlineStructure root, boolean createPath){
+	private static ArrayList<Pair<TypeInlineStructure, String>> findNodesRec(Path path, TypeInlineStructure root, boolean createPath){
 		ArrayList<Pair<TypeInlineStructure, String>> ret = new ArrayList<>();
 				
 		if(path.isEmpty()){
@@ -327,7 +327,7 @@ public class TreeUtils {
 		return TreeUtils.der(product.operands(), tree);
 	}
 
-	public static ArrayList<BasicTypeDefinition> der(List<Pair<OperandType, OLSyntaxNode>> operands, TypeInlineStructure tree){
+	private static ArrayList<BasicTypeDefinition> der(List<Pair<OperandType, OLSyntaxNode>> operands, TypeInlineStructure tree){
 		HashSet<BasicTypeDefinition> typesOfSum = new HashSet<>();
 		typesOfSum.add(BasicTypeDefinition.of(NativeType.VOID)); // set initial type to void to make sure it will be overwritten by any other type
 
@@ -337,7 +337,7 @@ public class TreeUtils {
 			ArrayList<BasicTypeDefinition> possibleTypesOfTerm;
 
 			if(currTerm instanceof VariableExpressionNode){ // a variable used in the sum, such as 10 + b
-				possibleTypesOfTerm = TreeUtils.getTypeByPath(new Path(((VariableExpressionNode)currTerm).variablePath().path()), tree);
+				possibleTypesOfTerm = TreeUtils.getBasicTypesByPath(new Path(((VariableExpressionNode)currTerm).variablePath().path()), tree);
 			}
 			else{
 				BasicTypeDefinition typeOfCurrTerm = TreeUtils.getBasicType(currTerm);
@@ -542,6 +542,20 @@ public class TreeUtils {
 
 				parent.put(pair.value(), newNode);
 			}
+		}
+	}
+
+	/**
+	 * Sets the type of the nodes at the end of the specified path by the given type.
+	 * @param path the path to follow
+	 * @param type the type to update all nodes at the end of the path to
+	 * @param tree the tree in which the nodes reside
+	 */
+	public static void setTypeOfNodeByPath(Path path, TypeStructure type, TypeInlineStructure tree){
+		ArrayList<Pair<TypeInlineStructure,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
+		
+		for(Pair<TypeInlineStructure,String> pair : nodesToUpdate){
+			pair.key().put(pair.value(), type);
 		}
 	}
 

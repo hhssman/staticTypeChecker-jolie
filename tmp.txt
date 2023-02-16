@@ -5,18 +5,22 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
---------------------------
 a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-New tree: {
-	a: int 
+New tree:  {
+	a: int
 }
-here
-operation takes:
-int {
-	x: int 
-}
-|
-string 
 
-and we are given:
-int 
+--------------------------
+
+Choice statement
+
+Request response operation statement
+pout: output.t.x
+tree:  {
+	a: int
+
+	input: int
+}
+possible types: [staticTypechecker.typeStructures.TypeInlineStructure@2752f6e2]
+-----------------------------------
+Critical error: void is not a subtype of string

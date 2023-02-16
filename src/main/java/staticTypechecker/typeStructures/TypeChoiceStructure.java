@@ -20,6 +20,13 @@ public class TypeChoiceStructure extends TypeStructure {
 		this.choices = new HashSet<>();
 	}
 
+	public TypeChoiceStructure(ArrayList<TypeStructure> choices){
+		this.choices = new HashSet<>();
+		for(TypeStructure choice : choices){
+			this.addChoice(choice);
+		}
+	}
+
 	public TypeChoiceStructure(HashSet<TypeInlineStructure> choices){
 		this.choices = choices;
 	}
@@ -88,6 +95,9 @@ public class TypeChoiceStructure extends TypeStructure {
 		return ret;
 	}
 
+	/**
+	 * TODO
+	 */
 	public boolean equals(TypeStructure other){
 		if(!(other instanceof TypeChoiceStructure)){
 			return false;
@@ -97,8 +107,18 @@ public class TypeChoiceStructure extends TypeStructure {
 		return this == parsedOther;
 	}
 
+	/**
+	 * TODO
+	 */
 	public boolean isSubtypeOf(TypeStructure other){
-		return this == other;
+		return this.equals(other);
+	}
+
+	/**
+	 * TODO
+	 */
+	public TypeStructure merge(TypeStructure other){
+		return this;
 	}
 
 	public String toString(){
