@@ -88,6 +88,19 @@ public class TypeChoiceStructure extends TypeStructure {
 		return ret;
 	}
 
+	public boolean equals(TypeStructure other){
+		if(!(other instanceof TypeChoiceStructure)){
+			return false;
+		}
+
+		TypeChoiceStructure parsedOther = (TypeChoiceStructure)other;
+		return this == parsedOther;
+	}
+
+	public boolean isSubtypeOf(TypeStructure other){
+		return this == other;
+	}
+
 	public String toString(){
 		String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
 		return toString;

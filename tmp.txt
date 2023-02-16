@@ -4,42 +4,19 @@ STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
-Adding config parameter for MyService
-New tree: {
-	param: void {
-			a: 
-				int {
-					x: int 
-				}
-				|
-				string 
 
-			b: 
-				double 
-				|
-				bool 
-				|
-				int 
-		}
-}
-param.b += jolie.lang.parse.ast.AddAssignStatement@16c0663d
-deriving type of ADD double int
-deriving type of ADD bool int
-deriving type of ADD int int
-choice before: [staticTypechecker.typeStructures.TypeInlineStructure@546a03af, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39]
-choice after: [staticTypechecker.typeStructures.TypeInlineStructure@546a03af, staticTypechecker.typeStructures.TypeInlineStructure@3ab39c39]
+--------------------------
+a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
 New tree: {
-	param: void {
-			a: 
-				int {
-					x: int 
-				}
-				|
-				string 
-
-			b: 
-				double 
-				|
-				int 
-		}
+	a: int 
 }
+here
+operation takes:
+int {
+	x: int 
+}
+|
+string 
+
+and we are given:
+int 
