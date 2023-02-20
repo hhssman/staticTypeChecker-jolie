@@ -43,7 +43,7 @@ service MyService() {
 
 		[helloReqRes(input)(output.t.x){
 			input += 10
-			output = input
+			output.t.x = input
 		}]{
 			output = true
 		}

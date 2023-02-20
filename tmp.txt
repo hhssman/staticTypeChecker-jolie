@@ -15,12 +15,11 @@ New tree:  {
 Choice statement
 
 Request response operation statement
-pout: output.t.x
-tree:  {
-	a: int
-
-	input: int
-}
-possible types: [staticTypechecker.typeStructures.TypeInlineStructure@2752f6e2]
+process: class jolie.lang.parse.ast.SequenceStatement
+class jolie.lang.parse.ast.AddAssignStatement
+deriving type of ADD int int
+class jolie.lang.parse.ast.AssignStatement
+e: class jolie.lang.parse.ast.expression.VariableExpressionNode
+output.t.x has types: [void]
 -----------------------------------
 Critical error: void is not a subtype of string

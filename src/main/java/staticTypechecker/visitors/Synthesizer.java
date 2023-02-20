@@ -2,7 +2,9 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -142,7 +144,8 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 
 	public Void visit( SequenceStatement n, TypeInlineStructure tree ){
 		for(OLSyntaxNode child : n.children()){
-			 child.accept(this, tree);
+			System.out.println(child.getClass());
+			child.accept(this, tree);
 		}
 
 		return null;
@@ -175,10 +178,13 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 
 		// given that p_in is of type T_in find the type of the behaviour
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+		System.out.println("process: " + n.process().getClass());
 		n.process().accept(this, tree);
 		
 		// check that p_out is a subtype of T_out 
 		ArrayList<TypeStructure> possibleTypes = TreeUtils.findNodesExact(p_out, tree, true); // the possible types of the output of the behaviour
+
+		System.out.println(p_out + " has types: " + possibleTypes.stream().map(p -> p.prettyString()).collect(Collectors.toList()));
 
 		if(possibleTypes.isEmpty()){
 			System.out.println("error, no output nodes???");
@@ -252,24 +258,42 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 	};
 
 	public Void visit( AssignStatement n, TypeInlineStructure tree ){
+		Path path = new Path(n.variablePath().path());
+		OLSyntaxNode e = n.expression();
+		TypeStructure T_e = TreeUtils.getTypeOfExpression(e, tree);
+
+		TreeUtils.setTypeOfNodeByPath(path, T_e, tree);
+
 		return null;
 	};
 
-	public Void visit( AddAssignStatement n, TypeInlineStructure tree ){
+	@Override
+	public Void visit(AddAssignStatement n, TypeInlineStructure tree) {
+		Path path = new Path(n.variablePath().path());
+		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), tree);		
 		return null;
-	};
+	}
 
-	public Void visit( SubtractAssignStatement n, TypeInlineStructure tree ){
+	@Override
+	public Void visit(SubtractAssignStatement n, TypeInlineStructure tree) {
+		Path path = new Path(n.variablePath().path());
+		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), tree);		
 		return null;
-	};
+	}
 
-	public Void visit( MultiplyAssignStatement n, TypeInlineStructure tree ){
+	@Override
+	public Void visit(MultiplyAssignStatement n, TypeInlineStructure tree) {
+		Path path = new Path(n.variablePath().path());
+		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), tree);		
 		return null;
-	};
+	}
 
-	public Void visit( DivideAssignStatement n, TypeInlineStructure tree ){
+	@Override
+	public Void visit(DivideAssignStatement n, TypeInlineStructure tree) {
+		Path path = new Path(n.variablePath().path());
+		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), tree);		
 		return null;
-	};
+	}
 
 	public Void visit( IfStatement n, TypeInlineStructure tree ){
 		return null;
