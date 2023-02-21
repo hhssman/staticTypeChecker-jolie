@@ -5,21 +5,52 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
+Adding config parameter for MyService
+New tree:  {
+	p: 
+		bool
+		|
+		int
+}
+
+--------------------------
+
 a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
 New tree:  {
+	p: 
+		bool
+		|
+		int
+
 	a: int
 }
 
 --------------------------
 
-Choice statement
+Notification: helloOneway(p)
+attacker edges: [root --> root.choice, root --> root.choice]
+defender edges: [root --> root.choice, root --> root.choice, root --> root.choice]
+New tree:  {
+	p: 
+		bool
+		|
+		int
 
-Request response operation statement
-process: class jolie.lang.parse.ast.SequenceStatement
-class jolie.lang.parse.ast.AddAssignStatement
-deriving type of ADD int int
-class jolie.lang.parse.ast.AssignStatement
-e: class jolie.lang.parse.ast.expression.VariableExpressionNode
-output.t.x has types: [void]
------------------------------------
-Critical error: void is not a subtype of string
+	a: int
+}
+
+--------------------------
+
+WARNING: given type may not be compatible with expected type in all cases:
+
+Expected type:
+bool
+|
+double
+|
+int
+
+Given type:
+bool
+|
+int

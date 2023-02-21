@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
+import staticTypechecker.utils.Bisimulator;
 
 /**
  * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
@@ -111,7 +112,7 @@ public class TypeChoiceStructure extends TypeStructure {
 	 * TODO
 	 */
 	public boolean isSubtypeOf(TypeStructure other){
-		return this.equals(other);
+		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	/**

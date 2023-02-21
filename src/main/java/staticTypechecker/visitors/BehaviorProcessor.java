@@ -98,8 +98,6 @@ import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
-import staticTypechecker.faults.Warning;
-import staticTypechecker.faults.WarningHandler;
 
 public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	private Module module;

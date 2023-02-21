@@ -12,6 +12,7 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
+import staticTypechecker.utils.Bisimulator;
 
 /**
  * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name. New children can be added until the finalize function is called (open record vs closed record). 
@@ -180,7 +181,7 @@ public class TypeInlineStructure extends TypeStructure {
 	 * TODO
 	 */
 	public boolean isSubtypeOf(TypeStructure other){
-		return this.equals(other);
+		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	/**

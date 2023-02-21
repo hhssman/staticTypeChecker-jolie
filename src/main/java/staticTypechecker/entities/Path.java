@@ -28,6 +28,16 @@ public class Path {
 		this.pathElems = path;
 	}
 
+	public Path(Path other){
+		this.pathElems = new ArrayList<>(other.path());
+	}
+
+	public Path append(String next){
+		Path tmp = new Path(this);
+		tmp.pathElems.add(next);
+		return tmp;
+	}
+
 	/**
 	 * Retrieves the path element at the specified index. Note: negative indices are allowed, they will simply start from the back
 	 * @param index the index
@@ -66,5 +76,19 @@ public class Path {
 
 	public String toString(){
 		return this.pathElems.stream().collect(Collectors.joining("."));
+	}
+
+	public int hashCode(){
+		return this.pathElems.hashCode();
+	}
+
+	public boolean equals(Object other){
+		if(!(other instanceof Path)){
+			return false;
+		}
+
+		Path parsedOther = (Path)other;
+
+		return this.pathElems.equals(parsedOther.pathElems);
 	}
 }
