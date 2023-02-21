@@ -12,7 +12,7 @@ public class Path {
 
 	public Path(String path){
 		this.pathElems = new ArrayList<>();
-		String[] elems = path.split(".");
+		String[] elems = path.split("\\.");
 
 		for(String pathElem : elems){
 			this.pathElems.add(pathElem);

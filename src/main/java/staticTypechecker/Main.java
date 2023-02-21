@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
-import jolie.lang.parse.ast.Program;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
@@ -17,7 +16,6 @@ import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;
 import staticTypechecker.visitors.SymbolCollector;
-import staticTypechecker.visitors.TypeChecker;
 import staticTypechecker.visitors.TypeProcessor;
 
 
@@ -102,7 +100,7 @@ public class Main {
 		// printAllSymbols();
 		
 		// stage 6: process service behaviors
-		System.out.println("STAGE 6: process behaviors");
+		System.out.println("STAGE 6: process behaviors\n");
 
 		BehaviorProcessor bProcessor = new BehaviorProcessor();
 		HashMap<String, TypeInlineStructure> trees = new HashMap<>();
@@ -143,11 +141,6 @@ public class Main {
 		if(!WarningHandler.isEmpty()){
 			System.out.println(WarningHandler.prettyString());
 		}
-	}
-
-	private static void typeCheck(Program p){
-		TypeChecker v = new TypeChecker();
-		v.visit(p, null);
 	}
 
 	private static void printTable(HashMap<String, TypeStructure> symbols){

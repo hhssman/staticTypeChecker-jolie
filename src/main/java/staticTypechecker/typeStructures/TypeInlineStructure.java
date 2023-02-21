@@ -84,7 +84,7 @@ public class TypeInlineStructure extends TypeStructure {
 			return false;
 		}
 
-		return this.children.get(name).isEquivalent(structure); // if they are equivalent, return true, and false otherwise
+		return this.children.get(name).equals(structure); // if they are equivalent, return true, and false otherwise
 	}
 
 	public boolean contains(String name){
@@ -142,12 +142,18 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param other the other object
 	 * @return true if the objects are structural equivalent and false otherwise
 	 */
-	public boolean isEquivalent(TypeInlineStructure other){
-		if(this == other){ // pointers match
+	public boolean equals(TypeStructure other){
+		if(!(other instanceof TypeInlineStructure)){
+			return false;
+		}
+
+		TypeInlineStructure parsedOther = (TypeInlineStructure)other;
+
+		if(this == parsedOther){ // pointers match
 			return true;
 		}
 
-		if(!this.basicType.checkBasicTypeEqualness(other.basicType)){ // root node is not of same type
+		if(!this.basicType.checkBasicTypeEqualness(parsedOther.basicType)){ // root node is not of same type
 			return false;
 		}
 
@@ -156,20 +162,35 @@ public class TypeInlineStructure extends TypeStructure {
 			String currKey = entry.getKey();
 			TypeStructure currStructure = entry.getValue();
 
-			if(!other.children.containsKey(currKey)){ // other does not have child with this key
+			if(!parsedOther.children.containsKey(currKey)){ // parsedOther does not have child with this key
 				return false;
 			}
 
-			if(!other.children.get(currKey).isEquivalent(currStructure)){ // the other structure with this key is different from ours 
+			if(!parsedOther.children.get(currKey).equals(currStructure)){ // the parsedOther structure with this key is different from ours 
 				return false;
 			}
 
 			// a child with same key has equivalent structure, we can update our structure pointer
-			this.children.put(currKey, other.children.get(currKey));
+			this.children.put(currKey, parsedOther.children.get(currKey));
 		}
 
 		return true;
 	}
+
+	/**
+	 * TODO
+	 */
+	public boolean isSubtypeOf(TypeStructure other){
+		return this.equals(other);
+	}
+
+	/**
+	 * TODO
+	 */
+	public TypeStructure merge(TypeStructure other){
+		return this;
+	}
+
 
 	public static TypeInlineStructure getBaseSymbol(){
 		return new TypeInlineStructure(null, null, null);
@@ -255,7 +276,7 @@ public class TypeInlineStructure extends TypeStructure {
 	public String prettyString(int level, ArrayList<TypeStructure> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "";
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "";
 
 		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";

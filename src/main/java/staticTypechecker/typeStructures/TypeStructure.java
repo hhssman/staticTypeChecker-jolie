@@ -9,11 +9,9 @@ import staticTypechecker.entities.Symbol;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public abstract class TypeStructure implements Symbol {
-	
-	// TODO
-	public boolean isEquivalent(TypeStructure other){
-		return false;
-	}
+	public abstract boolean equals(TypeStructure other);
+	public abstract boolean isSubtypeOf(TypeStructure other);
+	public abstract TypeStructure merge(TypeStructure other);
 
 	public <C, R> R accept(OLVisitor<C,R> v, C ctx){
 		return null;
