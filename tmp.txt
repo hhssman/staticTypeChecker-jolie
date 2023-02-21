@@ -1,0 +1,16 @@
+STAGE 1: discover symbols
+STAGE 2: process types
+STAGE 3: process interfaces
+STAGE 4: process input ports and service parameters
+STAGE 5: process output ports and embeddings
+STAGE 6: process behaviors
+
+Adding config parameter for MyService
+New tree: {
+	param: int{
+			x (recursive structure)
+		}
+}
+
+--------------------------
+

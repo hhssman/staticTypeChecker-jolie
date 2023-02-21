@@ -131,8 +131,6 @@ public class TypeConverter {
 	private static TypeInlineStructure convert(TypeInlineDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
 		TypeInlineStructure structure = new TypeInlineStructure(type.basicType(), type.cardinality(), type.context());
 
-		System.out.println("type name: " + type.name());
-		System.out.println("struct: " + structure.prettyString());
 		recursiveTable.put(type.name(), structure);
 
 		if(type.subTypes() != null){ // type has children
@@ -145,10 +143,7 @@ public class TypeConverter {
 					typeName = subtype.linkedTypeName();
 				}
 
-				System.out.println("child type name: " + typeName);
-				
 				if(recursiveTable.containsKey(typeName)){
-					System.out.println("type already exists!");
 					structure.put(childName, recursiveTable.get(typeName));
 				}
 				else{
@@ -161,9 +156,6 @@ public class TypeConverter {
 		if(finalize){
 			structure.finalize();
 		}
-
-		System.out.println(structure);
-		System.out.println(structure.children());
 
 		return structure;
 	}

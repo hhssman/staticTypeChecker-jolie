@@ -111,7 +111,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		System.out.println("process an inline");
 		processTypeDef(n, symbols);		
 		return null;
 	}

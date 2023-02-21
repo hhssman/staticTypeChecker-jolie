@@ -1,10 +1,7 @@
 package staticTypechecker.visitors;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
-import jolie.lang.NativeType;
 import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
@@ -98,8 +95,6 @@ import staticTypechecker.typeStructures.TypeStructure;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
-import staticTypechecker.faults.Warning;
-import staticTypechecker.faults.WarningHandler;
 
 public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 	private Module module;
@@ -120,7 +115,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 
 		module.program().accept(this, tree);
 	}
-
+	
 	@Override
 	public Void visit(Program p, TypeInlineStructure tree) {
 		for(OLSyntaxNode child : p.children()){
@@ -135,7 +130,7 @@ public class BehaviorProcessor implements OLVisitor<TypeInlineStructure, Void> {
 		// if the service has a configuration parameter, add it to the tree
 		if(n.parameterConfiguration().isPresent()){
 			String configParamPath = n.parameterConfiguration().get().variablePath();
-			TypeStructure configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type());
+			TypeStructure configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type()); // we do not finalize this type structure, since we can change it later in the behaviours
 
 			tree.put(configParamPath, configParamStruct);
 
