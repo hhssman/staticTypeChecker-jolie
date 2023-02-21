@@ -88,8 +88,6 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
-import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.TypeStructure;
@@ -113,6 +111,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
+		System.out.println("process an inline");
 		processTypeDef(n, symbols);		
 		return null;
 	}
@@ -130,30 +129,11 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 	}
 
 	private void processTypeDef(TypeDefinition n, SymbolTable symbols){
-		if(symbols.get(n.name()) == null){ // structure have not been initialized yet, create base structure 
-			// TypeStructure baseStruct = TypeConverter.createBaseStructure(n);
-			// symbols.put(n.name(), baseStruct);
-			System.out.println("We should never reach this branch of execution...");
-		}
-		else{ // structure have been initialized, finish it
-			TypeConverter.finalizeBaseStructure((TypeStructure)symbols.get(n.name()), n);
-		}
+		TypeConverter.finalizeBaseStructure((TypeStructure)symbols.get(n.name()), n);
 	}
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		// String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
-		
-		// for(ImportSymbolTarget s : n.importSymbolTargets()){
-		// 	String alias = s.localSymbolName();
-		// 	String originalName = s.originalSymbolName();
-
-		// 	// ask the symbols table in the corresponding Module for the structure of the type
-		// 	Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
-			
-		// 	symbols.put(alias, structure);
-		// }
-
 		return null;
 	}
 

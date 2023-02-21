@@ -65,9 +65,9 @@ public class Main {
 
 		// run through them again and actually create the trees
 		// System.out.println("Finishing bases...");
-		ModuleHandler.modules().values().forEach(m -> {
-			tProcessor.process(m);
-		});
+		// ModuleHandler.modules().values().forEach(m -> {
+		// 	tProcessor.process(m);
+		// });
 
 		// printAllSymbols();
 

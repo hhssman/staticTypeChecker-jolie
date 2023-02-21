@@ -100,7 +100,7 @@ public class TypeChoiceStructure extends TypeStructure {
 	}
 
 	public String prettyString(){
-		HashMap<String, Void> recursive = new HashMap<>();
+		ArrayList<TypeStructure> recursive = new ArrayList<>();
 		String toString = this.choices.stream()
 										.map(c -> c.prettyString(0, recursive))
 										.collect(Collectors.joining("\n|\n"));
@@ -108,10 +108,10 @@ public class TypeChoiceStructure extends TypeStructure {
 		return toString;
 	}
 
-	public String prettyString(int level, HashMap<String, Void> recursive){
+	public String prettyString(int level, ArrayList<TypeStructure> recursive){
 		String toString = "\n" + "\t".repeat(level);
 		toString += this.choices.stream().map(c -> {
-			HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
+			ArrayList<TypeStructure> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
 			return c.prettyString(level, rec);
 		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
