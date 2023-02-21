@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
@@ -263,27 +264,17 @@ public class TypeInlineStructure extends TypeStructure {
 	}
 
 	public int hashCode(){
-		int hashCode = 0;
-		
-		hashCode += this.basicType.hashCode();
-
-		int i = 1;
-		for(Entry<String, TypeStructure> child : this.children.entrySet()){
-			hashCode += (i * 31) * child.getValue().hashCode();
-			i++;
-		}
-
-		return hashCode;
+		return this.basicType.hashCode() + this.children.size() * 7823; // 7823 is just a large prime number
 	}
 
 	/**
 	 * Get a nice string representing this structure
 	 */
 	public String prettyString(){
-		return this.prettyString(0, new HashMap<>());
+		return this.prettyString(0, new ArrayList<>());
 	}
 
-	public String prettyString(int level, HashMap<String, Void> recursive){
+	public String prettyString(int level, ArrayList<TypeStructure> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
 		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "";
@@ -293,34 +284,40 @@ public class TypeInlineStructure extends TypeStructure {
 		}
 
 		if(this.children.size() != 0){
-			// prettyString += "\n" + "\t".repeat(level) + "{";
-			prettyString += " {";
+			prettyString += "{";
 
 			prettyString += this.children.entrySet().stream().map(child -> {
-				if(recursive.containsKey(child.getKey()) && false){ // TODO, temporarily disabled recursive checking (IT IS WRONG TO ONLY CHECK THE CHILD NAME)
+				if(this.containsChildExact(recursive, child.getValue())){
 					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
 				}
 				else{
-					recursive.put(child.getKey(), null);
-					HashMap<String, Void> rec = new HashMap<>(recursive); // shallow copy to not pass the same to each choice
+					recursive.add(child.getValue());
+					ArrayList<TypeStructure> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+
 					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
 				}
 			})
 			.collect(Collectors.joining("\n"));
 
-			// for(Entry<String, TypeStructure> child : this.children.entrySet()){
-			// 	if(recursive.containsKey(child.getKey())){
-			// 		prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
-			// 	}
-			// 	else{
-			// 		recursive.put(child.getKey(), null);
-			// 		prettyString += "\n" + "\t".repeat(level+1) + child.getKey() + "(" + level + ")" + ": " + child.getValue().prettyString(level+2, recursive);
-			// 	}
-			// 	prettyString += "\n" + "\t".repeat(level+1);
-			// }
 			prettyString += "\n" + "\t".repeat(level) + "}";
 		}
 
 		return prettyString;
+	}
+
+	/**
+	 * Utility function to check if the exact object given is present in the given arraylist. Used in order to handle recursive types
+	 * @param list
+	 * @param type
+	 * @return
+	 */
+	private boolean containsChildExact(ArrayList<TypeStructure> list, TypeStructure type){
+		for(int i = 0; i < list.size(); i++){
+			if(list.get(i) == type){
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

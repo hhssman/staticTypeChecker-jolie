@@ -6,6 +6,7 @@ STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
 Adding config parameter for MyService
+<<<<<<< HEAD
 New tree:  {
 	p: 
 		bool
@@ -23,10 +24,17 @@ New tree:  {
 		int
 
 	a: int
+=======
+New tree: {
+	param: int{
+			x (recursive structure)
+		}
+>>>>>>> fb03498b28216dc9bab6660ff14564082abd31c9
 }
 
 --------------------------
 
+<<<<<<< HEAD
 Notification: helloOneway(p)
 attacker edges: [root --> root.choice, root --> root.choice]
 defender edges: [root --> root.choice, root --> root.choice, root --> root.choice]
@@ -54,3 +62,5 @@ Given type:
 bool
 |
 int
+=======
+>>>>>>> fb03498b28216dc9bab6660ff14564082abd31c9

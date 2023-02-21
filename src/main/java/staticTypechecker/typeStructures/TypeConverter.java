@@ -137,7 +137,7 @@ public class TypeConverter {
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
 				String childName = child.getKey();
 				String typeName = "";
-
+				
 				if(child.getValue() instanceof TypeDefinitionLink){ // subtype is an alias for an existing type. In this case, we look for the linked type name instead of the alias
 					TypeDefinitionLink subtype = (TypeDefinitionLink)child.getValue();
 					typeName = subtype.linkedTypeName();
