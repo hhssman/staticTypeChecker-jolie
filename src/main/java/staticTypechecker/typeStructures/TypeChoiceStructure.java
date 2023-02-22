@@ -104,8 +104,7 @@ public class TypeChoiceStructure extends TypeStructure {
 			return false;
 		}
 
-		TypeChoiceStructure parsedOther = (TypeChoiceStructure)other;
-		return this == parsedOther;
+		return Bisimulator.isEquivalent(this, other);
 	}
 
 	/**

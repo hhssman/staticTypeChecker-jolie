@@ -8,7 +8,7 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a += 10
+		a = int("hey")
 		
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

@@ -199,7 +199,8 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 			p_out_type = new TypeChoiceStructure(possibleTypes);
 		}
 
-		if(!p_out_type.isSubtypeOf(T_out)){
+		// if(!p_out_type.isSubtypeOf(T_out)){
+		if(!p_out_type.equals(T_out)){
 			FaultHandler.throwFault(p_out_type.prettyString() + " is not a subtype of " + T_out.prettyString());
 		}
 
@@ -217,7 +218,8 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
 		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the oneway operation
 
-		if(!p_out.isSubtypeOf(T_out)){
+		// if(!p_out.isSubtypeOf(T_out)){
+		if(!p_out.equals(T_out)){
 			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
 			return null;
 		}
@@ -239,7 +241,8 @@ public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
 		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the reqres operation
 		
-		if(!p_out.isSubtypeOf(T_out)){
+		// if(!p_out.isSubtypeOf(T_out)){
+		if(!p_out.equals(T_out)){
 			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
 			return null;
 		}

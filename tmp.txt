@@ -6,61 +6,29 @@ STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
 Adding config parameter for MyService
-<<<<<<< HEAD
-New tree:  {
-	p: 
-		bool
-		|
-		int
-}
-
---------------------------
-
-a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
-New tree:  {
-	p: 
-		bool
-		|
-		int
-
-	a: int
-=======
 New tree: {
-	param: int{
+	p: int{
 			x (recursive structure)
 		}
->>>>>>> fb03498b28216dc9bab6660ff14564082abd31c9
 }
 
 --------------------------
 
-<<<<<<< HEAD
 Notification: helloOneway(p)
-attacker edges: [root --> root.choice, root --> root.choice]
-defender edges: [root --> root.choice, root --> root.choice, root --> root.choice]
-New tree:  {
-	p: 
-		bool
-		|
-		int
-
-	a: int
+attacker edges: [root --> root.x]
+defender edges: [root --> root.x, root.x --> root.x.x]
+-----------------------------------
+Critical error: The input data given to helloOneway is not compatible with the expected type.
+Data given:
+int{
+	x: int{
+			x (recursive structure)
+		}
 }
 
---------------------------
-
-WARNING: given type may not be compatible with expected type in all cases:
-
-Expected type:
-bool
-|
-double
-|
-int
-
-Given type:
-bool
-|
-int
-=======
->>>>>>> fb03498b28216dc9bab6660ff14564082abd31c9
+Data expected:
+int{
+	x: int{
+			x (recursive structure)
+		}
+}

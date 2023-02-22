@@ -148,34 +148,7 @@ public class TypeInlineStructure extends TypeStructure {
 			return false;
 		}
 
-		TypeInlineStructure parsedOther = (TypeInlineStructure)other;
-
-		if(this == parsedOther){ // pointers match
-			return true;
-		}
-
-		if(!this.basicType.checkBasicTypeEqualness(parsedOther.basicType)){ // root node is not of same type
-			return false;
-		}
-
-		// iterate through each child and check their equivalence
-		for(Entry<String, TypeStructure> entry : this.children.entrySet()){
-			String currKey = entry.getKey();
-			TypeStructure currStructure = entry.getValue();
-
-			if(!parsedOther.children.containsKey(currKey)){ // parsedOther does not have child with this key
-				return false;
-			}
-
-			if(!parsedOther.children.get(currKey).equals(currStructure)){ // the parsedOther structure with this key is different from ours 
-				return false;
-			}
-
-			// a child with same key has equivalent structure, we can update our structure pointer
-			this.children.put(currKey, parsedOther.children.get(currKey));
-		}
-
-		return true;
+		return Bisimulator.isEquivalent(this, other);
 	}
 
 	/**
