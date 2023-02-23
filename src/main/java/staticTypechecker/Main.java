@@ -54,18 +54,9 @@ public class Main {
 		TypeProcessor tProcessor = new TypeProcessor();
 		
 		// run through all types and make base structures
-		// System.out.println("Creating bases...");
 		ModuleHandler.modules().values().forEach(m -> {
 			tProcessor.process(m);
 		});
-
-		// printAllSymbols();
-
-		// run through them again and actually create the trees
-		// System.out.println("Finishing bases...");
-		// ModuleHandler.modules().values().forEach(m -> {
-		// 	tProcessor.process(m);
-		// });
 
 		// printAllSymbols();
 
@@ -106,7 +97,7 @@ public class Main {
 		HashMap<String, InlineType> trees = new HashMap<>();
 
 		ModuleHandler.modules().values().forEach(m -> {
-			InlineType tree = new InlineType(null, null, null);
+			InlineType tree = new InlineType();
 			trees.put(m.name(), tree);
 			bProcessor.process(m, tree);
 		});

@@ -89,6 +89,7 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
@@ -167,7 +168,25 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 	};
 
 	public InlineType visit( NDChoiceStatement n, InlineType T ){
-		return null;
+		InlineType[] trees = new InlineType[n.children().size()]; // save all the possible outcomes
+
+		for(int i = 0; i < n.children().size(); i++){
+			System.out.println("process child: " + n.children().get(i).value());
+			InlineType T1 = n.children().get(i).key().accept(this, T); // synthesize the label (in the [])
+			InlineType T2 = n.children().get(i).value().accept(this, T1); // synthesize the behaviour (in the {})
+			trees[i] = T2;
+		}
+		
+		if(trees.length == 1){
+			System.out.println("only one tree");
+			System.out.println(trees[0]);
+			return trees[0];
+		}
+		else{
+			System.out.println(trees.length + " tree(s)");
+			System.out.println(Type.union(trees));
+			return (InlineType)Type.union(trees);
+		}
 	};
 
 	public InlineType visit( OneWayOperationStatement n, InlineType T ){
@@ -208,7 +227,7 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 			p_out_type = new ChoiceType(possibleTypes);
 		}
 
-		Checker.get(this.module).check(T1, p_out_type, T_out);
+		Checker.get(this.module).check(p_out_type, T_out);
 
 		return T1;
 	};
@@ -219,7 +238,7 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
 
-		Checker.get(this.module).check(T, p_out, T_out);
+		Checker.get(this.module).check(p_out, T_out);
 
 		return T;
 	};
@@ -234,7 +253,7 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
-		Checker.get(this.module).check(T, p_out, T_out);
+		Checker.get(this.module).check(p_out, T_out);
 
 		// update type of p_in to T_in
 		InlineType T1 = T.copy(false);

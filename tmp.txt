@@ -5,23 +5,12 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-Adding config parameter for MyService
-New tree: {
-	p: int{
-			x (recursive structure)
-		}
-}
+Choice statement
 
---------------------------
-
-Notification: helloOneway(p)
-attacker edges: [root --> root.x]
-defender edges: [root --> root.x, root.x --> root.x.x]
-New tree: {
-	p: int{
-			x (recursive structure)
-		}
-}
-
---------------------------
-
+process child: jolie.lang.parse.ast.AssignStatement@5a39699c
+process child: jolie.lang.parse.ast.SequenceStatement@2752f6e2
+deriving type of ADD void int
+attacker edges: []
+defender edges: []
+2 tree(s)
+null

@@ -8,10 +8,6 @@ interface MyInterface {
 		helloOneway( rec )
 }
 
-// type T: void {
-// 	a: A
-// 	b: B
-// }
 
 type A: int { x: int }
 type B: int | bool | double
@@ -21,7 +17,7 @@ type rec: int{
 	x: rec
 }
 
-service MyService(p: rec) {
+service MyService() {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -36,6 +32,17 @@ service MyService(p: rec) {
 
 	main {
 		// p.x = 10
-		helloOneway@out(p)
+		// helloOneway@out(p)
+
+		[helloOneway(input)]{
+			input = 10
+		}
+
+		[helloReqRes(input)(output){
+			output += 10
+		}]{
+			output = 5
+			output = 10
+		}
 	}
 }

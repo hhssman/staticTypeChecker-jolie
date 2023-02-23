@@ -57,11 +57,14 @@ public class TypeConverter {
 
 			if(type instanceof TypeInlineDefinition){ // structure and definition are compatible, finalize the object
 				TypeInlineDefinition castedType = (TypeInlineDefinition)type;
-				InlineType tmpStruct = (InlineType)TypeConverter.convert(castedType); // create the structure in order to copy the children into the given structure
+				HashMap<String, Type> recursiveTable = new HashMap<>();
+				recursiveTable.put(type.name(), castedStruct);
 
-				for(Entry<String, Type> child : tmpStruct.children().entrySet()){
-					castedStruct.put(child.getKey(), child.getValue());
-				}
+				castedStruct.setBasicType(castedType.basicType());
+				castedStruct.setCardinality(castedType.cardinality());
+				castedStruct.setContext(castedType.context());
+
+				TypeConverter.convert(castedStruct, castedType, true, recursiveTable); // create the structure in order to copy the children into the given structure
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
@@ -110,7 +113,10 @@ public class TypeConverter {
 
 	private static Type convert(TypeDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
 		if(type instanceof TypeInlineDefinition){
-			return TypeConverter.convert((TypeInlineDefinition)type, finalize, recursiveTable);
+			TypeInlineDefinition parsedType = (TypeInlineDefinition)type;
+			InlineType base = new InlineType(parsedType.basicType(), parsedType.cardinality(), parsedType.context());
+			TypeConverter.convert(base, (TypeInlineDefinition)type, finalize, recursiveTable);
+			return base;
 		}
 
 		if(type instanceof TypeChoiceDefinition){
@@ -129,9 +135,13 @@ public class TypeConverter {
 	}
 
 	private static InlineType convert(TypeInlineDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
-		InlineType structure = new InlineType(type.basicType(), type.cardinality(), type.context());
+		InlineType base = new InlineType(type.basicType(), type.cardinality(), type.context());
+		TypeConverter.convert(base, type, finalize, recursiveTable);
+		return base;
+	}
 
-		recursiveTable.put(type.name(), structure);
+	private static void convert(InlineType base, TypeInlineDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+		recursiveTable.put(type.name(), base);
 
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
@@ -144,20 +154,18 @@ public class TypeConverter {
 				}
 
 				if(recursiveTable.containsKey(typeName)){
-					structure.put(childName, recursiveTable.get(typeName));
+					base.put(childName, recursiveTable.get(typeName));
 				}
 				else{
 					Type subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
-					structure.put(childName, subStructure);
+					base.put(childName, subStructure);
 				}
 			}
 		}
 
 		if(finalize){
-			structure.finalize();
+			base.finalize();
 		}
-
-		return structure;
 	}
 
 	private static Type convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){

@@ -1,7 +1,5 @@
 package staticTypechecker.visitors;
 
-import java.util.ArrayList;
-
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -23,7 +21,6 @@ import jolie.lang.parse.ast.ForEachSubNodeStatement;
 import jolie.lang.parse.ast.ForStatement;
 import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
-import jolie.lang.parse.ast.ImportSymbolTarget;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
 import jolie.lang.parse.ast.InstallStatement;
@@ -111,19 +108,19 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		processTypeDef(n, symbols);		
+		this.processTypeDef(n, symbols);		
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		processTypeDef(n, symbols);	
+		this.processTypeDef(n, symbols);	
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		processTypeDef(n, symbols);			
+		this.processTypeDef(n, symbols);			
 		return null;
 	}
 

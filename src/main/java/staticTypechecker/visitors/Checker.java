@@ -89,6 +89,7 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
+import staticTypechecker.utils.Bisimulator;
 import staticTypechecker.entities.Module;;
 
 /**
@@ -132,8 +133,8 @@ public class Checker implements OLVisitor<Void, Void> {
 	 * @param node
 	 * @param type
 	 */
-	public void check(InlineType T, Type node, Type type){
-		node.accept(this, null);
+	public void check(Type type1, Type type2){
+		Bisimulator.isSubtypeOf(type1, type2);
 	} 
 
 	public Void visit(Program p, Void ctx){

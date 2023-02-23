@@ -137,7 +137,8 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			symbols.put(n.name(), InlineType.getBaseSymbol(n));
+			// symbols.put(n.name(), InlineType.getBaseSymbol(n));
+			symbols.put(n.name(), InlineType.getBaseSymbol());
 		}
 		
 		return null;
@@ -145,7 +146,8 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), InlineType.getBaseSymbol(n));
+		// symbols.put(n.name(), InlineType.getBaseSymbol(n));
+		symbols.put(n.name(), InlineType.getBaseSymbol());
 		return null;
 	}
 
@@ -155,7 +157,8 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			symbols.put(n.name(), ChoiceType.getBaseSymbol(n));
+			// symbols.put(n.name(), ChoiceType.getBaseSymbol(n));
+			symbols.put(n.name(), ChoiceType.getBaseSymbol());
 		}
 		
 		return null;
@@ -170,9 +173,9 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			String originalName = s.originalSymbolName();
 
 			// check if the module we are importing from have been loaded, if not do it, since we need the base symbol from it
-			// if(!ModuleHandler.contains(moduleName)){
-			// 	ModuleHandler.loadModule(moduleName);
-			// }
+			if(!ModuleHandler.contains(moduleName)){
+				ModuleHandler.loadModule(moduleName);
+			}
 			
 			// ask the symbols table in the corresponding Module for the structure of the type
 			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);

@@ -1,6 +1,5 @@
 package staticTypechecker.typeStructures;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
-import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
@@ -22,7 +20,7 @@ import staticTypechecker.utils.Bisimulator;
  */
 public class InlineType extends Type {
 	private BasicTypeDefinition basicType; // the type of the root node
-	private HashMap<String, Type> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
+	private HashMap<String, Type> children; // the children of the root node
 	private Range cardinality; // the cardinality of the root node
 	private boolean finalized; // indicates whether this type is open to new children or not. If true, the structure is done and we do not allow more children
 	private ParsingContext context;
@@ -32,6 +30,14 @@ public class InlineType extends Type {
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
 		this.context = context;
+		this.finalized = false;
+	}
+
+	public InlineType(){
+		this.basicType = null;
+		this.children = new HashMap<>();
+		this.cardinality = null;
+		this.context = null;
 		this.finalized = false;
 	}
 
@@ -188,13 +194,31 @@ public class InlineType extends Type {
 	 * @return the deep copy
 	 */
 	public InlineType copy(boolean finalize){
+		return this.copy(finalize, new ArrayList<>());
+	}
+
+	public InlineType copy(boolean finalize, ArrayList<Type> seenTypes){
 		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context);
+		seenTypes.add(this);
 
 		this.children.entrySet().forEach(child -> {
 			String childName = child.getKey();
 			Type childStruct = child.getValue();
 
-			struct.put(childName, childStruct.copy(finalize));
+			// run through the already seen types and see if we already copied this object, if so just use this copy
+			boolean found = false;
+			for(Type seenType : seenTypes){
+				if(seenType == childStruct){
+					struct.put(childName, seenTypes.get(seenTypes.indexOf(childStruct)));
+					found = true;
+					break;
+				}
+			}
+
+			// otherwise we must make a new copy
+			if(!found){
+				struct.put(childName, childStruct.copy(finalize, seenTypes));
+			}
 		});
 
 		if(finalize){
@@ -213,31 +237,21 @@ public class InlineType extends Type {
 			return false;
 		}
 
-		InlineType parsedOther = (InlineType)other;
-
-		if(!this.basicType.equals(parsedOther.basicType())){
-			return false;
-		}
-
-		// if(!this.cardinality.equals(parsedOther.cardinality)){
-		// 	return false;
-		// }
-
-		for(Entry<String, Type> child : this.children.entrySet()){
-			if(!parsedOther.contains(child.getKey())){
-				return false;
-			}
-
-			if(!parsedOther.getChild(child.getKey()).equals(child.getValue())){
-				return false;
-			}
-		}
-
-		return true;
+		return Bisimulator.isEquivalent(this, (InlineType)other);
 	}
 
 	public int hashCode(){
-		return this.basicType.hashCode() + this.children.size() * 7823; // 7823 is just a large prime number
+		int hashCode = 1;
+
+		if(this.basicType != null){
+			hashCode += this.basicType.hashCode();
+		}
+
+		if(this.children != null){
+			hashCode += this.children.size() * 7823; // 7823 is just a large prime number
+		}
+		
+		return hashCode;
 	}
 
 	/**
@@ -250,7 +264,7 @@ public class InlineType extends Type {
 	public String prettyString(int level, ArrayList<Type> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "";
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
 
 		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
 			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
@@ -292,5 +306,42 @@ public class InlineType extends Type {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get a nice string representing this structure
+	 */
+	public String prettyStringHashCode(){
+		return this.prettyStringHashCode(0, new ArrayList<>());
+	}
+
+	public String prettyStringHashCode(int level, ArrayList<Type> recursive){
+		String prettyString = "(" + System.identityHashCode(this) + ")";
+		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
+
+		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
+			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
+		}
+
+		if(this.children.size() != 0){
+			prettyString += "{";
+
+			prettyString += this.children.entrySet().stream().map(child -> {
+				if(this.containsChildExact(recursive, child.getValue())){
+					return "\n" + "\t".repeat(level+1) + "(" + System.identityHashCode(child.getValue()) + ")" + child.getKey() + " (recursive structure)";
+				}
+				else{
+					recursive.add(child.getValue());
+					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+
+					return "\n" + "\t".repeat(level+1) + "(" + System.identityHashCode(child.getValue()) + ")" + child.getKey() + ": " + child.getValue().prettyStringHashCode(level+2, rec);
+				}
+			})
+			.collect(Collectors.joining("\n"));
+
+			prettyString += "\n" + "\t".repeat(level) + "}";
+		}
+
+		return prettyString;
 	}
 }

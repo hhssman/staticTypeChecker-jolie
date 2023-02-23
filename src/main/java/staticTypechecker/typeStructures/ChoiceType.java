@@ -1,7 +1,6 @@
 package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,10 @@ public class ChoiceType extends Type {
 		return (ChoiceType)TypeConverter.createBaseStructure(typeDef);
 	}
 
+	public static ChoiceType getBaseSymbol(){
+		return new ChoiceType();
+	}
+
 	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
 		this.choices = this.choices.stream()
 		.map(c -> {
@@ -99,12 +102,12 @@ public class ChoiceType extends Type {
 	/**
 	 * TODO
 	 */
-	public boolean equals(Type other){
+	public boolean equals(Object other){
 		if(!(other instanceof ChoiceType)){
 			return false;
 		}
 
-		return Bisimulator.isEquivalent(this, other);
+		return Bisimulator.isEquivalent(this, (ChoiceType)other);
 	}
 
 	/**
@@ -132,6 +135,12 @@ public class ChoiceType extends Type {
 		return copy;
 	}
 
+	public ChoiceType copy(boolean finalize, ArrayList<Type> seenTypes){
+		ChoiceType copy = new ChoiceType();
+		this.choices.forEach(c -> copy.addChoice(c.copy(finalize, seenTypes)));
+		return copy;
+	}
+
 	public String prettyString(){
 		ArrayList<Type> recursive = new ArrayList<>();
 		String toString = this.choices.stream()
@@ -142,6 +151,26 @@ public class ChoiceType extends Type {
 	}
 
 	public String prettyString(int level, ArrayList<Type> recursive){
+		String toString = "\n" + "\t".repeat(level);
+		toString += this.choices.stream().map(c -> {
+			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+			return c.prettyString(level, rec);
+		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
+
+		return toString;
+	}
+
+
+	public String prettyStringHashCode(){
+		ArrayList<Type> recursive = new ArrayList<>();
+		String toString = this.choices.stream()
+										.map(c -> c.prettyString(0, recursive))
+										.collect(Collectors.joining("\n|\n"));
+
+		return toString;
+	}
+
+	public String prettyStringHashCode(int level, ArrayList<Type> recursive){
 		String toString = "\n" + "\t".repeat(level);
 		toString += this.choices.stream().map(c -> {
 			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice

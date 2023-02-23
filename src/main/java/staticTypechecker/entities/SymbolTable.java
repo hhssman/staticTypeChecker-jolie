@@ -41,4 +41,8 @@ public class SymbolTable {
 	public Collection<Entry<String, Symbol>> entrySet(){
 		return this.table.entrySet();
 	}
+
+	public String toString(){
+		return this.table.toString();
+	}
 }

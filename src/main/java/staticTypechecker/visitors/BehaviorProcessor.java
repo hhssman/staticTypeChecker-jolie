@@ -419,14 +419,15 @@ public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
 	@Override
 	public Void visit(NDChoiceStatement n, InlineType tree) {
 		System.out.println("Choice statement\n");
+		this.synthesizer.synthesize(n, tree);
 
-		for(Pair<OLSyntaxNode, OLSyntaxNode> pair : n.children()){
-			OLSyntaxNode label = pair.key();
-			OLSyntaxNode behaviour = pair.value();
+		// for(Pair<OLSyntaxNode, OLSyntaxNode> pair : n.children()){
+		// 	OLSyntaxNode label = pair.key();
+		// 	OLSyntaxNode behaviour = pair.value();
 
-			label.accept(this, tree);
-			behaviour.accept(this, tree);
-		}
+		// 	label.accept(this, tree);
+		// 	behaviour.accept(this, tree);
+		// }
 
 		return null;
 	}
