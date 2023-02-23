@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Range;
-import staticTypechecker.typeStructures.TypeInlineStructure;
+import staticTypechecker.typeStructures.InlineType;
 
 public class SymbolTable {
 	private HashMap<String, Symbol> table;
@@ -20,7 +20,7 @@ public class SymbolTable {
 	private void addBaseTypes(){
 		NativeType[] baseTypes = NativeType.values();
 		for(NativeType t : baseTypes){
-			TypeInlineStructure typeStruct = new TypeInlineStructure(BasicTypeDefinition.of(t), new Range(1, 1), null);
+			InlineType typeStruct = new InlineType(BasicTypeDefinition.of(t), new Range(1, 1), null);
 
 			this.table.put(t.id(), typeStruct);
 		}

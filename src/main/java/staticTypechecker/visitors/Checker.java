@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import jolie.lang.parse.OLVisitor;
@@ -86,7 +87,8 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.Module;;
 
 /**
@@ -95,11 +97,44 @@ import staticTypechecker.entities.Module;;
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
 public class Checker implements OLVisitor<Void, Void> {
+	private static HashMap<String, Checker> checkers = new HashMap<>(); // maps module name to checker
+	
+	public static Checker get(Module module){
+		Checker ret = Checker.checkers.get(module.name());
+		
+		if(ret == null){
+			ret = new Checker(module);
+			Checker.checkers.put(module.name(), ret);
+		}
+	
+		return ret;
+	}
+	
 	private Module module;
 	
-	public Checker(Module module){
+	private Checker(Module module){
 		this.module = module;
 	}
+
+	/**
+	 * Check that the type of the given OLSyntaxNode is a subtype of the given type. Throws an error if not
+	 * @param T
+	 * @param node
+	 * @param type
+	 */
+	public void check(InlineType T, OLSyntaxNode node, Type type){
+		node.accept(this, null);
+	} 
+
+	/**
+	 * Check thtat the given type is a subtype of the other given type. Throws an error if not
+	 * @param T
+	 * @param node
+	 * @param type
+	 */
+	public void check(InlineType T, Type node, Type type){
+		node.accept(this, null);
+	} 
 
 	public Void visit(Program p, Void ctx){
 		for(OLSyntaxNode n : p.children()){
@@ -121,7 +156,7 @@ public class Checker implements OLVisitor<Void, Void> {
 		return null;
 	}
 
-	public Void visit(TypeStructure t, Void ctx){
+	public Void visit(Type t, Void ctx){
 		return null;
 	}
 

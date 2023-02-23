@@ -20,14 +20,14 @@ import staticTypechecker.utils.Bisimulator;
  * 
  * @author Kasper Bergstedt
  */
-public class TypeInlineStructure extends TypeStructure {
+public class InlineType extends Type {
 	private BasicTypeDefinition basicType; // the type of the root node
-	private HashMap<String, TypeStructure> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
+	private HashMap<String, Type> children; // the children of the root node, not children are defined recursively as other TypeStructureDefintions
 	private Range cardinality; // the cardinality of the root node
 	private boolean finalized; // indicates whether this type is open to new children or not. If true, the structure is done and we do not allow more children
 	private ParsingContext context;
 
-	public TypeInlineStructure(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
+	public InlineType(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
 		this.basicType = basicType;
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
@@ -59,11 +59,11 @@ public class TypeInlineStructure extends TypeStructure {
 		this.basicType = basicType;
 	}
 
-	public void setChildren(HashMap<String, TypeStructure> children){
+	public void setChildren(HashMap<String, Type> children){
 		this.children = children;
 	}
 
-	public void addChildren(HashMap<String, TypeStructure> children){
+	public void addChildren(HashMap<String, Type> children){
 		this.children.putAll(children);
 	}
 
@@ -80,7 +80,7 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param structure the structure of the child
 	 * @return true if this node contains a child with the specified name, false otherwise
 	 */
-	public boolean contains(String name, TypeStructure structure){
+	public boolean contains(String name, Type structure){
 		if(!this.children.containsKey(name)){ // key does not exist
 			return false;
 		}
@@ -92,12 +92,12 @@ public class TypeInlineStructure extends TypeStructure {
 		return this.children.containsKey(name);
 	}
 
-	public TypeStructure getChild(String name){
+	public Type getChild(String name){
 		return this.children.get(name);
 	}
 
-	public String getChildName(TypeStructure struct){
-		for(Entry<String, TypeStructure> child : this.children.entrySet()){
+	public String getChildName(Type struct){
+		for(Entry<String, Type> child : this.children.entrySet()){
 			if(child.getValue().equals(struct)){
 				return child.getKey();
 			}
@@ -105,7 +105,7 @@ public class TypeInlineStructure extends TypeStructure {
 		return "";
 	}
 
-	public HashMap<String, TypeStructure> children(){
+	public HashMap<String, Type> children(){
 		return this.children;
 	}
 
@@ -114,7 +114,7 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param name the name of the child (what key to associate it to)
 	 * @param child the structure of the child
 	 */
-	public void put(String name, TypeStructure child){
+	public void put(String name, Type child){
 		if(!this.finalized){
 			this.children.put(name, child);
 		}
@@ -126,8 +126,8 @@ public class TypeInlineStructure extends TypeStructure {
 		}
 	}
 
-	public void removeChild(TypeInlineStructure child){
-		for(Entry<String, TypeStructure> ent : this.children.entrySet()){
+	public void removeChild(InlineType child){
+		for(Entry<String, Type> ent : this.children.entrySet()){
 			if(ent.getValue().equals(child)){
 				this.children.remove(ent.getKey());
 			}
@@ -143,8 +143,8 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param other the other object
 	 * @return true if the objects are structural equivalent and false otherwise
 	 */
-	public boolean equals(TypeStructure other){
-		if(!(other instanceof TypeInlineStructure)){
+	public boolean equals(Type other){
+		if(!(other instanceof InlineType)){
 			return false;
 		}
 
@@ -154,32 +154,32 @@ public class TypeInlineStructure extends TypeStructure {
 	/**
 	 * TODO
 	 */
-	public boolean isSubtypeOf(TypeStructure other){
+	public boolean isSubtypeOf(Type other){
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	/**
 	 * TODO
 	 */
-	public TypeStructure merge(TypeStructure other){
+	public Type merge(Type other){
 		return this;
 	}
 
 
-	public static TypeInlineStructure getBaseSymbol(){
-		return new TypeInlineStructure(null, null, null);
+	public static InlineType getBaseSymbol(){
+		return new InlineType(null, null, null);
 	}
 
-	public static TypeInlineStructure getBaseSymbol(TypeInlineDefinition typeDef){
-		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
+	public static InlineType getBaseSymbol(TypeInlineDefinition typeDef){
+		return (InlineType)TypeConverter.createBaseStructure(typeDef);
 	}
 
-	public static TypeInlineStructure getBaseSymbol(TypeDefinitionLink typeDef){
-		return (TypeInlineStructure)TypeConverter.createBaseStructure(typeDef);
+	public static InlineType getBaseSymbol(TypeDefinitionLink typeDef){
+		return (InlineType)TypeConverter.createBaseStructure(typeDef);
 	}
 
-	public static TypeInlineStructure getBasicType(NativeType type){
-		return new TypeInlineStructure(BasicTypeDefinition.of(type), null, null);
+	public static InlineType getBasicType(NativeType type){
+		return new InlineType(BasicTypeDefinition.of(type), null, null);
 	}
 
 	/**
@@ -187,12 +187,12 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param finalize whether or not the copy should be finalized
 	 * @return the deep copy
 	 */
-	public TypeInlineStructure copy(boolean finalize){
-		TypeInlineStructure struct = new TypeInlineStructure(this.basicType, this.cardinality, this.context);
+	public InlineType copy(boolean finalize){
+		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context);
 
 		this.children.entrySet().forEach(child -> {
 			String childName = child.getKey();
-			TypeStructure childStruct = child.getValue();
+			Type childStruct = child.getValue();
 
 			struct.put(childName, childStruct.copy(finalize));
 		});
@@ -209,11 +209,11 @@ public class TypeInlineStructure extends TypeStructure {
 	 * TODO make it correct
 	 */
 	public boolean equals(Object other){
-		if(!(other instanceof TypeInlineStructure)){
+		if(!(other instanceof InlineType)){
 			return false;
 		}
 
-		TypeInlineStructure parsedOther = (TypeInlineStructure)other;
+		InlineType parsedOther = (InlineType)other;
 
 		if(!this.basicType.equals(parsedOther.basicType())){
 			return false;
@@ -223,7 +223,7 @@ public class TypeInlineStructure extends TypeStructure {
 		// 	return false;
 		// }
 
-		for(Entry<String, TypeStructure> child : this.children.entrySet()){
+		for(Entry<String, Type> child : this.children.entrySet()){
 			if(!parsedOther.contains(child.getKey())){
 				return false;
 			}
@@ -247,7 +247,7 @@ public class TypeInlineStructure extends TypeStructure {
 		return this.prettyString(0, new ArrayList<>());
 	}
 
-	public String prettyString(int level, ArrayList<TypeStructure> recursive){
+	public String prettyString(int level, ArrayList<Type> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
 		prettyString += this.basicType != null ? this.basicType.nativeType().id() : "";
@@ -265,7 +265,7 @@ public class TypeInlineStructure extends TypeStructure {
 				}
 				else{
 					recursive.add(child.getValue());
-					ArrayList<TypeStructure> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
 
 					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
 				}
@@ -284,7 +284,7 @@ public class TypeInlineStructure extends TypeStructure {
 	 * @param type
 	 * @return
 	 */
-	private boolean containsChildExact(ArrayList<TypeStructure> list, TypeStructure type){
+	private boolean containsChildExact(ArrayList<Type> list, Type type){
 		for(int i = 0; i < list.size(); i++){
 			if(list.get(i) == type){
 				return true;

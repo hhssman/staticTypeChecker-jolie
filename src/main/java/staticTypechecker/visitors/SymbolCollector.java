@@ -95,8 +95,8 @@ import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
-import staticTypechecker.typeStructures.TypeChoiceStructure;
-import staticTypechecker.typeStructures.TypeInlineStructure;
+import staticTypechecker.typeStructures.ChoiceType;
+import staticTypechecker.typeStructures.InlineType;
 
 /**
  * This class collects all symbols in a given module with the method "collect". A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.
@@ -137,7 +137,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			symbols.put(n.name(), TypeInlineStructure.getBaseSymbol(n));
+			symbols.put(n.name(), InlineType.getBaseSymbol(n));
 		}
 		
 		return null;
@@ -145,7 +145,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), TypeInlineStructure.getBaseSymbol(n));
+		symbols.put(n.name(), InlineType.getBaseSymbol(n));
 		return null;
 	}
 
@@ -155,7 +155,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			symbols.put(n.name(), TypeChoiceStructure.getBaseSymbol(n));
+			symbols.put(n.name(), ChoiceType.getBaseSymbol(n));
 		}
 		
 		return null;

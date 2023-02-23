@@ -1,6 +1,7 @@
 package staticTypechecker.visitors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -88,461 +89,466 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.typeStructures.TypeChoiceStructure;
-import staticTypechecker.typeStructures.TypeInlineStructure;
-import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.typeStructures.ChoiceType;
+import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Path;
-import staticTypechecker.entities.Operation.OperationType;
-import staticTypechecker.faults.FaultHandler;
 
 /**
- * Synthesizer for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
+ * Synthesizer for a parsed Jolie abstract syntax T. Works as a visitor and will visit each node in the provided T.
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class Synthesizer implements OLVisitor<TypeInlineStructure, Void> {
+public class Synthesizer implements OLVisitor<InlineType, InlineType> {
+	private static HashMap<String, Synthesizer> synths = new HashMap<>(); // maps module name to synthesizer
+	
+	public static Synthesizer get(Module module){
+		Synthesizer ret = Synthesizer.synths.get(module.name());
+
+		if(ret == null){
+			ret = new Synthesizer(module);
+			Synthesizer.synths.put(module.name(), ret);
+		}
+	
+		return ret;
+	}
+
 	private Module module;
 	
-	public Synthesizer(Module module){
+	private Synthesizer(Module module){
 		this.module = module;
 	}
 
-	public void synthesize(OLSyntaxNode node, TypeInlineStructure tree){
-		node.accept(this, tree);
+	public InlineType synthesize(OLSyntaxNode node, InlineType T){
+		return node.accept(this, T);
 	}
 
-	public Void visit(Program p, TypeInlineStructure tree){
+	public InlineType visit(Program p, InlineType T){
+		InlineType T1 = T;
+
 		for(OLSyntaxNode n : p.children()){
-			n.accept(this, null);
+			T1 = n.accept(this, T1);
 		}
 
+		return T1;
+	}
+
+	public InlineType visit(TypeInlineDefinition t, InlineType T){
 		return null;
 	}
 
-	public Void visit(TypeInlineDefinition t, TypeInlineStructure tree){
-		return null;
-	}
-
-	public Void visit( OneWayOperationDeclaration decl, TypeInlineStructure tree ){
+	public InlineType visit( OneWayOperationDeclaration decl, InlineType T ){
 		return null;
 	};
 
-	public Void visit( RequestResponseOperationDeclaration decl, TypeInlineStructure tree ){
+	public InlineType visit( RequestResponseOperationDeclaration decl, InlineType T ){
 		return null;
 	};
 
-	public Void visit( DefinitionNode n, TypeInlineStructure tree ){
+	public InlineType visit( DefinitionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ParallelStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ParallelStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( SequenceStatement n, TypeInlineStructure tree ){
+	public InlineType visit( SequenceStatement n, InlineType T ){
+		InlineType T1 = T;
+
 		for(OLSyntaxNode child : n.children()){
-			System.out.println(child.getClass());
-			child.accept(this, tree);
+			T1 = child.accept(this, T1);
 		}
 
+		return T1;
+	};
+
+	public InlineType visit( NDChoiceStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( NDChoiceStatement n, TypeInlineStructure tree ){
-		return null;
-	};
-
-	public Void visit( OneWayOperationStatement n, TypeInlineStructure tree ){
+	public InlineType visit( OneWayOperationStatement n, InlineType T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
-		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.requestType()); // the data type which is EXPECTED by the oneway operation
+		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the data type which is EXPECTED by the oneway operation
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
-		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+		InlineType T1 = T.copy(false);
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
-		return null;
+		return T1;
 	};
 
-	public Void visit( RequestResponseOperationStatement n, TypeInlineStructure tree ){
+	public InlineType visit( RequestResponseOperationStatement n, InlineType T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
-		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data the operation EXPECTS as input
-		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.responseType()); // the type of the data RETURNED from the operation
+		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the type of the data the operation EXPECTS as input
+		Type T_out = (Type)this.module.symbols().get(op.responseType()); // the type of the data RETURNED from the operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given AS INPUT to the operation
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
 
 		// given that p_in is of type T_in find the type of the behaviour
-		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
-		System.out.println("process: " + n.process().getClass());
-		n.process().accept(this, tree);
+		InlineType T_update = T.copy(false);
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T_update);
+		InlineType T1 = n.process().accept(this, T_update);
 		
 		// check that p_out is a subtype of T_out 
-		ArrayList<TypeStructure> possibleTypes = TreeUtils.findNodesExact(p_out, tree, true); // the possible types of the output of the behaviour
-
-		System.out.println(p_out + " has types: " + possibleTypes.stream().map(p -> p.prettyString()).collect(Collectors.toList()));
-
-		if(possibleTypes.isEmpty()){
-			System.out.println("error, no output nodes???");
-			return null;
-		}
+		ArrayList<Type> possibleTypes = TreeUtils.findNodesExact(p_out, T1, true); // the possible types of the output of the behaviour
 		
-		TypeStructure p_out_type;
+		Type p_out_type;
 		if(possibleTypes.size() == 1){
 			p_out_type = possibleTypes.get(0);
 		}
 		else{
-			p_out_type = new TypeChoiceStructure(possibleTypes);
+			p_out_type = new ChoiceType(possibleTypes);
 		}
 
-		// if(!p_out_type.isSubtypeOf(T_out)){
-		if(!p_out_type.equals(T_out)){
-			FaultHandler.throwFault(p_out_type.prettyString() + " is not a subtype of " + T_out.prettyString());
-		}
+		Checker.get(this.module).check(T1, p_out_type, T_out);
 
-		return null;
+		return T1;
 	};
 
-	public Void visit( NotificationOperationStatement n, TypeInlineStructure tree ){
+	public InlineType visit( NotificationOperationStatement n, InlineType T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
-		if(op.type() != OperationType.ONEWAY){
-			FaultHandler.throwFault(n.id() + " is not a oneway operation");
-			return null;
-		}
-		
-		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
-		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the oneway operation
+		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
+		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
 
-		// if(!p_out.isSubtypeOf(T_out)){
-		if(!p_out.equals(T_out)){
-			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
-			return null;
-		}
+		Checker.get(this.module).check(T, p_out, T_out);
 
-		return null;
+		return T;
 	};
 
-	public Void visit( SolicitResponseOperationStatement n, TypeInlineStructure tree ){
+	public InlineType visit( SolicitResponseOperationStatement n, InlineType T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
-		if(op.type() != OperationType.REQRES){
-			FaultHandler.throwFault(n.id() + " is not a req res operation");
-			return null;
-		}
-
-		TypeStructure T_in = (TypeStructure)this.module.symbols().get(op.responseType()); // the type of the data which is RETURNED by the reqres operation
-		TypeStructure T_out = (TypeStructure)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the reqres operation
+		Type T_in = (Type)this.module.symbols().get(op.responseType()); // the type of the data which is RETURNED by the reqres operation
+		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the reqres operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
-		TypeStructure p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), tree); // the type which is GIVEN to the reqres operation
+		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
 		
-		// if(!p_out.isSubtypeOf(T_out)){
-		if(!p_out.equals(T_out)){
-			FaultHandler.throwFault("The input data given to " + n.id() + " is not compatible with the expected type.\nData given:\n" + p_out.prettyString() + "\n\nData expected:\n" + T_out.prettyString());
-			return null;
-		}
+		// check that p_out is subtype of T_out
+		Checker.get(this.module).check(T, p_out, T_out);
 
-		TreeUtils.setTypeOfNodeByPath(p_in, T_in, tree);
+		// update type of p_in to T_in
+		InlineType T1 = T.copy(false);
+		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
+		return T1;
+	};
+
+	public InlineType visit( LinkInStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( LinkInStatement n, TypeInlineStructure tree ){
+	public InlineType visit( LinkOutStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( LinkOutStatement n, TypeInlineStructure tree ){
-		return null;
-	};
-
-	public Void visit( AssignStatement n, TypeInlineStructure tree ){
+	public InlineType visit( AssignStatement n, InlineType T ){
+		// retrieve the type of the expression
 		Path path = new Path(n.variablePath().path());
 		OLSyntaxNode e = n.expression();
-		TypeStructure T_e = TreeUtils.getTypeOfExpression(e, tree);
+		Type T_e = TreeUtils.getTypeOfExpression(e, T);
 
-		TreeUtils.setTypeOfNodeByPath(path, T_e, tree);
+		// update the type of the node
+		InlineType T1 = T.copy(false);
+		TreeUtils.setTypeOfNodeByPath(path, T_e, T1);
 
-		return null;
+		return T1;
 	};
 
 	@Override
-	public Void visit(AddAssignStatement n, TypeInlineStructure tree) {
+	public InlineType visit(AddAssignStatement n, InlineType T) {
 		Path path = new Path(n.variablePath().path());
-		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), tree);		
-		return null;
+
+		InlineType T1 = T.copy(false);
+		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);
+
+		return T1;
 	}
 
 	@Override
-	public Void visit(SubtractAssignStatement n, TypeInlineStructure tree) {
+	public InlineType visit(SubtractAssignStatement n, InlineType T) {
 		Path path = new Path(n.variablePath().path());
-		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), tree);		
-		return null;
+
+		InlineType T1 = T.copy(false);
+		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);
+		
+		return T1;
 	}
 
 	@Override
-	public Void visit(MultiplyAssignStatement n, TypeInlineStructure tree) {
+	public InlineType visit(MultiplyAssignStatement n, InlineType T) {
 		Path path = new Path(n.variablePath().path());
-		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), tree);		
-		return null;
+
+		InlineType T1 = T.copy(false);
+		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);
+		
+		return T1;
 	}
 
 	@Override
-	public Void visit(DivideAssignStatement n, TypeInlineStructure tree) {
+	public InlineType visit(DivideAssignStatement n, InlineType T) {
 		Path path = new Path(n.variablePath().path());
-		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), tree);		
-		return null;
+
+		InlineType T1 = T.copy(false);
+		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);
+		
+		return T1;
 	}
 
-	public Void visit( IfStatement n, TypeInlineStructure tree ){
+	public InlineType visit( IfStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( DefinitionCallStatement n, TypeInlineStructure tree ){
+	public InlineType visit( DefinitionCallStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( WhileStatement n, TypeInlineStructure tree ){
+	public InlineType visit( WhileStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( OrConditionNode n, TypeInlineStructure tree ){
+	public InlineType visit( OrConditionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( AndConditionNode n, TypeInlineStructure tree ){
+	public InlineType visit( AndConditionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( NotExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( NotExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CompareConditionNode n, TypeInlineStructure tree ){
+	public InlineType visit( CompareConditionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ConstantIntegerExpression n, TypeInlineStructure tree ){
+	public InlineType visit( ConstantIntegerExpression n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ConstantDoubleExpression n, TypeInlineStructure tree ){
+	public InlineType visit( ConstantDoubleExpression n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ConstantBoolExpression n, TypeInlineStructure tree ){
+	public InlineType visit( ConstantBoolExpression n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ConstantLongExpression n, TypeInlineStructure tree ){
+	public InlineType visit( ConstantLongExpression n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ConstantStringExpression n, TypeInlineStructure tree ){
+	public InlineType visit( ConstantStringExpression n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ProductExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( ProductExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( SumExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( SumExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( VariableExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( VariableExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( NullProcessStatement n, TypeInlineStructure tree ){
+	public InlineType visit( NullProcessStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( Scope n, TypeInlineStructure tree ){
+	public InlineType visit( Scope n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InstallStatement n, TypeInlineStructure tree ){
+	public InlineType visit( InstallStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CompensateStatement n, TypeInlineStructure tree ){
+	public InlineType visit( CompensateStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ThrowStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ThrowStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ExitStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ExitStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ExecutionInfo n, TypeInlineStructure tree ){
+	public InlineType visit( ExecutionInfo n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CorrelationSetInfo n, TypeInlineStructure tree ){
+	public InlineType visit( CorrelationSetInfo n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InputPortInfo n, TypeInlineStructure tree ){
+	public InlineType visit( InputPortInfo n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( OutputPortInfo n, TypeInlineStructure tree ){
+	public InlineType visit( OutputPortInfo n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( PointerStatement n, TypeInlineStructure tree ){
+	public InlineType visit( PointerStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( DeepCopyStatement n, TypeInlineStructure tree ){
+	public InlineType visit( DeepCopyStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( RunStatement n, TypeInlineStructure tree ){
+	public InlineType visit( RunStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( UndefStatement n, TypeInlineStructure tree ){
+	public InlineType visit( UndefStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ValueVectorSizeExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( ValueVectorSizeExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( PreIncrementStatement n, TypeInlineStructure tree ){
+	public InlineType visit( PreIncrementStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( PostIncrementStatement n, TypeInlineStructure tree ){
+	public InlineType visit( PostIncrementStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( PreDecrementStatement n, TypeInlineStructure tree ){
+	public InlineType visit( PreDecrementStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( PostDecrementStatement n, TypeInlineStructure tree ){
+	public InlineType visit( PostDecrementStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ForStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ForStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ForEachSubNodeStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ForEachSubNodeStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ForEachArrayItemStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ForEachArrayItemStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( SpawnStatement n, TypeInlineStructure tree ){
+	public InlineType visit( SpawnStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( IsTypeExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( IsTypeExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InstanceOfExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( InstanceOfExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( TypeCastExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( TypeCastExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( SynchronizedStatement n, TypeInlineStructure tree ){
+	public InlineType visit( SynchronizedStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CurrentHandlerStatement n, TypeInlineStructure tree ){
+	public InlineType visit( CurrentHandlerStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( EmbeddedServiceNode n, TypeInlineStructure tree ){
+	public InlineType visit( EmbeddedServiceNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InstallFixedVariableExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( InstallFixedVariableExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( VariablePathNode n, TypeInlineStructure tree ){
+	public InlineType visit( VariablePathNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( TypeDefinitionLink n, TypeInlineStructure tree ){
+	public InlineType visit( TypeDefinitionLink n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InterfaceDefinition n, TypeInlineStructure tree ){
+	public InlineType visit( InterfaceDefinition n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( DocumentationComment n, TypeInlineStructure tree ){
+	public InlineType visit( DocumentationComment n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( FreshValueExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( FreshValueExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CourierDefinitionNode n, TypeInlineStructure tree ){
+	public InlineType visit( CourierDefinitionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( CourierChoiceStatement n, TypeInlineStructure tree ){
+	public InlineType visit( CourierChoiceStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( NotificationForwardStatement n, TypeInlineStructure tree ){
+	public InlineType visit( NotificationForwardStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( SolicitResponseForwardStatement n, TypeInlineStructure tree ){
+	public InlineType visit( SolicitResponseForwardStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InterfaceExtenderDefinition n, TypeInlineStructure tree ){
+	public InlineType visit( InterfaceExtenderDefinition n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( InlineTreeExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( InlineTreeExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( VoidExpressionNode n, TypeInlineStructure tree ){
+	public InlineType visit( VoidExpressionNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ProvideUntilStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ProvideUntilStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( TypeChoiceDefinition n, TypeInlineStructure tree ){
+	public InlineType visit( TypeChoiceDefinition n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ImportStatement n, TypeInlineStructure tree ){
+	public InlineType visit( ImportStatement n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( ServiceNode n, TypeInlineStructure tree ){
+	public InlineType visit( ServiceNode n, InlineType T ){
 		return null;
 	};
 
-	public Void visit( EmbedServiceNode n, TypeInlineStructure tree ){
+	public InlineType visit( EmbedServiceNode n, InlineType T ){
 		return null;
 	};
 }

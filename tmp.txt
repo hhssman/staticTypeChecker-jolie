@@ -17,18 +17,11 @@ New tree: {
 Notification: helloOneway(p)
 attacker edges: [root --> root.x]
 defender edges: [root --> root.x, root.x --> root.x.x]
------------------------------------
-Critical error: The input data given to helloOneway is not compatible with the expected type.
-Data given:
-int{
-	x: int{
+New tree: {
+	p: int{
 			x (recursive structure)
 		}
 }
 
-Data expected:
-int{
-	x: int{
-			x (recursive structure)
-		}
-}
+--------------------------
+

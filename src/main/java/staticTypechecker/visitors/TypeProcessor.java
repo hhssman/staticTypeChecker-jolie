@@ -90,7 +90,7 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.typeStructures.TypeConverter;
-import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.typeStructures.Type;
 
 public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 	public TypeProcessor(){}
@@ -128,7 +128,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 	}
 
 	private void processTypeDef(TypeDefinition n, SymbolTable symbols){
-		TypeConverter.finalizeBaseStructure((TypeStructure)symbols.get(n.name()), n);
+		TypeConverter.finalizeBaseStructure((Type)symbols.get(n.name()), n);
 	}
 
 	@Override

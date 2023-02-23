@@ -12,7 +12,7 @@ import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 
 /**
- * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely TypeNameDefinition and TypeStructure.
+ * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely TypeNameDefinition and Type.
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
@@ -22,14 +22,14 @@ public class TypeConverter {
 	 * @param type the type to make the base instance from
 	 * @return the base instance
 	 */
-	public static TypeStructure createBaseStructure(TypeDefinition type){
+	public static Type createBaseStructure(TypeDefinition type){
 		if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition tmp = (TypeInlineDefinition)type;
-			return new TypeInlineStructure(tmp.basicType(), tmp.cardinality(), tmp.context());
+			return new InlineType(tmp.basicType(), tmp.cardinality(), tmp.context());
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return new TypeChoiceStructure();
+			return new ChoiceType();
 		}
 
 		if(type instanceof TypeDefinitionLink){
@@ -46,20 +46,20 @@ public class TypeConverter {
 
 	/**
 	 * Finalizes the given structure using the given type. 
-	 * NOTE: if the structure is of type TypeInlineStructure, it will be finalized after this method.
+	 * NOTE: if the structure is of type InlineType, it will be finalized after this method.
 	 * @param structure the structure object to finalize
 	 * @param type the type definition to use when finalizing the struture
 	 */
-	public static void finalizeBaseStructure(TypeStructure struct, TypeDefinition type){
+	public static void finalizeBaseStructure(Type struct, TypeDefinition type){
 		// case where struct is a standard type definition
-		if(struct instanceof TypeInlineStructure){
-			TypeInlineStructure castedStruct = (TypeInlineStructure)struct;
+		if(struct instanceof InlineType){
+			InlineType castedStruct = (InlineType)struct;
 
 			if(type instanceof TypeInlineDefinition){ // structure and definition are compatible, finalize the object
 				TypeInlineDefinition castedType = (TypeInlineDefinition)type;
-				TypeInlineStructure tmpStruct = (TypeInlineStructure)TypeConverter.convert(castedType); // create the structure in order to copy the children into the given structure
+				InlineType tmpStruct = (InlineType)TypeConverter.convert(castedType); // create the structure in order to copy the children into the given structure
 
-				for(Entry<String, TypeStructure> child : tmpStruct.children().entrySet()){
+				for(Entry<String, Type> child : tmpStruct.children().entrySet()){
 					castedStruct.put(child.getKey(), child.getValue());
 				}
 			}
@@ -76,12 +76,12 @@ public class TypeConverter {
 		}
 
 		// case where struct is a choice type definition
-		if(struct instanceof TypeChoiceStructure){
-			TypeChoiceStructure castedStruct = (TypeChoiceStructure)struct;
+		if(struct instanceof ChoiceType){
+			ChoiceType castedStruct = (ChoiceType)struct;
 			
 			if(type instanceof TypeChoiceDefinition){ // struct and type def match
 				TypeChoiceDefinition castedType = (TypeChoiceDefinition)type;
-				TypeChoiceStructure tmpStruct = (TypeChoiceStructure)TypeConverter.convert(castedType);
+				ChoiceType tmpStruct = (ChoiceType)TypeConverter.convert(castedType);
 
 				castedStruct.setChoices(tmpStruct.choices());
 			}
@@ -100,15 +100,15 @@ public class TypeConverter {
 	 * @param type the type to create the structure from
 	 * @return the structure instance representing the specified type
 	 */
-	public static TypeStructure convert(TypeDefinition type){
-		return TypeConverter.convert(type, true, new HashMap<String, TypeStructure>());
+	public static Type convert(TypeDefinition type){
+		return TypeConverter.convert(type, true, new HashMap<String, Type>());
 	}
 
-	public static TypeStructure convertNoFinalize(TypeDefinition type){
-		return TypeConverter.convert(type, false, new HashMap<String, TypeStructure>());
+	public static Type convertNoFinalize(TypeDefinition type){
+		return TypeConverter.convert(type, false, new HashMap<String, Type>());
 	}
 
-	private static TypeStructure convert(TypeDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
+	private static Type convert(TypeDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
 		if(type instanceof TypeInlineDefinition){
 			return TypeConverter.convert((TypeInlineDefinition)type, finalize, recursiveTable);
 		}
@@ -128,8 +128,8 @@ public class TypeConverter {
 		return null;
 	}
 
-	private static TypeInlineStructure convert(TypeInlineDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
-		TypeInlineStructure structure = new TypeInlineStructure(type.basicType(), type.cardinality(), type.context());
+	private static InlineType convert(TypeInlineDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+		InlineType structure = new InlineType(type.basicType(), type.cardinality(), type.context());
 
 		recursiveTable.put(type.name(), structure);
 
@@ -147,7 +147,7 @@ public class TypeConverter {
 					structure.put(childName, recursiveTable.get(typeName));
 				}
 				else{
-					TypeStructure subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
+					Type subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
 					structure.put(childName, subStructure);
 				}
 			}
@@ -160,13 +160,13 @@ public class TypeConverter {
 		return structure;
 	}
 
-	private static TypeStructure convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
-		HashSet<TypeInlineStructure> choices = new HashSet<>();
+	private static Type convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+		HashSet<InlineType> choices = new HashSet<>();
 		TypeConverter.getChoices(type, choices, recursiveTable);
-		return new TypeChoiceStructure(choices);
+		return new ChoiceType(choices);
 	}
 
-	private static void getChoices(TypeDefinition type, HashSet<TypeInlineStructure> list, HashMap<String, TypeStructure> recursiveTable){
+	private static void getChoices(TypeDefinition type, HashSet<InlineType> list, HashMap<String, Type> recursiveTable){
 		if(type instanceof TypeChoiceDefinition){
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, recursiveTable);
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, recursiveTable);
@@ -182,11 +182,11 @@ public class TypeConverter {
 		}
 	}
 
-	private static TypeStructure convert(TypeDefinitionLink type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
+	private static Type convert(TypeDefinitionLink type, boolean finalize, HashMap<String, Type> recursiveTable){
 		return TypeConverter.convert(type.linkedType(), finalize, recursiveTable);
 	}
 
-	private static TypeStructure convert(TypeDefinitionUndefined type, boolean finalize, HashMap<String, TypeStructure> recursiveTable){
+	private static Type convert(TypeDefinitionUndefined type, boolean finalize, HashMap<String, Type> recursiveTable){
 		return null;
 	}
 }

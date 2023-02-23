@@ -6,19 +6,19 @@ import java.util.Map.Entry;
 import staticTypechecker.entities.Path;
 import staticTypechecker.faults.Warning;
 import staticTypechecker.faults.WarningHandler;
-import staticTypechecker.typeStructures.TypeChoiceStructure;
-import staticTypechecker.typeStructures.TypeInlineStructure;
-import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.typeStructures.ChoiceType;
+import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.typeStructures.Type;
 
 public class Bisimulator {
 	private static class Edge{
-		public TypeStructure src;
-		public TypeStructure tar;
+		public Type src;
+		public Type tar;
 		public Path srcPath;
 		public Path tarPath;
 		public String childName;
 
-		public Edge(TypeStructure src, TypeStructure tar, Path srcPath, Path tarPath, String childName){
+		public Edge(Type src, Type tar, Path srcPath, Path tarPath, String childName){
 			this.src = src;
 			this.tar = tar;
 			this.srcPath = srcPath;
@@ -52,7 +52,7 @@ public class Bisimulator {
 	 * @param type2
 	 * @return
 	 */
-	public static boolean isSubtypeOf(TypeStructure type1, TypeStructure type2){
+	public static boolean isSubtypeOf(Type type1, Type type2){
 		ArrayList<Edge> attackerEdges = new ArrayList<>();
 		ArrayList<Edge> defenderEdges = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class Bisimulator {
 		if(attackerEdges.isEmpty() || defenderEdges.isEmpty()){ // one of them is empty, we do not need to run the algorithm
 			if(!defenderEdges.isEmpty()){ // attacker is empty, and defender is not, thus it can only be a subtype, if the defender is a choice with each choice having no children. This we can check by comparing the number of defender edges and number of choices
 
-				if(type2 instanceof TypeChoiceStructure && defenderEdges.size() == ((TypeChoiceStructure)type2).choices().size()){
+				if(type2 instanceof ChoiceType && defenderEdges.size() == ((ChoiceType)type2).choices().size()){
 					return Bisimulator.isBasicTypeSubtypeOf(type1, type2);
 				}
 				else{
@@ -87,7 +87,7 @@ public class Bisimulator {
 		return false;
 	}
 
-	public static boolean isEquivalent(TypeStructure type1, TypeStructure type2){
+	public static boolean isEquivalent(Type type1, Type type2){
 		ArrayList<Edge> attackerEdges = new ArrayList<>();
 		ArrayList<Edge> defenderEdges = new ArrayList<>();
 
@@ -100,14 +100,14 @@ public class Bisimulator {
 		return attackerEdges.size() == defenderEdges.size() && attackerEdges.containsAll(defenderEdges);
 	}
 
-	private static void findAllEdges(TypeStructure type, ArrayList<Edge> list, Path currPath){
-		if(type instanceof TypeInlineStructure){
-			TypeInlineStructure parsedType = (TypeInlineStructure)type;
+	private static void findAllEdges(Type type, ArrayList<Edge> list, Path currPath){
+		if(type instanceof InlineType){
+			InlineType parsedType = (InlineType)type;
 			
 			// run through each child 
-			for(Entry<String, TypeStructure> ent : parsedType.children().entrySet()){
+			for(Entry<String, Type> ent : parsedType.children().entrySet()){
 				String childName = ent.getKey();
-				TypeStructure child = ent.getValue();
+				Type child = ent.getValue();
 				Path newPath = currPath.append(childName);
 				Edge newEdge = new Edge(type, child, currPath, newPath, childName);
 				
@@ -123,11 +123,11 @@ public class Bisimulator {
 			}
 		}
 		else{
-			TypeChoiceStructure parsedType = (TypeChoiceStructure)type;
+			ChoiceType parsedType = (ChoiceType)type;
 
 			// run through each child of each choice 
 			for(int i = 0; i < parsedType.choices().size(); i++){
-				TypeInlineStructure choice = parsedType.choices().get(i);
+				InlineType choice = parsedType.choices().get(i);
 				Path newPath = currPath.append("choice");
 				Edge newEdge = new Edge(type, choice, currPath, newPath, "");
 	
@@ -141,23 +141,23 @@ public class Bisimulator {
 	}
 
 	// UTILS FOR SUBTYPING
-	private static boolean isBasicTypeSubtypeOf(TypeStructure type1, TypeStructure type2){
-		if(type1 instanceof TypeInlineStructure && type2 instanceof TypeInlineStructure){ // both are inline
-			return ((TypeInlineStructure)type1).basicType().checkBasicTypeEqualness(((TypeInlineStructure)type2).basicType());
+	private static boolean isBasicTypeSubtypeOf(Type type1, Type type2){
+		if(type1 instanceof InlineType && type2 instanceof InlineType){ // both are inline
+			return ((InlineType)type1).basicType().checkBasicTypeEqualness(((InlineType)type2).basicType());
 		}
-		else if(type1 instanceof TypeInlineStructure && type2 instanceof TypeChoiceStructure){
-			return Bisimulator.containsChoices((TypeChoiceStructure)type2,(TypeInlineStructure)type1);
+		else if(type1 instanceof InlineType && type2 instanceof ChoiceType){
+			return Bisimulator.containsChoices((ChoiceType)type2,(InlineType)type1);
 		}
-		else if(type1 instanceof TypeChoiceStructure && type2 instanceof TypeInlineStructure){
-			return Bisimulator.containsChoices((TypeChoiceStructure)type1, (TypeInlineStructure)type2);
+		else if(type1 instanceof ChoiceType && type2 instanceof InlineType){
+			return Bisimulator.containsChoices((ChoiceType)type1, (InlineType)type2);
 		}
 		else{ // both are choice types
-			return Bisimulator.containsChoices((TypeChoiceStructure)type1, (TypeChoiceStructure)type2);
+			return Bisimulator.containsChoices((ChoiceType)type1, (ChoiceType)type2);
 		}
 	}
 
-	private static boolean containsChoices(TypeChoiceStructure type1, TypeInlineStructure type2){
-		for(TypeInlineStructure choice : type1.choices()){
+	private static boolean containsChoices(ChoiceType type1, InlineType type2){
+		for(InlineType choice : type1.choices()){
 			if(choice.basicType().checkBasicTypeEqualness(type2.basicType())){
 				return true;
 			}
@@ -165,11 +165,11 @@ public class Bisimulator {
 		return false;
 	}
 
-	private static boolean containsChoices(TypeChoiceStructure type1, TypeChoiceStructure type2){
-		for(TypeInlineStructure choice1 : type1.choices()){
+	private static boolean containsChoices(ChoiceType type1, ChoiceType type2){
+		for(InlineType choice1 : type1.choices()){
 			boolean foundChoice = false;
 
-			for(TypeInlineStructure choice2 : type2.choices()){
+			for(InlineType choice2 : type2.choices()){
 				if(choice1.basicType().checkBasicTypeEqualness(choice2.basicType())){
 					foundChoice = true;
 					break;
@@ -186,28 +186,28 @@ public class Bisimulator {
 
 
 	// UTILS FOR EQUIVALENCE
-	private static boolean isBasicTypeEqual(TypeStructure type1, TypeStructure type2){
+	private static boolean isBasicTypeEqual(Type type1, Type type2){
 		if(!type1.getClass().isInstance(type2)){ // not same type
 			return false;
 		}
 
-		if(type1 instanceof TypeInlineStructure){
-			return ((TypeInlineStructure)type1).basicType().checkBasicTypeEqualness(((TypeInlineStructure)type2).basicType());
+		if(type1 instanceof InlineType){
+			return ((InlineType)type1).basicType().checkBasicTypeEqualness(((InlineType)type2).basicType());
 		}
 		else{
-			return Bisimulator.choicesAreEqual((TypeChoiceStructure)type1, (TypeChoiceStructure)type2);
+			return Bisimulator.choicesAreEqual((ChoiceType)type1, (ChoiceType)type2);
 		}
 	}
 
-	private static boolean choicesAreEqual(TypeChoiceStructure type1, TypeChoiceStructure type2){
+	private static boolean choicesAreEqual(ChoiceType type1, ChoiceType type2){
 		if(type1.choices().size() != type2.choices().size()){
 			return false;
 		}		
 		
-		for(TypeInlineStructure choice1 : type1.choices()){
+		for(InlineType choice1 : type1.choices()){
 			boolean foundChoice = false;
 
-			for(TypeInlineStructure choice2 : type2.choices()){
+			for(InlineType choice2 : type2.choices()){
 				if(choice1.basicType().checkBasicTypeEqualness(choice2.basicType())){
 					foundChoice = true;
 					break;

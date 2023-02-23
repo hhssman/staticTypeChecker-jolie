@@ -9,8 +9,8 @@ import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.faults.WarningHandler;
-import staticTypechecker.typeStructures.TypeInlineStructure;
-import staticTypechecker.typeStructures.TypeStructure;
+import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.typeStructures.Type;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
@@ -103,10 +103,10 @@ public class Main {
 		System.out.println("STAGE 6: process behaviors\n");
 
 		BehaviorProcessor bProcessor = new BehaviorProcessor();
-		HashMap<String, TypeInlineStructure> trees = new HashMap<>();
+		HashMap<String, InlineType> trees = new HashMap<>();
 
 		ModuleHandler.modules().values().forEach(m -> {
-			TypeInlineStructure tree = new TypeInlineStructure(null, null, null);
+			InlineType tree = new InlineType(null, null, null);
 			trees.put(m.name(), tree);
 			bProcessor.process(m, tree);
 		});
@@ -143,17 +143,17 @@ public class Main {
 		}
 	}
 
-	private static void printTable(HashMap<String, TypeStructure> symbols){
+	private static void printTable(HashMap<String, Type> symbols){
 		System.out.println("--------------------------------");
-		for(Entry<String, TypeStructure> e : symbols.entrySet()){
+		for(Entry<String, Type> e : symbols.entrySet()){
 			System.out.println(e.getKey() + " = " + e.getValue());
 		}
 		System.out.println("--------------------------------");
 	}
 
-	private static void prettyPrintTable(HashMap<String, TypeStructure> symbols){
+	private static void prettyPrintTable(HashMap<String, Type> symbols){
 		System.out.println("--------------------------------");
-		for(Entry<String, TypeStructure> e : symbols.entrySet()){
+		for(Entry<String, Type> e : symbols.entrySet()){
 			System.out.println(e.getKey() + " = " + e.getValue().prettyString());
 			System.out.println();
 		}

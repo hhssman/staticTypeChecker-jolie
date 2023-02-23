@@ -14,53 +14,53 @@ import staticTypechecker.utils.Bisimulator;
  * 
  * @author Kasper Bergstedt
  */
-public class TypeChoiceStructure extends TypeStructure {
-	private HashSet<TypeInlineStructure> choices;
+public class ChoiceType extends Type {
+	private HashSet<InlineType> choices;
 
-	public TypeChoiceStructure(){
+	public ChoiceType(){
 		this.choices = new HashSet<>();
 	}
 
-	public TypeChoiceStructure(ArrayList<TypeStructure> choices){
+	public ChoiceType(ArrayList<Type> choices){
 		this.choices = new HashSet<>();
-		for(TypeStructure choice : choices){
+		for(Type choice : choices){
 			this.addChoice(choice);
 		}
 	}
 
-	public TypeChoiceStructure(HashSet<TypeInlineStructure> choices){
+	public ChoiceType(HashSet<InlineType> choices){
 		this.choices = choices;
 	}
 
-	public void addChoice(TypeInlineStructure choice){
+	public void addChoice(InlineType choice){
 		this.choices.add(choice);
 	}
 
-	public void addChoice(TypeChoiceStructure choice){
-		for(TypeInlineStructure newChoice : choice.choices()){
+	public void addChoice(ChoiceType choice){
+		for(InlineType newChoice : choice.choices()){
 			this.choices.add(newChoice);
 		}
 	}
 
-	public void addChoice(TypeStructure choice){
-		if(choice instanceof TypeInlineStructure){
-			this.addChoice((TypeInlineStructure)choice);
+	public void addChoice(Type choice){
+		if(choice instanceof InlineType){
+			this.addChoice((InlineType)choice);
 		}
 		else{
-			this.addChoice((TypeChoiceStructure)choice);
+			this.addChoice((ChoiceType)choice);
 		}
 	}
 
-	public ArrayList<TypeInlineStructure> choices(){
+	public ArrayList<InlineType> choices(){
 		return new ArrayList<>(this.choices);
 	}
 
-	public void setChoices(ArrayList<TypeInlineStructure> choices){
+	public void setChoices(ArrayList<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
 
-	public static TypeChoiceStructure getBaseSymbol(TypeChoiceDefinition typeDef){
-		return (TypeChoiceStructure)TypeConverter.createBaseStructure(typeDef);
+	public static ChoiceType getBaseSymbol(TypeChoiceDefinition typeDef){
+		return (ChoiceType)TypeConverter.createBaseStructure(typeDef);
 	}
 
 	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
@@ -84,10 +84,10 @@ public class TypeChoiceStructure extends TypeStructure {
 	 * @param childName the name of the child to look for
 	 * @return an ArrayList of TypeInlineStructures, all which have a child with the provided name
 	 */
-	public ArrayList<TypeInlineStructure> choicesWithChild(String childName){
-		ArrayList<TypeInlineStructure> ret = new ArrayList<>();
+	public ArrayList<InlineType> choicesWithChild(String childName){
+		ArrayList<InlineType> ret = new ArrayList<>();
 
-		for(TypeInlineStructure choice : this.choices){
+		for(InlineType choice : this.choices){
 			if(choice.contains(childName)){
 				ret.add(choice);
 			}
@@ -99,8 +99,8 @@ public class TypeChoiceStructure extends TypeStructure {
 	/**
 	 * TODO
 	 */
-	public boolean equals(TypeStructure other){
-		if(!(other instanceof TypeChoiceStructure)){
+	public boolean equals(Type other){
+		if(!(other instanceof ChoiceType)){
 			return false;
 		}
 
@@ -110,14 +110,14 @@ public class TypeChoiceStructure extends TypeStructure {
 	/**
 	 * TODO
 	 */
-	public boolean isSubtypeOf(TypeStructure other){
+	public boolean isSubtypeOf(Type other){
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	/**
 	 * TODO
 	 */
-	public TypeStructure merge(TypeStructure other){
+	public Type merge(Type other){
 		return this;
 	}
 
@@ -126,14 +126,14 @@ public class TypeChoiceStructure extends TypeStructure {
 		return toString;
 	}
 
-	public TypeChoiceStructure copy(boolean finalize){
-		TypeChoiceStructure copy = new TypeChoiceStructure();
+	public ChoiceType copy(boolean finalize){
+		ChoiceType copy = new ChoiceType();
 		this.choices.forEach(c -> copy.addChoice(c.copy(finalize)));
 		return copy;
 	}
 
 	public String prettyString(){
-		ArrayList<TypeStructure> recursive = new ArrayList<>();
+		ArrayList<Type> recursive = new ArrayList<>();
 		String toString = this.choices.stream()
 										.map(c -> c.prettyString(0, recursive))
 										.collect(Collectors.joining("\n|\n"));
@@ -141,10 +141,10 @@ public class TypeChoiceStructure extends TypeStructure {
 		return toString;
 	}
 
-	public String prettyString(int level, ArrayList<TypeStructure> recursive){
+	public String prettyString(int level, ArrayList<Type> recursive){
 		String toString = "\n" + "\t".repeat(level);
 		toString += this.choices.stream().map(c -> {
-			ArrayList<TypeStructure> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
 			return c.prettyString(level, rec);
 		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
