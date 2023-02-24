@@ -96,102 +96,108 @@ import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
 
-public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
+public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	private Module module;
 	private Synthesizer synthesizer;
 	private Checker checker;
 
 	public BehaviorProcessor(){}
 
-	private void printTree(InlineType tree){
+	private void printTree(Type tree){
 		System.out.println("New tree: " + tree.prettyString());
 		System.out.println("\n--------------------------\n");
 	}
 
-	public void process(Module module, InlineType tree){
+	public Type process(Module module, Type tree){
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 		this.checker = Checker.get(module);
 
-		module.program().accept(this, tree);
+		return module.program().accept(this, tree);
 	}
 	
 	@Override
-	public Void visit(Program p, InlineType tree) {
+	public Type visit(Program p, Type tree) {
+		Type T_tmp = tree;
+		
 		for(OLSyntaxNode child : p.children()){
-			child.accept(this, tree);
+			T_tmp = child.accept(this, T_tmp);
 		}
 
-		return null;
+		return T_tmp;
 	}
  
 	@Override
-	public Void visit(ServiceNode n, InlineType tree) {
-		// if the service has a configuration parameter, add it to the tree
+	public Type visit(ServiceNode n, Type tree) {
+		Type T = tree;
+
+		// if the service has a configuration parameter, add it to T
 		if(n.parameterConfiguration().isPresent()){
 			String configParamPath = n.parameterConfiguration().get().variablePath();
 			Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type()); // we do not finalize this type structure, since we can change it later in the behaviours
 
-			tree.put(configParamPath, configParamStruct);
+			T.put(configParamPath, configParamStruct);
 
 			System.out.println("Adding config parameter for " + n.name());
-			this.printTree(tree);
+			this.printTree(T);
 		}
 
-		// accept each child of the program of the service node
-		for(OLSyntaxNode child : n.program().children()){
-			child.accept(this, tree);
-		}
+		// accept the program of the service node
+		n.program().accept(this, T);
 		
-		return null;
+		return T;
 	}
 
 	@Override
-	public Void visit(DefinitionNode n, InlineType tree) {
-		n.body().accept(this, tree);
-		return null;
+	public Type visit(DefinitionNode n, Type tree) {
+		return n.body().accept(this, tree);
 	}
 
 	@Override
-	public Void visit(SequenceStatement n, InlineType tree) {
-		n.children().forEach(child -> {
-			child.accept(this, tree);
-		});
+	public Type visit(SequenceStatement n, Type tree) {
+		InlineType T_tmp = tree;
 
-		return null;
+		for(OLSyntaxNode child : n.children()){
+			T_tmp = child.accept(this, T_tmp);
+		}
+
+		return T_tmp;
 	}
 
 	@Override
-	public Void visit(UndefStatement n, InlineType tree) {
+	public Type visit(UndefStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
 		System.out.println("undef(" + path + ")");
 
-		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, tree, false);
+		InlineType T1 = (InlineType)tree.copy();
+
+		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
 
 		for(Pair<InlineType, String> pair : nodesToRemove){
 			pair.key().removeChild(pair.value());
 		}
 		
-		this.printTree(tree);
-		return null;
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(AssignStatement n, InlineType tree) {
+	public Type visit(AssignStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
 		System.out.println(path + " = " + n.expression().getClass());
+		InlineType T1 = (InlineType)tree.copy();
 		
-		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
+		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
 		for(Pair<InlineType, String> pair : nodesToUpdate){
 			InlineType parent = pair.key();
 			Type node = parent.getChild(pair.value());
 
-			TreeUtils.updateType(pair.key(), node, n.expression(), tree);
+			TreeUtils.updateType(pair.key(), node, n.expression(), T1);
 		}
 
-		this.printTree(tree);
+		this.printTree(T1);
 		
-		return null;
+		return T1;
 	}
 
 	/**
@@ -214,18 +220,19 @@ public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
 	 * 	}
 	 */
 	@Override
-	public Void visit(DeepCopyStatement n, InlineType tree) {
+	public Type visit(DeepCopyStatement n, Type tree) {
 		Path updatePath = new Path(n.leftPath().path());
 		System.out.println(updatePath.toString() + " << " + n.rightExpression());
+		InlineType T1 = (InlineType)tree.copy();
 
 		OLSyntaxNode expression = n.rightExpression();
 		
 		// find the nodes to update and their parents
-		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(updatePath, tree, true);
+		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(updatePath, T1, true);
 		
 		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d, here we also must save the children
 			Path expressionPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
-			ArrayList<InlineType> nodesToMerge = TreeUtils.findNodes(expressionPath, tree, false); // the nodes at the expression path which we must merge with the node
+			ArrayList<InlineType> nodesToMerge = TreeUtils.findNodes(expressionPath, T1, false); // the nodes at the expression path which we must merge with the node
 
 			for(Pair<InlineType, String> u : nodesToUpdate){
 				InlineType parent = u.key();
@@ -270,7 +277,7 @@ public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
 			}	
 		}
 		else{ // deep copy of something else, such as a constant, sum etc., no children to save here
-			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, tree);
+			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, T1);
 
 			for(Pair<InlineType, String> pair : nodesToUpdate){
 				Type nodeToUpdate = pair.key().getChild(pair.value());
@@ -292,134 +299,134 @@ public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
 			}
 		}
 
-		this.printTree(tree);
+		this.printTree(T1);
 
-		return null;
+		return T1;
 	}
 
 	@Override
-	public Void visit(NullProcessStatement n, InlineType tree) {
+	public Type visit(NullProcessStatement n, Type tree) {
 		System.out.println("null process");
 		this.printTree(tree);
-		return null;
+		return tree;
 	}
 
 	@Override
-	public Void visit(ConstantIntegerExpression n, InlineType tree) {
-		return null;
+	public Type visit(ConstantIntegerExpression n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(AddAssignStatement n, InlineType tree) {
+	public Type visit(AddAssignStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
-		
 		System.out.println(path + " += " + n);
+		InlineType T1 = (InlineType)tree.copy();
 		
-		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), tree);		
+		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);		
 
-		this.printTree(tree);
+		this.printTree(T1);
 
-		return null;
+		return T1;
 	}
 
 	@Override
-	public Void visit(SubtractAssignStatement n, InlineType tree) {
+	public Type visit(SubtractAssignStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
+		System.out.println(path + " += " + n);
+		InlineType T1 = (InlineType)tree.copy();
 		
-		System.out.println(path + " -= " + n);
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), tree);		
+		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);		
 
-		this.printTree(tree);
+		this.printTree(T1);
 
-		return null;
+		return T1;
 	}
 
 	@Override
-	public Void visit(MultiplyAssignStatement n, InlineType tree) {
+	public Type visit(MultiplyAssignStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
+		System.out.println(path + " += " + n);
+		InlineType T1 = (InlineType)tree.copy();
 		
-		System.out.println(path + " *= " + n);
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), tree);		
+		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);		
 
-		this.printTree(tree);
+		this.printTree(T1);
 
-		return null;
+		return T1;
 	}
 
 	@Override
-	public Void visit(DivideAssignStatement n, InlineType tree) {
+	public Type visit(DivideAssignStatement n, Type tree) {
 		Path path = new Path(n.variablePath().path());
+		System.out.println(path + " += " + n);
+		InlineType T1 = (InlineType)tree.copy();
 		
-		System.out.println(path + " /= " + n);
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), tree);		
+		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);		
 
-		this.printTree(tree);
+		this.printTree(T1);
 
-		return null;
+		return T1;
 	}
 
 	@Override
-	public Void visit(OutputPortInfo n, InlineType tree) {
-		return null;
+	public Type visit(OutputPortInfo n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(EmbedServiceNode n, InlineType tree) {
-		return null;
+	public Type visit(EmbedServiceNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InputPortInfo n, InlineType tree) {
-		return null;
+	public Type visit(InputPortInfo n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InterfaceDefinition n, InlineType tree) {
-		return null;
+	public Type visit(InterfaceDefinition n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(TypeInlineDefinition n, InlineType tree) {
-		return null;
+	public Type visit(TypeInlineDefinition n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(TypeDefinitionLink n, InlineType tree) {
-		return null;
+	public Type visit(TypeDefinitionLink n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(TypeChoiceDefinition n, InlineType tree) {
-		return null;
+	public Type visit(TypeChoiceDefinition n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ImportStatement n, InlineType tree) {
-		return null;
+	public Type visit(ImportStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(OneWayOperationDeclaration decl, InlineType tree) {
-		return null;
+	public Type visit(OneWayOperationDeclaration decl, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(RequestResponseOperationDeclaration decl, InlineType tree) {
-		return null;
+	public Type visit(RequestResponseOperationDeclaration decl, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ParallelStatement n, InlineType tree) {
-		return null;
+	public Type visit(ParallelStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(NDChoiceStatement n, InlineType tree) {
+	public Type visit(NDChoiceStatement n, Type tree) {
 		System.out.println("Choice statement\n");
-		this.synthesizer.synthesize(n, tree);
+		InlineType T1 = this.synthesizer.synthesize(n, tree);
 
 		// for(Pair<OLSyntaxNode, OLSyntaxNode> pair : n.children()){
 		// 	OLSyntaxNode label = pair.key();
@@ -429,297 +436,299 @@ public class BehaviorProcessor implements OLVisitor<InlineType, Void> {
 		// 	behaviour.accept(this, tree);
 		// }
 
-		return null;
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(OneWayOperationStatement n, InlineType tree) {
+	public Type visit(OneWayOperationStatement n, Type tree) {
 		System.out.println("Oneway operation statement");
-		this.synthesizer.synthesize(n, tree);
-		return null;
+		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(RequestResponseOperationStatement n, InlineType tree) {
+	public Type visit(RequestResponseOperationStatement n, Type tree) {
 		System.out.println("Request response operation statement");
-		this.synthesizer.synthesize(n, tree);
-		return null;
+		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(NotificationOperationStatement n, InlineType tree) {
+	public Type visit(NotificationOperationStatement n, Type tree) {
 		System.out.println("Notification: " + n.id() + "(" + n.outputExpression() + ")");
-		this.synthesizer.synthesize(n, tree);
-		this.printTree(tree);
-
-		return null;
+		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(SolicitResponseOperationStatement n, InlineType tree) {
+	public Type visit(SolicitResponseOperationStatement n, Type tree) {
 		System.out.println("Solicit: " + n.id() + "(" + n.outputExpression() + ")" + "(" + new Path(n.inputVarPath().path()) + ")");
-		this.synthesizer.synthesize(n, tree);
-		this.printTree(tree);
-		return null;
+		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
-	public Void visit(LinkInStatement n, InlineType tree) {
-		return null;
+	public Type visit(LinkInStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(LinkOutStatement n, InlineType tree) {
-		return null;
+	public Type visit(LinkOutStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(IfStatement n, InlineType tree) {
-		return null;
+	public Type visit(IfStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(DefinitionCallStatement n, InlineType tree) {
-		return null;
+	public Type visit(DefinitionCallStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(WhileStatement n, InlineType tree) {
-		return null;
+	public Type visit(WhileStatement n, Type tree) {
+		return this.synthesizer.synthesize(n, tree);
 	}
 
 	@Override
-	public Void visit(OrConditionNode n, InlineType tree) {
-		return null;
+	public Type visit(OrConditionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(AndConditionNode n, InlineType tree) {
-		return null;
+	public Type visit(AndConditionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(NotExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(NotExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CompareConditionNode n, InlineType tree) {
-		return null;
+	public Type visit(CompareConditionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ConstantDoubleExpression n, InlineType tree) {
-		return null;
+	public Type visit(ConstantDoubleExpression n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ConstantBoolExpression n, InlineType tree) {
-		return null;
+	public Type visit(ConstantBoolExpression n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ConstantLongExpression n, InlineType tree) {
-		return null;
+	public Type visit(ConstantLongExpression n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ConstantStringExpression n, InlineType tree) {
-		return null;
+	public Type visit(ConstantStringExpression n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ProductExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(ProductExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(SumExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(SumExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(VariableExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(VariableExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(Scope n, InlineType tree) {
-		return null;
+	public Type visit(Scope n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InstallStatement n, InlineType tree) {
-		return null;
+	public Type visit(InstallStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CompensateStatement n, InlineType tree) {
-		return null;
+	public Type visit(CompensateStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ThrowStatement n, InlineType tree) {
-		return null;
+	public Type visit(ThrowStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ExitStatement n, InlineType tree) {
-		return null;
+	public Type visit(ExitStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ExecutionInfo n, InlineType tree) {
-		return null;
+	public Type visit(ExecutionInfo n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CorrelationSetInfo n, InlineType tree) {
-		return null;
+	public Type visit(CorrelationSetInfo n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(PointerStatement n, InlineType tree) {
-		return null;
+	public Type visit(PointerStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(RunStatement n, InlineType tree) {
-		return null;
+	public Type visit(RunStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ValueVectorSizeExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(ValueVectorSizeExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(PreIncrementStatement n, InlineType tree) {
-		return null;
+	public Type visit(PreIncrementStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(PostIncrementStatement n, InlineType tree) {
-		return null;
+	public Type visit(PostIncrementStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(PreDecrementStatement n, InlineType tree) {
-		return null;
+	public Type visit(PreDecrementStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(PostDecrementStatement n, InlineType tree) {
-		return null;
+	public Type visit(PostDecrementStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ForStatement n, InlineType tree) {
-		return null;
+	public Type visit(ForStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ForEachSubNodeStatement n, InlineType tree) {
-		return null;
+	public Type visit(ForEachSubNodeStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ForEachArrayItemStatement n, InlineType tree) {
-		return null;
+	public Type visit(ForEachArrayItemStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(SpawnStatement n, InlineType tree) {
-		return null;
+	public Type visit(SpawnStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(IsTypeExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(IsTypeExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InstanceOfExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(InstanceOfExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(TypeCastExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(TypeCastExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(SynchronizedStatement n, InlineType tree) {
-		return null;
+	public Type visit(SynchronizedStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CurrentHandlerStatement n, InlineType tree) {
-		return null;
+	public Type visit(CurrentHandlerStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(EmbeddedServiceNode n, InlineType tree) {
-		return null;
+	public Type visit(EmbeddedServiceNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InstallFixedVariableExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(InstallFixedVariableExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(VariablePathNode n, InlineType tree) {
-		return null;
+	public Type visit(VariablePathNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(DocumentationComment n, InlineType tree) {
-		return null;
+	public Type visit(DocumentationComment n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(FreshValueExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(FreshValueExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CourierDefinitionNode n, InlineType tree) {
-		return null;
+	public Type visit(CourierDefinitionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(CourierChoiceStatement n, InlineType tree) {
-		return null;
+	public Type visit(CourierChoiceStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(NotificationForwardStatement n, InlineType tree) {
-		return null;
+	public Type visit(NotificationForwardStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(SolicitResponseForwardStatement n, InlineType tree) {
-		return null;
+	public Type visit(SolicitResponseForwardStatement n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InterfaceExtenderDefinition n, InlineType tree) {
-		return null;
+	public Type visit(InterfaceExtenderDefinition n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(InlineTreeExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(InlineTreeExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(VoidExpressionNode n, InlineType tree) {
-		return null;
+	public Type visit(VoidExpressionNode n, Type tree) {
+		return tree;
 	}
 
 	@Override
-	public Void visit(ProvideUntilStatement n, InlineType tree) {
-		return null;
+	public Type visit(ProvideUntilStatement n, Type tree) {
+		return tree;
 	}
 }

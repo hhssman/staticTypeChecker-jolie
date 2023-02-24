@@ -97,7 +97,7 @@ import staticTypechecker.entities.Module;;
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class Checker implements OLVisitor<Void, Void> {
+public class Checker implements OLVisitor<Type, Void> {
 	private static HashMap<String, Checker> checkers = new HashMap<>(); // maps module name to checker
 	
 	public static Checker get(Module module){
@@ -123,7 +123,7 @@ public class Checker implements OLVisitor<Void, Void> {
 	 * @param node
 	 * @param type
 	 */
-	public void check(InlineType T, OLSyntaxNode node, Type type){
+	public void check(Type T, OLSyntaxNode node, Type type){
 		node.accept(this, null);
 	} 
 
@@ -137,7 +137,7 @@ public class Checker implements OLVisitor<Void, Void> {
 		Bisimulator.isSubtypeOf(type1, type2);
 	} 
 
-	public Void visit(Program p, Void ctx){
+	public Void visit(Program p, Type T){
 		for(OLSyntaxNode n : p.children()){
 			n.accept(this, null);
 		}
@@ -145,7 +145,7 @@ public class Checker implements OLVisitor<Void, Void> {
 		return null;
 	}
 
-	public Void visit(TypeInlineDefinition t, Void ctx){
+	public Void visit(TypeInlineDefinition t, Type T){
 		System.out.println("Basic type: " + t.basicType().nativeType() + "[" + t.cardinality().min() + ", " + t.cardinality().max() + "]");
 
 		if(t.subTypes() != null){ // has subtypes
@@ -157,323 +157,323 @@ public class Checker implements OLVisitor<Void, Void> {
 		return null;
 	}
 
-	public Void visit(Type t, Void ctx){
+	public Void visit(Type t, Type T){
 		return null;
 	}
 
-	public Void visit( OneWayOperationDeclaration decl, Void ctx ){
+	public Void visit( OneWayOperationDeclaration decl, Type T ){
 		return null;
 	};
 
-	public Void visit( RequestResponseOperationDeclaration decl, Void ctx ){
+	public Void visit( RequestResponseOperationDeclaration decl, Type T ){
 		return null;
 	};
 
-	public Void visit( DefinitionNode n, Void ctx ){
+	public Void visit( DefinitionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( ParallelStatement n, Void ctx ){
+	public Void visit( ParallelStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( SequenceStatement n, Void ctx ){
+	public Void visit( SequenceStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( NDChoiceStatement n, Void ctx ){
+	public Void visit( NDChoiceStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( OneWayOperationStatement n, Void ctx ){
+	public Void visit( OneWayOperationStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( RequestResponseOperationStatement n, Void ctx ){
+	public Void visit( RequestResponseOperationStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( NotificationOperationStatement n, Void ctx ){
+	public Void visit( NotificationOperationStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( SolicitResponseOperationStatement n, Void ctx ){
+	public Void visit( SolicitResponseOperationStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( LinkInStatement n, Void ctx ){
+	public Void visit( LinkInStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( LinkOutStatement n, Void ctx ){
+	public Void visit( LinkOutStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( AssignStatement n, Void ctx ){
+	public Void visit( AssignStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( AddAssignStatement n, Void ctx ){
+	public Void visit( AddAssignStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( SubtractAssignStatement n, Void ctx ){
+	public Void visit( SubtractAssignStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( MultiplyAssignStatement n, Void ctx ){
+	public Void visit( MultiplyAssignStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( DivideAssignStatement n, Void ctx ){
+	public Void visit( DivideAssignStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( IfStatement n, Void ctx ){
+	public Void visit( IfStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( DefinitionCallStatement n, Void ctx ){
+	public Void visit( DefinitionCallStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( WhileStatement n, Void ctx ){
+	public Void visit( WhileStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( OrConditionNode n, Void ctx ){
+	public Void visit( OrConditionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( AndConditionNode n, Void ctx ){
+	public Void visit( AndConditionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( NotExpressionNode n, Void ctx ){
+	public Void visit( NotExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( CompareConditionNode n, Void ctx ){
+	public Void visit( CompareConditionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( ConstantIntegerExpression n, Void ctx ){
+	public Void visit( ConstantIntegerExpression n, Type T ){
 		return null;
 	};
 
-	public Void visit( ConstantDoubleExpression n, Void ctx ){
+	public Void visit( ConstantDoubleExpression n, Type T ){
 		return null;
 	};
 
-	public Void visit( ConstantBoolExpression n, Void ctx ){
+	public Void visit( ConstantBoolExpression n, Type T ){
 		return null;
 	};
 
-	public Void visit( ConstantLongExpression n, Void ctx ){
+	public Void visit( ConstantLongExpression n, Type T ){
 		return null;
 	};
 
-	public Void visit( ConstantStringExpression n, Void ctx ){
+	public Void visit( ConstantStringExpression n, Type T ){
 		return null;
 	};
 
-	public Void visit( ProductExpressionNode n, Void ctx ){
+	public Void visit( ProductExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( SumExpressionNode n, Void ctx ){
+	public Void visit( SumExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( VariableExpressionNode n, Void ctx ){
+	public Void visit( VariableExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( NullProcessStatement n, Void ctx ){
+	public Void visit( NullProcessStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( Scope n, Void ctx ){
+	public Void visit( Scope n, Type T ){
 		return null;
 	};
 
-	public Void visit( InstallStatement n, Void ctx ){
+	public Void visit( InstallStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( CompensateStatement n, Void ctx ){
+	public Void visit( CompensateStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ThrowStatement n, Void ctx ){
+	public Void visit( ThrowStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ExitStatement n, Void ctx ){
+	public Void visit( ExitStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ExecutionInfo n, Void ctx ){
+	public Void visit( ExecutionInfo n, Type T ){
 		return null;
 	};
 
-	public Void visit( CorrelationSetInfo n, Void ctx ){
+	public Void visit( CorrelationSetInfo n, Type T ){
 		return null;
 	};
 
-	public Void visit( InputPortInfo n, Void ctx ){
+	public Void visit( InputPortInfo n, Type T ){
 		return null;
 	};
 
-	public Void visit( OutputPortInfo n, Void ctx ){
+	public Void visit( OutputPortInfo n, Type T ){
 		return null;
 	};
 
-	public Void visit( PointerStatement n, Void ctx ){
+	public Void visit( PointerStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( DeepCopyStatement n, Void ctx ){
+	public Void visit( DeepCopyStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( RunStatement n, Void ctx ){
+	public Void visit( RunStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( UndefStatement n, Void ctx ){
+	public Void visit( UndefStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ValueVectorSizeExpressionNode n, Void ctx ){
+	public Void visit( ValueVectorSizeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( PreIncrementStatement n, Void ctx ){
+	public Void visit( PreIncrementStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( PostIncrementStatement n, Void ctx ){
+	public Void visit( PostIncrementStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( PreDecrementStatement n, Void ctx ){
+	public Void visit( PreDecrementStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( PostDecrementStatement n, Void ctx ){
+	public Void visit( PostDecrementStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ForStatement n, Void ctx ){
+	public Void visit( ForStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ForEachSubNodeStatement n, Void ctx ){
+	public Void visit( ForEachSubNodeStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ForEachArrayItemStatement n, Void ctx ){
+	public Void visit( ForEachArrayItemStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( SpawnStatement n, Void ctx ){
+	public Void visit( SpawnStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( IsTypeExpressionNode n, Void ctx ){
+	public Void visit( IsTypeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( InstanceOfExpressionNode n, Void ctx ){
+	public Void visit( InstanceOfExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( TypeCastExpressionNode n, Void ctx ){
+	public Void visit( TypeCastExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( SynchronizedStatement n, Void ctx ){
+	public Void visit( SynchronizedStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( CurrentHandlerStatement n, Void ctx ){
+	public Void visit( CurrentHandlerStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( EmbeddedServiceNode n, Void ctx ){
+	public Void visit( EmbeddedServiceNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( InstallFixedVariableExpressionNode n, Void ctx ){
+	public Void visit( InstallFixedVariableExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( VariablePathNode n, Void ctx ){
+	public Void visit( VariablePathNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( TypeDefinitionLink n, Void ctx ){
+	public Void visit( TypeDefinitionLink n, Type T ){
 		return null;
 	};
 
-	public Void visit( InterfaceDefinition n, Void ctx ){
+	public Void visit( InterfaceDefinition n, Type T ){
 		return null;
 	};
 
-	public Void visit( DocumentationComment n, Void ctx ){
+	public Void visit( DocumentationComment n, Type T ){
 		return null;
 	};
 
-	public Void visit( FreshValueExpressionNode n, Void ctx ){
+	public Void visit( FreshValueExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( CourierDefinitionNode n, Void ctx ){
+	public Void visit( CourierDefinitionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( CourierChoiceStatement n, Void ctx ){
+	public Void visit( CourierChoiceStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( NotificationForwardStatement n, Void ctx ){
+	public Void visit( NotificationForwardStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( SolicitResponseForwardStatement n, Void ctx ){
+	public Void visit( SolicitResponseForwardStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( InterfaceExtenderDefinition n, Void ctx ){
+	public Void visit( InterfaceExtenderDefinition n, Type T ){
 		return null;
 	};
 
-	public Void visit( InlineTreeExpressionNode n, Void ctx ){
+	public Void visit( InlineTreeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( VoidExpressionNode n, Void ctx ){
+	public Void visit( VoidExpressionNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( ProvideUntilStatement n, Void ctx ){
+	public Void visit( ProvideUntilStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( TypeChoiceDefinition n, Void ctx ){
+	public Void visit( TypeChoiceDefinition n, Type T ){
 		return null;
 	};
 
-	public Void visit( ImportStatement n, Void ctx ){
+	public Void visit( ImportStatement n, Type T ){
 		return null;
 	};
 
-	public Void visit( ServiceNode n, Void ctx ){
+	public Void visit( ServiceNode n, Type T ){
 		return null;
 	};
 
-	public Void visit( EmbedServiceNode n, Void ctx ){
+	public Void visit( EmbedServiceNode n, Type T ){
 		return null;
 	};
 }

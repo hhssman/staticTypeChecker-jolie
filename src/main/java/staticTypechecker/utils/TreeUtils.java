@@ -33,7 +33,7 @@ public class TreeUtils {
 	 * @param tree the tree in which the expression node resides
 	 * @return an arraylist of the basic types found for the given expression
 	 */
-	public static ArrayList<BasicTypeDefinition> getBasicTypesOfExpression(OLSyntaxNode expression, InlineType tree){
+	public static ArrayList<BasicTypeDefinition> getBasicTypesOfExpression(OLSyntaxNode expression, Type tree){
 		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
 
 		// find the new type(s)
@@ -67,7 +67,7 @@ public class TreeUtils {
 	 * @param tree the tree in which the expression node resides
 	 * @return the type tree found for the given expression
 	 */
-	public static Type getTypeOfExpression(OLSyntaxNode expression, InlineType tree){
+	public static Type getTypeOfExpression(OLSyntaxNode expression, Type tree){
 		if(expression instanceof VariableExpressionNode){ // a variable expression, such as a.b.c
 			Path path = new Path( ((VariableExpressionNode)expression).variablePath().path() );
 			ArrayList<Type> foundNodes = TreeUtils.findNodesExact(path, tree, false);
@@ -163,7 +163,7 @@ public class TreeUtils {
 		return types;
 	}
 
-	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, InlineType root, boolean createPath){
+	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
 		return TreeUtils.findNodesRec(path, root, createPath);
 	}
 
@@ -174,7 +174,7 @@ public class TreeUtils {
 	 * @param createPath if true creates the path with void nodes if it does not exist
 	 * @return an ArrayList of the nodes found at the path
 	 */
-	public static ArrayList<InlineType> findNodes(Path path, InlineType root, boolean createPath){
+	public static ArrayList<InlineType> findNodes(Path path, Type root, boolean createPath){
 		ArrayList<InlineType> ret = new ArrayList<>();
 		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath);
 
@@ -200,7 +200,7 @@ public class TreeUtils {
 	 * @param createPath whether the path should be created with void nodes if it is not present
 	 * @return an arraylist of the nodes found at the end of the path
 	 */
-	public static ArrayList<Type> findNodesExact(Path path, InlineType root, boolean createPath){
+	public static ArrayList<Type> findNodesExact(Path path, Type root, boolean createPath){
 		ArrayList<Type> ret = new ArrayList<>();
 		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath);
 
@@ -213,7 +213,19 @@ public class TreeUtils {
 		return ret;
 	}
 
-	private static ArrayList<Pair<InlineType, String>> findNodesRec(Path path, InlineType root, boolean createPath){
+	private static ArrayList<InlineType> getRoots(Type tree){
+		ArrayList<InlineType> roots = new ArrayList<>();
+
+		if(tree instanceof InlineType){
+			roots.add((InlineType)tree);
+		}
+		else{
+			roots.addAll(((ChoiceType)tree).choices());
+		}
+		return roots;
+	}
+
+	private static ArrayList<Pair<InlineType, String>> findNodesRec(Path path, Type root, boolean createPath){
 		ArrayList<Pair<InlineType, String>> ret = new ArrayList<>();
 				
 		if(path.isEmpty()){
@@ -269,7 +281,7 @@ public class TreeUtils {
 	 * @param expression the expression to derive the type from
 	 * @param tree the tree containing the node
 	 */
-	public static Type updateType(InlineType parentNode, Type child, OLSyntaxNode expression, InlineType tree){
+	public static Type updateType(InlineType parentNode, Type child, OLSyntaxNode expression, Type tree){
 		ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, tree);
 		String childName = parentNode.getChildName(child);
 
@@ -319,15 +331,15 @@ public class TreeUtils {
 		}
 	}
 
-	public static ArrayList<BasicTypeDefinition> deriveTypeOfSum(SumExpressionNode sum, InlineType tree){
+	public static ArrayList<BasicTypeDefinition> deriveTypeOfSum(SumExpressionNode sum, Type tree){
 		return TreeUtils.der(sum.operands(), tree);
 	}
 
-	public static ArrayList<BasicTypeDefinition> deriveTypeOfProduct(ProductExpressionNode product, InlineType tree){
+	public static ArrayList<BasicTypeDefinition> deriveTypeOfProduct(ProductExpressionNode product, Type tree){
 		return TreeUtils.der(product.operands(), tree);
 	}
 
-	private static ArrayList<BasicTypeDefinition> der(List<Pair<OperandType, OLSyntaxNode>> operands, InlineType tree){
+	private static ArrayList<BasicTypeDefinition> der(List<Pair<OperandType, OLSyntaxNode>> operands, Type tree){
 		HashSet<BasicTypeDefinition> typesOfSum = new HashSet<>();
 		typesOfSum.add(BasicTypeDefinition.of(NativeType.VOID)); // set initial type to void to make sure it will be overwritten by any other type
 
@@ -484,7 +496,7 @@ public class TreeUtils {
 		return BasicTypeDefinition.of(NativeType.VOID);
 	}
 
-	public static void handleOperationAssignment(Path path, OperandType operand, OLSyntaxNode expression, InlineType tree){
+	public static void handleOperationAssignment(Path path, OperandType operand, OLSyntaxNode expression, Type tree){
 		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, tree, true);
 		ArrayList<BasicTypeDefinition> typesOfExpression = TreeUtils.getBasicTypesOfExpression(expression, tree);
 		
@@ -551,7 +563,7 @@ public class TreeUtils {
 	 * @param type the type to update all nodes at the end of the path to
 	 * @param tree the tree in which the nodes reside
 	 */
-	public static void setTypeOfNodeByPath(Path path, Type type, InlineType tree){
+	public static void setTypeOfNodeByPath(Path path, Type type, Type tree){
 		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){

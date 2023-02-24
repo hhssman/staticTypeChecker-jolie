@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
@@ -97,7 +98,7 @@ public class Main {
 		HashMap<String, InlineType> trees = new HashMap<>();
 
 		ModuleHandler.modules().values().forEach(m -> {
-			InlineType tree = new InlineType();
+			InlineType tree = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null);
 			trees.put(m.name(), tree);
 			bProcessor.process(m, tree);
 		});

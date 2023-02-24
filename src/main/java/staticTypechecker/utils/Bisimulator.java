@@ -59,8 +59,8 @@ public class Bisimulator {
 		Bisimulator.findAllEdges(type1, attackerEdges, new Path("root"));
 		Bisimulator.findAllEdges(type2, defenderEdges, new Path("root"));
 
-		System.out.println("attacker edges: " + attackerEdges);
-		System.out.println("defender edges: " + defenderEdges);
+		// System.out.println("attacker edges: " + attackerEdges);
+		// System.out.println("defender edges: " + defenderEdges);
 
 		if(attackerEdges.isEmpty() || defenderEdges.isEmpty()){ // one of them is empty, we do not need to run the algorithm
 			if(!defenderEdges.isEmpty()){ // attacker is empty, and defender is not, thus it can only be a subtype, if the defender is a choice with each choice having no children. This we can check by comparing the number of defender edges and number of choices

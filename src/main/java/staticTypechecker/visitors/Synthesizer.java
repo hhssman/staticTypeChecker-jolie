@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jolie.lang.NativeType;
 import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
@@ -86,10 +87,10 @@ import jolie.lang.parse.ast.expression.ProductExpressionNode;
 import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
@@ -103,7 +104,7 @@ import staticTypechecker.entities.Path;
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class Synthesizer implements OLVisitor<InlineType, InlineType> {
+public class Synthesizer implements OLVisitor<Type, Type> {
 	private static HashMap<String, Synthesizer> synths = new HashMap<>(); // maps module name to synthesizer
 	
 	public static Synthesizer get(Module module){
@@ -123,12 +124,12 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		this.module = module;
 	}
 
-	public InlineType synthesize(OLSyntaxNode node, InlineType T){
+	public Type synthesize(OLSyntaxNode node, Type T){
 		return node.accept(this, T);
 	}
 
-	public InlineType visit(Program p, InlineType T){
-		InlineType T1 = T;
+	public Type visit(Program p, Type T){
+		Type T1 = T;
 
 		for(OLSyntaxNode n : p.children()){
 			T1 = n.accept(this, T1);
@@ -137,28 +138,28 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		return T1;
 	}
 
-	public InlineType visit(TypeInlineDefinition t, InlineType T){
+	public Type visit(TypeInlineDefinition t, Type T){
 		return null;
 	}
 
-	public InlineType visit( OneWayOperationDeclaration decl, InlineType T ){
+	public Type visit( OneWayOperationDeclaration decl, Type T ){
 		return null;
 	};
 
-	public InlineType visit( RequestResponseOperationDeclaration decl, InlineType T ){
+	public Type visit( RequestResponseOperationDeclaration decl, Type T ){
 		return null;
 	};
 
-	public InlineType visit( DefinitionNode n, InlineType T ){
+	public Type visit( DefinitionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ParallelStatement n, InlineType T ){
+	public Type visit( ParallelStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( SequenceStatement n, InlineType T ){
-		InlineType T1 = T;
+	public Type visit( SequenceStatement n, Type T ){
+		Type T1 = T;
 
 		for(OLSyntaxNode child : n.children()){
 			T1 = child.accept(this, T1);
@@ -167,13 +168,12 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		return T1;
 	};
 
-	public InlineType visit( NDChoiceStatement n, InlineType T ){
-		InlineType[] trees = new InlineType[n.children().size()]; // save all the possible outcomes
+	public Type visit( NDChoiceStatement n, Type T ){
+		Type[] trees = new Type[n.children().size()]; // save all the possible outcomes
 
 		for(int i = 0; i < n.children().size(); i++){
-			System.out.println("process child: " + n.children().get(i).value());
-			InlineType T1 = n.children().get(i).key().accept(this, T); // synthesize the label (in the [])
-			InlineType T2 = n.children().get(i).value().accept(this, T1); // synthesize the behaviour (in the {})
+			Type T1 = n.children().get(i).key().accept(this, T); // synthesize the label (in the [])
+			Type T2 = n.children().get(i).value().accept(this, T1); // synthesize the behaviour (in the {})
 			trees[i] = T2;
 		}
 		
@@ -184,25 +184,32 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		}
 		else{
 			System.out.println(trees.length + " tree(s)");
-			System.out.println(Type.union(trees));
-			return (InlineType)Type.union(trees);
+			ChoiceType result = new ChoiceType();
+
+			for(Type t : trees){
+				result.addChoice(t);
+			}
+			
+			System.out.println(result);
+			
+			return null; // TODO
 		}
 	};
 
-	public InlineType visit( OneWayOperationStatement n, InlineType T ){
+	public Type visit( OneWayOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
 		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the data type which is EXPECTED by the oneway operation
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
 	};
 
-	public InlineType visit( RequestResponseOperationStatement n, InlineType T ){
+	public Type visit( RequestResponseOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
 		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the type of the data the operation EXPECTS as input
@@ -212,12 +219,12 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
 
 		// given that p_in is of type T_in find the type of the behaviour
-		InlineType T_update = T.copy(false);
+		Type T_update = T.copy(false);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T_update);
-		InlineType T1 = n.process().accept(this, T_update);
+		Type T1 = n.process().accept(this, T_update);
 		
 		// check that p_out is a subtype of T_out 
-		ArrayList<Type> possibleTypes = TreeUtils.findNodesExact(p_out, T1, true); // the possible types of the output of the behaviour
+		ArrayList<Type> possibleTypes = TreeUtils.findNodesExact(p_out, T1, true); // the possible types of p_out after the behaviour
 		
 		Type p_out_type;
 		if(possibleTypes.size() == 1){
@@ -232,7 +239,7 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		return T1;
 	};
 
-	public InlineType visit( NotificationOperationStatement n, InlineType T ){
+	public Type visit( NotificationOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
@@ -243,7 +250,7 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		return T;
 	};
 
-	public InlineType visit( SolicitResponseOperationStatement n, InlineType T ){
+	public Type visit( SolicitResponseOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
 		Type T_in = (Type)this.module.symbols().get(op.responseType()); // the type of the data which is RETURNED by the reqres operation
@@ -256,318 +263,331 @@ public class Synthesizer implements OLVisitor<InlineType, InlineType> {
 		Checker.get(this.module).check(p_out, T_out);
 
 		// update type of p_in to T_in
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
 	};
 
-	public InlineType visit( LinkInStatement n, InlineType T ){
+	public Type visit( LinkInStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( LinkOutStatement n, InlineType T ){
+	public Type visit( LinkOutStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( AssignStatement n, InlineType T ){
+	public Type visit( AssignStatement n, Type T ){
 		// retrieve the type of the expression
 		Path path = new Path(n.variablePath().path());
 		OLSyntaxNode e = n.expression();
 		Type T_e = TreeUtils.getTypeOfExpression(e, T);
 
 		// update the type of the node
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.setTypeOfNodeByPath(path, T_e, T1);
 
 		return T1;
 	};
 
 	@Override
-	public InlineType visit(AddAssignStatement n, InlineType T) {
+	public Type visit(AddAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);
 
 		return T1;
 	}
 
 	@Override
-	public InlineType visit(SubtractAssignStatement n, InlineType T) {
+	public Type visit(SubtractAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);
 		
 		return T1;
 	}
 
 	@Override
-	public InlineType visit(MultiplyAssignStatement n, InlineType T) {
+	public Type visit(MultiplyAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);
 		
 		return T1;
 	}
 
 	@Override
-	public InlineType visit(DivideAssignStatement n, InlineType T) {
+	public Type visit(DivideAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		InlineType T1 = T.copy(false);
+		Type T1 = T.copy(false);
 		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);
 		
 		return T1;
 	}
 
-	public InlineType visit( IfStatement n, InlineType T ){
+	public Type visit( IfStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( DefinitionCallStatement n, InlineType T ){
+	public Type visit( DefinitionCallStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( WhileStatement n, InlineType T ){
+	public Type visit( WhileStatement n, Type T ){
+		OLSyntaxNode condition = n.condition();
+		OLSyntaxNode body = n.body();
+
+		InlineType boolType = InlineType.getBasicType(NativeType.BOOL);
+		Checker.get(this.module).check(T, condition, boolType);
+		Type R = body.accept(this, T);
+		Checker.get(this.module).check(R, boolType);
+		Checker.get(this.module).check(R, body, R);
+		
+		ChoiceType result = new ChoiceType();
+		result.addChoice(T);
+		result.addChoice(R);
+
+		return result;
+	};
+
+	public Type visit( OrConditionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( OrConditionNode n, InlineType T ){
+	public Type visit( AndConditionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( AndConditionNode n, InlineType T ){
+	public Type visit( NotExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( NotExpressionNode n, InlineType T ){
+	public Type visit( CompareConditionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CompareConditionNode n, InlineType T ){
+	public Type visit( ConstantIntegerExpression n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ConstantIntegerExpression n, InlineType T ){
+	public Type visit( ConstantDoubleExpression n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ConstantDoubleExpression n, InlineType T ){
+	public Type visit( ConstantBoolExpression n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ConstantBoolExpression n, InlineType T ){
+	public Type visit( ConstantLongExpression n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ConstantLongExpression n, InlineType T ){
+	public Type visit( ConstantStringExpression n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ConstantStringExpression n, InlineType T ){
+	public Type visit( ProductExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ProductExpressionNode n, InlineType T ){
+	public Type visit( SumExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( SumExpressionNode n, InlineType T ){
+	public Type visit( VariableExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( VariableExpressionNode n, InlineType T ){
+	public Type visit( NullProcessStatement n, Type T ){
+		return T;
+	};
+
+	public Type visit( Scope n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( NullProcessStatement n, InlineType T ){
+	public Type visit( InstallStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( Scope n, InlineType T ){
+	public Type visit( CompensateStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InstallStatement n, InlineType T ){
+	public Type visit( ThrowStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CompensateStatement n, InlineType T ){
+	public Type visit( ExitStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ThrowStatement n, InlineType T ){
+	public Type visit( ExecutionInfo n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ExitStatement n, InlineType T ){
+	public Type visit( CorrelationSetInfo n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ExecutionInfo n, InlineType T ){
+	public Type visit( InputPortInfo n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CorrelationSetInfo n, InlineType T ){
+	public Type visit( OutputPortInfo n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InputPortInfo n, InlineType T ){
+	public Type visit( PointerStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( OutputPortInfo n, InlineType T ){
+	public Type visit( DeepCopyStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( PointerStatement n, InlineType T ){
+	public Type visit( RunStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( DeepCopyStatement n, InlineType T ){
+	public Type visit( UndefStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( RunStatement n, InlineType T ){
+	public Type visit( ValueVectorSizeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( UndefStatement n, InlineType T ){
+	public Type visit( PreIncrementStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ValueVectorSizeExpressionNode n, InlineType T ){
+	public Type visit( PostIncrementStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( PreIncrementStatement n, InlineType T ){
+	public Type visit( PreDecrementStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( PostIncrementStatement n, InlineType T ){
+	public Type visit( PostDecrementStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( PreDecrementStatement n, InlineType T ){
+	public Type visit( ForStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( PostDecrementStatement n, InlineType T ){
+	public Type visit( ForEachSubNodeStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ForStatement n, InlineType T ){
+	public Type visit( ForEachArrayItemStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ForEachSubNodeStatement n, InlineType T ){
+	public Type visit( SpawnStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ForEachArrayItemStatement n, InlineType T ){
+	public Type visit( IsTypeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( SpawnStatement n, InlineType T ){
+	public Type visit( InstanceOfExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( IsTypeExpressionNode n, InlineType T ){
+	public Type visit( TypeCastExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InstanceOfExpressionNode n, InlineType T ){
+	public Type visit( SynchronizedStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( TypeCastExpressionNode n, InlineType T ){
+	public Type visit( CurrentHandlerStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( SynchronizedStatement n, InlineType T ){
+	public Type visit( EmbeddedServiceNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CurrentHandlerStatement n, InlineType T ){
+	public Type visit( InstallFixedVariableExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( EmbeddedServiceNode n, InlineType T ){
+	public Type visit( VariablePathNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InstallFixedVariableExpressionNode n, InlineType T ){
+	public Type visit( TypeDefinitionLink n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( VariablePathNode n, InlineType T ){
+	public Type visit( InterfaceDefinition n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( TypeDefinitionLink n, InlineType T ){
+	public Type visit( DocumentationComment n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InterfaceDefinition n, InlineType T ){
+	public Type visit( FreshValueExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( DocumentationComment n, InlineType T ){
+	public Type visit( CourierDefinitionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( FreshValueExpressionNode n, InlineType T ){
+	public Type visit( CourierChoiceStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CourierDefinitionNode n, InlineType T ){
+	public Type visit( NotificationForwardStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( CourierChoiceStatement n, InlineType T ){
+	public Type visit( SolicitResponseForwardStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( NotificationForwardStatement n, InlineType T ){
+	public Type visit( InterfaceExtenderDefinition n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( SolicitResponseForwardStatement n, InlineType T ){
+	public Type visit( InlineTreeExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InterfaceExtenderDefinition n, InlineType T ){
+	public Type visit( VoidExpressionNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( InlineTreeExpressionNode n, InlineType T ){
+	public Type visit( ProvideUntilStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( VoidExpressionNode n, InlineType T ){
+	public Type visit( TypeChoiceDefinition n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ProvideUntilStatement n, InlineType T ){
+	public Type visit( ImportStatement n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( TypeChoiceDefinition n, InlineType T ){
+	public Type visit( ServiceNode n, Type T ){
 		return null;
 	};
 
-	public InlineType visit( ImportStatement n, InlineType T ){
-		return null;
-	};
-
-	public InlineType visit( ServiceNode n, InlineType T ){
-		return null;
-	};
-
-	public InlineType visit( EmbedServiceNode n, InlineType T ){
+	public Type visit( EmbedServiceNode n, Type T ){
 		return null;
 	};
 }

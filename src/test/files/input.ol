@@ -3,18 +3,23 @@
 
 interface MyInterface {
 	RequestResponse:
-		helloReqRes( int )( string )
+		helloReqRes( A )( string )
 	OneWay:
-		helloOneway( rec )
+		helloOneway( B )
 }
 
 
-type A: int { x: int }
-type B: int | bool | double
-type C: int | bool | double
+type A: int {
+	x: A
+	y: string
+}
 
-type rec: int{
-	x: rec
+type B: int {
+	x: C
+}
+
+type C: bool {
+	x: double
 }
 
 service MyService() {
@@ -31,18 +36,12 @@ service MyService() {
 	}
 
 	main {
-		// p.x = 10
-		// helloOneway@out(p)
-
-		[helloOneway(input)]{
-			input = 10
+		a = 2
+		while(a > 0){
+			a -= 1
 		}
+		// [helloOneway(input)]
 
-		[helloReqRes(input)(output){
-			output += 10
-		}]{
-			output = 5
-			output = 10
-		}
+		// [helloReqRes(input)(output)]
 	}
 }

@@ -188,37 +188,40 @@ public class InlineType extends Type {
 		return new InlineType(BasicTypeDefinition.of(type), null, null);
 	}
 
+	public Type copy(){
+		return this.copy(false);
+	}
+
 	/**
 	 * Creates a deep copy of this structure
 	 * @param finalize whether or not the copy should be finalized
 	 * @return the deep copy
 	 */
 	public InlineType copy(boolean finalize){
-		return this.copy(finalize, new ArrayList<>());
+		return this.copy(finalize, new HashMap<>());
 	}
 
-	public InlineType copy(boolean finalize, ArrayList<Type> seenTypes){
+	/**
+	 * @param seenTypes is a HashMap which maps typestructures in the original type to their equivalent part in the copy. This is used when dealing with recursive types.
+	 */
+	public InlineType copy(boolean finalize, HashMap<Type, Type> seenTypes){
 		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context);
-		seenTypes.add(this);
+		seenTypes.put(this, struct);
 
 		this.children.entrySet().forEach(child -> {
 			String childName = child.getKey();
 			Type childStruct = child.getValue();
 
 			// run through the already seen types and see if we already copied this object, if so just use this copy
-			boolean found = false;
-			for(Type seenType : seenTypes){
-				if(seenType == childStruct){
-					struct.put(childName, seenTypes.get(seenTypes.indexOf(childStruct)));
-					found = true;
-					break;
+			for(Entry<Type, Type> seenType : seenTypes.entrySet()){
+				if(seenType.getKey() == childStruct){
+					struct.put(childName, seenType.getValue());
+					return; // return acts as continue, since we are using a stream
 				}
 			}
 
 			// otherwise we must make a new copy
-			if(!found){
-				struct.put(childName, childStruct.copy(finalize, seenTypes));
-			}
+			struct.put(childName, childStruct.copy(finalize, seenTypes));
 		});
 
 		if(finalize){

@@ -5,12 +5,14 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-Choice statement
+a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+New tree: void {
+	a: int 
+}
 
-process child: jolie.lang.parse.ast.AssignStatement@5a39699c
-process child: jolie.lang.parse.ast.SequenceStatement@2752f6e2
-deriving type of ADD void int
-attacker edges: []
-defender edges: []
-2 tree(s)
-null
+--------------------------
+
+BOOL: bool 
+condition: jolie.lang.parse.ast.CompareConditionNode@1b0375b3
+body: jolie.lang.parse.ast.SubtractAssignStatement@2f7c7260
+

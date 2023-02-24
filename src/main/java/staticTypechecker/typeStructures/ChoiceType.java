@@ -1,6 +1,7 @@
 package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -129,13 +130,17 @@ public class ChoiceType extends Type {
 		return toString;
 	}
 
+	public Type copy(){
+		return this.copy(false);
+	}
+
 	public ChoiceType copy(boolean finalize){
 		ChoiceType copy = new ChoiceType();
 		this.choices.forEach(c -> copy.addChoice(c.copy(finalize)));
 		return copy;
 	}
 
-	public ChoiceType copy(boolean finalize, ArrayList<Type> seenTypes){
+	public ChoiceType copy(boolean finalize, HashMap<Type, Type> seenTypes){
 		ChoiceType copy = new ChoiceType();
 		this.choices.forEach(c -> copy.addChoice(c.copy(finalize, seenTypes)));
 		return copy;
@@ -164,7 +169,7 @@ public class ChoiceType extends Type {
 	public String prettyStringHashCode(){
 		ArrayList<Type> recursive = new ArrayList<>();
 		String toString = this.choices.stream()
-										.map(c -> c.prettyString(0, recursive))
+										.map(c -> c.prettyStringHashCode(0, recursive))
 										.collect(Collectors.joining("\n|\n"));
 
 		return toString;
@@ -174,7 +179,7 @@ public class ChoiceType extends Type {
 		String toString = "\n" + "\t".repeat(level);
 		toString += this.choices.stream().map(c -> {
 			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-			return c.prettyString(level, rec);
+			return c.prettyStringHashCode(level, rec);
 		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
 		return toString;
