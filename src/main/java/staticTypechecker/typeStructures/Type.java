@@ -4,21 +4,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import jolie.lang.parse.OLVisitor;
+import jolie.lang.NativeType;
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
 
 /**
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public abstract class Type implements Symbol {
+	// basic types
+	public final static InlineType BOOL = new InlineType(BasicTypeDefinition.of(NativeType.BOOL), new Range(1, 1), null);
+	public final static InlineType INT = new InlineType(BasicTypeDefinition.of(NativeType.INT), new Range(1, 1), null);
+	public final static InlineType LONG = new InlineType(BasicTypeDefinition.of(NativeType.LONG), new Range(1, 1), null);
+	public final static InlineType DOUBLE = new InlineType(BasicTypeDefinition.of(NativeType.DOUBLE), new Range(1, 1), null);
+	public final static InlineType STRING = new InlineType(BasicTypeDefinition.of(NativeType.STRING), new Range(1, 1), null);
+	public final static InlineType VOID = new InlineType(BasicTypeDefinition.of(NativeType.VOID), new Range(1, 1), null);
+
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract Type merge(Type other);
 
-	public <C, R> R accept(OLVisitor<C,R> v, C ctx){
-		return null;
-	}
-
 	public abstract void put(String childName, Type structure);
+	public abstract void removeDuplicates();
 	public abstract Type copy();
 	public abstract Type copy(boolean finalize);
 	public abstract Type copy(boolean finalize, HashMap<Type, Type> rec);

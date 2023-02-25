@@ -92,6 +92,7 @@ import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
+import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
@@ -155,7 +156,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(SequenceStatement n, Type tree) {
-		InlineType T_tmp = tree;
+		Type T_tmp = tree;
 
 		for(OLSyntaxNode child : n.children()){
 			T_tmp = child.accept(this, T_tmp);
@@ -166,9 +167,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(UndefStatement n, Type tree) {
-		Path path = new Path(n.variablePath().path());
-		System.out.println("undef(" + path + ")");
+		System.out.println(ToString.of(n));
 
+		Path path = new Path(n.variablePath().path());
 		InlineType T1 = (InlineType)tree.copy();
 
 		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
@@ -183,8 +184,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(AssignStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path path = new Path(n.variablePath().path());
-		System.out.println(path + " = " + n.expression().getClass());
 		InlineType T1 = (InlineType)tree.copy();
 		
 		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
@@ -221,8 +223,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	 */
 	@Override
 	public Type visit(DeepCopyStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path updatePath = new Path(n.leftPath().path());
-		System.out.println(updatePath.toString() + " << " + n.rightExpression());
 		InlineType T1 = (InlineType)tree.copy();
 
 		OLSyntaxNode expression = n.rightExpression();
@@ -306,7 +309,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(NullProcessStatement n, Type tree) {
-		System.out.println("null process");
+		System.out.println(ToString.of(n));
 		this.printTree(tree);
 		return tree;
 	}
@@ -318,8 +321,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(AddAssignStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path path = new Path(n.variablePath().path());
-		System.out.println(path + " += " + n);
 		InlineType T1 = (InlineType)tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);		
@@ -331,8 +335,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(SubtractAssignStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path path = new Path(n.variablePath().path());
-		System.out.println(path + " += " + n);
 		InlineType T1 = (InlineType)tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);		
@@ -344,8 +349,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(MultiplyAssignStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path path = new Path(n.variablePath().path());
-		System.out.println(path + " += " + n);
 		InlineType T1 = (InlineType)tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);		
@@ -357,8 +363,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(DivideAssignStatement n, Type tree) {
+		System.out.println(ToString.of(n));
+
 		Path path = new Path(n.variablePath().path());
-		System.out.println(path + " += " + n);
 		InlineType T1 = (InlineType)tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);		
@@ -426,15 +433,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	@Override
 	public Type visit(NDChoiceStatement n, Type tree) {
 		System.out.println("Choice statement\n");
-		InlineType T1 = this.synthesizer.synthesize(n, tree);
-
-		// for(Pair<OLSyntaxNode, OLSyntaxNode> pair : n.children()){
-		// 	OLSyntaxNode label = pair.key();
-		// 	OLSyntaxNode behaviour = pair.value();
-
-		// 	label.accept(this, tree);
-		// 	behaviour.accept(this, tree);
-		// }
+		Type T1 = this.synthesizer.synthesize(n, tree);
 
 		this.printTree(T1);
 		return T1;
@@ -442,32 +441,32 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(OneWayOperationStatement n, Type tree) {
-		System.out.println("Oneway operation statement");
-		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
 	public Type visit(RequestResponseOperationStatement n, Type tree) {
-		System.out.println("Request response operation statement");
-		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
 	public Type visit(NotificationOperationStatement n, Type tree) {
-		System.out.println("Notification: " + n.id() + "(" + n.outputExpression() + ")");
-		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
 	public Type visit(SolicitResponseOperationStatement n, Type tree) {
-		System.out.println("Solicit: " + n.id() + "(" + n.outputExpression() + ")" + "(" + new Path(n.inputVarPath().path()) + ")");
-		InlineType T1 = this.synthesizer.synthesize(n, tree);
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
 		this.printTree(T1);
 		return T1;
 	}
@@ -494,7 +493,11 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(WhileStatement n, Type tree) {
-		return this.synthesizer.synthesize(n, tree);
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
+		T1.removeDuplicates();
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override

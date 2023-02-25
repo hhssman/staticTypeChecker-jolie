@@ -9,6 +9,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
+import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
@@ -105,6 +106,7 @@ public class Main {
 
 		// printAllSymbols();
 
+		FaultHandler.printFaults();
 		printWarnings();
 	}
 

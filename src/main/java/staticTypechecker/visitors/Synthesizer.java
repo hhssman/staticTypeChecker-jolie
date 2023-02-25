@@ -342,10 +342,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 
-		InlineType boolType = InlineType.getBasicType(NativeType.BOOL);
-		Checker.get(this.module).check(T, condition, boolType);
+		System.out.println("condition class type: " + condition.getClass());
+		Checker.get(this.module).check(T, condition, Type.INT);
 		Type R = body.accept(this, T);
-		Checker.get(this.module).check(R, boolType);
+		Checker.get(this.module).check(R, Type.BOOL);
 		Checker.get(this.module).check(R, body, R);
 		
 		ChoiceType result = new ChoiceType();

@@ -55,6 +55,12 @@ public class ChoiceType extends Type {
 		return new ArrayList<>(this.choices);
 	}
 
+	public void put(String childName, Type structure){
+		for(InlineType choice : this.choices){
+			choice.put(childName, structure);
+		}
+	}
+
 	public void setChoices(ArrayList<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
@@ -78,9 +84,9 @@ public class ChoiceType extends Type {
 	}
 
 	public void removeDuplicates(){
-		System.out.println("choice before: " + this.choices);
+		// System.out.println("choice before: " + this.choices);
 		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
-		System.out.println("choice after: " + this.choices);
+		// System.out.println("choice after: " + this.choices);
 	}
 
 	/**

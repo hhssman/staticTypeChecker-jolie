@@ -164,7 +164,17 @@ public class TreeUtils {
 	}
 
 	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
-		return TreeUtils.findNodesRec(path, root, createPath);
+		if(root instanceof InlineType){
+			return TreeUtils.findNodesRec(path, (InlineType)root, createPath);
+		}
+		else{
+			ArrayList<Pair<InlineType, String>> result = new ArrayList<>();
+			for(InlineType choice : ((ChoiceType)root).choices()){
+				result.addAll(TreeUtils.findNodesRec(path, choice, createPath));
+			}
+
+			return result;
+		}
 	}
 
 	/**
@@ -213,19 +223,7 @@ public class TreeUtils {
 		return ret;
 	}
 
-	private static ArrayList<InlineType> getRoots(Type tree){
-		ArrayList<InlineType> roots = new ArrayList<>();
-
-		if(tree instanceof InlineType){
-			roots.add((InlineType)tree);
-		}
-		else{
-			roots.addAll(((ChoiceType)tree).choices());
-		}
-		return roots;
-	}
-
-	private static ArrayList<Pair<InlineType, String>> findNodesRec(Path path, Type root, boolean createPath){
+	private static ArrayList<Pair<InlineType, String>> findNodesRec(Path path, InlineType root, boolean createPath){
 		ArrayList<Pair<InlineType, String>> ret = new ArrayList<>();
 				
 		if(path.isEmpty()){
@@ -394,7 +392,7 @@ public class TreeUtils {
 	}
 
 	public static BasicTypeDefinition deriveTypeOfOperation(OperandType operand, BasicTypeDefinition t1, BasicTypeDefinition t2){
-		System.out.println("deriving type of " + operand.toString() + " " + t1.nativeType().id() + " " + t2.nativeType().id());
+		// System.out.println("deriving type of " + operand.toString() + " " + t1.nativeType().id() + " " + t2.nativeType().id());
 
 		NativeType type1 = t1.nativeType();
 		NativeType type2 = t2.nativeType();

@@ -59,6 +59,7 @@ public class Bisimulator {
 		Bisimulator.findAllEdges(type1, attackerEdges, new Path("root"));
 		Bisimulator.findAllEdges(type2, defenderEdges, new Path("root"));
 
+		// System.out.println("checking subtype");
 		// System.out.println("attacker edges: " + attackerEdges);
 		// System.out.println("defender edges: " + defenderEdges);
 

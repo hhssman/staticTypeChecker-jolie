@@ -5,14 +5,37 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-a = class jolie.lang.parse.ast.expression.ConstantIntegerExpression
+a = 2
 New tree: void {
 	a: int 
 }
 
 --------------------------
 
-BOOL: bool 
-condition: jolie.lang.parse.ast.CompareConditionNode@1b0375b3
-body: jolie.lang.parse.ast.SubtractAssignStatement@2f7c7260
+while(!(a == 0))
+condition class type: class jolie.lang.parse.ast.expression.NotExpressionNode
+checking subtype
+attacker edges: []
+defender edges: []
+checking subtype
+attacker edges: [root --> root.a]
+defender edges: []
+New tree: void {
+	a: int 
+}
+|
+void {
+	a: int 
+}
 
+--------------------------
+
+Critical error: the expresssion: a NOT_EQUAL jolie.lang.parse.ast.expression.ConstantIntegerExpression@2d209079 is not a subtype of:
+int 
+Critical error: 
+Type:
+void {
+	a: int 
+}
+is not a subtype of:
+bool 

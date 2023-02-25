@@ -81,6 +81,8 @@ public class InlineType extends Type {
 		this.context = context;
 	}
 
+	public void removeDuplicates(){} // does nothing for this type
+
 	/**
 	 * @param name the name of the child
 	 * @param structure the structure of the child

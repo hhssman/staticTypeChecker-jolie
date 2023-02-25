@@ -87,17 +87,20 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.Bisimulator;
-import staticTypechecker.entities.Module;;
+import staticTypechecker.entities.Module;
+import staticTypechecker.faults.Fault;
+import staticTypechecker.faults.FaultHandler;;
 
 /**
  * Typechecker for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class Checker implements OLVisitor<Type, Void> {
+public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	private static HashMap<String, Checker> checkers = new HashMap<>(); // maps module name to checker
 	
 	public static Checker get(Module module){
@@ -118,26 +121,27 @@ public class Checker implements OLVisitor<Type, Void> {
 	}
 
 	/**
-	 * Check that the type of the given OLSyntaxNode is a subtype of the given type. Throws an error if not
-	 * @param T
-	 * @param node
-	 * @param type
+	 * Checks that the given node in the given tree is a subtype of the given type
+	 * @param T the tree in which node resides
+	 * @param node the node to check the type of
+	 * @param type the type to check against
 	 */
 	public void check(Type T, OLSyntaxNode node, Type type){
-		node.accept(this, null);
+		node.accept(this, new Pair<Type, Type>(T, type));
 	} 
-
+	
 	/**
-	 * Check thtat the given type is a subtype of the other given type. Throws an error if not
 	 * @param T
 	 * @param node
 	 * @param type
 	 */
 	public void check(Type type1, Type type2){
-		Bisimulator.isSubtypeOf(type1, type2);
+		if(!Bisimulator.isSubtypeOf(type1, type2)){
+			FaultHandler.throwFault("\nType:\n" + type1.prettyString() + "\nis not a subtype of:\n" + type2.prettyString());
+		};
 	} 
 
-	public Void visit(Program p, Type T){
+	public Void visit(Program p, Pair<Type, Type> treeAndType){
 		for(OLSyntaxNode n : p.children()){
 			n.accept(this, null);
 		}
@@ -145,7 +149,7 @@ public class Checker implements OLVisitor<Type, Void> {
 		return null;
 	}
 
-	public Void visit(TypeInlineDefinition t, Type T){
+	public Void visit(TypeInlineDefinition t, Pair<Type, Type> treeAndType){
 		System.out.println("Basic type: " + t.basicType().nativeType() + "[" + t.cardinality().min() + ", " + t.cardinality().max() + "]");
 
 		if(t.subTypes() != null){ // has subtypes
@@ -157,323 +161,333 @@ public class Checker implements OLVisitor<Type, Void> {
 		return null;
 	}
 
-	public Void visit(Type t, Type T){
+	public Void visit(Type t, Pair<Type, Type> treeAndType){
 		return null;
 	}
 
-	public Void visit( OneWayOperationDeclaration decl, Type T ){
+	public Void visit( OneWayOperationDeclaration decl, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( RequestResponseOperationDeclaration decl, Type T ){
+	public Void visit( RequestResponseOperationDeclaration decl, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( DefinitionNode n, Type T ){
+	public Void visit( DefinitionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ParallelStatement n, Type T ){
+	public Void visit( ParallelStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SequenceStatement n, Type T ){
+	public Void visit( SequenceStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( NDChoiceStatement n, Type T ){
+	public Void visit( NDChoiceStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( OneWayOperationStatement n, Type T ){
+	public Void visit( OneWayOperationStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( RequestResponseOperationStatement n, Type T ){
+	public Void visit( RequestResponseOperationStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( NotificationOperationStatement n, Type T ){
+	public Void visit( NotificationOperationStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SolicitResponseOperationStatement n, Type T ){
+	public Void visit( SolicitResponseOperationStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( LinkInStatement n, Type T ){
+	public Void visit( LinkInStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( LinkOutStatement n, Type T ){
+	public Void visit( LinkOutStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( AssignStatement n, Type T ){
+	public Void visit( AssignStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( AddAssignStatement n, Type T ){
+	public Void visit( AddAssignStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SubtractAssignStatement n, Type T ){
+	public Void visit( SubtractAssignStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( MultiplyAssignStatement n, Type T ){
+	public Void visit( MultiplyAssignStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( DivideAssignStatement n, Type T ){
+	public Void visit( DivideAssignStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( IfStatement n, Type T ){
+	public Void visit( IfStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( DefinitionCallStatement n, Type T ){
+	public Void visit( DefinitionCallStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( WhileStatement n, Type T ){
+	public Void visit( WhileStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( OrConditionNode n, Type T ){
+	public Void visit( OrConditionNode n, Pair<Type, Type> treeAndType ){
+		for(OLSyntaxNode child : n.children()){
+			child.accept(this, treeAndType);
+		}
 		return null;
 	};
 
-	public Void visit( AndConditionNode n, Type T ){
+	public Void visit( AndConditionNode n, Pair<Type, Type> treeAndType ){
+		for(OLSyntaxNode child : n.children()){
+			child.accept(this, treeAndType);
+		}
 		return null;
 	};
 
-	public Void visit( NotExpressionNode n, Type T ){
+	public Void visit( NotExpressionNode n, Pair<Type, Type> treeAndType ){
+		n.expression().accept(this, treeAndType);
 		return null;
 	};
 
-	public Void visit( CompareConditionNode n, Type T ){
+	public Void visit( CompareConditionNode n, Pair<Type, Type> treeAndType ){
+		if(!treeAndType.value().isSubtypeOf(Type.BOOL)){
+			FaultHandler.throwFault("the expresssion: " + n.leftExpression() + " " + n.opType().toString() + " " + n.rightExpression() + " is not a subtype of:\n" + treeAndType.value().prettyString());
+		}
 		return null;
 	};
 
-	public Void visit( ConstantIntegerExpression n, Type T ){
+	public Void visit( ConstantIntegerExpression n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ConstantDoubleExpression n, Type T ){
+	public Void visit( ConstantDoubleExpression n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ConstantBoolExpression n, Type T ){
+	public Void visit( ConstantBoolExpression n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ConstantLongExpression n, Type T ){
+	public Void visit( ConstantLongExpression n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ConstantStringExpression n, Type T ){
+	public Void visit( ConstantStringExpression n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ProductExpressionNode n, Type T ){
+	public Void visit( ProductExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SumExpressionNode n, Type T ){
+	public Void visit( SumExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( VariableExpressionNode n, Type T ){
+	public Void visit( VariableExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( NullProcessStatement n, Type T ){
+	public Void visit( NullProcessStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( Scope n, Type T ){
+	public Void visit( Scope n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InstallStatement n, Type T ){
+	public Void visit( InstallStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( CompensateStatement n, Type T ){
+	public Void visit( CompensateStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ThrowStatement n, Type T ){
+	public Void visit( ThrowStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ExitStatement n, Type T ){
+	public Void visit( ExitStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ExecutionInfo n, Type T ){
+	public Void visit( ExecutionInfo n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( CorrelationSetInfo n, Type T ){
+	public Void visit( CorrelationSetInfo n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InputPortInfo n, Type T ){
+	public Void visit( InputPortInfo n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( OutputPortInfo n, Type T ){
+	public Void visit( OutputPortInfo n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( PointerStatement n, Type T ){
+	public Void visit( PointerStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( DeepCopyStatement n, Type T ){
+	public Void visit( DeepCopyStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( RunStatement n, Type T ){
+	public Void visit( RunStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( UndefStatement n, Type T ){
+	public Void visit( UndefStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ValueVectorSizeExpressionNode n, Type T ){
+	public Void visit( ValueVectorSizeExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( PreIncrementStatement n, Type T ){
+	public Void visit( PreIncrementStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( PostIncrementStatement n, Type T ){
+	public Void visit( PostIncrementStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( PreDecrementStatement n, Type T ){
+	public Void visit( PreDecrementStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( PostDecrementStatement n, Type T ){
+	public Void visit( PostDecrementStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ForStatement n, Type T ){
+	public Void visit( ForStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ForEachSubNodeStatement n, Type T ){
+	public Void visit( ForEachSubNodeStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ForEachArrayItemStatement n, Type T ){
+	public Void visit( ForEachArrayItemStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SpawnStatement n, Type T ){
+	public Void visit( SpawnStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( IsTypeExpressionNode n, Type T ){
+	public Void visit( IsTypeExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InstanceOfExpressionNode n, Type T ){
+	public Void visit( InstanceOfExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( TypeCastExpressionNode n, Type T ){
+	public Void visit( TypeCastExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SynchronizedStatement n, Type T ){
+	public Void visit( SynchronizedStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( CurrentHandlerStatement n, Type T ){
+	public Void visit( CurrentHandlerStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( EmbeddedServiceNode n, Type T ){
+	public Void visit( EmbeddedServiceNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InstallFixedVariableExpressionNode n, Type T ){
+	public Void visit( InstallFixedVariableExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( VariablePathNode n, Type T ){
+	public Void visit( VariablePathNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( TypeDefinitionLink n, Type T ){
+	public Void visit( TypeDefinitionLink n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InterfaceDefinition n, Type T ){
+	public Void visit( InterfaceDefinition n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( DocumentationComment n, Type T ){
+	public Void visit( DocumentationComment n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( FreshValueExpressionNode n, Type T ){
+	public Void visit( FreshValueExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( CourierDefinitionNode n, Type T ){
+	public Void visit( CourierDefinitionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( CourierChoiceStatement n, Type T ){
+	public Void visit( CourierChoiceStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( NotificationForwardStatement n, Type T ){
+	public Void visit( NotificationForwardStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( SolicitResponseForwardStatement n, Type T ){
+	public Void visit( SolicitResponseForwardStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InterfaceExtenderDefinition n, Type T ){
+	public Void visit( InterfaceExtenderDefinition n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( InlineTreeExpressionNode n, Type T ){
+	public Void visit( InlineTreeExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( VoidExpressionNode n, Type T ){
+	public Void visit( VoidExpressionNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ProvideUntilStatement n, Type T ){
+	public Void visit( ProvideUntilStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( TypeChoiceDefinition n, Type T ){
+	public Void visit( TypeChoiceDefinition n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ImportStatement n, Type T ){
+	public Void visit( ImportStatement n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( ServiceNode n, Type T ){
+	public Void visit( ServiceNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 
-	public Void visit( EmbedServiceNode n, Type T ){
+	public Void visit( EmbedServiceNode n, Pair<Type, Type> treeAndType ){
 		return null;
 	};
 }
