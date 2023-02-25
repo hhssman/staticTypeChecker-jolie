@@ -87,6 +87,7 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.Path;
 
 
@@ -202,7 +203,13 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( IfStatement n, Void v ){
-		return null;
+		String result = "";
+
+		for(Pair<OLSyntaxNode, OLSyntaxNode> p : n.children()){
+			result += "if(" + p.key().accept(this, null) + ")\n";
+		}
+
+		return result;
 	};
 
 	public String visit( DefinitionCallStatement n, Void v ){

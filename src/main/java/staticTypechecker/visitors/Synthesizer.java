@@ -91,6 +91,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
@@ -331,7 +332,31 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( IfStatement n, Type T ){
-		return null;
+		ChoiceType resultType = new ChoiceType();
+
+		for(Pair<OLSyntaxNode, OLSyntaxNode> p : n.children()){
+			OLSyntaxNode expression = p.key();
+			OLSyntaxNode body = p.value();
+
+			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
+				Checker.get(this.module).check(T, n, Type.BOOL); // check that expression is of type bool
+				Type T1 = body.accept(this, T);
+				resultType.addChoice(T1);
+			}
+			else{ // COND-2 or COND-3
+				// TODO talk to marco about what to do here
+			}
+		}
+
+		OLSyntaxNode elseProcess = n.elseProcess();
+		resultType.addChoice(elseProcess.accept(this, T));
+		resultType.removeDuplicates();
+
+		if(resultType.choices().size() == 1){
+			return resultType.choices().get(0);
+		}
+			
+		return resultType;
 	};
 
 	public Type visit( DefinitionCallStatement n, Type T ){

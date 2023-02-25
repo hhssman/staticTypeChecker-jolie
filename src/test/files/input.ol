@@ -37,9 +37,16 @@ service MyService() {
 
 	main {
 		a = 2
-		while(!(a != 0)){
-			a -= 1
+		if(a == 2 && 2 == 2){
+			a = "hey"
+			a = 10
 		}
+		else if(4 == 2){
+			a = 20
+		}
+		else{
+			a = 4
+		}	
 		// [helloOneway(input)]
 
 		// [helloReqRes(input)(output)]

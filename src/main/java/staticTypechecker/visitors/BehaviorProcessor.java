@@ -483,7 +483,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(IfStatement n, Type tree) {
-		return tree;
+		System.out.println(ToString.of(n));
+		Type T1 = this.synthesizer.synthesize(n, tree);
+		this.printTree(T1);
+		return T1;
 	}
 
 	@Override
