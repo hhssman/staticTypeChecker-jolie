@@ -33,6 +33,7 @@ public abstract class Type implements Symbol {
 	public abstract String prettyStringHashCode(int level, ArrayList<Type> recursive);
 
 	public abstract String prettyString();
+	public abstract String prettyString(int level);
 	public abstract String prettyString(int level, ArrayList<Type> recursive);
 
 	/**

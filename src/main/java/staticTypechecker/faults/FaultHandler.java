@@ -12,6 +12,7 @@ public class FaultHandler {
 	public static void printFaults(){
 		for(Fault f : FaultHandler.faults){
 			System.out.println("Critical error: " + f.message());
+			System.out.println();
 		}
 	}
 }

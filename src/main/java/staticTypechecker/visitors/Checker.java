@@ -91,6 +91,7 @@ import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.ToString;
 import staticTypechecker.entities.Module;
 import staticTypechecker.faults.Fault;
 import staticTypechecker.faults.FaultHandler;;
@@ -137,7 +138,7 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	 */
 	public void check(Type type1, Type type2){
 		if(!Bisimulator.isSubtypeOf(type1, type2)){
-			FaultHandler.throwFault("\nType:\n" + type1.prettyString() + "\nis not a subtype of:\n" + type2.prettyString());
+			FaultHandler.throwFault("type:\n\n\t" + type1.prettyString(1) + "\n\nis not a subtype of type:\n\n\t" + type2.prettyString(1));
 		};
 	} 
 
@@ -266,7 +267,7 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 
 	public Void visit( CompareConditionNode n, Pair<Type, Type> treeAndType ){
 		if(!treeAndType.value().isSubtypeOf(Type.BOOL)){
-			FaultHandler.throwFault("the expresssion: " + n.leftExpression() + " " + n.opType().toString() + " " + n.rightExpression() + " is not a subtype of:\n" + treeAndType.value().prettyString());
+			FaultHandler.throwFault("the expresssion: " + ToString.of(n) + " is not a subtype of type: " + treeAndType.value().prettyString());
 		}
 		return null;
 	};

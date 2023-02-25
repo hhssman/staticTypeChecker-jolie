@@ -14,12 +14,6 @@ New tree: void {
 
 while(!(a == 0))
 condition class type: class jolie.lang.parse.ast.expression.NotExpressionNode
-checking subtype
-attacker edges: []
-defender edges: []
-checking subtype
-attacker edges: [root --> root.a]
-defender edges: []
 New tree: void {
 	a: int 
 }
@@ -30,12 +24,15 @@ void {
 
 --------------------------
 
-Critical error: the expresssion: a NOT_EQUAL jolie.lang.parse.ast.expression.ConstantIntegerExpression@2d209079 is not a subtype of:
-int 
-Critical error: 
-Type:
-void {
-	a: int 
-}
-is not a subtype of:
-bool 
+Critical error: the expresssion: a == 0 is not a subtype of type: int 
+
+Critical error: type:
+
+	void {
+		a: int 
+	}
+
+is not a subtype of type:
+
+	bool 
+

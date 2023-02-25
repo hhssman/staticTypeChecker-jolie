@@ -266,6 +266,10 @@ public class InlineType extends Type {
 		return this.prettyString(0, new ArrayList<>());
 	}
 
+	public String prettyString(int level){
+		return this.prettyString(level, new ArrayList<>());
+	}
+
 	public String prettyString(int level, ArrayList<Type> recursive){
 		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
 		String prettyString = "";
