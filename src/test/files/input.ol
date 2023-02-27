@@ -37,7 +37,7 @@ service MyService() {
 
 	main {
 		a = 2
-		if(a == 2 && 2 == 2){
+		if(a){
 			a = "hey"
 			a = 10
 		}
@@ -45,7 +45,7 @@ service MyService() {
 			a = 20
 		}
 		else{
-			a = 4
+			a = "hey"
 		}	
 		// [helloOneway(input)]
 

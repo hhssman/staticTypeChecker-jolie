@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,12 +88,15 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.Bisimulator;
 import staticTypechecker.utils.ToString;
+import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.Path;
 import staticTypechecker.faults.Fault;
 import staticTypechecker.faults.FaultHandler;;
 
@@ -137,8 +141,8 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	 * @param type
 	 */
 	public void check(Type type1, Type type2){
-		if(!Bisimulator.isSubtypeOf(type1, type2)){
-			FaultHandler.throwFault("type:\n\n\t" + type1.prettyString(1) + "\n\nis not a subtype of type:\n\n\t" + type2.prettyString(1));
+		if(!type1.isSubtypeOf(type2)){
+			FaultHandler.throwFault("type:\n\t" + type1.prettyString(1) + "\n\nis not a subtype of type:\n\t" + type2.prettyString(1), null);
 		};
 	} 
 
@@ -151,14 +155,6 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	}
 
 	public Void visit(TypeInlineDefinition t, Pair<Type, Type> treeAndType){
-		System.out.println("Basic type: " + t.basicType().nativeType() + "[" + t.cardinality().min() + ", " + t.cardinality().max() + "]");
-
-		if(t.subTypes() != null){ // has subtypes
-			for(Map.Entry<String, TypeDefinition> key : t.subTypes()){
-				key.getValue().accept(this, null);
-			}
-		}
-
 		return null;
 	}
 
@@ -266,8 +262,9 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	};
 
 	public Void visit( CompareConditionNode n, Pair<Type, Type> treeAndType ){
+		System.out.println("check " + treeAndType.value().prettyString() + " is bool");
 		if(!treeAndType.value().isSubtypeOf(Type.BOOL)){
-			FaultHandler.throwFault("the expresssion: " + ToString.of(n) + " is not a subtype of type: " + treeAndType.value().prettyString());
+			FaultHandler.throwFault("the expresssion: " + ToString.of(n) + " is not a subtype of type: " + treeAndType.value().prettyString(), n.context());
 		}
 		return null;
 	};
@@ -301,6 +298,12 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	};
 
 	public Void visit( VariableExpressionNode n, Pair<Type, Type> treeAndType ){
+		Type typeOfNode = TreeUtils.getTypeOfExpression(n, treeAndType.key());
+
+		if(!typeOfNode.isSubtypeOf(treeAndType.value())){
+			FaultHandler.throwFault("type:\n\t" + typeOfNode.prettyString(1) + "\n\nis not a subtype of type:\n\t" + treeAndType.value().prettyString(1), n.context());
+		}
+
 		return null;
 	};
 
