@@ -98,6 +98,7 @@ import staticTypechecker.typeStructures.Type;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Path;
 
@@ -344,7 +345,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 				System.out.println("instnaceof: " + expression.getClass());
 				OLSyntaxNode node = ((InstanceOfExpressionNode)expression).expression();
 				Type typeOfNode = TreeUtils.getTypeOfExpression(node, T);
-				Type typeToCheckAgainst = TypeConverter.convert(((InstanceOfExpressionNode)expression).type());
+				Type typeToCheckAgainst = TypeConverter.convert(((InstanceOfExpressionNode)expression).type(), ModuleHandler.get(this.module.name()).symbols());
 			
 				if(typeOfNode.isSubtypeOf(typeToCheckAgainst)){ // return resulting tree of if branch
 					resultType.addChoice(body.accept(this, T));

@@ -95,6 +95,7 @@ import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Path;
 
 public class BehaviorProcessor implements OLVisitor<Type, Type> {
@@ -133,15 +134,15 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		Type T = tree;
 
 		// if the service has a configuration parameter, add it to T
-		if(n.parameterConfiguration().isPresent()){
-			String configParamPath = n.parameterConfiguration().get().variablePath();
-			Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type()); // we do not finalize this type structure, since we can change it later in the behaviours
+		// if(n.parameterConfiguration().isPresent()){
+		// 	String configParamPath = n.parameterConfiguration().get().variablePath();
+		// 	Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type()); // we do not finalize this type structure, since we can change it later in the behaviours
 
-			T.put(configParamPath, configParamStruct);
+		// 	T.put(configParamPath, configParamStruct);
 
-			System.out.println("Adding config parameter for " + n.name());
-			this.printTree(T);
-		}
+		// 	System.out.println("Adding config parameter for " + n.name());
+		// 	this.printTree(T);
+		// }
 
 		// accept the program of the service node
 		n.program().accept(this, T);

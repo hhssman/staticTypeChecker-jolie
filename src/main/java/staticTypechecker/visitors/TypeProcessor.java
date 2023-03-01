@@ -125,7 +125,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 	}
 
 	private void processTypeDef(TypeDefinition n, SymbolTable symbols){
-		TypeConverter.finalizeBaseStructure((Type)symbols.get(n.name()), n);
+		TypeConverter.finalizeBaseStructure((Type)symbols.get(n.name()), n, symbols);
 	}
 
 	@Override
@@ -140,6 +140,14 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
+		// if the service has a configuration parameter, add it
+		if(n.parameterConfiguration().isPresent()){
+			String configParamPath = n.parameterConfiguration().get().variablePath();
+			Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type(), symbols); // we do not finalize this type structure, since we can change it later in the behaviours
+	
+			symbols.put(configParamPath, configParamStruct);
+		}
+
 		return null;
 	}
 

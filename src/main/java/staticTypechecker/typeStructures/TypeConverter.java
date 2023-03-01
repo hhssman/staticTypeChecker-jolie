@@ -10,6 +10,7 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 
 /**
@@ -51,7 +52,7 @@ public class TypeConverter {
 	 * @param structure the structure object to finalize
 	 * @param type the type definition to use when finalizing the struture
 	 */
-	public static void finalizeBaseStructure(Type struct, TypeDefinition type){
+	public static void finalizeBaseStructure(Type struct, TypeDefinition type, SymbolTable symbols){
 		// case where struct is a standard type definition
 		if(struct instanceof InlineType){
 			InlineType castedStruct = (InlineType)struct;
@@ -65,10 +66,10 @@ public class TypeConverter {
 				castedStruct.setCardinality(castedType.cardinality());
 				castedStruct.setContext(castedType.context());
 
-				TypeConverter.convert(castedStruct, castedType, true, recursiveTable); 
+				TypeConverter.convert(castedStruct, castedType, true, symbols); 
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
-				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
+				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType(), symbols);
 			}
 			else{ // struct and type def are incompatible, maybe throw error here TODO
 				System.out.println("Incompatible struct and types");
@@ -85,12 +86,12 @@ public class TypeConverter {
 			
 			if(type instanceof TypeChoiceDefinition){ // struct and type def match
 				TypeChoiceDefinition castedType = (TypeChoiceDefinition)type;
-				ChoiceType tmpStruct = (ChoiceType)TypeConverter.convert(castedType);
+				ChoiceType tmpStruct = (ChoiceType)TypeConverter.convert(castedType, symbols);
 
 				castedStruct.setChoices(tmpStruct.choices());
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type def
-				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
+				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType(), symbols);
 			}
 			else{ // struct and type def are incompatible, maybe throw error here TODO
 				System.out.println("Incompatible struct and types");
@@ -104,46 +105,44 @@ public class TypeConverter {
 	 * @param type the type to create the structure from
 	 * @return the structure instance representing the specified type
 	 */
-	public static Type convert(TypeDefinition type){
-		return TypeConverter.convert(type, true, new HashMap<String, Type>());
+	public static Type convert(TypeDefinition type, SymbolTable symbols){
+		return TypeConverter.convert(type, true, symbols);
 	}
 
-	public static Type convertNoFinalize(TypeDefinition type){
-		return TypeConverter.convert(type, false, new HashMap<String, Type>());
+	public static Type convertNoFinalize(TypeDefinition type, SymbolTable symbols){
+		return TypeConverter.convert(type, false, symbols);
 	}
 
-	private static Type convert(TypeDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+	private static Type convert(TypeDefinition type, boolean finalize, SymbolTable symbols){
 		if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition parsedType = (TypeInlineDefinition)type;
 			InlineType base = new InlineType(parsedType.basicType(), parsedType.cardinality(), parsedType.context());
-			TypeConverter.convert(base, (TypeInlineDefinition)type, finalize, recursiveTable);
+			TypeConverter.convert(base, (TypeInlineDefinition)type, finalize, symbols);
 			return base;
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return TypeConverter.convert((TypeChoiceDefinition)type, finalize, recursiveTable);
+			return TypeConverter.convert((TypeChoiceDefinition)type, finalize, symbols);
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return TypeConverter.convert((TypeDefinitionLink)type, finalize, recursiveTable);
+			return TypeConverter.convert((TypeDefinitionLink)type, finalize, symbols);
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
-			return TypeConverter.convert((TypeDefinitionUndefined)type, finalize, recursiveTable);
+			return TypeConverter.convert((TypeDefinitionUndefined)type, finalize, symbols);
 		}
 
 		return null;
 	}
 
-	private static InlineType convert(TypeInlineDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+	private static InlineType convert(TypeInlineDefinition type, boolean finalize, SymbolTable symbols){
 		InlineType base = new InlineType(type.basicType(), type.cardinality(), type.context());
-		TypeConverter.convert(base, type, finalize, recursiveTable);
+		TypeConverter.convert(base, type, finalize, symbols);
 		return base;
 	}
 
-	private static void convert(InlineType base, TypeInlineDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
-		recursiveTable.put(type.name(), base);
-
+	private static void convert(InlineType base, TypeInlineDefinition type, boolean finalize, SymbolTable symbols){
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
 				String childName = child.getKey();
@@ -154,11 +153,11 @@ public class TypeConverter {
 					typeName = subtype.linkedTypeName();
 				}
 
-				if(recursiveTable.containsKey(typeName)){
-					base.put(childName, recursiveTable.get(typeName));
+				if(symbols.containsKey(typeName)){
+					base.put(childName, (Type)symbols.get(typeName));
 				}
 				else{
-					Type subStructure = TypeConverter.convert(child.getValue(), finalize, recursiveTable);
+					Type subStructure = TypeConverter.convert(child.getValue(), finalize, symbols);
 					base.put(childName, subStructure);
 				}
 			}
@@ -169,33 +168,33 @@ public class TypeConverter {
 		}
 	}
 
-	private static Type convert(TypeChoiceDefinition type, boolean finalize, HashMap<String, Type> recursiveTable){
+	private static Type convert(TypeChoiceDefinition type, boolean finalize, SymbolTable symbols){
 		HashSet<InlineType> choices = new HashSet<>();
-		TypeConverter.getChoices(type, choices, recursiveTable);
+		TypeConverter.getChoices(type, choices, symbols);
 		return new ChoiceType(choices);
 	}
 
-	private static void getChoices(TypeDefinition type, HashSet<InlineType> list, HashMap<String, Type> recursiveTable){
+	private static void getChoices(TypeDefinition type, HashSet<InlineType> list, SymbolTable symbols){
 		if(type instanceof TypeChoiceDefinition){
-			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, recursiveTable);
-			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, recursiveTable);
+			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, symbols);
+			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, symbols);
 		}
 		else if(type instanceof TypeInlineDefinition){
-			list.add( TypeConverter.convert((TypeInlineDefinition)type, false, recursiveTable) );
+			list.add( TypeConverter.convert((TypeInlineDefinition)type, false, symbols) );
 		}
 		else if(type instanceof TypeDefinitionLink){
-			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, recursiveTable);
+			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, symbols);
 		}
 		else{
 			System.out.println("CONVERTION NOT SUPPORTED");
 		}
 	}
 
-	private static Type convert(TypeDefinitionLink type, boolean finalize, HashMap<String, Type> recursiveTable){
-		return TypeConverter.convert(type.linkedType(), finalize, recursiveTable);
+	private static Type convert(TypeDefinitionLink type, boolean finalize, SymbolTable symbols){
+		return TypeConverter.convert(type.linkedType(), finalize, symbols);
 	}
 
-	private static Type convert(TypeDefinitionUndefined type, boolean finalize, HashMap<String, Type> recursiveTable){
+	private static Type convert(TypeDefinitionUndefined type, boolean finalize, SymbolTable symbols){
 		return null;
 	}
 }

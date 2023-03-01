@@ -84,6 +84,7 @@ import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
+import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.InputPort;
@@ -207,6 +208,23 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
 		if(!symbols.containsKey(n.name())){ // new symbol
+
+			// if the service has a configuration parameter, add it
+			if(n.parameterConfiguration().isPresent()){
+				String configParamPath = n.parameterConfiguration().get().variablePath();
+
+				TypeDefinition typeOfParam = n.parameterConfiguration().get().type();
+				if(typeOfParam instanceof TypeInlineDefinition){
+					symbols.put(configParamPath, InlineType.getBaseSymbol());
+				}
+				else if(typeOfParam instanceof TypeChoiceDefinition){
+					symbols.put(configParamPath, ChoiceType.getBaseSymbol());
+				}
+				else{
+					System.out.println(typeOfParam.getClass());
+				}
+			}
+
 			// add the base service and accept its program to find all symbols there
 			symbols.put(n.name(), Service.getBaseService());
 			n.program().accept(this, symbols);
