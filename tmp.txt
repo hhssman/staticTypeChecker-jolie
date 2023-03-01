@@ -2,64 +2,6 @@ STAGE 1: discover symbols
 Module name: ./src/test/files/input.ol
 class jolie.lang.parse.ast.types.TypeDefinitionLink
 STAGE 2: process types
------------------------------------------
-Module: ./src/test/files/types.ol
-
-A: int 
-
-imp: string {
-	x: int 
-}
-______________
-Module: ./src/test/files/input.ol
-
-A: int {
-	x: string {
-			x: int 
-		}
-
-	y: string 
-}
-
-B: int {
-	x: bool {
-			x: double 
-		}
-}
-
-C: bool {
-	x: double 
-}
-
-in: null
-
-MyInterface: null
-
-imp: string {
-	x: int 
-}
-
-out: null
-
-helloReqRes: null
-
-p: int {
-	x: string {
-			x: int 
-		}
-
-	y: string 
-}
-
-MyService: null
-
-helloOneway: null
-______________
-Module: ./src/test/files/types2.ol
-
-A: int 
-______________
------------------------------------------
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings

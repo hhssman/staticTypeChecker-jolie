@@ -342,7 +342,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			OLSyntaxNode body = p.value();
 
 			if(expression instanceof InstanceOfExpressionNode){ // COND-2 or COND-3
-				System.out.println("instnaceof: " + expression.getClass());
 				OLSyntaxNode node = ((InstanceOfExpressionNode)expression).expression();
 				Type typeOfNode = TreeUtils.getTypeOfExpression(node, T);
 				Type typeToCheckAgainst = TypeConverter.convert(((InstanceOfExpressionNode)expression).type(), ModuleHandler.get(this.module.name()).symbols());
@@ -353,7 +352,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 				}
 			}
 			else{ // COND-1, e is an expression of anything else than instanceof
-				System.out.println("expression: " + expression.getClass());
 				Checker.get(this.module).check(T, expression, Type.BOOL); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
 				resultType.addChoice(T1);

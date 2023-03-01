@@ -2,6 +2,7 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 
+import jolie.lang.NativeType;
 import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
@@ -110,12 +111,12 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println("\n--------------------------\n");
 	}
 
-	public Type process(Module module, Type tree){
+	public Type process(Module module){
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 		this.checker = Checker.get(module);
 
-		return module.program().accept(this, tree);
+		return module.program().accept(this, InlineType.getBasicType(NativeType.VOID));
 	}
 	
 	@Override
@@ -131,23 +132,8 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
  
 	@Override
 	public Type visit(ServiceNode n, Type tree) {
-		Type T = tree;
-
-		// if the service has a configuration parameter, add it to T
-		// if(n.parameterConfiguration().isPresent()){
-		// 	String configParamPath = n.parameterConfiguration().get().variablePath();
-		// 	Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type()); // we do not finalize this type structure, since we can change it later in the behaviours
-
-		// 	T.put(configParamPath, configParamStruct);
-
-		// 	System.out.println("Adding config parameter for " + n.name());
-		// 	this.printTree(T);
-		// }
-
 		// accept the program of the service node
-		n.program().accept(this, T);
-		
-		return T;
+		return n.program().accept(this, tree);
 	}
 
 	@Override

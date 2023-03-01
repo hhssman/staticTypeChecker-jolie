@@ -64,7 +64,7 @@ public class Main {
 			tProcessor.process(m);
 		});
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 3: process interfaces in all modules
 		System.out.println("STAGE 3: process interfaces");
@@ -100,12 +100,10 @@ public class Main {
 		System.out.println("STAGE 6: process behaviors\n");
 
 		BehaviorProcessor bProcessor = new BehaviorProcessor();
-		HashMap<String, InlineType> trees = new HashMap<>();
+		HashMap<String, Type> trees = new HashMap<>();
 
 		ModuleHandler.modules().values().forEach(m -> {
-			InlineType tree = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null);
-			trees.put(m.name(), tree);
-			bProcessor.process(m, tree);
+			trees.put(m.name(), bProcessor.process(m));
 		});
 
 		// printAllSymbols();
