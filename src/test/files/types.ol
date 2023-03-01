@@ -1,16 +1,5 @@
-from .test import A
+from .types2 import A
 
-type B: string {
-	bSub: A
-}
-
-type C: int {
-	luna: double
-}
-
-type SecondImportedType: int
-
-
-interface ImportedInterface {
-
+type imp: string {
+	x: A
 }

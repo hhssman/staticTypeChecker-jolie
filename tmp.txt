@@ -1,12 +1,88 @@
 STAGE 1: discover symbols
+Module name: ./src/test/files/input.ol
 STAGE 2: process types
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+A: int 
+
+imp: string {
+	x: int 
+}
+______________
+Module: ./src/test/files/input.ol
+
+A: int {
+	x: string {
+			x: int {
+					x (recursive structure)
+
+					y: string 
+				}
+		}
+
+	y: string 
+}
+
+B: int {
+	x: bool {
+			x: double 
+		}
+}
+
+C: bool {
+	x: double 
+}
+
+in: null
+
+MyInterface: null
+
+imp: string {
+	x: int 
+}
+
+out: null
+
+helloReqRes: null
+
+MyService: null
+
+helloOneway: null
+______________
+Module: ./src/test/files/types2.ol
+
+A: int 
+______________
+-----------------------------------------
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
+Adding config parameter for MyService
+New tree: void {
+	p: int {
+			x: string {
+					x (recursive structure)
+				}
+
+			y: string 
+		}
+}
+
+--------------------------
+
 a = 2
 New tree: void {
+	p: int {
+			x: string {
+					x (recursive structure)
+				}
+
+			y: string 
+		}
+
 	a: int 
 }
 
@@ -21,14 +97,38 @@ check bool  is bool
 expression: class jolie.lang.parse.ast.expression.ConstantBoolExpression
 instnaceof: class jolie.lang.parse.ast.expression.InstanceOfExpressionNode
 New tree: void {
+	p: int {
+			x: string {
+					x (recursive structure)
+				}
+
+			y: string 
+		}
+
 	a: string 
 }
 |
 void {
+	p: int {
+			x: string {
+					x (recursive structure)
+				}
+
+			y: string 
+		}
+
 	a: bool 
 }
 |
 void {
+	p: int {
+			x: string {
+					x (recursive structure)
+				}
+
+			y: string 
+		}
+
 	a: int 
 }
 

@@ -175,6 +175,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			// check if the module we are importing from have been loaded, if not do it, since we need the base symbol from it
 			if(!ModuleHandler.contains(moduleName)){
 				ModuleHandler.loadModule(moduleName);
+				this.collect(ModuleHandler.get(moduleName));
 			}
 			
 			// ask the symbols table in the corresponding Module for the structure of the type

@@ -10,6 +10,7 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import staticTypechecker.entities.SymbolTable;
 
 /**
  * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely TypeNameDefinition and Type.
@@ -64,7 +65,7 @@ public class TypeConverter {
 				castedStruct.setCardinality(castedType.cardinality());
 				castedStruct.setContext(castedType.context());
 
-				TypeConverter.convert(castedStruct, castedType, true, recursiveTable); // create the structure in order to copy the children into the given structure
+				TypeConverter.convert(castedStruct, castedType, true, recursiveTable); 
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType());
