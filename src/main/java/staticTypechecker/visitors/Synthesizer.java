@@ -95,6 +95,7 @@ import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
+import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
@@ -333,26 +334,37 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( IfStatement n, Type T ){
 		ChoiceType resultType = new ChoiceType();
+		boolean checkElse = true;
 
 		for(Pair<OLSyntaxNode, OLSyntaxNode> p : n.children()){
 			OLSyntaxNode expression = p.key();
 			OLSyntaxNode body = p.value();
 
-			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
+			if(expression instanceof InstanceOfExpressionNode){ // COND-2 or COND-3
+				System.out.println("instnaceof: " + expression.getClass());
+				OLSyntaxNode node = ((InstanceOfExpressionNode)expression).expression();
+				Type typeOfNode = TreeUtils.getTypeOfExpression(node, T);
+				Type typeToCheckAgainst = TypeConverter.convert(((InstanceOfExpressionNode)expression).type());
+			
+				if(typeOfNode.isSubtypeOf(typeToCheckAgainst)){ // return resulting tree of if branch
+					resultType.addChoice(body.accept(this, T));
+					checkElse = false;
+				}
+			}
+			else{ // COND-1, e is an expression of anything else than instanceof
 				System.out.println("expression: " + expression.getClass());
 				Checker.get(this.module).check(T, expression, Type.BOOL); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
 				resultType.addChoice(T1);
 			}
-			else{ // COND-2 or COND-3
-				// TODO talk to marco about what to do here
-			}
 		}
 
-		OLSyntaxNode elseProcess = n.elseProcess();
-		resultType.addChoice(elseProcess.accept(this, T));
-		resultType.removeDuplicates();
-
+		if(checkElse){
+			OLSyntaxNode elseProcess = n.elseProcess();
+			resultType.addChoice(elseProcess.accept(this, T));
+			resultType.removeDuplicates();
+		}
+		
 		if(resultType.choices().size() == 1){
 			return resultType.choices().get(0);
 		}

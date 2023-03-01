@@ -37,16 +37,18 @@ service MyService() {
 
 	main {
 		a = 2
-		if(a){
+		if(4 == 2){
 			a = "hey"
-			a = 10
 		}
-		else if(4 == 2){
+		else if(false){
+			a = true
+		}
+		else if(a instanceof int){
 			a = 20
 		}
 		else{
-			a = "hey"
-		}	
+			a = 1L
+		}
 		// [helloOneway(input)]
 
 		// [helloReqRes(input)(output)]

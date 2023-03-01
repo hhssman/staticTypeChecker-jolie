@@ -12,30 +12,25 @@ New tree: void {
 
 --------------------------
 
-if(a)
 if(4 == 2)
+if(false)
+if(null)
 
-expression: class jolie.lang.parse.ast.expression.VariableExpressionNode
 expression: class jolie.lang.parse.ast.CompareConditionNode
 check bool  is bool
+expression: class jolie.lang.parse.ast.expression.ConstantBoolExpression
+instnaceof: class jolie.lang.parse.ast.expression.InstanceOfExpressionNode
 New tree: void {
-	a: int 
-}
-|
-void {
-	a: int 
-}
-|
-void {
 	a: string 
+}
+|
+void {
+	a: bool 
+}
+|
+void {
+	a: int 
 }
 
 --------------------------
-
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 40:
-type:
-	int 
-
-is not a subtype of type:
-	bool 
 
