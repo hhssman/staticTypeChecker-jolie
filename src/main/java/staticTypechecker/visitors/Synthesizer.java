@@ -172,30 +172,19 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( NDChoiceStatement n, Type T ){
-		Type[] trees = new Type[n.children().size()]; // save all the possible outcomes
+		ArrayList<Type> trees = new ArrayList<>(n.children().size()); // save all the possible outcomes
 
 		for(int i = 0; i < n.children().size(); i++){
 			Type T1 = n.children().get(i).key().accept(this, T); // synthesize the label (in the [])
 			Type T2 = n.children().get(i).value().accept(this, T1); // synthesize the behaviour (in the {})
-			trees[i] = T2;
+			trees.add(T2);
 		}
 		
-		if(trees.length == 1){
-			System.out.println("only one tree");
-			System.out.println(trees[0]);
-			return trees[0];
+		if(trees.size() == 1){
+			return trees.get(0);
 		}
 		else{
-			System.out.println(trees.length + " tree(s)");
-			ChoiceType result = new ChoiceType();
-
-			for(Type t : trees){
-				result.addChoice(t);
-			}
-			
-			System.out.println(result);
-			
-			return null; // TODO
+			return new ChoiceType(trees);		
 		}
 	};
 
@@ -335,34 +324,20 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( IfStatement n, Type T ){
 		ChoiceType resultType = new ChoiceType();
-		boolean checkElse = true;
 
 		for(Pair<OLSyntaxNode, OLSyntaxNode> p : n.children()){
 			OLSyntaxNode expression = p.key();
 			OLSyntaxNode body = p.value();
 
-			if(expression instanceof InstanceOfExpressionNode){ // COND-2 or COND-3
-				OLSyntaxNode node = ((InstanceOfExpressionNode)expression).expression();
-				Type typeOfNode = TreeUtils.getTypeOfExpression(node, T);
-				Type typeToCheckAgainst = TypeConverter.convert(((InstanceOfExpressionNode)expression).type(), ModuleHandler.get(this.module.name()).symbols());
-			
-				if(typeOfNode.isSubtypeOf(typeToCheckAgainst)){ // return resulting tree of if branch
-					resultType.addChoice(body.accept(this, T));
-					checkElse = false;
-				}
-			}
-			else{ // COND-1, e is an expression of anything else than instanceof
+			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
 				Checker.get(this.module).check(T, expression, Type.BOOL); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
-				resultType.addChoice(T1);
+				resultType.addChoiceUnsafe(T1);
 			}
 		}
 
-		if(checkElse){
-			OLSyntaxNode elseProcess = n.elseProcess();
-			resultType.addChoice(elseProcess.accept(this, T));
-			resultType.removeDuplicates();
-		}
+		OLSyntaxNode elseProcess = n.elseProcess();
+		resultType.addChoiceUnsafe(elseProcess.accept(this, T));
 		
 		if(resultType.choices().size() == 1){
 			return resultType.choices().get(0);
@@ -379,15 +354,14 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 
-		System.out.println("condition class type: " + condition.getClass());
-		Checker.get(this.module).check(T, condition, Type.INT);
-		Type R = body.accept(this, T);
-		Checker.get(this.module).check(R, Type.BOOL);
-		Checker.get(this.module).check(R, body, R);
+		Checker.get(this.module).check(T, condition, Type.BOOL); // check that the condition is of type bool
+		Type R = body.accept(this, T); // synthesize the type of the body after ONE iteration
+		Checker.get(this.module).check(R, condition, Type.BOOL); // check that the condition is still of type bool after one iteration
+		Checker.get(this.module).check(R, body, R); // check that the iteration didnt change the type of anything
 		
 		ChoiceType result = new ChoiceType();
-		result.addChoice(T);
-		result.addChoice(R);
+		result.addChoiceUnsafe(T);
+		result.addChoiceUnsafe(R);
 
 		return result;
 	};

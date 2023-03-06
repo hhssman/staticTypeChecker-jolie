@@ -1,33 +1,50 @@
-from .types import imp
+// from .types import imp
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
 interface MyInterface {
 	RequestResponse:
-		helloReqRes( A )( string )
+		helloReqRes( tmp )( string )
 	OneWay:
-		helloOneway( B )
+		helloOneway( tmp )
 }
 
 
-type A: int {
-	x: imp
-	y: string
+// type A: int {
+// 	x: imp
+// 	y: string
+// }
+
+// type B: int {
+// 	x: C
+// }
+
+// type C: bool {
+// 	x: double
+// }
+
+// type D: void {
+// 	x: int | string
+// 	y: bool | double
+// 	z: long
+// }
+
+// type choice: int | string
+
+type tmp: int {
+	x: tmp
 }
 
-type B: int {
-	x: C
+type inputType: void{
+	a: int | string
+	b: double { y: int | string | long } | string
 }
 
-type C: bool {
-	x: double
-}
-
-service MyService(p: A) {
-	inputPort in {
-		Location: "socket://localhost:8080"
-		Protocol: http { format = "json" }
-		Interfaces: MyInterface 
-	}
+service MyService(input: inputType) {
+	// inputPort in {
+	// 	Location: "socket://localhost:8080"
+	// 	Protocol: http { format = "json" }
+	// 	Interfaces: MyInterface 
+	// }
 	
 	outputPort out {
 		Location: "socket://localhost:8081"
@@ -36,21 +53,20 @@ service MyService(p: A) {
 	}
 
 	main {
-		a = 2
-		if(4 == 2){
-			a = "hey"
-		}
-		else if(false){
-			a = true
-		}
-		else if(a instanceof int){
-			a = 20
-		}
-		else{
-			a = 1L
-		}
-		// [helloOneway(input)]
+		
+		a = 10
+		a.x = "hey"
+		a.y = true
 
+		b = 50L
+		b.y = "hey"
+		b.y.z = 20
+
+		a << b
+
+		// helloOneway@out(input)
+
+		// [helloOneway(input)]
 		// [helloReqRes(input)(output)]
 	}
 }

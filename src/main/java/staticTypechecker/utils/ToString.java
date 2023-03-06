@@ -277,7 +277,7 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( ConstantStringExpression n, Void v ){
-		return n.value();
+		return "\"" + n.value() + "\"";
 	};
 
 	public String visit( ProductExpressionNode n, Void v ){

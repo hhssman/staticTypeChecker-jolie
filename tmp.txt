@@ -7,31 +7,249 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-a = 2
-New tree: void {
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+}
+
+--------------------------
+
+a = 10
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
 	a: int 
 }
 
 --------------------------
 
-if(4 == 2)
-if(false)
-if(null)
+a.x = "hey"
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
 
-expression: class jolie.lang.parse.ast.CompareConditionNode
-check bool  is bool
-expression: class jolie.lang.parse.ast.expression.ConstantBoolExpression
-instnaceof: class jolie.lang.parse.ast.expression.InstanceOfExpressionNode
-New tree: void {
-	a: string 
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: int {
+			x: string 
+		}
 }
-|
+
+--------------------------
+
+a.y = true
 void {
-	a: bool 
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: int {
+			x: string 
+
+			y: bool 
+		}
 }
-|
+
+--------------------------
+
+b = 50
 void {
-	a: int 
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: int {
+			x: string 
+
+			y: bool 
+		}
+
+	b: long 
+}
+
+--------------------------
+
+b.y = "hey"
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: int {
+			x: string 
+
+			y: bool 
+		}
+
+	b: long {
+			y: string 
+		}
+}
+
+--------------------------
+
+b.y.z = 20
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: int {
+			x: string 
+
+			y: bool 
+		}
+
+	b: long {
+			y: string {
+					z: int 
+				}
+		}
+}
+
+--------------------------
+
+a << b
+void {
+	input: void {
+			a: 
+				string 
+				|
+				int 
+
+			b: 
+				string 
+				|
+				double {
+					y: 
+						string 
+						|
+						int 
+						|
+						long 
+				}
+		}
+
+	a: long {
+			x: string 
+
+			y: string {
+					z: int 
+				}
+		}
+
+	b: long {
+			y: string {
+					z: int 
+				}
+		}
 }
 
 --------------------------

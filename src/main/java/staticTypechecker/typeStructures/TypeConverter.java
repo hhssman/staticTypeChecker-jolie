@@ -62,9 +62,9 @@ public class TypeConverter {
 				HashMap<String, Type> recursiveTable = new HashMap<>();
 				recursiveTable.put(type.name(), castedStruct);
 
-				castedStruct.setBasicType(castedType.basicType());
-				castedStruct.setCardinality(castedType.cardinality());
-				castedStruct.setContext(castedType.context());
+				castedStruct.setBasicTypeUnsafe(castedType.basicType());
+				castedStruct.setCardinalityUnsafe(castedType.cardinality());
+				castedStruct.setContextUnsafe(castedType.context());
 
 				TypeConverter.convert(castedStruct, castedType, true, symbols); 
 			}
@@ -88,7 +88,7 @@ public class TypeConverter {
 				TypeChoiceDefinition castedType = (TypeChoiceDefinition)type;
 				ChoiceType tmpStruct = (ChoiceType)TypeConverter.convert(castedType, symbols);
 
-				castedStruct.setChoices(tmpStruct.choices());
+				castedStruct.setChoicesUnsafe(tmpStruct.choices());
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type def
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType(), symbols);
@@ -154,11 +154,11 @@ public class TypeConverter {
 				}
 
 				if(symbols.containsKey(typeName)){
-					base.put(childName, (Type)symbols.get(typeName));
+					base.addChild(childName, (Type)symbols.get(typeName));
 				}
 				else{
 					Type subStructure = TypeConverter.convert(child.getValue(), finalize, symbols);
-					base.put(childName, subStructure);
+					base.addChild(childName, subStructure);
 				}
 			}
 		}

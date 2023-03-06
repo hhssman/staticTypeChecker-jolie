@@ -138,8 +138,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			// symbols.put(n.name(), InlineType.getBaseSymbol(n));
-			symbols.put(n.name(), InlineType.getBaseSymbol());
+			symbols.put(n.name(), new InlineType());
 		}
 		
 		return null;
@@ -147,8 +146,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		// symbols.put(n.name(), InlineType.getBaseSymbol(n));
-		symbols.put(n.name(), InlineType.getBaseSymbol());
+		symbols.put(n.name(), new InlineType());
 		return null;
 	}
 
@@ -158,8 +156,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			// symbols.put(n.name(), ChoiceType.getBaseSymbol(n));
-			symbols.put(n.name(), ChoiceType.getBaseSymbol());
+			symbols.put(n.name(), new ChoiceType());
 		}
 		
 		return null;
@@ -215,10 +212,10 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 				TypeDefinition typeOfParam = n.parameterConfiguration().get().type();
 				if(typeOfParam instanceof TypeInlineDefinition){
-					symbols.put(configParamPath, InlineType.getBaseSymbol());
+					symbols.put(configParamPath, new InlineType());
 				}
 				else if(typeOfParam instanceof TypeChoiceDefinition){
-					symbols.put(configParamPath, ChoiceType.getBaseSymbol());
+					symbols.put(configParamPath, new ChoiceType());
 				}
 				else{
 					System.out.println(typeOfParam.getClass());

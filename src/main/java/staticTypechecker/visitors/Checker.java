@@ -92,7 +92,7 @@ import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
-import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.BisimulatorOld;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
@@ -141,8 +141,9 @@ public class Checker implements OLVisitor<Pair<Type, Type>, Void> {
 	 * @param type
 	 */
 	public void check(Type type1, Type type2){
-		if(!type1.isSubtypeOf(type2)){
-			FaultHandler.throwFault("type:\n\t" + type1.prettyString(1) + "\n\nis not a subtype of type:\n\t" + type2.prettyString(1), null);
+		// if(!type1.isSubtypeOf(type2)){
+		if(!type1.equals(type2)){
+			FaultHandler.throwFault("type:\n\t" + type1.prettyString(1) + "\n\nis not a subtype of type:\n\t" + type2.prettyString(1)); // TODO add context here
 		};
 	} 
 

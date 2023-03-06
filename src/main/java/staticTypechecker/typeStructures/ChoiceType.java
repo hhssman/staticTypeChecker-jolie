@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.BisimulatorOld;
 
 /**
  * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
@@ -23,8 +24,9 @@ public class ChoiceType extends Type {
 
 	public ChoiceType(ArrayList<Type> choices){
 		this.choices = new HashSet<>();
+
 		for(Type choice : choices){
-			this.addChoice(choice);
+			this.addChoiceUnsafe(choice);
 		}
 	}
 
@@ -32,61 +34,59 @@ public class ChoiceType extends Type {
 		this.choices = choices;
 	}
 
-	public void addChoice(InlineType choice){
-		this.choices.add(choice);
-	}
+	public static ChoiceType fromBasicTypes(ArrayList<BasicTypeDefinition> typesOfChoices){
+		HashSet<InlineType> choices = new HashSet<>();
 
-	public void addChoice(ChoiceType choice){
-		for(InlineType newChoice : choice.choices()){
-			this.choices.add(newChoice);
+		for(BasicTypeDefinition type : typesOfChoices){
+			choices.add( new InlineType(type, null, null) );
 		}
+
+		return new ChoiceType(choices);
 	}
 
-	public void addChoice(Type choice){
+	public void addChoiceUnsafe(Type choice){
 		if(choice instanceof InlineType){
-			this.addChoice((InlineType)choice);
+			this.choices.add((InlineType)choice);
 		}
 		else{
-			this.addChoice((ChoiceType)choice);
+			for(InlineType newChoice : ((ChoiceType)choice).choices()){
+				this.choices.add(newChoice);
+			}
 		}
+	}
+
+	public void setChoicesUnsafe(ArrayList<InlineType> choices){
+		this.choices = new HashSet<>(choices);
+	}
+
+	public ChoiceType addChoice(Type choice){
+		ChoiceType copy = (ChoiceType)this.copy();
+		copy.addChoiceUnsafe(choice);
+		return copy;
 	}
 
 	public ArrayList<InlineType> choices(){
 		return new ArrayList<>(this.choices);
 	}
 
-	public void put(String childName, Type structure){
-		for(InlineType choice : this.choices){
-			choice.put(childName, structure);
+	public ChoiceType put(String childName, Type structure){
+		ChoiceType copy = (ChoiceType)this.copy();
+
+		for(InlineType choice : copy.choices){
+			choice.addChild(childName, structure);
 		}
+		
+		return copy;
 	}
 
-	public void setChoices(ArrayList<InlineType> choices){
-		this.choices = new HashSet<>(choices);
-	}
+	public ChoiceType updateBasicTypeOfChoices(BasicTypeDefinition newType){
+		ChoiceType copy = new ChoiceType();
 
-	public static ChoiceType getBaseSymbol(TypeChoiceDefinition typeDef){
-		return (ChoiceType)TypeConverter.createBaseStructure(typeDef);
-	}
+		for(InlineType choice : this.choices){
+			copy.addChoiceUnsafe(choice.setBasicType(newType));
+		}
 
-	public static ChoiceType getBaseSymbol(){
-		return new ChoiceType();
-	}
-
-	public void updateBasicTypeOfChoices(BasicTypeDefinition newType){
-		this.choices = this.choices.stream()
-		.map(c -> {
-			c.setBasicType(newType);
-			return c;
-		})
-		.distinct()
-		.collect(Collectors.toCollection(HashSet::new));
-	}
-
-	public void removeDuplicates(){
-		// System.out.println("choice before: " + this.choices);
-		this.choices = this.choices.stream().distinct().collect(Collectors.toCollection(HashSet::new));
-		// System.out.println("choice after: " + this.choices);
+		return copy;
 	}
 
 	/**
@@ -110,25 +110,18 @@ public class ChoiceType extends Type {
 	 * TODO
 	 */
 	public boolean equals(Object other){
-		if(!(other instanceof ChoiceType)){
+		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
 		}
 
-		return Bisimulator.isEquivalent(this, (ChoiceType)other);
+		return Bisimulator.equivalent(this, (ChoiceType)other);
 	}
 
 	/**
 	 * TODO
 	 */
 	public boolean isSubtypeOf(Type other){
-		return Bisimulator.isSubtypeOf(this, other);
-	}
-
-	/**
-	 * TODO
-	 */
-	public Type merge(Type other){
-		return this;
+		return BisimulatorOld.isSubtypeOf(this, other);
 	}
 
 	public String toString(){
@@ -136,19 +129,27 @@ public class ChoiceType extends Type {
 		return toString;
 	}
 
-	public Type copy(){
+	public ChoiceType copy(){
 		return this.copy(false);
 	}
 
 	public ChoiceType copy(boolean finalize){
 		ChoiceType copy = new ChoiceType();
-		this.choices.forEach(c -> copy.addChoice(c.copy(finalize)));
+		
+		for(InlineType choice : this.choices){
+			copy.addChoiceUnsafe(choice.copy(finalize));
+		}
+
 		return copy;
 	}
 
 	public ChoiceType copy(boolean finalize, HashMap<Type, Type> seenTypes){
 		ChoiceType copy = new ChoiceType();
-		this.choices.forEach(c -> copy.addChoice(c.copy(finalize, seenTypes)));
+
+		for(InlineType choice : this.choices){
+			copy.addChoiceUnsafe(choice.copy(finalize, seenTypes));
+		}
+
 		return copy;
 	}
 

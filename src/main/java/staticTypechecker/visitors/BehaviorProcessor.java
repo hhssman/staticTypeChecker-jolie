@@ -91,12 +91,10 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.ChoiceType;
-import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Path;
 
 public class BehaviorProcessor implements OLVisitor<Type, Type> {
@@ -107,7 +105,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	public BehaviorProcessor(){}
 
 	private void printTree(Type tree){
-		System.out.println("New tree: " + tree.prettyString());
+		System.out.println(tree.prettyString());
 		System.out.println("\n--------------------------\n");
 	}
 
@@ -116,7 +114,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		this.synthesizer = Synthesizer.get(module);
 		this.checker = Checker.get(module);
 
-		return module.program().accept(this, InlineType.getBasicType(NativeType.VOID));
+		return module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null));
 	}
 	
 	@Override
@@ -132,8 +130,25 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
  
 	@Override
 	public Type visit(ServiceNode n, Type tree) {
-		// accept the program of the service node
-		return n.program().accept(this, tree);
+		Type result;
+
+		if(n.parameterConfiguration().isPresent()){
+			Type T1 = tree.copy();
+			Path path = new Path(n.parameterConfiguration().get().variablePath());
+			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name());
+
+			TreeUtils.setTypeOfNodeByPath(path, typeOfParam, T1);
+
+			this.printTree(T1);
+
+			result = n.program().accept(this, T1);
+		}
+		else{
+			// accept the program of the service node
+			result = n.program().accept(this, tree);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -157,7 +172,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println(ToString.of(n));
 
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 
 		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
 
@@ -172,16 +187,17 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	@Override
 	public Type visit(AssignStatement n, Type tree) {
 		System.out.println(ToString.of(n));
-
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 		
 		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
 		for(Pair<InlineType, String> pair : nodesToUpdate){
 			InlineType parent = pair.key();
-			Type node = parent.getChild(pair.value());
+			String childName = pair.value();
+			Type node = parent.getChild(childName);
 
-			TreeUtils.updateType(pair.key(), node, n.expression(), T1);
+			Type updatedNode = TreeUtils.updateType(node, n.expression(), T1);
+			parent.addChild(childName, updatedNode);
 		}
 
 		this.printTree(T1);
@@ -211,82 +227,35 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	@Override
 	public Type visit(DeepCopyStatement n, Type tree) {
 		System.out.println(ToString.of(n));
+		Type T1 = tree.copy();
 
-		Path updatePath = new Path(n.leftPath().path());
-		InlineType T1 = (InlineType)tree.copy();
-
+		Path leftPath = new Path(n.leftPath().path());
 		OLSyntaxNode expression = n.rightExpression();
-		
+
 		// find the nodes to update and their parents
-		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(updatePath, T1, true);
-		
-		if(expression instanceof VariableExpressionNode){ // assignment on the form a = d, here we also must save the children
-			Path expressionPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
-			ArrayList<InlineType> nodesToMerge = TreeUtils.findNodes(expressionPath, T1, false); // the nodes at the expression path which we must merge with the node
+		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true);
+		Type nodeToDeepCopy;
 
-			for(Pair<InlineType, String> u : nodesToUpdate){
-				InlineType parent = u.key();
-				Type nodeToUpdate = u.key().getChild(u.value());
-	
-				if(nodesToMerge.size() == 1 && nodeToUpdate instanceof InlineType){ // only one new type AND node also only have one type, we can overwrite it
-					InlineType mergingNode = nodesToMerge.get(0);
-	
-					((InlineType)nodeToUpdate).setBasicType(mergingNode.basicType());
-					((InlineType)nodeToUpdate).setChildren(mergingNode.children());
-				}
-				else{ // multiple types for the new node, create a choice node
-					ChoiceType newNode = new ChoiceType();
+		if(expression instanceof VariableExpressionNode){ // assignment on the form a << d, here we also must save the children
+			Path rightPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
+			ArrayList<Type> rightSideNodes = TreeUtils.findNodesExact(rightPath, T1, true);
 
-					if(nodeToUpdate instanceof InlineType){ // old node is inline, copy it for each new choice, and overwrite basictype and children
-						for(InlineType mergingNode : nodesToMerge){ // run through the nodes to merge
-							InlineType copy = (InlineType)nodeToUpdate.copy(false);
-
-							copy.setBasicType(mergingNode.basicType());
-							copy.addChildren(mergingNode.children());
-	
-							newNode.addChoice(copy);
-						}
-					}
-					else{ // old node is choice, create the dot product of old choices and new choices and add them as the new choices
-						for(InlineType oldChoice : ((ChoiceType)nodeToUpdate).choices()){
-							for(InlineType mergingChoice : nodesToMerge){
-								InlineType newChoice = new InlineType(null, null, null);
-								
-								// use basic type of mergingChoice and also assign mergingChoice's children last such that they overwrite any intersecting children of oldChoice
-								newChoice.setBasicType(mergingChoice.basicType());
-								newChoice.addChildren(oldChoice.children());
-								newChoice.addChildren(mergingChoice.children());
-
-								newNode.addChoice(newChoice);
-							}
-						}
-					}
-
-					parent.put(u.value(), newNode);
-				}
-			}	
+			nodeToDeepCopy = rightSideNodes.size() == 1 ? rightSideNodes.get(0) : new ChoiceType(rightSideNodes);
 		}
 		else{ // deep copy of something else, such as a constant, sum etc., no children to save here
 			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, T1);
+			nodeToDeepCopy = newTypes.size() == 1 ? new InlineType(newTypes.get(0), null, null) : ChoiceType.fromBasicTypes(newTypes);
+		}
 
-			for(Pair<InlineType, String> pair : nodesToUpdate){
-				Type nodeToUpdate = pair.key().getChild(pair.value());
+		// update the nodes with the deep copied versions
+		for(Pair<InlineType, String> pair : leftSideNodes){
+			InlineType parent = pair.key();
+			String childName = pair.value();
+			Type child = parent.getChild(childName);
 
-				if(newTypes.size() == 1 && nodeToUpdate instanceof InlineType){
-					((InlineType)nodeToUpdate).setBasicType(newTypes.get(0));
-				}
-				else{
-					ChoiceType newNode = new ChoiceType();
+			Type resultOfDeepCopy = Type.deepCopy(child, nodeToDeepCopy);
 
-					for(BasicTypeDefinition type : newTypes){
-						for(InlineType oldChoice : ((ChoiceType)nodeToUpdate).choices()){
-							InlineType copy = (InlineType)oldChoice.copy(false);
-							copy.setBasicType(type);
-							newNode.addChoice(newNode);
-						}
-					}
-				}
-			}
+			parent.addChild(childName, resultOfDeepCopy);
 		}
 
 		this.printTree(T1);
@@ -311,7 +280,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println(ToString.of(n));
 
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);		
 
@@ -325,7 +294,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println(ToString.of(n));
 
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);		
 
@@ -339,7 +308,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println(ToString.of(n));
 
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);		
 
@@ -353,7 +322,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		System.out.println(ToString.of(n));
 
 		Path path = new Path(n.variablePath().path());
-		InlineType T1 = (InlineType)tree.copy();
+		Type T1 = tree.copy();
 		
 		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);		
 
@@ -419,7 +388,6 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(NDChoiceStatement n, Type tree) {
-		System.out.println("Choice statement\n");
 		Type T1 = this.synthesizer.synthesize(n, tree);
 
 		this.printTree(T1);
@@ -485,7 +453,6 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	public Type visit(WhileStatement n, Type tree) {
 		System.out.println(ToString.of(n));
 		Type T1 = this.synthesizer.synthesize(n, tree);
-		T1.removeDuplicates();
 		this.printTree(T1);
 		return T1;
 	}

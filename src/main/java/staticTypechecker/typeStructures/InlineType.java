@@ -7,11 +7,10 @@ import java.util.ArrayList;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
-import jolie.lang.parse.ast.types.TypeDefinitionLink;
-import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.BisimulatorOld;
 
 /**
  * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name. New children can be added until the finalize function is called (open record vs closed record). 
@@ -41,14 +40,6 @@ public class InlineType extends Type {
 		this.finalized = false;
 	}
 
-	public void reset(){
-		this.basicType = null;
-		this.children = null;
-		this.cardinality = null;
-		this.context = null;
-		this.finalized = false;
-	}
-
 	public BasicTypeDefinition basicType(){
 		return this.basicType;
 	}
@@ -61,39 +52,43 @@ public class InlineType extends Type {
 		return this.context;
 	}
 
-	public void setBasicType(BasicTypeDefinition basicType){
+	public void setBasicTypeUnsafe(BasicTypeDefinition basicType){
 		this.basicType = basicType;
 	}
 
-	public void setChildren(HashMap<String, Type> children){
+	public void setChildrenUnsafe(HashMap<String, Type> children){
 		this.children = children;
 	}
 
-	public void addChildren(HashMap<String, Type> children){
+	public void addChildrenUnsafe(HashMap<String, Type> children){
 		this.children.putAll(children);
 	}
 
-	public void setCardinality(Range cardinality){
+	public void setCardinalityUnsafe(Range cardinality){
 		this.cardinality = cardinality;
 	}
 
-	public void setContext(ParsingContext context){
+	public void setContextUnsafe(ParsingContext context){
 		this.context = context;
 	}
 
-	public void removeDuplicates(){} // does nothing for this type
 
-	/**
-	 * @param name the name of the child
-	 * @param structure the structure of the child
-	 * @return true if this node contains a child with the specified name, false otherwise
-	 */
-	public boolean contains(String name, Type structure){
-		if(!this.children.containsKey(name)){ // key does not exist
-			return false;
-		}
+	public InlineType setBasicType(BasicTypeDefinition basicType){
+		InlineType copy = this.copy();
+		copy.setBasicTypeUnsafe(basicType);
+		return copy;
+	}
 
-		return this.children.get(name).equals(structure); // if they are equivalent, return true, and false otherwise
+	public InlineType setChildren(HashMap<String, Type> children){
+		InlineType copy = this.copy();
+		copy.setChildrenUnsafe(children);
+		return copy;
+	}
+
+	public InlineType addChildren(HashMap<String, Type> children){
+		InlineType copy = this.copy();
+		copy.addChildrenUnsafe(children);
+		return copy;
 	}
 
 	public boolean contains(String name){
@@ -106,7 +101,7 @@ public class InlineType extends Type {
 
 	public String getChildName(Type struct){
 		for(Entry<String, Type> child : this.children.entrySet()){
-			if(child.getValue().equals(struct)){
+			if(child.getValue() == struct){
 				return child.getKey();
 			}
 		}
@@ -122,7 +117,7 @@ public class InlineType extends Type {
 	 * @param name the name of the child (what key to associate it to)
 	 * @param child the structure of the child
 	 */
-	public void put(String name, Type child){
+	public void addChild(String name, Type child){
 		if(!this.finalized){
 			this.children.put(name, child);
 		}
@@ -134,63 +129,28 @@ public class InlineType extends Type {
 		}
 	}
 
-	public void removeChild(InlineType child){
-		for(Entry<String, Type> ent : this.children.entrySet()){
-			if(ent.getValue().equals(child)){
-				this.children.remove(ent.getKey());
-			}
-		}
-	}
-
 	public void finalize(){
 		this.finalized = true;
 	}
 
 	/**
-	 * Checks equality for the two TypeInlineStructures
+	 * Checks for equality
 	 * @param other the other object
 	 * @return true if the objects are structural equivalent and false otherwise
 	 */
-	public boolean equals(Type other){
-		if(!(other instanceof InlineType)){
+	public boolean equals(Object other){
+		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
 		}
 
-		return Bisimulator.isEquivalent(this, other);
+		return Bisimulator.equivalent(this, (InlineType)other);
 	}
 
-	/**
-	 * TODO
-	 */
 	public boolean isSubtypeOf(Type other){
-		return Bisimulator.isSubtypeOf(this, other);
+		return BisimulatorOld.isSubtypeOf(this, other);
 	}
 
-	/**
-	 * TODO
-	 */
-	public Type merge(Type other){
-		return this;
-	}
-
-
-	public static InlineType getBaseSymbol(){
-		return new InlineType(null, null, null);
-	}
-
-	public static InlineType getBaseSymbol(TypeInlineDefinition typeDef){
-		return (InlineType)TypeConverter.createBaseStructure(typeDef);
-	}
-
-	public static InlineType getBaseSymbol(TypeDefinitionLink typeDef){
-		return (InlineType)TypeConverter.createBaseStructure(typeDef);
-	}
-
-	public static InlineType getBasicType(NativeType type){
-		return new InlineType(BasicTypeDefinition.of(type), null, null);
-	}
-
-	public Type copy(){
+	public InlineType copy(){
 		return this.copy(false);
 	}
 
@@ -217,13 +177,13 @@ public class InlineType extends Type {
 			// run through the already seen types and see if we already copied this object, if so just use this copy
 			for(Entry<Type, Type> seenType : seenTypes.entrySet()){
 				if(seenType.getKey() == childStruct){
-					struct.put(childName, seenType.getValue());
+					struct.addChild(childName, seenType.getValue());
 					return; // return acts as continue, since we are using a stream
 				}
 			}
 
 			// otherwise we must make a new copy
-			struct.put(childName, childStruct.copy(finalize, seenTypes));
+			struct.addChild(childName, childStruct.copy(finalize, seenTypes));
 		});
 
 		if(finalize){
@@ -231,18 +191,6 @@ public class InlineType extends Type {
 		}
 		
 		return struct;
-	}
-
-	/**
-	 * Dummy equals
-	 * TODO make it correct
-	 */
-	public boolean equals(Object other){
-		if(!(other instanceof InlineType)){
-			return false;
-		}
-
-		return Bisimulator.isEquivalent(this, (InlineType)other);
 	}
 
 	public int hashCode(){
