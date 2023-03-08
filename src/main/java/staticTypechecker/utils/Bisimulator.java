@@ -1,11 +1,8 @@
 package staticTypechecker.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
@@ -24,24 +21,38 @@ public class Bisimulator {
 		IdentityHashMap<Type, Type> R = new IdentityHashMap<>();
 		LinkedList<Pair<Type, Type>> todo = new LinkedList<>();
 		
+		todo.add(newPair(t1, t2));
+		
 		while(!todo.isEmpty()){
 			Pair<Type, Type> currPair = todo.pop();
 			Type X = currPair.key();
 			Type Y = currPair.value();
 
-			if(R.containsKey(X) && R.get(X) == Y){
+			if(isInCongruenceClosure(currPair, R)){
 				continue;
 			}
 
-			if(X.getClass() != Y.getClass()){
+			// if(X.getClass() != Y.getClass()){ // check if they are of same class
+			// 	return false;
+			// }
+
+			if(false){ // TODO, talk to Marco about what it means for two nodes, X and Y, o#(X) != o#(Y) (see paper)
 				return false;
 			}
 
-
-
+			// we know that X and Y are of same class at this point
+			
+			
 		}
 
 		return true;
+	}
+
+	/**
+	 * TODO
+	 */
+	private static boolean isInCongruenceClosure(Pair<Type, Type> pair, IdentityHashMap<Type, Type> R){
+		return false;
 	}
 
 	/**
@@ -94,11 +105,7 @@ public class Bisimulator {
 				relation.put(p1, p2);
 			}
 			else{
-				ChoiceType p1 = (ChoiceType)currT1;
-				ChoiceType p2 = (ChoiceType)currT2;
-				
 				System.out.println("Choice types not supported for equivalence checking yet");
-				
 				return false;
 			}
 		}
