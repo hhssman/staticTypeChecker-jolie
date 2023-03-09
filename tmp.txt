@@ -6,100 +6,15 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-a = 10
+a = -10 + -20 + "heyh" - true
 void {
-	a: int
-}
-
---------------------------
-
-a.x = "hey"
-void {
-	a: int {
-		x: string
-	}
-}
-
---------------------------
-
-a.y = true
-void {
-	a: int {
-		x: string
-		y: bool
-	}
-}
-
---------------------------
-
-b = 50L
-void {
-	a: int {
-		x: string
-		y: bool
-	}
-	b: long
-}
-
---------------------------
-
-b.y = "hey"
-void {
-	a: int {
-		x: string
-		y: bool
-	}
-	b: long {
-		y: string
-	}
-}
-
---------------------------
-
-b.y.z = 20
-void {
-	a: int {
-		x: string
-		y: bool
-	}
-	b: long {
-		y: string {
-			z: int
-		}
-	}
-}
-
---------------------------
-
-a << b
-void {
-	a: long {
-		x: string
-		y: string {
-			z: int
-		}
-	}
-	b: long {
-		y: string {
-			z: int
-		}
-	}
+	a: string
 }
 
 --------------------------
 
 void {
-	a: long {
-		x: string
-		y: string {
-			z: int
-		}
-	}
-	b: long {
-		y: string {
-			z: int
-		}
-	}
+	a: string
 }
 
 --------------------------

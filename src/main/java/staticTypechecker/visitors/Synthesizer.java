@@ -2,8 +2,12 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jolie.lang.Constants.OperandType;
+import jolie.lang.NativeType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -92,6 +96,7 @@ import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
+import staticTypechecker.utils.BasicTypeUtils;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
@@ -99,7 +104,7 @@ import staticTypechecker.entities.Path;
 import staticTypechecker.faults.FaultHandler;
 
 /**
- * Synthesizer for a parsed Jolie abstract syntax T. Works as a visitor and will visit each node in the provided T.
+ * Synthesizer for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
@@ -219,7 +224,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
-		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
+		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
+		
+		// Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
 
 		this.check(p_out, T_out);
 
@@ -233,7 +240,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the reqres operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
-		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
+		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the reqres operation
+		// Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
 		this.check(p_out, T_out);
@@ -257,27 +265,13 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		// retrieve the type of the expression
 		Path path = new Path(n.variablePath().path());
 		OLSyntaxNode e = n.expression();
-		Type T_e = TreeUtils.getTypeOfExpression(e, T);
+		Type T_e = e.accept(this, T);
 
 		// update the type of the node
 		Type T1 = T.copy(false);
 		TreeUtils.setTypeOfNodeByPath(path, T_e, T1);
 
 		return T1;
-
-		// OLD CODE FROM BEHAVIOUR PROCESSOR
-		// Path path = new Path(n.variablePath().path());
-		// Type T1 = tree.copy();
-		
-		// ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
-		// for(Pair<InlineType, String> pair : nodesToUpdate){
-		// 	InlineType parent = pair.key();
-		// 	String childName = pair.value();
-		// 	Type node = parent.getChild(childName);
-
-		// 	Type updatedNode = TreeUtils.updateType(node, n.expression(), T1);
-		// 	parent.addChild(childName, updatedNode);
-		// }
 	};
 
 	@Override
@@ -285,7 +279,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path path = new Path(n.variablePath().path());
 
 		Type T1 = T.copy(false);
-		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);
+		
+		Type typeOfRightSide = n.variablePath().accept(this, T);
+		Type typeOfExpression = n.expression().accept(this, T);
+
+		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.ADD, typeOfRightSide, typeOfExpression);
+		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 
 		return T1;
 	}
@@ -295,7 +294,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path path = new Path(n.variablePath().path());
 
 		Type T1 = T.copy(false);
-		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);
+
+		Type typeOfRightSide = n.variablePath().accept(this, T);
+		Type typeOfExpression = n.expression().accept(this, T);
+
+		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.SUBTRACT, typeOfRightSide, typeOfExpression);
+		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		
 		return T1;
 	}
@@ -305,7 +309,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path path = new Path(n.variablePath().path());
 
 		Type T1 = T.copy(false);
-		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);
+
+		Type typeOfRightSide = n.variablePath().accept(this, T);
+		Type typeOfExpression = n.expression().accept(this, T);
+
+		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.MULTIPLY, typeOfRightSide, typeOfExpression);
+		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		
 		return T1;
 	}
@@ -315,7 +324,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path path = new Path(n.variablePath().path());
 
 		Type T1 = T.copy(false);
-		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);
+
+		Type typeOfRightSide = n.variablePath().accept(this, T);
+		Type typeOfExpression = n.expression().accept(this, T);
+
+		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.DIVIDE, typeOfRightSide, typeOfExpression);
+		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		
 		return T1;
 	}
@@ -401,40 +415,43 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( ProductExpressionNode n, Type T ){
-		ArrayList<BasicTypeDefinition> basicTypes = TreeUtils.deriveTypeOfProduct(n, T);
+		Type typeOfSum = Type.VOID;  // set initial type to void to make sure it will be overwritten by any other type
 
-		if(basicTypes.size() == 1){
-			return new InlineType(basicTypes.get(0), null, null);
+		List<Pair<OperandType, OLSyntaxNode>> operands = n.operands();
+		for(Pair<OperandType, OLSyntaxNode> pair : operands){
+			OperandType currOp = pair.key();
+			OLSyntaxNode currTerm = pair.value();
+			Type typeOfCurrTerm = currTerm.accept(this, T);
+
+			typeOfSum = BasicTypeUtils.deriveTypeOfOperation(currOp, typeOfSum, typeOfCurrTerm);
 		}
-		else{
-			ChoiceType result = new ChoiceType();
-			for(BasicTypeDefinition t : basicTypes){
-				result.addChoiceUnsafe(new InlineType(t, null, null));
-			}
-			return result;
-		}
+
+		return typeOfSum;
 	};
 
 	public Type visit( SumExpressionNode n, Type T ){
-		ArrayList<BasicTypeDefinition> basicTypes = TreeUtils.deriveTypeOfSum(n, T);
+		Type typeOfSum = Type.VOID;  // set initial type to void to make sure it will be overwritten by any other type
 
-		if(basicTypes.size() == 1){
-			return new InlineType(basicTypes.get(0), null, null);
+		List<Pair<OperandType, OLSyntaxNode>> operands = n.operands();
+		for(Pair<OperandType, OLSyntaxNode> pair : operands){
+			OperandType currOp = pair.key();
+			OLSyntaxNode currTerm = pair.value();
+			Type typeOfCurrTerm = currTerm.accept(this, T);
+
+			typeOfSum = BasicTypeUtils.deriveTypeOfOperation(currOp, typeOfSum, typeOfCurrTerm);
 		}
-		else{
-			ChoiceType result = new ChoiceType();
-			for(BasicTypeDefinition t : basicTypes){
-				result.addChoiceUnsafe(new InlineType(t, null, null));
-			}
-			return result;
-		}
+
+		return typeOfSum;
 	};
 
 	public Type visit( VariableExpressionNode n, Type T ){
 		Path path = new Path(n.variablePath().path());
 		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false);
 
-		if(types.size() == 1){
+		if(types.isEmpty()){ // return void type if no nodes was found
+			return Type.VOID;
+		}
+		else if(types.size() == 1){
 			return types.get(0);
 		}
 		else{
@@ -494,18 +511,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		// find the nodes to update and their parents
 		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true);
-		Type nodeToDeepCopy;
-
-		if(expression instanceof VariableExpressionNode){ // assignment on the form a << d, here we also must save the children
-			Path rightPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
-			ArrayList<Type> rightSideNodes = TreeUtils.findNodesExact(rightPath, T1, true);
-
-			nodeToDeepCopy = rightSideNodes.size() == 1 ? rightSideNodes.get(0) : new ChoiceType(rightSideNodes);
-		}
-		else{ // deep copy of something else, such as a constant, sum etc., no children to save here
-			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, T1);
-			nodeToDeepCopy = newTypes.size() == 1 ? new InlineType(newTypes.get(0), null, null) : ChoiceType.fromBasicTypes(newTypes);
-		}
+		Type typeOfExpression = expression.accept(this, T1);
 
 		// update the nodes with the deep copied versions
 		for(Pair<InlineType, String> pair : leftSideNodes){
@@ -513,7 +519,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			String childName = pair.value();
 			Type child = parent.getChild(childName);
 
-			Type resultOfDeepCopy = Type.deepCopy(child, nodeToDeepCopy);
+			Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
 
 			parent.addChild(childName, resultOfDeepCopy);
 		}

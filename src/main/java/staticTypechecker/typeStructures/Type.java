@@ -2,14 +2,12 @@ package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map.Entry;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
-import staticTypechecker.utils.TreeUtils;
 
 /**
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)

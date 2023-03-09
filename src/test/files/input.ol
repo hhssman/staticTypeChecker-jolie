@@ -53,16 +53,16 @@ service MyService() {
 	}
 
 	main {
-		
-		a = 10
-		a.x = "hey"
-		a.y = true
+		a = -10 + (-20) + "heyh" - true
+		// a = 10
+		// a.x = "hey"
+		// a.y = true
 
-		b = 50L
-		b.y = "hey"
-		b.y.z = 20
+		// b = 50L
+		// b.y = "hey"
+		// b.y.z = 20
 
-		a << b
+		// a << b
 
 		// helloOneway@out(input)
 

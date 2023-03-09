@@ -1,9 +1,11 @@
 package staticTypechecker.utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -280,12 +282,43 @@ public class ToString implements OLVisitor<Void, String> {
 		return "\"" + n.value() + "\"";
 	};
 
+	private String sumToString(List<Pair<OperandType, OLSyntaxNode>> operands){
+		String result = operands.get(0).value().accept(this, null); // string of first term
+
+		for(int i = 1; i < operands.size(); i++){
+			OperandType op = operands.get(i).key();
+			OLSyntaxNode term = operands.get(i).value();
+
+			switch(op){
+				case ADD:
+					result += " + ";
+					break;
+				case SUBTRACT:
+					result += " - ";
+					break;
+				case MULTIPLY:
+					result += " * ";
+					break;
+				case DIVIDE:
+					result += " / ";
+					break;
+				case MODULUS:
+					result += " % ";
+					break;
+			}
+
+			result += term.accept(this, null);
+		}
+
+		return result;
+	}
+
 	public String visit( ProductExpressionNode n, Void v ){
-		return n.operands().stream().map(p -> p.key().toString() + " " + p.value().accept(this, null)).collect(Collectors.joining(""));
+		return sumToString(n.operands());
 	};
 
 	public String visit( SumExpressionNode n, Void v ){
-		return n.operands().stream().map(p -> p.key().toString() + " " + p.value().accept(this, null)).collect(Collectors.joining(""));
+		return sumToString(n.operands());
 	};
 
 	public String visit( VariableExpressionNode n, Void v ){
