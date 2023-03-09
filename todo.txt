@@ -1,4 +1,8 @@
-- bisimulation: læs de papers, Marco har sendt
 
 
-- check at vi bruger synthesize i assign osv til at få typen af sum osv.
+
+
+
+
+TESTS:
+	- løb lige alle AST nodes igennem og lav tests til at de virker rigtigt (har ikke overskud lige nu, men en anden dag måske)
