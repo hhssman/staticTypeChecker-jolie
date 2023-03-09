@@ -8,10 +8,13 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a = int(b)
-		// while(a >= 0){
-		// 	a -= 1
-		// }
+		a = 10
+		a.x = "hey"
+
+		b = 20
+		b.x = " yo"
+
+		c = a + b
 		
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

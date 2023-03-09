@@ -88,9 +88,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.typeStructures.InlineType;
-import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
@@ -100,108 +98,85 @@ import staticTypechecker.entities.Path;
 public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	private Module module;
 	private Synthesizer synthesizer;
-	private Checker checker;
 
 	public BehaviorProcessor(){}
 
-	private void printTree(Type tree){
-		System.out.println(tree.prettyString());
+	private void printTree(Type T){
+		System.out.println(T.prettyString());
 		System.out.println("\n--------------------------\n");
 	}
 
 	public Type process(Module module){
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
-		this.checker = Checker.get(module);
 
-		return module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null));
+		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null));
+		this.printTree(result);
+
+		return result;
 	}
 	
 	@Override
-	public Type visit(Program p, Type tree) {
-		Type T_tmp = tree;
-		
-		for(OLSyntaxNode child : p.children()){
-			T_tmp = child.accept(this, T_tmp);
+	public Type visit(Program p, Type T) {
+		Type T1 = T.copy();
+
+		for(OLSyntaxNode n : p.children()){
+			T1 = n.accept(this, T1);
 		}
 
-		return T_tmp;
+		return T1;
 	}
  
 	@Override
-	public Type visit(ServiceNode n, Type tree) {
+	public Type visit(ServiceNode n, Type T) {
 		Type result;
 
 		if(n.parameterConfiguration().isPresent()){
-			Type T1 = tree.copy();
+			Type T1 = T.copy();
 			Path path = new Path(n.parameterConfiguration().get().variablePath());
 			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name());
 
 			TreeUtils.setTypeOfNodeByPath(path, typeOfParam, T1);
 
-			this.printTree(T1);
-
 			result = n.program().accept(this, T1);
 		}
 		else{
 			// accept the program of the service node
-			result = n.program().accept(this, tree);
+			result = n.program().accept(this, T);
 		}
 
 		return result;
 	}
 
 	@Override
-	public Type visit(DefinitionNode n, Type tree) {
-		return n.body().accept(this, tree);
+	public Type visit(DefinitionNode n, Type T) {
+		return n.body().accept(this, T);
 	}
 
 	@Override
-	public Type visit(SequenceStatement n, Type tree) {
-		Type T_tmp = tree;
+	public Type visit(SequenceStatement n, Type T) {
+		Type T1 = T.copy();
 
 		for(OLSyntaxNode child : n.children()){
-			T_tmp = child.accept(this, T_tmp);
+			T1 = child.accept(this, T1);
 		}
 
-		return T_tmp;
+		return T1;
 	}
 
 	@Override
-	public Type visit(UndefStatement n, Type tree) {
+	public Type visit(UndefStatement n, Type T) {
 		System.out.println(ToString.of(n));
-
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-
-		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
-
-		for(Pair<InlineType, String> pair : nodesToRemove){
-			pair.key().removeChild(pair.value());
-		}
-		
+		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(AssignStatement n, Type tree) {
+	public Type visit(AssignStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-		
-		ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
-		for(Pair<InlineType, String> pair : nodesToUpdate){
-			InlineType parent = pair.key();
-			String childName = pair.value();
-			Type node = parent.getChild(childName);
-
-			Type updatedNode = TreeUtils.updateType(node, n.expression(), T1);
-			parent.addChild(childName, updatedNode);
-		}
-
-		this.printTree(T1);
-		
+		Type T1 = this.synthesizer.synthesize(n, T);
+		this.printTree(T1);		
 		return T1;
 	}
 
@@ -225,470 +200,415 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	 * 	}
 	 */
 	@Override
-	public Type visit(DeepCopyStatement n, Type tree) {
+	public Type visit(DeepCopyStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = tree.copy();
-
-		Path leftPath = new Path(n.leftPath().path());
-		OLSyntaxNode expression = n.rightExpression();
-
-		// find the nodes to update and their parents
-		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true);
-		Type nodeToDeepCopy;
-
-		if(expression instanceof VariableExpressionNode){ // assignment on the form a << d, here we also must save the children
-			Path rightPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
-			ArrayList<Type> rightSideNodes = TreeUtils.findNodesExact(rightPath, T1, true);
-
-			nodeToDeepCopy = rightSideNodes.size() == 1 ? rightSideNodes.get(0) : new ChoiceType(rightSideNodes);
-		}
-		else{ // deep copy of something else, such as a constant, sum etc., no children to save here
-			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, T1);
-			nodeToDeepCopy = newTypes.size() == 1 ? new InlineType(newTypes.get(0), null, null) : ChoiceType.fromBasicTypes(newTypes);
-		}
-
-		// update the nodes with the deep copied versions
-		for(Pair<InlineType, String> pair : leftSideNodes){
-			InlineType parent = pair.key();
-			String childName = pair.value();
-			Type child = parent.getChild(childName);
-
-			Type resultOfDeepCopy = Type.deepCopy(child, nodeToDeepCopy);
-
-			parent.addChild(childName, resultOfDeepCopy);
-		}
-
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
-
 		return T1;
 	}
 
 	@Override
-	public Type visit(NullProcessStatement n, Type tree) {
+	public Type visit(NullProcessStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		this.printTree(tree);
-		return tree;
+		this.printTree(T);
+		return T;
 	}
 
 	@Override
-	public Type visit(ConstantIntegerExpression n, Type tree) {
-		return tree;
+	public Type visit(ConstantIntegerExpression n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(AddAssignStatement n, Type tree) {
+	public Type visit(AddAssignStatement n, Type T) {
 		System.out.println(ToString.of(n));
-
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.ADD, n.expression(), T1);		
-
+		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
-
 		return T1;
 	}
 
 	@Override
-	public Type visit(SubtractAssignStatement n, Type tree) {
+	public Type visit(SubtractAssignStatement n, Type T) {
 		System.out.println(ToString.of(n));
-
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.SUBTRACT, n.expression(), T1);		
-
+		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
-
 		return T1;
 	}
 
 	@Override
-	public Type visit(MultiplyAssignStatement n, Type tree) {
+	public Type visit(MultiplyAssignStatement n, Type T) {
 		System.out.println(ToString.of(n));
-
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.MULTIPLY, n.expression(), T1);		
-
+		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
-
 		return T1;
 	}
 
 	@Override
-	public Type visit(DivideAssignStatement n, Type tree) {
+	public Type visit(DivideAssignStatement n, Type T) {
 		System.out.println(ToString.of(n));
-
-		Path path = new Path(n.variablePath().path());
-		Type T1 = tree.copy();
-		
-		TreeUtils.handleOperationAssignment(path, OperandType.DIVIDE, n.expression(), T1);		
-
+		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
-
 		return T1;
 	}
 
 	@Override
-	public Type visit(OutputPortInfo n, Type tree) {
-		return tree;
+	public Type visit(OutputPortInfo n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(EmbedServiceNode n, Type tree) {
-		return tree;
+	public Type visit(EmbedServiceNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InputPortInfo n, Type tree) {
-		return tree;
+	public Type visit(InputPortInfo n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InterfaceDefinition n, Type tree) {
-		return tree;
+	public Type visit(InterfaceDefinition n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(TypeInlineDefinition n, Type tree) {
-		return tree;
+	public Type visit(TypeInlineDefinition n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(TypeDefinitionLink n, Type tree) {
-		return tree;
+	public Type visit(TypeDefinitionLink n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(TypeChoiceDefinition n, Type tree) {
-		return tree;
+	public Type visit(TypeChoiceDefinition n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ImportStatement n, Type tree) {
-		return tree;
+	public Type visit(ImportStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(OneWayOperationDeclaration decl, Type tree) {
-		return tree;
+	public Type visit(OneWayOperationDeclaration decl, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(RequestResponseOperationDeclaration decl, Type tree) {
-		return tree;
+	public Type visit(RequestResponseOperationDeclaration decl, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ParallelStatement n, Type tree) {
-		return tree;
+	public Type visit(ParallelStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(NDChoiceStatement n, Type tree) {
-		Type T1 = this.synthesizer.synthesize(n, tree);
+	public Type visit(NDChoiceStatement n, Type T) {
+		Type T1 = this.synthesizer.synthesize(n, T);
 
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(OneWayOperationStatement n, Type tree) {
+	public Type visit(OneWayOperationStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(RequestResponseOperationStatement n, Type tree) {
+	public Type visit(RequestResponseOperationStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(NotificationOperationStatement n, Type tree) {
+	public Type visit(NotificationOperationStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(SolicitResponseOperationStatement n, Type tree) {
+	public Type visit(SolicitResponseOperationStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(LinkInStatement n, Type tree) {
-		return tree;
+	public Type visit(LinkInStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(LinkOutStatement n, Type tree) {
-		return tree;
+	public Type visit(LinkOutStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(IfStatement n, Type tree) {
+	public Type visit(IfStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(DefinitionCallStatement n, Type tree) {
-		return tree;
+	public Type visit(DefinitionCallStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(WhileStatement n, Type tree) {
+	public Type visit(WhileStatement n, Type T) {
 		System.out.println(ToString.of(n));
-		Type T1 = this.synthesizer.synthesize(n, tree);
+		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
 	}
 
 	@Override
-	public Type visit(OrConditionNode n, Type tree) {
-		return tree;
+	public Type visit(OrConditionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(AndConditionNode n, Type tree) {
-		return tree;
+	public Type visit(AndConditionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(NotExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(NotExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CompareConditionNode n, Type tree) {
-		return tree;
+	public Type visit(CompareConditionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ConstantDoubleExpression n, Type tree) {
-		return tree;
+	public Type visit(ConstantDoubleExpression n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ConstantBoolExpression n, Type tree) {
-		return tree;
+	public Type visit(ConstantBoolExpression n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ConstantLongExpression n, Type tree) {
-		return tree;
+	public Type visit(ConstantLongExpression n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ConstantStringExpression n, Type tree) {
-		return tree;
+	public Type visit(ConstantStringExpression n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ProductExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(ProductExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(SumExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(SumExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(VariableExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(VariableExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(Scope n, Type tree) {
-		return tree;
+	public Type visit(Scope n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InstallStatement n, Type tree) {
-		return tree;
+	public Type visit(InstallStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CompensateStatement n, Type tree) {
-		return tree;
+	public Type visit(CompensateStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ThrowStatement n, Type tree) {
-		return tree;
+	public Type visit(ThrowStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ExitStatement n, Type tree) {
-		return tree;
+	public Type visit(ExitStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ExecutionInfo n, Type tree) {
-		return tree;
+	public Type visit(ExecutionInfo n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CorrelationSetInfo n, Type tree) {
-		return tree;
+	public Type visit(CorrelationSetInfo n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(PointerStatement n, Type tree) {
-		return tree;
+	public Type visit(PointerStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(RunStatement n, Type tree) {
-		return tree;
+	public Type visit(RunStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ValueVectorSizeExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(ValueVectorSizeExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(PreIncrementStatement n, Type tree) {
-		return tree;
+	public Type visit(PreIncrementStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(PostIncrementStatement n, Type tree) {
-		return tree;
+	public Type visit(PostIncrementStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(PreDecrementStatement n, Type tree) {
-		return tree;
+	public Type visit(PreDecrementStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(PostDecrementStatement n, Type tree) {
-		return tree;
+	public Type visit(PostDecrementStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ForStatement n, Type tree) {
-		return tree;
+	public Type visit(ForStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ForEachSubNodeStatement n, Type tree) {
-		return tree;
+	public Type visit(ForEachSubNodeStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ForEachArrayItemStatement n, Type tree) {
-		return tree;
+	public Type visit(ForEachArrayItemStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(SpawnStatement n, Type tree) {
-		return tree;
+	public Type visit(SpawnStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(IsTypeExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(IsTypeExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InstanceOfExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(InstanceOfExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(TypeCastExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(TypeCastExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(SynchronizedStatement n, Type tree) {
-		return tree;
+	public Type visit(SynchronizedStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CurrentHandlerStatement n, Type tree) {
-		return tree;
+	public Type visit(CurrentHandlerStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(EmbeddedServiceNode n, Type tree) {
-		return tree;
+	public Type visit(EmbeddedServiceNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InstallFixedVariableExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(InstallFixedVariableExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(VariablePathNode n, Type tree) {
-		return tree;
+	public Type visit(VariablePathNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(DocumentationComment n, Type tree) {
-		return tree;
+	public Type visit(DocumentationComment n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(FreshValueExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(FreshValueExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CourierDefinitionNode n, Type tree) {
-		return tree;
+	public Type visit(CourierDefinitionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(CourierChoiceStatement n, Type tree) {
-		return tree;
+	public Type visit(CourierChoiceStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(NotificationForwardStatement n, Type tree) {
-		return tree;
+	public Type visit(NotificationForwardStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(SolicitResponseForwardStatement n, Type tree) {
-		return tree;
+	public Type visit(SolicitResponseForwardStatement n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InterfaceExtenderDefinition n, Type tree) {
-		return tree;
+	public Type visit(InterfaceExtenderDefinition n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(InlineTreeExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(InlineTreeExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(VoidExpressionNode n, Type tree) {
-		return tree;
+	public Type visit(VoidExpressionNode n, Type T) {
+		return T;
 	}
 
 	@Override
-	public Type visit(ProvideUntilStatement n, Type tree) {
-		return tree;
+	public Type visit(ProvideUntilStatement n, Type T) {
+		return T;
 	}
 }

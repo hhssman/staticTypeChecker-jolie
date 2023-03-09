@@ -32,15 +32,11 @@ public class Bisimulator {
 				continue;
 			}
 
-			// if(X.getClass() != Y.getClass()){ // check if they are of same class
-			// 	return false;
-			// }
-
-			if(false){ // TODO, talk to Marco about what it means for two nodes, X and Y, o#(X) != o#(Y) (see paper)
+			if(!checkBasicTypes(X, Y)){ 
 				return false;
 			}
 
-			// we know that X and Y are of same class at this point
+			
 			
 			
 		}
@@ -52,6 +48,17 @@ public class Bisimulator {
 	 * TODO
 	 */
 	private static boolean isInCongruenceClosure(Pair<Type, Type> pair, IdentityHashMap<Type, Type> R){
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param X
+	 * @param Y
+	 * @return
+	 */
+	private static boolean checkBasicTypes(Type X, Type Y){
+		// TODO, talk to Marco about what it means for two nodes, X and Y, o#(X) != o#(Y) (see paper)
 		return false;
 	}
 

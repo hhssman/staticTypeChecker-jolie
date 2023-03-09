@@ -273,7 +273,7 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( ConstantLongExpression n, Void v ){
-		return String.valueOf(n.value());
+		return String.valueOf(n.value()) + "L";
 	};
 
 	public String visit( ConstantStringExpression n, Void v ){

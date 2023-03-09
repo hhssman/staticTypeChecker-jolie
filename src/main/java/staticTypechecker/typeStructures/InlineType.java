@@ -219,35 +219,72 @@ public class InlineType extends Type {
 	}
 
 	public String prettyString(int level, ArrayList<Type> recursive){
-		// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
-		String prettyString = "";
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
-
-		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
-			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
+		String result = "";
+		
+		// print the basic type
+		if(this.basicType != null){
+			result += this.basicType.nativeType().id();
+		}
+		else{
+			result += "no type";
 		}
 
+		// print the children if any
 		if(this.children.size() != 0){
-			prettyString += "{";
+			result += " {"; // open a bracket
 
-			prettyString += this.children.entrySet().stream().map(child -> {
-				if(this.containsChildExact(recursive, child.getValue())){
-					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
+			for(Entry<String, Type> ent : this.children.entrySet()){
+				String childName = ent.getKey();
+				Type child = ent.getValue();
+
+				if(this.containsChildExact(recursive, child)){ // child have been printed before, it is recursive
+					result += "\n" + "\t".repeat(level+1) + childName + " (recursive structure)";
 				}
-				else{
-					recursive.add(child.getValue());
+				else{ // not recursive
+					recursive.add(child);
 					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-
-					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
+					result += "\n" + "\t".repeat(level+1) + childName + ": " + child.prettyString(level+1, rec);
 				}
-			})
-			.collect(Collectors.joining("\n"));
+			}
 
-			prettyString += "\n" + "\t".repeat(level) + "}";
+			result += "\n" + "\t".repeat(level) + "}"; // close the bracket again
 		}
-
-		return prettyString;
+		
+		return result;
 	}
+
+	// public String prettyString(int level, ArrayList<Type> recursive){
+	// 	// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
+	// 	String prettyString = "";
+	// 	prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
+
+	// 	if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
+	// 		prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
+	// 	}
+
+	// 	if(this.children.size() != 0){
+	// 		prettyString += "{";
+
+	// 		prettyString += this.children.entrySet()
+	// 			.stream()
+	// 			.map(child -> {
+	// 				if(this.containsChildExact(recursive, child.getValue())){
+	// 					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
+	// 				}
+	// 				else{
+	// 					recursive.add(child.getValue());
+	// 					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+
+	// 					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
+	// 				}
+	// 			})
+	// 			.collect(Collectors.joining("\n"));
+
+	// 		prettyString += "\n" + "\t".repeat(level) + "}";
+	// 	}
+
+	// 	return prettyString;
+	// }
 
 	/**
 	 * Utility function to check if the exact object given is present in the given arraylist. Used in order to handle recursive types

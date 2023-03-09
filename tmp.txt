@@ -1,255 +1,105 @@
 STAGE 1: discover symbols
 Module name: ./src/test/files/input.ol
-class jolie.lang.parse.ast.types.TypeDefinitionLink
 STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-}
-
---------------------------
-
 a = 10
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
-	a: int 
+	a: int
 }
 
 --------------------------
 
 a.x = "hey"
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: int {
-			x: string 
-		}
+		x: string
+	}
 }
 
 --------------------------
 
 a.y = true
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: int {
-			x: string 
-
-			y: bool 
-		}
+		x: string
+		y: bool
+	}
 }
 
 --------------------------
 
-b = 50
+b = 50L
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: int {
-			x: string 
-
-			y: bool 
-		}
-
-	b: long 
+		x: string
+		y: bool
+	}
+	b: long
 }
 
 --------------------------
 
 b.y = "hey"
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: int {
-			x: string 
-
-			y: bool 
-		}
-
+		x: string
+		y: bool
+	}
 	b: long {
-			y: string 
-		}
+		y: string
+	}
 }
 
 --------------------------
 
 b.y.z = 20
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: int {
-			x: string 
-
-			y: bool 
-		}
-
+		x: string
+		y: bool
+	}
 	b: long {
-			y: string {
-					z: int 
-				}
+		y: string {
+			z: int
 		}
+	}
 }
 
 --------------------------
 
 a << b
 void {
-	input: void {
-			a: 
-				string 
-				|
-				int 
-
-			b: 
-				string 
-				|
-				double {
-					y: 
-						string 
-						|
-						int 
-						|
-						long 
-				}
-		}
-
 	a: long {
-			x: string 
-
-			y: string {
-					z: int 
-				}
+		x: string
+		y: string {
+			z: int
 		}
-
+	}
 	b: long {
-			y: string {
-					z: int 
-				}
+		y: string {
+			z: int
 		}
+	}
+}
+
+--------------------------
+
+void {
+	a: long {
+		x: string
+		y: string {
+			z: int
+		}
+	}
+	b: long {
+		y: string {
+			z: int
+		}
+	}
 }
 
 --------------------------

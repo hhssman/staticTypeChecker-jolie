@@ -2,10 +2,7 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import jolie.lang.NativeType;
 import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
@@ -95,12 +92,11 @@ import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
-import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Path;
+import staticTypechecker.faults.FaultHandler;
 
 /**
  * Synthesizer for a parsed Jolie abstract syntax T. Works as a visitor and will visit each node in the provided T.
@@ -132,43 +128,31 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit(Program p, Type T){
-		Type T1 = T;
-
-		for(OLSyntaxNode n : p.children()){
-			T1 = n.accept(this, T1);
-		}
-
-		return T1;
+		return T;
 	}
 
 	public Type visit(TypeInlineDefinition t, Type T){
-		return null;
+		return T;
 	}
 
 	public Type visit( OneWayOperationDeclaration decl, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( RequestResponseOperationDeclaration decl, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( DefinitionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ParallelStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( SequenceStatement n, Type T ){
-		Type T1 = T;
-
-		for(OLSyntaxNode child : n.children()){
-			T1 = child.accept(this, T1);
-		}
-
-		return T1;
+		return T;
 	};
 
 	public Type visit( NDChoiceStatement n, Type T ){
@@ -226,7 +210,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			p_out_type = new ChoiceType(possibleTypes);
 		}
 
-		Checker.get(this.module).check(p_out_type, T_out);
+		this.check(p_out_type, T_out);
 
 		return T1;
 	};
@@ -237,7 +221,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
 
-		Checker.get(this.module).check(p_out, T_out);
+		this.check(p_out, T_out);
 
 		return T;
 	};
@@ -252,7 +236,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
-		Checker.get(this.module).check(p_out, T_out);
+		this.check(p_out, T_out);
 
 		// update type of p_in to T_in
 		Type T1 = T.copy(false);
@@ -280,6 +264,20 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		TreeUtils.setTypeOfNodeByPath(path, T_e, T1);
 
 		return T1;
+
+		// OLD CODE FROM BEHAVIOUR PROCESSOR
+		// Path path = new Path(n.variablePath().path());
+		// Type T1 = tree.copy();
+		
+		// ArrayList<Pair<InlineType, String>> nodesToUpdate = TreeUtils.findParentAndName(path, T1, true);
+		// for(Pair<InlineType, String> pair : nodesToUpdate){
+		// 	InlineType parent = pair.key();
+		// 	String childName = pair.value();
+		// 	Type node = parent.getChild(childName);
+
+		// 	Type updatedNode = TreeUtils.updateType(node, n.expression(), T1);
+		// 	parent.addChild(childName, updatedNode);
+		// }
 	};
 
 	@Override
@@ -330,7 +328,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			OLSyntaxNode body = p.value();
 
 			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
-				Checker.get(this.module).check(T, expression, Type.BOOL); // check that expression is of type bool
+				this.check(T, expression, Type.BOOL); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
 				resultType.addChoiceUnsafe(T1);
 			}
@@ -354,10 +352,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 
-		Checker.get(this.module).check(T, condition, Type.BOOL); // check that the condition is of type bool
+		this.check(T, condition, Type.BOOL); // check that the condition is of type bool
 		Type R = body.accept(this, T); // synthesize the type of the body after ONE iteration
-		Checker.get(this.module).check(R, condition, Type.BOOL); // check that the condition is still of type bool after one iteration
-		Checker.get(this.module).check(R, body, R); // check that the iteration didnt change the type of anything
+		this.check(R, condition, Type.BOOL); // check that the condition is still of type bool after one iteration
+		this.check(R, body, R); // check that the iteration didnt change the type of anything
 		
 		ChoiceType result = new ChoiceType();
 		result.addChoiceUnsafe(T);
@@ -367,51 +365,81 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( OrConditionNode n, Type T ){
-		return null;
+		return Type.BOOL;
 	};
 
 	public Type visit( AndConditionNode n, Type T ){
-		return null;
+		return Type.BOOL;
 	};
 
 	public Type visit( NotExpressionNode n, Type T ){
-		return null;
+		return Type.BOOL;
 	};
 
 	public Type visit( CompareConditionNode n, Type T ){
-		return null;
+		return Type.BOOL;
 	};
 
 	public Type visit( ConstantIntegerExpression n, Type T ){
-		return null;
+		return Type.INT;
 	};
 
 	public Type visit( ConstantDoubleExpression n, Type T ){
-		return null;
+		return Type.DOUBLE;
 	};
 
 	public Type visit( ConstantBoolExpression n, Type T ){
-		return null;
+		return Type.BOOL;
 	};
 
 	public Type visit( ConstantLongExpression n, Type T ){
-		return null;
+		return Type.LONG;
 	};
 
 	public Type visit( ConstantStringExpression n, Type T ){
-		return null;
+		return Type.STRING;
 	};
 
 	public Type visit( ProductExpressionNode n, Type T ){
-		return null;
+		ArrayList<BasicTypeDefinition> basicTypes = TreeUtils.deriveTypeOfProduct(n, T);
+
+		if(basicTypes.size() == 1){
+			return new InlineType(basicTypes.get(0), null, null);
+		}
+		else{
+			ChoiceType result = new ChoiceType();
+			for(BasicTypeDefinition t : basicTypes){
+				result.addChoiceUnsafe(new InlineType(t, null, null));
+			}
+			return result;
+		}
 	};
 
 	public Type visit( SumExpressionNode n, Type T ){
-		return null;
+		ArrayList<BasicTypeDefinition> basicTypes = TreeUtils.deriveTypeOfSum(n, T);
+
+		if(basicTypes.size() == 1){
+			return new InlineType(basicTypes.get(0), null, null);
+		}
+		else{
+			ChoiceType result = new ChoiceType();
+			for(BasicTypeDefinition t : basicTypes){
+				result.addChoiceUnsafe(new InlineType(t, null, null));
+			}
+			return result;
+		}
 	};
 
 	public Type visit( VariableExpressionNode n, Type T ){
-		return null;
+		Path path = new Path(n.variablePath().path());
+		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false);
+
+		if(types.size() == 1){
+			return types.get(0);
+		}
+		else{
+			return new ChoiceType(types);
+		}
 	};
 
 	public Type visit( NullProcessStatement n, Type T ){
@@ -419,186 +447,254 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( Scope n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InstallStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( CompensateStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ThrowStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ExitStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ExecutionInfo n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( CorrelationSetInfo n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InputPortInfo n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( OutputPortInfo n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( PointerStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( DeepCopyStatement n, Type T ){
-		return null;
+		Type T1 = T.copy();
+
+		Path leftPath = new Path(n.leftPath().path());
+		OLSyntaxNode expression = n.rightExpression();
+
+		// find the nodes to update and their parents
+		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true);
+		Type nodeToDeepCopy;
+
+		if(expression instanceof VariableExpressionNode){ // assignment on the form a << d, here we also must save the children
+			Path rightPath = new Path( ((VariableExpressionNode)expression).variablePath().path() );
+			ArrayList<Type> rightSideNodes = TreeUtils.findNodesExact(rightPath, T1, true);
+
+			nodeToDeepCopy = rightSideNodes.size() == 1 ? rightSideNodes.get(0) : new ChoiceType(rightSideNodes);
+		}
+		else{ // deep copy of something else, such as a constant, sum etc., no children to save here
+			ArrayList<BasicTypeDefinition> newTypes = TreeUtils.getBasicTypesOfExpression(expression, T1);
+			nodeToDeepCopy = newTypes.size() == 1 ? new InlineType(newTypes.get(0), null, null) : ChoiceType.fromBasicTypes(newTypes);
+		}
+
+		// update the nodes with the deep copied versions
+		for(Pair<InlineType, String> pair : leftSideNodes){
+			InlineType parent = pair.key();
+			String childName = pair.value();
+			Type child = parent.getChild(childName);
+
+			Type resultOfDeepCopy = Type.deepCopy(child, nodeToDeepCopy);
+
+			parent.addChild(childName, resultOfDeepCopy);
+		}
+
+		return T1;
 	};
 
 	public Type visit( RunStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( UndefStatement n, Type T ){
-		return null;
+		Path path = new Path(n.variablePath().path());
+		Type T1 = T.copy();
+
+		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
+
+		for(Pair<InlineType, String> pair : nodesToRemove){
+			pair.key().removeChild(pair.value());
+		}
+
+		return T1;
 	};
 
 	public Type visit( ValueVectorSizeExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( PreIncrementStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( PostIncrementStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( PreDecrementStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( PostDecrementStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ForStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ForEachSubNodeStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ForEachArrayItemStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( SpawnStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( IsTypeExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InstanceOfExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( TypeCastExpressionNode n, Type T ){
-		return null;
+		System.out.println("here");
+		return T;
 	};
 
 	public Type visit( SynchronizedStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( CurrentHandlerStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( EmbeddedServiceNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InstallFixedVariableExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( VariablePathNode n, Type T ){
-		return null;
+		Path path = new Path(n.path());
+		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false);
+
+		if(types.size() == 1){
+			return types.get(0);
+		}
+		else{
+			return new ChoiceType(types);
+		}
 	};
 
 	public Type visit( TypeDefinitionLink n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InterfaceDefinition n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( DocumentationComment n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( FreshValueExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( CourierDefinitionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( CourierChoiceStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( NotificationForwardStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( SolicitResponseForwardStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InterfaceExtenderDefinition n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( InlineTreeExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( VoidExpressionNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ProvideUntilStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( TypeChoiceDefinition n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ImportStatement n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( ServiceNode n, Type T ){
-		return null;
+		return T;
 	};
 
 	public Type visit( EmbedServiceNode n, Type T ){
-		return null;
+		return T;
 	};
+
+	/**
+	 * Checks that the type of the node, n, is a subtype of S
+	 * @param T the tree in which n resides
+	 * @param n the node to check the type of
+	 * @param S the type of which the type of n must be a subtype
+	 */
+	public void check(Type T, OLSyntaxNode n, Type S){
+		Type typeOfN = n.accept(this, T);
+		if(!typeOfN.isSubtypeOf(S)){
+			FaultHandler.throwFault("Type:\n" + T.prettyString() + "\n\nis not a subtype of type:\n" + S.prettyString(), n.context());
+		}
+	}
+
+	public void check(Type T, Type S){
+		if(!T.isSubtypeOf(S)){
+			FaultHandler.throwFault("Type:\n" + T.prettyString() + "\n\nis not a subtype of type:\n" + S.prettyString());
+		}
+	}
 }

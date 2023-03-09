@@ -1,1 +1,4 @@
 - bisimulation: læs de papers, Marco har sendt
+
+
+- check at vi bruger synthesize i assign osv til at få typen af sum osv.

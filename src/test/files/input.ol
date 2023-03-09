@@ -39,7 +39,7 @@ type inputType: void{
 	b: double { y: int | string | long } | string
 }
 
-service MyService(input: inputType) {
+service MyService() {
 	// inputPort in {
 	// 	Location: "socket://localhost:8080"
 	// 	Protocol: http { format = "json" }
