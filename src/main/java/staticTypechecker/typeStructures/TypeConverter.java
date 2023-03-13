@@ -1,6 +1,5 @@
 package staticTypechecker.typeStructures;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -10,7 +9,6 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 
 /**
@@ -48,7 +46,6 @@ public class TypeConverter {
 
 	/**
 	 * Finalizes the given structure using the given type. 
-	 * NOTE: if the structure is of type InlineType, it will be finalized after this method.
 	 * @param structure the structure object to finalize
 	 * @param type the type definition to use when finalizing the struture
 	 */
@@ -62,11 +59,16 @@ public class TypeConverter {
 				HashMap<String, Type> recursiveTable = new HashMap<>();
 				recursiveTable.put(type.name(), castedStruct);
 
+				System.out.println("FINALIZING TYPE " + castedType.basicType().nativeType().id() + " WITH CHILDREN: " + castedType.subTypes() + " UNTYPED CHILDREN: " + castedType.untypedSubTypes());
+
+				// TODO check untyped subtypes of castedType. If true it means it has children { ? } and thus it is an open record
+
 				castedStruct.setBasicTypeUnsafe(castedType.basicType());
 				castedStruct.setCardinalityUnsafe(castedType.cardinality());
 				castedStruct.setContextUnsafe(castedType.context());
+				// castedStruct.
 
-				TypeConverter.convert(castedStruct, castedType, true, symbols); 
+				TypeConverter.convert(castedStruct, castedType, symbols); 
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType(), symbols);
@@ -76,7 +78,6 @@ public class TypeConverter {
 				return;
 			}
 
-			castedStruct.finalize();
 			return;
 		}
 
@@ -99,50 +100,46 @@ public class TypeConverter {
 			}
 		}
 	}
-	
+
+	public static Type convertNoFinalize(TypeDefinition type, SymbolTable symbols){
+		return TypeConverter.convert(type, symbols);
+	}
+
 	/**
 	 * Creates a structure instance representing the structure of the given type.
 	 * @param type the type to create the structure from
 	 * @return the structure instance representing the specified type
 	 */
-	public static Type convert(TypeDefinition type, SymbolTable symbols){
-		return TypeConverter.convert(type, true, symbols);
-	}
-
-	public static Type convertNoFinalize(TypeDefinition type, SymbolTable symbols){
-		return TypeConverter.convert(type, false, symbols);
-	}
-
-	private static Type convert(TypeDefinition type, boolean finalize, SymbolTable symbols){
+	private static Type convert(TypeDefinition type, SymbolTable symbols){
 		if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition parsedType = (TypeInlineDefinition)type;
 			InlineType base = new InlineType(parsedType.basicType(), parsedType.cardinality(), parsedType.context());
-			TypeConverter.convert(base, (TypeInlineDefinition)type, finalize, symbols);
+			TypeConverter.convert(base, (TypeInlineDefinition)type, symbols);
 			return base;
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return TypeConverter.convert((TypeChoiceDefinition)type, finalize, symbols);
+			return TypeConverter.convert((TypeChoiceDefinition)type, symbols);
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return TypeConverter.convert((TypeDefinitionLink)type, finalize, symbols);
+			return TypeConverter.convert((TypeDefinitionLink)type, symbols);
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
-			return TypeConverter.convert((TypeDefinitionUndefined)type, finalize, symbols);
+			return TypeConverter.convert((TypeDefinitionUndefined)type, symbols);
 		}
 
 		return null;
 	}
 
-	private static InlineType convert(TypeInlineDefinition type, boolean finalize, SymbolTable symbols){
+	private static InlineType convert(TypeInlineDefinition type, SymbolTable symbols){
 		InlineType base = new InlineType(type.basicType(), type.cardinality(), type.context());
-		TypeConverter.convert(base, type, finalize, symbols);
+		TypeConverter.convert(base, type, symbols);
 		return base;
 	}
 
-	private static void convert(InlineType base, TypeInlineDefinition type, boolean finalize, SymbolTable symbols){
+	private static void convert(InlineType base, TypeInlineDefinition type, SymbolTable symbols){
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
 				String childName = child.getKey();
@@ -154,21 +151,17 @@ public class TypeConverter {
 				}
 
 				if(symbols.containsKey(typeName)){
-					base.addChild(childName, (Type)symbols.get(typeName));
+					base.addChildUnsafe(childName, (Type)symbols.get(typeName));
 				}
 				else{
-					Type subStructure = TypeConverter.convert(child.getValue(), finalize, symbols);
-					base.addChild(childName, subStructure);
+					Type subStructure = TypeConverter.convert(child.getValue(), symbols);
+					base.addChildUnsafe(childName, subStructure);
 				}
 			}
 		}
-
-		if(finalize){
-			base.finalize();
-		}
 	}
 
-	private static Type convert(TypeChoiceDefinition type, boolean finalize, SymbolTable symbols){
+	private static Type convert(TypeChoiceDefinition type, SymbolTable symbols){
 		HashSet<InlineType> choices = new HashSet<>();
 		TypeConverter.getChoices(type, choices, symbols);
 		return new ChoiceType(choices);
@@ -180,7 +173,7 @@ public class TypeConverter {
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, symbols);
 		}
 		else if(type instanceof TypeInlineDefinition){
-			list.add( TypeConverter.convert((TypeInlineDefinition)type, false, symbols) );
+			list.add( TypeConverter.convert((TypeInlineDefinition)type, symbols) );
 		}
 		else if(type instanceof TypeDefinitionLink){
 			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, symbols);
@@ -190,11 +183,11 @@ public class TypeConverter {
 		}
 	}
 
-	private static Type convert(TypeDefinitionLink type, boolean finalize, SymbolTable symbols){
-		return TypeConverter.convert(type.linkedType(), finalize, symbols);
+	private static Type convert(TypeDefinitionLink type, SymbolTable symbols){
+		return TypeConverter.convert(type.linkedType(), symbols);
 	}
 
-	private static Type convert(TypeDefinitionUndefined type, boolean finalize, SymbolTable symbols){
+	private static Type convert(TypeDefinitionUndefined type, SymbolTable symbols){
 		return null;
 	}
 }

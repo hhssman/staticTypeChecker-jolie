@@ -64,7 +64,7 @@ public class Main {
 			tProcessor.process(m);
 		});
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 3: process interfaces in all modules
 		System.out.println("STAGE 3: process interfaces");

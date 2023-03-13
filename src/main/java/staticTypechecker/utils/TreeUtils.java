@@ -84,7 +84,7 @@ public class TreeUtils {
 		}
 		else if(createPath){
 			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null);
-			root.addChild(childToLookFor, newChild);
+			root.addChildUnsafe(childToLookFor, newChild);
 			
 			if(path.size() == 1){
 				ret.add(new Pair<InlineType,String>(root, childToLookFor));
@@ -210,7 +210,7 @@ public class TreeUtils {
 		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){
-			pair.key().addChild(pair.value(), type);
+			pair.key().addChildUnsafe(pair.value(), type);
 		}
 	}
 

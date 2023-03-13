@@ -1,20 +1,44 @@
 STAGE 1: discover symbols
 Module name: ./src/test/files/input.ol
 STAGE 2: process types
+FINALIZING TYPE int WITH CHILDREN: [x=jolie.lang.parse.ast.types.TypeDefinitionLink@956c33b4] UNTYPED CHILDREN: false
+FINALIZING TYPE long WITH CHILDREN: null UNTYPED CHILDREN: true
+-----------------------------------------
+Module: ./src/test/files/input.ol
+
+openRecord: long
+
+MyInterface: null
+
+out: null
+
+helloReqRes: null
+
+tmp: int {
+	x: int {
+		x (recursive structure)
+	}
+}
+
+MyService: null
+
+helloOneway: null
+______________
+-----------------------------------------
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-a = -10 + -20 + "heyh" - true
+a = 10
 void {
-	a: string
+	a: int
 }
 
 --------------------------
 
 void {
-	a: string
+	a: int
 }
 
 --------------------------

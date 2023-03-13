@@ -2,12 +2,9 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jolie.lang.Constants.OperandType;
-import jolie.lang.NativeType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -520,7 +517,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 			Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
 
-			parent.addChild(childName, resultOfDeepCopy);
+			parent.addChildUnsafe(childName, resultOfDeepCopy);
 		}
 
 		return T1;
@@ -537,7 +534,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
 
 		for(Pair<InlineType, String> pair : nodesToRemove){
-			pair.key().removeChild(pair.value());
+			pair.key().removeChildUnsafe(pair.value());
 		}
 
 		return T1;

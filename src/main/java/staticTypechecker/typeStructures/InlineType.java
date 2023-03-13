@@ -21,7 +21,7 @@ public class InlineType extends Type {
 	private BasicTypeDefinition basicType; // the type of the root node
 	private HashMap<String, Type> children; // the children of the root node
 	private Range cardinality; // the cardinality of the root node
-	private boolean finalized; // indicates whether this type is open to new children or not. If true, the structure is done and we do not allow more children
+	private boolean openRecord; // indicates whether this type is an open- or closed-record 
 	private ParsingContext context;
 
 	public InlineType(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
@@ -29,7 +29,7 @@ public class InlineType extends Type {
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
 		this.context = context;
-		this.finalized = false;
+		this.openRecord = false;
 	}
 
 	public InlineType(){
@@ -37,7 +37,7 @@ public class InlineType extends Type {
 		this.children = new HashMap<>();
 		this.cardinality = null;
 		this.context = null;
-		this.finalized = false;
+		this.openRecord = false;
 	}
 
 	public BasicTypeDefinition basicType(){
@@ -70,6 +70,19 @@ public class InlineType extends Type {
 
 	public void setContextUnsafe(ParsingContext context){
 		this.context = context;
+	}
+
+	/**
+	 * Adds the entry {name, child} to this node. Owerwrites existing entries. 
+	 * @param name the name of the child (what key to associate it to)
+	 * @param child the structure of the child
+	 */
+	public void addChildUnsafe(String name, Type child){
+		this.children.put(name, child);
+	}
+
+	public void removeChildUnsafe(String name){
+		this.children.remove(name);
 	}
 
 
@@ -105,32 +118,11 @@ public class InlineType extends Type {
 				return child.getKey();
 			}
 		}
-		return "";
+		return null;
 	}
 
 	public HashMap<String, Type> children(){
 		return this.children;
-	}
-
-	/**
-	 * Adds the entry {name, child} to this node iff the type has not been finalized. Owerwrites existing entries. 
-	 * @param name the name of the child (what key to associate it to)
-	 * @param child the structure of the child
-	 */
-	public void addChild(String name, Type child){
-		if(!this.finalized){
-			this.children.put(name, child);
-		}
-	}
-
-	public void removeChild(String name){
-		if(!this.finalized){
-			this.children.remove(name);
-		}
-	}
-
-	public void finalize(){
-		this.finalized = true;
 	}
 
 	/**
@@ -177,18 +169,14 @@ public class InlineType extends Type {
 			// run through the already seen types and see if we already copied this object, if so just use this copy
 			for(Entry<Type, Type> seenType : seenTypes.entrySet()){
 				if(seenType.getKey() == childStruct){
-					struct.addChild(childName, seenType.getValue());
+					struct.addChildUnsafe(childName, seenType.getValue());
 					return; // return acts as continue, since we are using a stream
 				}
 			}
 
 			// otherwise we must make a new copy
-			struct.addChild(childName, childStruct.copy(finalize, seenTypes));
+			struct.addChildUnsafe(childName, childStruct.copy(finalize, seenTypes));
 		});
-
-		if(finalize){
-			struct.finalize();
-		}
 		
 		return struct;
 	}
@@ -252,39 +240,6 @@ public class InlineType extends Type {
 		
 		return result;
 	}
-
-	// public String prettyString(int level, ArrayList<Type> recursive){
-	// 	// String prettyString = this.children.size() != 0 ? "\n" + "\t".repeat(level) : "";
-	// 	String prettyString = "";
-	// 	prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
-
-	// 	if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
-	// 		prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
-	// 	}
-
-	// 	if(this.children.size() != 0){
-	// 		prettyString += "{";
-
-	// 		prettyString += this.children.entrySet()
-	// 			.stream()
-	// 			.map(child -> {
-	// 				if(this.containsChildExact(recursive, child.getValue())){
-	// 					return "\n" + "\t".repeat(level+1) + child.getKey() + " (recursive structure)";
-	// 				}
-	// 				else{
-	// 					recursive.add(child.getValue());
-	// 					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-
-	// 					return "\n" + "\t".repeat(level+1) + child.getKey() + ": " + child.getValue().prettyString(level+2, rec);
-	// 				}
-	// 			})
-	// 			.collect(Collectors.joining("\n"));
-
-	// 		prettyString += "\n" + "\t".repeat(level) + "}";
-	// 	}
-
-	// 	return prettyString;
-	// }
 
 	/**
 	 * Utility function to check if the exact object given is present in the given arraylist. Used in order to handle recursive types

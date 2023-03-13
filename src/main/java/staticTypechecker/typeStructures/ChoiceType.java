@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
+import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.utils.Bisimulator;
 import staticTypechecker.utils.BisimulatorOld;
 
@@ -17,6 +18,7 @@ import staticTypechecker.utils.BisimulatorOld;
  */
 public class ChoiceType extends Type {
 	private HashSet<InlineType> choices;
+	private ParsingContext ctx = null;
 
 	public ChoiceType(){
 		this.choices = new HashSet<>();
@@ -59,6 +61,14 @@ public class ChoiceType extends Type {
 		this.choices = new HashSet<>(choices);
 	}
 
+	public void setContext(ParsingContext ctx){
+		this.ctx = ctx;
+	}
+
+	public ParsingContext context(){
+		return this.ctx;
+	}
+
 	public ChoiceType addChoice(Type choice){
 		ChoiceType copy = (ChoiceType)this.copy();
 		copy.addChoiceUnsafe(choice);
@@ -73,7 +83,7 @@ public class ChoiceType extends Type {
 		ChoiceType copy = (ChoiceType)this.copy();
 
 		for(InlineType choice : copy.choices){
-			choice.addChild(childName, structure);
+			choice.addChildUnsafe(childName, structure);
 		}
 		
 		return copy;
@@ -81,6 +91,7 @@ public class ChoiceType extends Type {
 
 	public ChoiceType updateBasicTypeOfChoices(BasicTypeDefinition newType){
 		ChoiceType copy = new ChoiceType();
+		copy.setContext(this.ctx);
 
 		for(InlineType choice : this.choices){
 			copy.addChoiceUnsafe(choice.setBasicType(newType));
@@ -135,6 +146,7 @@ public class ChoiceType extends Type {
 
 	public ChoiceType copy(boolean finalize){
 		ChoiceType copy = new ChoiceType();
+		copy.setContext(this.ctx);
 		
 		for(InlineType choice : this.choices){
 			copy.addChoiceUnsafe(choice.copy(finalize));
@@ -145,6 +157,7 @@ public class ChoiceType extends Type {
 
 	public ChoiceType copy(boolean finalize, HashMap<Type, Type> seenTypes){
 		ChoiceType copy = new ChoiceType();
+		copy.setContext(this.ctx);
 
 		for(InlineType choice : this.choices){
 			copy.addChoiceUnsafe(choice.copy(finalize, seenTypes));

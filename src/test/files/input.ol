@@ -34,10 +34,12 @@ type tmp: int {
 	x: tmp
 }
 
-type inputType: void{
-	a: int | string
-	b: double { y: int | string | long } | string
-}
+// type inputType: void{
+// 	a: int | string
+// 	b: double { y: int | string | long } | string
+// }
+
+type openRecord: long { ? }
 
 service MyService() {
 	// inputPort in {
@@ -53,8 +55,8 @@ service MyService() {
 	}
 
 	main {
-		a = -10 + (-20) + "heyh" - true
-		// a = 10
+		// a = -10 + (-20) + "heyh" - true
+		a = 10
 		// a.x = "hey"
 		// a.y = true
 
