@@ -6,10 +6,8 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
-import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.utils.Bisimulator;
-import staticTypechecker.utils.BisimulatorOld;
 
 /**
  * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
@@ -132,7 +130,7 @@ public class ChoiceType extends Type {
 	 * TODO
 	 */
 	public boolean isSubtypeOf(Type other){
-		return BisimulatorOld.isSubtypeOf(this, other);
+		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	public String toString(){

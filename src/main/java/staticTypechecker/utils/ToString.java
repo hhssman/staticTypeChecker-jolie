@@ -1,8 +1,6 @@
 package staticTypechecker.utils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import jolie.lang.Constants.OperandType;

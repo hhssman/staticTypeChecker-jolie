@@ -89,6 +89,7 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
@@ -96,11 +97,12 @@ import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 
-public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
+public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public OutputPortProcessor(){}
 
-	public void process(Module module){
+	public Type process(Module module){
 		module.program().accept(this, module.symbols());
+		return null;
 	}
 
 	@Override
@@ -117,20 +119,18 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 		String serviceName = n.name();
 		Service service = (Service)symbols.get(serviceName);
 
-		service.setName(serviceName);
-
-		// System.out.println("Service " + n.name() + "'s children: " + n.program().children());
-
 		// for each output port of the service, create an OutputPort instance and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
 			if(child instanceof OutputPortInfo){
 				child.accept(this, symbols);
+
 				OutputPortInfo parsedChild = (OutputPortInfo)child;
 				String portName = parsedChild.id();
 				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
 			}
 		}
 		
+		// for each embedding, create or use existing outputport and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
 			if(child instanceof EmbedServiceNode){
 				child.accept(this, symbols);
@@ -155,12 +155,9 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void> {
 												.distinct() // for some reason each interface appears twice, so this will remove duplicates
 												.collect(Collectors.toList()); 
 
-		// finish the base object
-		OutputPort port = (OutputPort)symbols.get(portName);
-		port.setName(portName);
-		port.setLocation(location);
-		port.setProtocol(protocol);
-		port.setInterfaces(interfaces);
+		OutputPort port = new OutputPort(portName, location, protocol, interfaces);
+
+		symbols.put(portName, port);
 
 		return null;
 	}

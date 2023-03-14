@@ -1,7 +1,6 @@
 package staticTypechecker.visitors;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.OLVisitor;
@@ -89,15 +88,18 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.typeStructures.Type;
+import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Service;
 
-public class InputPortProcessor implements OLVisitor<SymbolTable, Void> {
+public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InputPortProcessor(){}
 
-	public void process(Module module){
+	public Type process(Module module){
 		module.program().accept(this, module.symbols());
+		return null;
 	}
 
 	@Override
@@ -112,11 +114,18 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void> {
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
 		String serviceName = n.name();
-		Service service = (Service)symbols.get(serviceName);
+		Service service = new Service();
+		service.setName(serviceName);
 
 		if(!n.parameterConfiguration().isEmpty()){ // there is a service parameter
 			TypeDefinition paramType = n.parameterConfiguration().get().type();
+			String configParamPath = n.parameterConfiguration().get().variablePath();
+			
+			// add the type to the symbol table
+			Type configParamStruct = TypeConverter.convert(paramType);
+			symbols.put(configParamPath, configParamStruct);
 
+			// add the parameter to the service object
 			String typeName = "";
 			if(paramType instanceof TypeDefinitionLink){ // an alias for a cutsom type
 				TypeDefinitionLink castedType = (TypeDefinitionLink)paramType;
@@ -130,8 +139,6 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void> {
 			service.setParameter(typeName);
 		}
 
-		service.setName(serviceName);
-
 		// visit program of service to process input ports
 		n.program().accept(this, symbols);
 
@@ -144,6 +151,8 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void> {
 				service.addInputPort(portName, (InputPort)symbols.get(portName));
 			}
 		}
+
+		symbols.put(serviceName, service);
 		
 		return null;
 	}
@@ -159,12 +168,9 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void> {
 												.map(interfaceDef -> interfaceDef.name())
 												.collect(Collectors.toList()); 
 
-		// finish the base object
-		InputPort port = (InputPort)symbols.get(portName);
-		port.setName(portName);
-		port.setLocation(location);
-		port.setProtocol(protocol);
-		port.setInterfaces(interfaces);
+		InputPort port = new InputPort(portName, location, protocol, interfaces);
+
+		symbols.put(portName, port);
 
 		return null;
 	}

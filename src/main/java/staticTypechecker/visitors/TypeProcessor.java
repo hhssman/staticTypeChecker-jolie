@@ -21,6 +21,7 @@ import jolie.lang.parse.ast.ForEachSubNodeStatement;
 import jolie.lang.parse.ast.ForStatement;
 import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
+import jolie.lang.parse.ast.ImportSymbolTarget;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
 import jolie.lang.parse.ast.InstallStatement;
@@ -81,26 +82,37 @@ import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
-import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
 
-public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
+public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public TypeProcessor(){}
 
-	public void process(Module module){
+	public Type process(Module module){
 		module.program().accept(this, module.symbols());
+		return null;
 	}
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
-		// accept all children of the program 
+		// accept all children which are NOT import statements first
 		for(OLSyntaxNode child : p.children()){
-			child.accept(this, symbols);
+			if(!(child instanceof ImportStatement)){
+				child.accept(this, symbols);
+			}
+		}
+
+		// then accept all import statements
+		for(OLSyntaxNode child : p.children()){
+			if(child instanceof ImportStatement){
+				child.accept(this, symbols);
+			}
 		}
 
 		return null;
@@ -108,28 +120,40 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		this.processTypeDef(n, symbols);		
+		symbols.put(n.name(), TypeConverter.convert(n));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		this.processTypeDef(n, symbols);	
+		symbols.put(n.linkedTypeName(), TypeConverter.convert(n));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		this.processTypeDef(n, symbols);			
+		symbols.put(n.name(), TypeConverter.convert(n));
 		return null;
-	}
-
-	private void processTypeDef(TypeDefinition n, SymbolTable symbols){
-		TypeConverter.finalizeBaseStructure((Type)symbols.get(n.name()), n, symbols);
 	}
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
+		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		
+		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			String alias = s.localSymbolName();
+			Symbol type = ModuleHandler.get(moduleName).symbols().get(alias);
+			
+			if(type == null){
+				ModuleHandler.runVisitor(this, moduleName);
+
+				String originalName = s.originalSymbolName();
+				type = ModuleHandler.get(moduleName).symbols().get(originalName);
+			}
+
+			symbols.put(alias, type);
+		}
+		
 		return null;
 	}
 
@@ -140,14 +164,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
-		// if the service has a configuration parameter, add it
-		if(n.parameterConfiguration().isPresent()){
-			String configParamPath = n.parameterConfiguration().get().variablePath();
-			Type configParamStruct = TypeConverter.convertNoFinalize(n.parameterConfiguration().get().type(), symbols); // we do not finalize this type structure, since we can change it later in the behaviours
-	
-			symbols.put(configParamPath, configParamStruct);
-		}
-
 		return null;
 	}
 

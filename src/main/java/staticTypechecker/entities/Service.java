@@ -53,10 +53,6 @@ public class Service implements Symbol {
 		this.parameter = parameter;
 	}
 
-	public static Service getBaseService(){
-		return new Service();
-	}
-
 	public String prettyString(){
 		String ret = this.name;
 

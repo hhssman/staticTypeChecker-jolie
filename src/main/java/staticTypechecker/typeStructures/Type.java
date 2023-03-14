@@ -20,6 +20,13 @@ public abstract class Type implements Symbol {
 	public final static InlineType DOUBLE = new InlineType(BasicTypeDefinition.of(NativeType.DOUBLE), new Range(1, 1), null, false);
 	public final static InlineType STRING = new InlineType(BasicTypeDefinition.of(NativeType.STRING), new Range(1, 1), null, false);
 	public final static InlineType VOID = new InlineType(BasicTypeDefinition.of(NativeType.VOID), new Range(1, 1), null, false);
+	public final static InlineType ANY = new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, false);
+	public final static InlineType OPEN_RECORD = new InlineType(BasicTypeDefinition.of(NativeType.ANY), null, null, true);
+
+	// add the recursive child to the open record node
+	// static {
+	// 	OPEN_RECORD.addChildUnsafe("?", OPEN_RECORD);
+	// }
 
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract boolean equals(Object other);

@@ -1,9 +1,6 @@
 package staticTypechecker.visitors;
 
-import java.util.ArrayList;
-
 import jolie.lang.NativeType;
-import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -95,7 +92,7 @@ import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
 
-public class BehaviorProcessor implements OLVisitor<Type, Type> {
+public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisitor {
 	private Module module;
 	private Synthesizer synthesizer;
 

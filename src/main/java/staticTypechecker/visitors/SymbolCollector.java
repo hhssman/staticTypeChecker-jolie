@@ -1,7 +1,5 @@
 package staticTypechecker.visitors;
 
-import java.util.HashMap;
-
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -84,33 +82,27 @@ import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
-import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import staticTypechecker.entities.InputPort;
-import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
-import staticTypechecker.entities.Operation;
-import staticTypechecker.entities.OutputPort;
-import staticTypechecker.entities.Service;
-import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
-import staticTypechecker.typeStructures.ChoiceType;
-import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.typeStructures.Type;
 
 /**
  * This class collects all symbols in a given module with the method "collect". A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
-public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
+public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public SymbolCollector(){}
 
-	public void collect(Module module){
+	public Type process(Module module){
 		SymbolTable ret = new SymbolTable();
 		module.setSymbols(ret);
 		module.program().accept(this, ret);
+
+		return null;
 	}
 
 	@Override
@@ -134,31 +126,19 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		if(symbols.containsKey(n.name())){ // symbol already exists, possibly an error here? TODO
-			return null;
-		}
-		else{ // new symbol
-			symbols.put(n.name(), new InlineType(null, null, null, false));
-		}
-		
+		symbols.put(n.name(), null);
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), new InlineType(null, null, null, false));
+		symbols.put(n.name(), null);
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		if(symbols.containsKey(n.name())){ // symbol already exists, possibly an error here? TODO
-			return null;
-		}
-		else{ // new symbol
-			symbols.put(n.name(), new ChoiceType());
-		}
-		
+		symbols.put(n.name(), null);
 		return null;
 	}
 
@@ -168,18 +148,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String alias = s.localSymbolName();
-			String originalName = s.originalSymbolName();
-
-			// check if the module we are importing from have been loaded, if not do it, since we need the base symbol from it
+			symbols.put(alias, null);
+			
 			if(!ModuleHandler.contains(moduleName)){
-				ModuleHandler.loadModule(moduleName);
-				this.collect(ModuleHandler.get(moduleName));
+				ModuleHandler.runVisitor(this, moduleName);
 			}
-			
-			// ask the symbols table in the corresponding Module for the structure of the type
-			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
-			symbols.put(alias, structure);
-			
 		}
 
 		return null;
@@ -187,17 +160,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
-		if(!symbols.containsKey(n.name())){ // new symbol
-			// add base interface
-			symbols.put(n.name(), Interface.getBaseInterface());
+		n.operationsMap().keySet().forEach(opName -> {
+			symbols.put(opName, null);
+		});
 
-			// add base instances of each operation in the interface, if they do not already exist
-			n.operationsMap().keySet().forEach(opName -> {
-				if(!symbols.containsKey(opName)){ // new symbol
-					symbols.put(opName, Operation.getBaseOperation());
-				}
-			});
-		}
+		symbols.put(n.name(), null);
 
 		return null;
 	}
@@ -209,21 +176,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			// if the service has a configuration parameter, add it
 			if(n.parameterConfiguration().isPresent()){
 				String configParamPath = n.parameterConfiguration().get().variablePath();
-
-				TypeDefinition typeOfParam = n.parameterConfiguration().get().type();
-				if(typeOfParam instanceof TypeInlineDefinition){
-					symbols.put(configParamPath, new InlineType(null, null, null, false));
-				}
-				else if(typeOfParam instanceof TypeChoiceDefinition){
-					symbols.put(configParamPath, new ChoiceType());
-				}
-				else{
-					System.out.println(typeOfParam.getClass());
-				}
+				symbols.put(configParamPath, null);
 			}
 
-			// add the base service and accept its program to find all symbols there
-			symbols.put(n.name(), Service.getBaseService());
+			// add the service name and accept its program to find all symbols there
+			symbols.put(n.name(), null);
 			n.program().accept(this, symbols);
 		}
 
@@ -233,10 +190,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 	@Override
 	public Void visit(InputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-
-		if(!symbols.containsKey(portName)){ // new symbol
-			symbols.put(portName, InputPort.getBasePort());
-		}
+		symbols.put(portName, null);
 		
 		return null;
 	}
@@ -244,10 +198,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 	@Override
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-		
-		if(!symbols.containsKey(portName)){ // new symbol
-			symbols.put(portName, OutputPort.getBasePort());
-		}
+		symbols.put(portName, null);
 		
 		return null;
 	}

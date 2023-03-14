@@ -1,37 +1,213 @@
 STAGE 1: discover symbols
-Module name: ./src/test/files/input.ol
-STAGE 2: process types
-FINALIZING TYPE X WITH CHILDREN: null UNTYPED CHILDREN: true
 -----------------------------------------
+Module: ./src/test/files/types.ol
+
+imp: null
+______________
 Module: ./src/test/files/input.ol
 
 MyInterface: null
+
+imp: null
 
 out: null
 
 helloReqRes: null
 
+input: null
+
 MyService: null
 
-X: int{ ? }
+X: null
+
+Y: null
+
+helloOneway: null
+______________
+-----------------------------------------
+STAGE 2: process types
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+imp: string {
+	x: int
+}
+______________
+Module: ./src/test/files/input.ol
+
+MyInterface: null
+
+imp: string {
+	x: int
+}
+
+out: null
+
+helloReqRes: null
+
+input: null
+
+MyService: null
+
+X: int {
+	l: string {
+		x: int
+	}
+}
+
+Y: int { ? }
 
 helloOneway: null
 ______________
 -----------------------------------------
 STAGE 3: process interfaces
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+imp: string {
+	x: int
+}
+______________
+Module: ./src/test/files/input.ol
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(Y)
+	RequestResponse:
+		helloReqRes(X)(string)
+
+imp: string {
+	x: int
+}
+
+out: null
+
+helloReqRes: helloReqRes(X)(string)
+
+input: null
+
+MyService: null
+
+X: int {
+	l: string {
+		x: int
+	}
+}
+
+Y: int { ? }
+
+helloOneway: helloOneway(Y)
+______________
+-----------------------------------------
 STAGE 4: process input ports and service parameters
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+imp: string {
+	x: int
+}
+______________
+Module: ./src/test/files/input.ol
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(Y)
+	RequestResponse:
+		helloReqRes(X)(string)
+
+imp: string {
+	x: int
+}
+
+out: null
+
+helloReqRes: helloReqRes(X)(string)
+
+input: int {
+	l: string {
+		x: int
+	}
+}
+
+MyService: MyService
+
+X: int {
+	l: string {
+		x: int
+	}
+}
+
+Y: int { ? }
+
+helloOneway: helloOneway(Y)
+______________
+-----------------------------------------
 STAGE 5: process output ports and embeddings
+-----------------------------------------
+Module: ./src/test/files/types.ol
+
+imp: string {
+	x: int
+}
+______________
+Module: ./src/test/files/input.ol
+
+MyInterface: MyInterface
+	OneWay:
+		helloOneway(Y)
+	RequestResponse:
+		helloReqRes(X)(string)
+
+imp: string {
+	x: int
+}
+
+out: out at socket://localhost:8081 via http using [MyInterface]
+
+helloReqRes: helloReqRes(X)(string)
+
+input: int {
+	l: string {
+		x: int
+	}
+}
+
+MyService: MyService
+
+X: int {
+	l: string {
+		x: int
+	}
+}
+
+Y: int { ? }
+
+helloOneway: helloOneway(Y)
+______________
+-----------------------------------------
 STAGE 6: process behaviors
 
-a = 10
+void
+
+--------------------------
+
+helloOneway@out(input)
 void {
-	a: int
+	input: int {
+		l: string {
+			x: int
+		}
+	}
 }
 
 --------------------------
 
 void {
-	a: int
+	input: int {
+		l: string {
+			x: int
+		}
+	}
 }
 
 --------------------------

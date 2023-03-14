@@ -1,10 +1,6 @@
 package staticTypechecker.entities;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import jolie.lang.parse.ast.expression.ConstantStringExpression;
-import jolie.lang.parse.ast.InputPortInfo;
 
 public class InputPort implements Symbol {
 	private String name; // the name of the port

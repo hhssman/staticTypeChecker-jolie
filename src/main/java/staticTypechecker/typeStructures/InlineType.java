@@ -5,12 +5,10 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
-import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 import staticTypechecker.utils.Bisimulator;
-import staticTypechecker.utils.BisimulatorOld;
 
 /**
  * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name. New children can be added until the finalize function is called (open record vs closed record). 
@@ -44,8 +42,12 @@ public class InlineType extends Type {
 		return this.context;
 	}
 
-	public boolean openRecord(){
+	public boolean isOpen(){
 		return this.openRecord;
+	}
+
+	public boolean isClosed(){
+		return !this.openRecord;
 	}
 
 	public void setBasicTypeUnsafe(BasicTypeDefinition basicType){
@@ -109,6 +111,10 @@ public class InlineType extends Type {
 	}
 
 	public Type getChild(String name){
+		if(name == "?" && this.isOpen()){
+			return Type.OPEN_RECORD;
+		}
+
 		return this.children.get(name);
 	}
 
@@ -139,7 +145,7 @@ public class InlineType extends Type {
 	}
 
 	public boolean isSubtypeOf(Type other){
-		return BisimulatorOld.isSubtypeOf(this, other);
+		return Bisimulator.isSubtypeOf(this, other);
 	}
 
 	public InlineType copy(){
@@ -228,6 +234,10 @@ public class InlineType extends Type {
 			for(Entry<String, Type> ent : this.children.entrySet()){
 				String childName = ent.getKey();
 				Type child = ent.getValue();
+
+				if(childName == "?"){
+					continue;
+				}
 
 				if(this.containsChildExact(recursive, child)){ // child have been printed before, it is recursive
 					result += "\n" + "\t".repeat(level+1) + childName + " (recursive structure)";

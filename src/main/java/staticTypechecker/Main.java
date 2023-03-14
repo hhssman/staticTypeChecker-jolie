@@ -35,16 +35,14 @@ public class Main {
 		ModuleHandler.loadModule(moduleName);
 		
 		SymbolCollector sCollector = new SymbolCollector();
-		sCollector.collect(ModuleHandler.get(moduleName));
+		sCollector.process(ModuleHandler.get(moduleName));
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");
 
 		TypeProcessor tProcessor = new TypeProcessor();
-		
-		// run through all types and make base structures
 		ModuleHandler.modules().values().forEach(m -> {
 			tProcessor.process(m);
 		});
@@ -59,7 +57,7 @@ public class Main {
 			iProcessor.process(m);
 		});
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 4: process service-parameters and input ports in all services
 		System.out.println("STAGE 4: process input ports and service parameters");
@@ -69,7 +67,7 @@ public class Main {
 			ipProcessor.process(m);
 		});
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 5: process output ports and embeddings in all services
 		System.out.println("STAGE 5: process output ports and embeddings");
@@ -79,7 +77,7 @@ public class Main {
 			opProcessor.process(m);
 		});
 
-		// printAllSymbols();
+		printAllSymbols();
 		
 		// stage 6: process service behaviors
 		System.out.println("STAGE 6: process behaviors\n");

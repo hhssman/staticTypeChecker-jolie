@@ -89,17 +89,19 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Operation.OperationType;
+import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Interface;
 
-public class InterfaceProcessor implements OLVisitor<SymbolTable, Void> {
+public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InterfaceProcessor(){}
 
-	public void process(Module module){
+	public Type process(Module module){
 		module.program().accept(this, module.symbols());
+		return null;
 	}
 
 	@Override
@@ -113,44 +115,47 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
-		Interface inter = (Interface)symbols.get(n.name());
-
-		inter.setName(n.name());
+		Interface inter = new Interface(n.name());
 
 		for(Entry<String, OperationDeclaration> ent : n.operationsMap().entrySet()){
-			this.initOperation(ent.getValue(), symbols);
-			
 			String opName = ent.getKey();
-			Operation op = (Operation)symbols.get(opName);
-
+			Operation op = this.getOperation(ent.getValue(), symbols);
+			
 			inter.addOperation(opName, op); // add operation to the interface object
 		}
+
+		symbols.put(n.name(), inter);
 
 		return null;
 	}
 
-	private void initOperation(OperationDeclaration decl, SymbolTable symbols){
+	private Operation getOperation(OperationDeclaration decl, SymbolTable symbols){
 		String name = decl.id();
 		Operation op = (Operation)symbols.get(name);
 
+		// operation has already been made, return it
+		if(op != null){
+			return op;
+		}
+
+		// otherwise create it
 		if(decl instanceof RequestResponseOperationDeclaration){ // req res
 			RequestResponseOperationDeclaration parsedDecl = (RequestResponseOperationDeclaration)decl;
 			String requestType = parsedDecl.requestType().name();
 			String responseType = parsedDecl.responseType().name();
 
-			op.setName(name);
-			op.setRequestType(requestType);
-			op.setResponseType(responseType);
-			op.setOperationType(OperationType.REQRES);
+			op = new Operation(name, requestType, responseType, OperationType.REQRES);
 		}
 		else{ // one way
 			OneWayOperationDeclaration parsedDecl = (OneWayOperationDeclaration)decl;
 			String requestType = parsedDecl.requestType().name();
 
-			op.setName(name);
-			op.setRequestType(requestType);
-			op.setOperationType(OperationType.ONEWAY);
+			op = new Operation(name, requestType, null, OperationType.ONEWAY);
 		}
+
+		symbols.put(name, op);
+
+		return op;
 	}
 
 	@Override
@@ -159,14 +164,18 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void> {
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String alias = s.localSymbolName();
-			String originalName = s.originalSymbolName();
-
-			// ask the symbols table in the corresponding Module for the structure of the type
-			Symbol structure = ModuleHandler.get(moduleName).symbols().get(originalName);
+			Symbol inter = ModuleHandler.get(moduleName).symbols().get(alias);
 			
-			symbols.put(alias, structure);
-		}
+			if(inter == null){
+				ModuleHandler.runVisitor(this, moduleName);
+				
+				String originalName = s.originalSymbolName();
+				inter = ModuleHandler.get(moduleName).symbols().get(originalName);
+			}
 
+			symbols.put(alias, inter);
+		}
+		
 		return null;
 	}
 
