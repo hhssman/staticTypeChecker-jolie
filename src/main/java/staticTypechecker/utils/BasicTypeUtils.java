@@ -30,7 +30,7 @@ public class BasicTypeUtils {
 
 	public static Type deriveTypeOfOperation(OperandType operand, InlineType t1, InlineType t2){
 		BasicTypeDefinition basicType = BasicTypeUtils.deriveTypeOfOperation(operand, t1.basicType(), t2.basicType());
-		return new InlineType(basicType, null, null);
+		return new InlineType(basicType, null, null, false);
 	}
 
 	public static Type deriveTypeOfOperation(OperandType operand, InlineType t1, ChoiceType t2){

@@ -40,7 +40,7 @@ public class ChoiceType extends Type {
 		HashSet<InlineType> choices = new HashSet<>();
 
 		for(BasicTypeDefinition type : typesOfChoices){
-			choices.add( new InlineType(type, null, null) );
+			choices.add( new InlineType(type, null, null, false) );
 		}
 
 		return new ChoiceType(choices);

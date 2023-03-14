@@ -32,25 +32,10 @@ public class Main {
 		// stage 1: discover symbols in all modules
 		System.out.println("STAGE 1: discover symbols");
 		String moduleName = args[0];
-		System.out.println("Module name: " + moduleName);
 		ModuleHandler.loadModule(moduleName);
 		
 		SymbolCollector sCollector = new SymbolCollector();
 		sCollector.collect(ModuleHandler.get(moduleName));
-		// ArrayList<Module> failedModules = new ArrayList<>();
-
-		// ModuleHandler.modules().values().forEach(m -> {
-		// 	try{
-		// 		sCollector.collect(m);
-		// 	}
-		// 	catch(NullPointerException e){
-		// 		failedModules.add(m);
-		// 	}
-		// });
-		
-		// for(Module failedMod : failedModules){
-		// 	sCollector.collect(failedMod);
-		// }
 
 		// printAllSymbols();
 

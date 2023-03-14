@@ -20,7 +20,7 @@ public class SymbolTable {
 	private void addBaseTypes(){
 		NativeType[] baseTypes = NativeType.values();
 		for(NativeType t : baseTypes){
-			InlineType typeStruct = new InlineType(BasicTypeDefinition.of(t), new Range(1, 1), null);
+			InlineType typeStruct = new InlineType(BasicTypeDefinition.of(t), new Range(1, 1), null, false);
 
 			this.table.put(t.id(), typeStruct);
 		}

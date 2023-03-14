@@ -3,9 +3,9 @@
 
 interface MyInterface {
 	RequestResponse:
-		helloReqRes( tmp )( string )
+		helloReqRes( X )( string )
 	OneWay:
-		helloOneway( tmp )
+		helloOneway( X )
 }
 
 
@@ -30,16 +30,13 @@ interface MyInterface {
 
 // type choice: int | string
 
-type tmp: int {
-	x: tmp
+type X: int {
+	?
 }
 
-// type inputType: void{
-// 	a: int | string
-// 	b: double { y: int | string | long } | string
+// type Y: int {
+// 	l: string
 // }
-
-type openRecord: long { ? }
 
 service MyService() {
 	// inputPort in {

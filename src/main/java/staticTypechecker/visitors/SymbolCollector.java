@@ -138,7 +138,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 			return null;
 		}
 		else{ // new symbol
-			symbols.put(n.name(), new InlineType());
+			symbols.put(n.name(), new InlineType(null, null, null, false));
 		}
 		
 		return null;
@@ -146,7 +146,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), new InlineType());
+		symbols.put(n.name(), new InlineType(null, null, null, false));
 		return null;
 	}
 
@@ -212,7 +212,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 				TypeDefinition typeOfParam = n.parameterConfiguration().get().type();
 				if(typeOfParam instanceof TypeInlineDefinition){
-					symbols.put(configParamPath, new InlineType());
+					symbols.put(configParamPath, new InlineType(null, null, null, false));
 				}
 				else if(typeOfParam instanceof TypeChoiceDefinition){
 					symbols.put(configParamPath, new ChoiceType());
@@ -254,21 +254,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void> {
 
 	@Override
 	public Void visit(DefinitionNode n, SymbolTable symbols) {
-		// System.out.println("Definition node: " + n.id() + ", body: " + n.body());
-
-		// n.body().accept(this, symbols);
-
 		return null;
 	}
 
 	@Override
 	public Void visit(SequenceStatement n, SymbolTable symbols) {
-		// System.out.println("In sequence, children: " + n.children());
-
-		// for(OLSyntaxNode child : n.children()){
-		// 	child.accept(this, symbols);
-		// }
-
 		return null;
 	}
 

@@ -12,7 +12,7 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
 
 /**
- * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely TypeNameDefinition and Type.
+ * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely InlineTypes and ChoiceTypes.
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
@@ -25,7 +25,7 @@ public class TypeConverter {
 	public static Type createBaseStructure(TypeDefinition type){
 		if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition tmp = (TypeInlineDefinition)type;
-			return new InlineType(tmp.basicType(), tmp.cardinality(), tmp.context());
+			return new InlineType(tmp.basicType(), tmp.cardinality(), tmp.context(), tmp.untypedSubTypes());
 		}
 
 		if(type instanceof TypeChoiceDefinition){
@@ -59,16 +59,14 @@ public class TypeConverter {
 				HashMap<String, Type> recursiveTable = new HashMap<>();
 				recursiveTable.put(type.name(), castedStruct);
 
-				System.out.println("FINALIZING TYPE " + castedType.basicType().nativeType().id() + " WITH CHILDREN: " + castedType.subTypes() + " UNTYPED CHILDREN: " + castedType.untypedSubTypes());
-
-				// TODO check untyped subtypes of castedType. If true it means it has children { ? } and thus it is an open record
+				System.out.println("FINALIZING TYPE " + type.name() + " WITH CHILDREN: " + castedType.subTypes() + " UNTYPED CHILDREN: " + castedType.untypedSubTypes());
 
 				castedStruct.setBasicTypeUnsafe(castedType.basicType());
 				castedStruct.setCardinalityUnsafe(castedType.cardinality());
 				castedStruct.setContextUnsafe(castedType.context());
-				// castedStruct.
+				castedStruct.setOpenStatusUnsafe(castedType.untypedSubTypes());
 
-				TypeConverter.convert(castedStruct, castedType, symbols); 
+				TypeConverter.addChildrenToBase(castedStruct, castedType, symbols); 
 			}
 			else if(type instanceof TypeDefinitionLink){ // an alias, finalize the linked type definition
 				TypeConverter.finalizeBaseStructure(castedStruct, ((TypeDefinitionLink)type).linkedType(), symbols);
@@ -113,8 +111,8 @@ public class TypeConverter {
 	private static Type convert(TypeDefinition type, SymbolTable symbols){
 		if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition parsedType = (TypeInlineDefinition)type;
-			InlineType base = new InlineType(parsedType.basicType(), parsedType.cardinality(), parsedType.context());
-			TypeConverter.convert(base, (TypeInlineDefinition)type, symbols);
+			InlineType base = new InlineType(parsedType.basicType(), parsedType.cardinality(), parsedType.context(), parsedType.untypedSubTypes());
+			TypeConverter.addChildrenToBase(base, (TypeInlineDefinition)type, symbols);
 			return base;
 		}
 
@@ -134,12 +132,12 @@ public class TypeConverter {
 	}
 
 	private static InlineType convert(TypeInlineDefinition type, SymbolTable symbols){
-		InlineType base = new InlineType(type.basicType(), type.cardinality(), type.context());
-		TypeConverter.convert(base, type, symbols);
+		InlineType base = new InlineType(type.basicType(), type.cardinality(), type.context(), type.untypedSubTypes());
+		TypeConverter.addChildrenToBase(base, type, symbols);
 		return base;
 	}
 
-	private static void convert(InlineType base, TypeInlineDefinition type, SymbolTable symbols){
+	private static void addChildrenToBase(InlineType base, TypeInlineDefinition type, SymbolTable symbols){
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
 				String childName = child.getKey();
@@ -148,6 +146,10 @@ public class TypeConverter {
 				if(child.getValue() instanceof TypeDefinitionLink){ // subtype is an alias for an existing type. In this case, we look for the linked type name instead of the alias
 					TypeDefinitionLink subtype = (TypeDefinitionLink)child.getValue();
 					typeName = subtype.linkedTypeName();
+				}
+
+				if(child.getValue() instanceof TypeInlineDefinition){
+					System.out.println("child " + childName +  " is open? " + ((TypeInlineDefinition)child.getValue()).untypedSubTypes());
 				}
 
 				if(symbols.containsKey(typeName)){

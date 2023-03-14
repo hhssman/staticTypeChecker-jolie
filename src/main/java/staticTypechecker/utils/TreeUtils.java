@@ -83,7 +83,7 @@ public class TreeUtils {
 			}
 		}
 		else if(createPath){
-			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null);
+			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, true);
 			root.addChildUnsafe(childToLookFor, newChild);
 			
 			if(path.size() == 1){

@@ -8,10 +8,8 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		a = true
-		b = false
-		
-		c = a % b
+		a[0] = 10
+		a[1] = "20"
 
 		dumpState@Runtime()(s1)
 		print@Console(s1)()

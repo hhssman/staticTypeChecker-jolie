@@ -24,20 +24,12 @@ public class InlineType extends Type {
 	private boolean openRecord; // indicates whether this type is an open- or closed-record 
 	private ParsingContext context;
 
-	public InlineType(BasicTypeDefinition basicType, Range cardinality, ParsingContext context){
+	public InlineType(BasicTypeDefinition basicType, Range cardinality, ParsingContext context, boolean openRecord){
 		this.basicType = basicType;
 		this.children = new HashMap<>();
 		this.cardinality = cardinality;
 		this.context = context;
-		this.openRecord = false;
-	}
-
-	public InlineType(){
-		this.basicType = null;
-		this.children = new HashMap<>();
-		this.cardinality = null;
-		this.context = null;
-		this.openRecord = false;
+		this.openRecord = openRecord;
 	}
 
 	public BasicTypeDefinition basicType(){
@@ -50,6 +42,10 @@ public class InlineType extends Type {
 
 	public ParsingContext context(){
 		return this.context;
+	}
+
+	public boolean openRecord(){
+		return this.openRecord;
 	}
 
 	public void setBasicTypeUnsafe(BasicTypeDefinition basicType){
@@ -70,6 +66,10 @@ public class InlineType extends Type {
 
 	public void setContextUnsafe(ParsingContext context){
 		this.context = context;
+	}
+
+	public void setOpenStatusUnsafe(boolean openRecord){
+		this.openRecord = openRecord;
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class InlineType extends Type {
 	 * @param seenTypes is a HashMap which maps typestructures in the original type to their equivalent part in the copy. This is used when dealing with recursive types.
 	 */
 	public InlineType copy(boolean finalize, HashMap<Type, Type> seenTypes){
-		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context);
+		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context, this.openRecord);
 		seenTypes.put(this, struct);
 
 		this.children.entrySet().forEach(child -> {
@@ -221,6 +221,10 @@ public class InlineType extends Type {
 		if(this.children.size() != 0){
 			result += " {"; // open a bracket
 
+			if(this.openRecord){
+				result += "\n" + "\t".repeat(level+1) + "?";
+			}
+
 			for(Entry<String, Type> ent : this.children.entrySet()){
 				String childName = ent.getKey();
 				Type child = ent.getValue();
@@ -236,6 +240,9 @@ public class InlineType extends Type {
 			}
 
 			result += "\n" + "\t".repeat(level) + "}"; // close the bracket again
+		}
+		else if(this.openRecord){
+			result += " { ? }";
 		}
 		
 		return result;

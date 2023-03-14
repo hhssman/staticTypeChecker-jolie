@@ -110,7 +110,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 
-		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null));
+		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
 		this.printTree(result);
 
 		return result;

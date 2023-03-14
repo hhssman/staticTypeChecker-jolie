@@ -1,12 +1,9 @@
 STAGE 1: discover symbols
 Module name: ./src/test/files/input.ol
 STAGE 2: process types
-FINALIZING TYPE int WITH CHILDREN: [x=jolie.lang.parse.ast.types.TypeDefinitionLink@956c33b4] UNTYPED CHILDREN: false
-FINALIZING TYPE long WITH CHILDREN: null UNTYPED CHILDREN: true
+FINALIZING TYPE X WITH CHILDREN: null UNTYPED CHILDREN: true
 -----------------------------------------
 Module: ./src/test/files/input.ol
-
-openRecord: long
 
 MyInterface: null
 
@@ -14,13 +11,9 @@ out: null
 
 helloReqRes: null
 
-tmp: int {
-	x: int {
-		x (recursive structure)
-	}
-}
-
 MyService: null
+
+X: int{ ? }
 
 helloOneway: null
 ______________
