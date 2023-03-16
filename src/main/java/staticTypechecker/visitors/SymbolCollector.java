@@ -84,9 +84,12 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 
 /**
@@ -126,19 +129,19 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), null);
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), null);
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), null);
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
 		return null;
 	}
 
@@ -147,12 +150,15 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
-			String alias = s.localSymbolName();
-			symbols.put(alias, null);
-			
 			if(!ModuleHandler.contains(moduleName)){
 				ModuleHandler.runVisitor(this, moduleName);
 			}
+
+			String originalName = s.originalSymbolName();
+			String alias = s.localSymbolName();
+
+			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+			symbols.put(alias, p);
 		}
 
 		return null;
@@ -161,10 +167,10 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
 		n.operationsMap().keySet().forEach(opName -> {
-			symbols.put(opName, null);
+			symbols.put(opName, Symbol.newPair(SymbolType.OPERATION, null));
 		});
 
-		symbols.put(n.name(), null);
+		symbols.put(n.name(), Symbol.newPair(SymbolType.INTERFACE, null));
 
 		return null;
 	}
@@ -176,11 +182,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 			// if the service has a configuration parameter, add it
 			if(n.parameterConfiguration().isPresent()){
 				String configParamPath = n.parameterConfiguration().get().variablePath();
-				symbols.put(configParamPath, null);
+				symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, null));
 			}
 
 			// add the service name and accept its program to find all symbols there
-			symbols.put(n.name(), null);
+			symbols.put(n.name(), Symbol.newPair(SymbolType.SERVICE, null));
 			n.program().accept(this, symbols);
 		}
 
@@ -190,7 +196,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(InputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-		symbols.put(portName, null);
+		symbols.put(portName, Symbol.newPair(SymbolType.INPUT_PORT, null));
 		
 		return null;
 	}
@@ -198,7 +204,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-		symbols.put(portName, null);
+		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, null));
 		
 		return null;
 	}

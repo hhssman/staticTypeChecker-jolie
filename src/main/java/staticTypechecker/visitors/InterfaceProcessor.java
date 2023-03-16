@@ -87,8 +87,10 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Operation.OperationType;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
@@ -124,7 +126,7 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			inter.addOperation(opName, op); // add operation to the interface object
 		}
 
-		symbols.put(n.name(), inter);
+		symbols.put(n.name(), Symbol.newPair(SymbolType.INTERFACE, inter));
 
 		return null;
 	}
@@ -153,7 +155,7 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			op = new Operation(name, requestType, null, OperationType.ONEWAY);
 		}
 
-		symbols.put(name, op);
+		symbols.put(name, Symbol.newPair(SymbolType.OPERATION, op));
 
 		return op;
 	}
@@ -163,19 +165,29 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
-			Symbol inter = ModuleHandler.get(moduleName).symbols().get(alias);
+			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
-			if(inter == null){
-				ModuleHandler.runVisitor(this, moduleName);
-				
-				String originalName = s.originalSymbolName();
-				inter = ModuleHandler.get(moduleName).symbols().get(originalName);
-			}
+			if(p.key().equals(SymbolType.INTERFACE)){ // we imported an interface
+				if(p.value() == null){ // the interface has not been initalized yet
+					ModuleHandler.runVisitor(this, moduleName);
+	
+					p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+				}
+	
+				// add the interface to the symbol table
+				symbols.put(alias, p);
 
-			symbols.put(alias, inter);
+				// add the operations of the interface to the symbol table
+				for(Entry<String, Operation> ent : ((Interface)p.value()).operations()){
+					String operationName = ent.getKey();
+					Operation op = ent.getValue();
+					symbols.put(operationName, Symbol.newPair(SymbolType.OPERATION, op));
+				}
+			}
 		}
-		
+
 		return null;
 	}
 

@@ -1,12 +1,7 @@
-from .types import imp
+from .types import imp, MyInterface
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
-interface MyInterface {
-	RequestResponse:
-		helloReqRes( X )( string )
-	OneWay:
-		helloOneway( Y )
-}
+
 
 
 // type A: int {

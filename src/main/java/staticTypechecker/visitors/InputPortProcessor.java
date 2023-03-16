@@ -88,11 +88,13 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Service;
+import staticTypechecker.entities.Symbol;
 
 public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InputPortProcessor(){}
@@ -123,7 +125,7 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			
 			// add the type to the symbol table
 			Type configParamStruct = TypeConverter.convert(paramType);
-			symbols.put(configParamPath, configParamStruct);
+			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, configParamStruct));
 
 			// add the parameter to the service object
 			String typeName = "";
@@ -152,7 +154,7 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			}
 		}
 
-		symbols.put(serviceName, service);
+		symbols.put(serviceName, Symbol.newPair(SymbolType.SERVICE, service));
 		
 		return null;
 	}
@@ -164,13 +166,13 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		String location = ((ConstantStringExpression)n.location()).value();
 		String protocol = n.protocolId();
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
-												.stream()
-												.map(interfaceDef -> interfaceDef.name())
-												.collect(Collectors.toList()); 
+									.stream()
+									.map(interfaceDef -> interfaceDef.name())
+									.collect(Collectors.toList()); 
 
 		InputPort port = new InputPort(portName, location, protocol, interfaces);
 
-		symbols.put(portName, port);
+		symbols.put(portName, Symbol.newPair(SymbolType.INPUT_PORT, port));
 
 		return null;
 	}

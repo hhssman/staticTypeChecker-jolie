@@ -219,6 +219,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( NotificationOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
+		System.out.println("op: " + op);
+		System.out.println("type name: " + op.requestType());
+
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
 		

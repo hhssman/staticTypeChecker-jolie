@@ -84,10 +84,12 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
 
@@ -120,19 +122,19 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), TypeConverter.convert(n));
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.linkedTypeName(), TypeConverter.convert(n));
+		symbols.put(n.linkedTypeName(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), TypeConverter.convert(n));
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
 		return null;
 	}
 
@@ -141,17 +143,19 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
-			Symbol type = ModuleHandler.get(moduleName).symbols().get(alias);
+			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
-			if(type == null){
-				ModuleHandler.runVisitor(this, moduleName);
-
-				String originalName = s.originalSymbolName();
-				type = ModuleHandler.get(moduleName).symbols().get(originalName);
+			if(p.key().equals(SymbolType.TYPE)){ // we imported a type
+				if(p.value() == null){ // the type has not been initalized yet
+					ModuleHandler.runVisitor(this, moduleName);
+	
+					p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+				}
+	
+				symbols.put(alias, p);
 			}
-
-			symbols.put(alias, type);
 		}
 		
 		return null;

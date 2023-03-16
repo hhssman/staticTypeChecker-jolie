@@ -6,9 +6,11 @@ import java.util.HashMap;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.typeStructures.InlineType;
@@ -100,10 +102,10 @@ public class Main {
 		for(Module m : ModuleHandler.modules().values()){
 			System.out.println("Module: " + m.name());
 
-			for(Entry<String, Symbol> symbol : m.symbols().entrySet()){
+			for(Entry<String, Pair<SymbolType, Symbol>> symbol : m.symbols().entrySet()){
 				if(!NativeType.isNativeTypeKeyword(symbol.getKey())){ // we dont want to print the base types
-					if(symbol.getValue() != null){ // the symbol object have been initialized and can thus be pretty printed
-						System.out.println("\n" + symbol.getKey() + ": " + symbol.getValue().prettyString());
+					if(symbol.getValue() != null && symbol.getValue().value() != null){ // the symbol object have been initialized and can thus be pretty printed
+						System.out.println("\n" + symbol.getKey() + ": " + symbol.getValue().value().prettyString());
 					}
 					else{
 						System.out.println("\n" + symbol.getKey() + ": " + null);

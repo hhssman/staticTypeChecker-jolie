@@ -89,6 +89,7 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
@@ -96,6 +97,7 @@ import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
+import staticTypechecker.entities.Symbol;
 
 public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public OutputPortProcessor(){}
@@ -157,7 +159,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 		OutputPort port = new OutputPort(portName, location, protocol, interfaces);
 
-		symbols.put(portName, port);
+		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, port));
 
 		return null;
 	}

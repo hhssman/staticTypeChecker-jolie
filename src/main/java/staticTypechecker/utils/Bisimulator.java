@@ -151,7 +151,6 @@ public class Bisimulator {
 	private static boolean isSuperSetOf(Set<String> s1, Set<String> s2){
 		for(String s : s2){
 			if(!s1.contains(s)){
-				System.out.println(s + " is not in X");
 				return false;
 			}
 		}
