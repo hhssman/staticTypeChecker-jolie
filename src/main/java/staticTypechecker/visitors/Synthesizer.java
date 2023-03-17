@@ -88,6 +88,7 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
@@ -211,7 +212,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			p_out_type = new ChoiceType(possibleTypes);
 		}
 
-		this.check(p_out_type, T_out);
+		this.check(p_out_type, T_out, n.context());
 
 		return T1;
 	};
@@ -219,15 +220,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( NotificationOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
-		System.out.println("op: " + op);
-		System.out.println("type name: " + op.requestType());
-
 		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
-		
-		// Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the oneway operation
 
-		this.check(p_out, T_out);
+		this.check(p_out, T_out, n.context());
 
 		return T;
 	};
@@ -240,10 +236,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the reqres operation
-		// Type p_out = TreeUtils.getTypeOfExpression(n.outputExpression(), T); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
-		this.check(p_out, T_out);
+		this.check(p_out, T_out, n.context());
 
 		// update type of p_in to T_in
 		Type T1 = T.copy(false);
@@ -348,7 +343,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 
 		OLSyntaxNode elseProcess = n.elseProcess();
-		resultType.addChoiceUnsafe(elseProcess.accept(this, T));
+		if(elseProcess != null){
+			resultType.addChoiceUnsafe(elseProcess.accept(this, T));
+		}
 		
 		if(resultType.choices().size() == 1){
 			return resultType.choices().get(0);
@@ -693,13 +690,13 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public void check(Type T, OLSyntaxNode n, Type S){
 		Type typeOfN = n.accept(this, T);
 		if(!typeOfN.isSubtypeOf(S)){
-			FaultHandler.throwFault("Type:\n" + T.prettyString() + "\n\nis not a subtype of type:\n" + S.prettyString(), n.context());
+			FaultHandler.throwFault("The type:\n\t" + typeOfN.prettyString(1) + "\n\nis not a subtype of the type:\n\t" + S.prettyString(1), n.context());
 		}
 	}
 
-	public void check(Type T, Type S){
+	public void check(Type T, Type S, ParsingContext ctx){
 		if(!T.isSubtypeOf(S)){
-			FaultHandler.throwFault("Type:\n" + T.prettyString() + "\n\nis not a subtype of type:\n" + S.prettyString());
+			FaultHandler.throwFault("The type:\n\t" + T.prettyString(1) + "\n\nis not a subtype of the type:\n\t" + S.prettyString(1), ctx);
 		}
 	}
 }

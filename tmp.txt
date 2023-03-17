@@ -1,260 +1,70 @@
 STAGE 1: discover symbols
------------------------------------------
-Module: ./src/test/files/types.ol
-
-helloReqRes: null
-
-MyInterface: null
-
-helloOneway: null
-
-imp: null
-______________
-Module: ./src/test/files/input.ol
-
-MyInterface: null
-
-imp: null
-
-out: null
-
-input: null
-
-MyService: null
-
-X: null
-
-Y: null
-______________
------------------------------------------
 STAGE 2: process types
------------------------------------------
-Module: ./src/test/files/types.ol
-
-helloReqRes: null
-
-MyInterface: null
-
-helloOneway: null
-
-imp: string {
-	x: int
-}
-______________
-Module: ./src/test/files/input.ol
-
-MyInterface: null
-
-imp: string {
-	x: int
-}
-
-out: null
-
-input: null
-
-MyService: null
-
-X: int {
-	l: string {
-		x: int
-	}
-}
-
-Y: int { ? }
-______________
------------------------------------------
 STAGE 3: process interfaces
------------------------------------------
-Module: ./src/test/files/types.ol
-
-helloReqRes: helloReqRes(int)(string)
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-helloOneway: helloOneway(int)
-
-imp: string {
-	x: int
-}
-______________
-Module: ./src/test/files/input.ol
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-imp: string {
-	x: int
-}
-
-out: null
-
-helloReqRes: helloReqRes(int)(string)
-
-input: null
-
-MyService: null
-
-X: int {
-	l: string {
-		x: int
-	}
-}
-
-Y: int { ? }
-
-helloOneway: helloOneway(int)
-______________
------------------------------------------
 STAGE 4: process input ports and service parameters
------------------------------------------
-Module: ./src/test/files/types.ol
-
-helloReqRes: helloReqRes(int)(string)
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-helloOneway: helloOneway(int)
-
-imp: string {
-	x: int
-}
-______________
-Module: ./src/test/files/input.ol
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-imp: string {
-	x: int
-}
-
-out: null
-
-helloReqRes: helloReqRes(int)(string)
-
-input: int {
-	l: string {
-		x: int
-	}
-}
-
-MyService: MyService
-
-X: int {
-	l: string {
-		x: int
-	}
-}
-
-Y: int { ? }
-
-helloOneway: helloOneway(int)
-______________
------------------------------------------
 STAGE 5: process output ports and embeddings
------------------------------------------
-Module: ./src/test/files/types.ol
-
-helloReqRes: helloReqRes(int)(string)
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-helloOneway: helloOneway(int)
-
-imp: string {
-	x: int
-}
-______________
-Module: ./src/test/files/input.ol
-
-MyInterface: MyInterface
-	OneWay:
-		helloOneway(int)
-	RequestResponse:
-		helloReqRes(int)(string)
-
-imp: string {
-	x: int
-}
-
-out: out at socket://localhost:8081 via http using [MyInterface]
-
-helloReqRes: helloReqRes(int)(string)
-
-input: int {
-	l: string {
-		x: int
-	}
-}
-
-MyService: MyService
-
-X: int {
-	l: string {
-		x: int
-	}
-}
-
-Y: int { ? }
-
-helloOneway: helloOneway(int)
-______________
------------------------------------------
 STAGE 6: process behaviors
 
 void
 
 --------------------------
 
-helloOneway@out(input)
-op: staticTypechecker.entities.Operation@3b6eb2ec
-type name: int
+a = 10
 void {
 	input: int {
-		l: string {
-			x: int
-		}
+		x (recursive structure)
 	}
+	a: int
+}
+
+--------------------------
+
+if(input)
+
+void {
+	input: int {
+		x (recursive structure)
+	}
+	a: int
+	b: string
+}
+|
+void {
+	input: int {
+		x (recursive structure)
+	}
+	a: int
+	b: bool
 }
 
 --------------------------
 
 void {
 	input: int {
-		l: string {
-			x: int
-		}
+		x (recursive structure)
 	}
+	a: int
+	b: string
+}
+|
+void {
+	input: int {
+		x (recursive structure)
+	}
+	a: int
+	b: bool
 }
 
 --------------------------
 
-Critical error: Type:
-int {
-	l: string {
-		x: int
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 35:
+The type:
+	int {
+		x: int {
+			x (recursive structure)
+		}
 	}
-}
 
-is not a subtype of type:
-int
+is not a subtype of the type:
+	bool
 

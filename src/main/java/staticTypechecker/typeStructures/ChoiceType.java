@@ -178,11 +178,13 @@ public class ChoiceType extends Type {
 	}
 
 	public String prettyString(int level, ArrayList<Type> recursive){
-		String toString = "\n" + "\t".repeat(level);
+		int newLevel = level + 1;
+		
+		String toString = "\n" + "\t".repeat(newLevel);
 		toString += this.choices.stream().map(c -> {
 			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-			return c.prettyString(level, rec);
-		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
+			return c.prettyString(newLevel, rec);
+		}).collect(Collectors.joining("\n" + "\t".repeat(newLevel) + "|" + "\n" + "\t".repeat(newLevel)));
 
 		return toString;
 	}

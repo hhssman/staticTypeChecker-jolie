@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
 
@@ -30,13 +31,13 @@ public abstract class Type implements Symbol {
 
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract boolean equals(Object other);
-	// public abstract Type merge(Type other);
 
-	// public abstract void put(String childName, Type structure);
-	// public abstract void removeDuplicates();
+	public abstract ParsingContext context();
+
 	public abstract Type copy();
 	public abstract Type copy(boolean finalize);
 	public abstract Type copy(boolean finalize, HashMap<Type, Type> rec);
+
 	public abstract String prettyStringHashCode();
 	public abstract String prettyStringHashCode(int level, ArrayList<Type> recursive);
 

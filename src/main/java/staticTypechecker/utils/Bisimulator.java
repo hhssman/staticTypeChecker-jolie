@@ -13,6 +13,96 @@ import staticTypechecker.typeStructures.Type;
 
 public class Bisimulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){
+		// System.out.println("checking subtype between:");
+		// System.out.println(t1.prettyString());
+		// System.out.println();
+		// System.out.println(t2.prettyString());
+		return isSubtypeOfRec(t1, t2, new IdentityHashMap<>());
+	}
+
+	private static boolean isSubtypeOfRec(Type t1, Type t2, IdentityHashMap<Type, Type> R){
+		if(isInRelation(t1, t2, R)){
+			return true;
+		}
+
+		R.put(t1, t2);
+		if(t1 instanceof InlineType && t2 instanceof InlineType){
+			InlineType x = (InlineType)t1;
+			InlineType y = (InlineType)t2;
+
+			if(!basicSubtype(x, y)){
+				return false;
+			}
+			if(!isSubSetOf(y.children().keySet(), x.children().keySet())){
+				return false;
+			}
+			for(String label : y.children().keySet()){
+				Type xChild = x.getChild(label);
+				Type yChild = y.getChild(label);
+
+				if(!isSubtypeOfRec(xChild, yChild, R)){
+					return false;
+				}
+			}
+			if(y.isClosed()){
+				if(!isSubSetOf(x.children().keySet(), y.children().keySet()) || x.isOpen()){
+					return false;
+				}
+			}
+			return true;
+		}
+		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){
+			InlineType x = (InlineType)t1;
+			ChoiceType y = (ChoiceType)t2;
+
+			for(InlineType choice : y.choices()){
+				if(isSubtypeOfRec(x, choice, R)){
+					return true;
+				}
+			}
+
+			return false;
+		}
+		else if(t1 instanceof ChoiceType && t2 instanceof InlineType){
+			ChoiceType x = (ChoiceType)t1;
+			InlineType y = (InlineType)t2;
+
+			for(InlineType choice : x.choices()){
+				if(!isSubtypeOfRec(choice, y, R)){
+					return false;
+				}
+			}
+
+			return true;
+		}
+		else{ // both choice types
+			ChoiceType x = (ChoiceType)t1;
+			ChoiceType y = (ChoiceType)t2;
+
+			for(InlineType xChoice : x.choices()){
+				boolean xChoiceIsSubtype = false;
+
+				for(InlineType yChoice : y.choices()){
+					if(isSubtypeOfRec(xChoice, yChoice, R)){
+						xChoiceIsSubtype = true;
+						break;
+					}
+				}
+
+				if(!xChoiceIsSubtype){
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	private static boolean isInRelation(Type t1, Type t2, IdentityHashMap<Type, Type> R){
+		return R.containsKey(t1) && R.get(t1) == t2;
+	}
+
+	public static boolean isSubtypeOfOld(Type t1, Type t2){
 		IdentityHashMap<Type, Type> R = new IdentityHashMap<>();
 		LinkedList<Pair<Type, Type>> todo = new LinkedList<>();
 
@@ -158,56 +248,20 @@ public class Bisimulator {
 		return true;
 	}
 
+	private static boolean isSubSetOf(Set<String> s1, Set<String> s2){
+		for(String s : s1){
+			if(!s2.contains(s)){
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
 	
 	
 	public static boolean equivalent(Type t1, Type t2){
 		return naive(t1, t2);
-	}
-
-	// TODO
-	private static boolean HKC(Type t1, Type t2){
-		IdentityHashMap<Type, Type> R = new IdentityHashMap<>();
-		LinkedList<Pair<Type, Type>> todo = new LinkedList<>();
-		
-		todo.add(newPair(t1, t2));
-		
-		while(!todo.isEmpty()){
-			Pair<Type, Type> currPair = todo.pop();
-			Type X = currPair.key();
-			Type Y = currPair.value();
-
-			if(isInCongruenceClosure(currPair, R)){
-				continue;
-			}
-
-			if(!checkBasicTypes(X, Y)){ 
-				return false;
-			}
-
-			
-			
-			
-		}
-
-		return true;
-	}
-
-	/**
-	 * TODO
-	 */
-	private static boolean isInCongruenceClosure(Pair<Type, Type> pair, IdentityHashMap<Type, Type> R){
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param X
-	 * @param Y
-	 * @return
-	 */
-	private static boolean checkBasicTypes(Type X, Type Y){
-		// TODO, talk to Marco about what it means for two nodes, X and Y, o#(X) != o#(Y) (see paper)
-		return false;
 	}
 
 	/**

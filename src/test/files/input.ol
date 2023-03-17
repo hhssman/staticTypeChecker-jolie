@@ -1,35 +1,20 @@
-from .types import imp, MyInterface
+from .types import imp
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
-
-
-
-// type A: int {
-// 	x: imp
-// 	y: string
-// }
-
-// type B: int {
-// 	x: C
-// }
-
-// type C: bool {
-// 	x: double
-// }
-
-// type D: void {
-// 	x: int | string
-// 	y: bool | double
-// 	z: long
-// }
-
-// type choice: int | string
-
-type X: int {
-	l: imp
+interface MyInterface {
+	RequestResponse:
+		helloReqRes( int )( string )
+	OneWay:
+		helloOneway( Y )
 }
 
-type Y: int {?}
+type Y: string {
+	x: Y
+}
+
+type X: int {
+	x: X
+}
 
 service MyService(input: X) {
 	// inputPort in {
@@ -45,8 +30,16 @@ service MyService(input: X) {
 	}
 
 	main {
-		helloOneway@out(input)
+		a = 10
 
+		if(input){
+			b = "hey"
+		}
+		else{
+			b = true
+		}
+
+		// helloOneway@out(input)
 		// [helloOneway(input)]
 		// [helloReqRes(input)(output)]
 	}
