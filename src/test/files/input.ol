@@ -16,12 +16,12 @@ type X: int {
 	x: X
 }
 
-service MyService(input: X) {
-	// inputPort in {
-	// 	Location: "socket://localhost:8080"
-	// 	Protocol: http { format = "json" }
-	// 	Interfaces: MyInterface 
-	// }
+service MyService(param: int) {
+	inputPort in {
+		Location: "socket://localhost:8080"
+		Protocol: http { format = "json" }
+		Interfaces: MyInterface 
+	}
 	
 	outputPort out {
 		Location: "socket://localhost:8081"
@@ -30,17 +30,8 @@ service MyService(input: X) {
 	}
 
 	main {
-		a = 10
 
-		if(input){
-			b = "hey"
-		}
-		else{
-			b = true
-		}
-
-		// helloOneway@out(input)
-		// [helloOneway(input)]
-		// [helloReqRes(input)(output)]
+		helloOneway@out(param)
 	}
+	
 }

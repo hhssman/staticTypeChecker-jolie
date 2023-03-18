@@ -1,10 +1,3 @@
-type imp: string {
+type imp: int{
 	x: int
-}
-
-interface MyInterface {
-	RequestResponse:
-		helloReqRes( int )( string )
-	OneWay:
-		helloOneway( int )
 }

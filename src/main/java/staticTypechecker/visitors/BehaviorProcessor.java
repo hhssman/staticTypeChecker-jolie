@@ -95,22 +95,31 @@ import staticTypechecker.entities.Path;
 public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisitor {
 	private Module module;
 	private Synthesizer synthesizer;
+	private boolean print = false;
 
 	public BehaviorProcessor(){}
+	public BehaviorProcessor(boolean print){
+		this.print = print;
+	}
 
 	private void printTree(Type T){
-		System.out.println(T.prettyString());
-		System.out.println("\n--------------------------\n");
+		if(this.print){
+			System.out.println(T.prettyString());
+			System.out.println("\n--------------------------\n");
+		}
+	}
+
+	private void printNode(OLSyntaxNode node){
+		if(this.print){
+			System.out.println(ToString.of(node));
+		}
 	}
 
 	public Type process(Module module){
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 
-		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
-		this.printTree(result);
-
-		return result;
+		return module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
 	}
 	
 	@Override
@@ -163,7 +172,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(UndefStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
@@ -171,7 +180,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(AssignStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);		
 		return T1;
@@ -198,7 +207,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 	 */
 	@Override
 	public Type visit(DeepCopyStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -206,7 +215,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(NullProcessStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		this.printTree(T);
 		return T;
 	}
@@ -218,7 +227,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(AddAssignStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
@@ -226,7 +235,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(SubtractAssignStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
@@ -234,7 +243,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(MultiplyAssignStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
@@ -242,7 +251,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(DivideAssignStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);		
 		this.printTree(T1);
 		return T1;
@@ -313,7 +322,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(OneWayOperationStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -321,7 +330,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(RequestResponseOperationStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -329,7 +338,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(NotificationOperationStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -337,7 +346,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(SolicitResponseOperationStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -355,7 +364,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(IfStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;
@@ -368,7 +377,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	@Override
 	public Type visit(WhileStatement n, Type T) {
-		System.out.println(ToString.of(n));
+		this.printNode(n);
 		Type T1 = this.synthesizer.synthesize(n, T);
 		this.printTree(T1);
 		return T1;

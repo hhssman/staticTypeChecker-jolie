@@ -5,66 +5,39 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void
-
---------------------------
-
 a = 10
 void {
-	input: int {
-		x (recursive structure)
-	}
 	a: int
 }
 
 --------------------------
 
-if(input)
-
+a.x = "hi"
 void {
-	input: int {
-		x (recursive structure)
+	a: int {
+		x: string
 	}
-	a: int
-	b: string
-}
-|
-void {
-	input: int {
-		x (recursive structure)
-	}
-	a: int
-	b: bool
 }
 
 --------------------------
 
+a.y = 20
 void {
-	input: int {
-		x (recursive structure)
+	a: int {
+		x: string
+		y: int
 	}
-	a: int
-	b: string
-}
-|
-void {
-	input: int {
-		x (recursive structure)
-	}
-	a: int
-	b: bool
 }
 
 --------------------------
 
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 35:
-The type:
-	int {
-		x: int {
-			x (recursive structure)
-		}
+onewayFunction@out(a)
+void {
+	a: int {
+		x: string
+		y: int
 	}
+}
 
-is not a subtype of the type:
-	bool
+--------------------------
 

@@ -84,7 +84,7 @@ public class Main {
 		// stage 6: process service behaviors
 		System.out.println("STAGE 6: process behaviors\n");
 
-		BehaviorProcessor bProcessor = new BehaviorProcessor();
+		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 		HashMap<String, Type> trees = new HashMap<>();
 
 		ModuleHandler.modules().values().forEach(m -> {

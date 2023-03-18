@@ -261,7 +261,8 @@ public class Bisimulator {
 	
 	
 	public static boolean equivalent(Type t1, Type t2){
-		return naive(t1, t2);
+		// return naive(t1, t2);
+		return isSubtypeOf(t1, t2) && isSubtypeOf(t2, t1);
 	}
 
 	/**
