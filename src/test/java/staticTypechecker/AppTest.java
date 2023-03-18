@@ -89,7 +89,27 @@ public class AppTest{
 		inputType.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
 		target.addChildUnsafe("inputType", inputType);
 
-		System.out.println(target.prettyString());
+		assertTrue( result.equals(target) );
+	}
+
+	@Test
+	public void testOneWay(){
+		String moduleName = "testOneWay.ol";
+		Module module = this.initializeModule(moduleName);
+
+		Type result = this.bProcessor.process(module);
+
+		InlineType target = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
+		InlineType inputType = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
+		InlineType p = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
+
+		inputType.addChildUnsafe("x", new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false));
+		inputType.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
+		p.addChildUnsafe("x", new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false));
+		p.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
+
+		target.addChildUnsafe("inputType", inputType);
+		target.addChildUnsafe("p", p);
 
 		assertTrue( result.equals(target) );
 	}

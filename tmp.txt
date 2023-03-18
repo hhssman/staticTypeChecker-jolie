@@ -5,25 +5,25 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-a = 10
+inputType = 10
 void {
-	a: int
+	inputType: int
 }
 
 --------------------------
 
-a.x = "hi"
+inputType.x = "hi"
 void {
-	a: int {
+	inputType: int {
 		x: string
 	}
 }
 
 --------------------------
 
-a.y = 20
+inputType.y = 20
 void {
-	a: int {
+	inputType: int {
 		x: string
 		y: int
 	}
@@ -31,9 +31,13 @@ void {
 
 --------------------------
 
-onewayFunction@out(a)
+onewayFunction(p)
 void {
-	a: int {
+	p: int {
+		x: string
+		y: int
+	}
+	inputType: int {
 		x: string
 		y: int
 	}
