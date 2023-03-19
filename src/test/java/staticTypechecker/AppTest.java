@@ -2,6 +2,8 @@ package staticTypechecker;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map.Entry;
+
 import org.junit.Test;
 
 import jolie.lang.NativeType;
@@ -13,8 +15,12 @@ import jolie.lang.parse.ast.VariablePathNode;
 import jolie.lang.parse.ast.expression.ConstantBoolExpression;
 import jolie.lang.parse.ast.expression.ConstantIntegerExpression;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.entities.Symbol;
+import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.visitors.BehaviorProcessor;
@@ -40,11 +46,47 @@ public class AppTest{
      */
     @Test
     public void testSymbolChecking(){
-        // String moduleName = "../files/test.ol";
-		// ModuleHandler.loadModule(moduleName);
+        String moduleName = this.BASE_PATH + "/testSymbolCollector.ol";
+		Module module = new Module(moduleName);
 		
-		// SymbolCollector sCollector = new SymbolCollector();
-		// sCollector.process(ModuleHandler.get(moduleName));
+		SymbolCollector sCollector = new SymbolCollector();
+		sCollector.process(module);
+
+		SymbolTable result = module.symbols();
+		SymbolTable target = new SymbolTable();
+
+		target.put("MyInterface", new Pair<SymbolType, Symbol>(SymbolType.INTERFACE, null));
+		target.put("imp", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
+		target.put("helloReqRes", new Pair<SymbolType, Symbol>(SymbolType.OPERATION, null));
+		target.put("outputPort", new Pair<SymbolType, Symbol>(SymbolType.OUTPUT_PORT, null));
+		target.put("EmbedMe", new Pair<SymbolType, Symbol>(SymbolType.SERVICE, null));
+		target.put("param", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
+		target.put("MyService", new Pair<SymbolType, Symbol>(SymbolType.SERVICE, null));
+		target.put("X", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
+		target.put("Y", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
+		target.put("helloOneway", new Pair<SymbolType, Symbol>(SymbolType.OPERATION, null));
+		target.put("inputPort", new Pair<SymbolType, Symbol>(SymbolType.INPUT_PORT, null));
+
+		boolean isEqual = true;
+
+		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
+			String key = ent.getKey();
+
+			if(!result.containsKey(key)){
+				isEqual = false;
+				break;
+			}
+
+			Pair<SymbolType, Symbol> p1 = result.getPair(key);
+			Pair<SymbolType, Symbol> p2 = target.getPair(key);
+
+			if(p1.key() != p2.key()){
+				isEqual = false;
+				break;
+			}
+		}
+
+		assertTrue(isEqual);
     }
 
 	@Test

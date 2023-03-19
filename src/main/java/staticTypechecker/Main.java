@@ -39,7 +39,7 @@ public class Main {
 		SymbolCollector sCollector = new SymbolCollector();
 		sCollector.process(ModuleHandler.get(moduleName));
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");

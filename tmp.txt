@@ -1,47 +1,41 @@
 STAGE 1: discover symbols
+-----------------------------------------
+Module: ./src/test/files/embedMe.ol
+
+EmbedMe: null
+______________
+Module: ./src/test/files/testSymbolCollector.ol
+
+MyInterface: null
+
+imp: null
+
+helloReqRes: null
+
+outputPort: null
+
+EmbedMe: null
+
+param: null
+
+MyService: null
+
+inputPort: null
+
+X: null
+
+Y: null
+
+helloOneway: null
+______________
+Module: ./src/test/files/types.ol
+
+imp: null
+______________
+-----------------------------------------
 STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
-
-inputType = 10
-void {
-	inputType: int
-}
-
---------------------------
-
-inputType.x = "hi"
-void {
-	inputType: int {
-		x: string
-	}
-}
-
---------------------------
-
-inputType.y = 20
-void {
-	inputType: int {
-		x: string
-		y: int
-	}
-}
-
---------------------------
-
-onewayFunction(p)
-void {
-	p: int {
-		x: string
-		y: int
-	}
-	inputType: int {
-		x: string
-		y: int
-	}
-}
-
---------------------------
 
