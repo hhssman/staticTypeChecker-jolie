@@ -5,7 +5,7 @@ interface MyInterface {
 	RequestResponse:
 		helloReqRes( int )( string )
 	OneWay:
-		helloOneway( Y )
+		helloOneway( int )
 }
 
 type Y: string {
