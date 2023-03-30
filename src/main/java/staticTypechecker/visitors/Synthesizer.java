@@ -85,6 +85,7 @@ import jolie.lang.parse.ast.expression.ProductExpressionNode;
 import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
+import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
@@ -154,7 +155,13 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( SequenceStatement n, Type T ){
-		return T;
+		Type T1 = T.copy();
+
+		for(OLSyntaxNode child : n.children()){
+			T1 = child.accept(this, T1);
+		}
+
+		return T1;
 	};
 
 	public Type visit( NDChoiceStatement n, Type T ){
@@ -256,6 +263,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( AssignStatement n, Type T ){
+		System.out.println("assign");
 		// retrieve the type of the expression
 		Path path = new Path(n.variablePath().path());
 		OLSyntaxNode e = n.expression();
@@ -365,7 +373,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(T, condition, Type.BOOL); // check that the condition is of type bool
 		Type R = body.accept(this, T); // synthesize the type of the body after ONE iteration
 		this.check(R, condition, Type.BOOL); // check that the condition is still of type bool after one iteration
-		this.check(R, body, R); // check that the iteration didnt change the type of anything
+		this.check(R, body, R); // check that every subsequent iteration have doesnt change the type of anything
 		
 		ChoiceType result = new ChoiceType();
 		result.addChoiceUnsafe(T);
@@ -585,8 +593,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( TypeCastExpressionNode n, Type T ){
-		System.out.println("here");
-		return T;
+		return new InlineType(BasicTypeDefinition.of(n.type()), null, null, false);
 	};
 
 	public Type visit( SynchronizedStatement n, Type T ){

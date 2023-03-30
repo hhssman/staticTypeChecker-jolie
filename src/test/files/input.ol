@@ -30,8 +30,14 @@ service MyService(param: int) {
 	}
 
 	main {
+		x = 10
+		y = string(x)
+		// i = 0
 
-		helloOneway@out(param)
+		// while(i < 3){
+		// 	x.y = x
+		// 	i++
+		// }
 	}
 	
 }

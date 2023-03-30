@@ -429,7 +429,7 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( TypeCastExpressionNode n, Void v ){
-		return null;
+		return n.type().toString().toLowerCase() + "(" + n.expression().accept(this, null) + ")";
 	};
 
 	public String visit( SynchronizedStatement n, Void v ){

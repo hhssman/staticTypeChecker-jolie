@@ -1,3 +1,40 @@
 STAGE 1: discover symbols
-Error parsing module: ./src/test/files/input.ol:
-jolie.lang.parse.module.ModuleException: /mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol:20: error: Type definition link loop detected: degen (this might mean that the referred type has not been defined or could not be retrieved)
+STAGE 2: process types
+STAGE 3: process interfaces
+STAGE 4: process input ports and service parameters
+STAGE 5: process output ports and embeddings
+STAGE 6: process behaviors
+
+Final tree:
+void
+
+--------------------------
+
+x = 10
+assign
+void {
+	param: int
+	x: int
+}
+
+--------------------------
+
+y = string(50 + 5)
+assign
+void {
+	param: int
+	x: int
+	y: string
+}
+
+--------------------------
+
+Final tree:
+void {
+	param: int
+	x: int
+	y: string
+}
+
+--------------------------
+

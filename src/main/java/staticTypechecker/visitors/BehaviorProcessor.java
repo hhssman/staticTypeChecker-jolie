@@ -119,7 +119,12 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 
-		return module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
+		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
+
+		System.out.println("Final tree:");
+		this.printTree(result);
+		
+		return result;
 	}
 	
 	@Override

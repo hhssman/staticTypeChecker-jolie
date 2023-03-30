@@ -1,5 +1,6 @@
 package staticTypechecker.utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -13,11 +14,12 @@ import staticTypechecker.typeStructures.Type;
 
 public class Bisimulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){
-		// System.out.println("checking subtype between:");
-		// System.out.println(t1.prettyString());
-		// System.out.println();
-		// System.out.println(t2.prettyString());
 		return isSubtypeOfRec(t1, t2, new IdentityHashMap<>());
+	}
+
+	public static boolean equivalent(Type t1, Type t2){
+		// return naive(t1, t2);
+		return isSubtypeOf(t1, t2) && isSubtypeOf(t2, t1);
 	}
 
 	private static boolean isSubtypeOfRec(Type t1, Type t2, IdentityHashMap<Type, Type> R){
@@ -102,86 +104,6 @@ public class Bisimulator {
 		return R.containsKey(t1) && R.get(t1) == t2;
 	}
 
-	public static boolean isSubtypeOfOld(Type t1, Type t2){
-		IdentityHashMap<Type, Type> R = new IdentityHashMap<>();
-		LinkedList<Pair<Type, Type>> todo = new LinkedList<>();
-
-		todo.add(newPair(t1, t2));
-
-		while(!todo.isEmpty()){
-			Pair<Type, Type> currPair = todo.pop();
-			Type currT1 = currPair.key();
-			Type currT2 = currPair.value();
-
-			if((R.containsKey(currT1)) && (R.get(currT1) == currT2)){ // check if we have already processed this pair
-				continue;
-			}			
-
-			if(currT1.getClass() != currT2.getClass()){
-				return false;
-			}
-
-			if(currT1 instanceof InlineType){
-				InlineType X = (InlineType)currT1;
-				InlineType Y = (InlineType)currT2;
-
-				if(!basicSubtype(X, Y)){
-					return false;
-				}
-
-				Set<String> xChildNames = X.children().keySet();
-				Set<String> yChildNames = Y.children().keySet();
-
-				if(X.isClosed() && Y.isClosed()){ // both are closed
-					if(!xChildNames.equals(yChildNames)){ // check if sets of childNames are identical
-						return false;
-					}
-
-					for(String childName : xChildNames){
-						Type c1 = X.getChild(childName);
-						Type c2 = Y.getChild(childName);
-						todo.add(newPair(c1, c2));
-					}
-				}
-				else if(Y.isOpen()){
-					if(!isSuperSetOf(xChildNames, yChildNames)){
-						return false;
-					}
-
-					HashSet<String> childNamesInCommon = intersection(xChildNames, yChildNames);
-					HashSet<String> childNamesOnlyInX = subtract(xChildNames, yChildNames);
-
-					for(String childName : childNamesInCommon){
-						Type c1 = X.getChild(childName);
-						Type c2 = Y.getChild(childName);
-						todo.add(newPair(c1, c2));
-					}
-
-					for(String childName : childNamesOnlyInX){
-						Type c1 = X.getChild(childName);
-						Type c2 = Y.getChild("?");
-						todo.add(newPair(c1, c2));
-					}
-
-					if(X.isOpen()){
-						todo.add(newPair(X.getChild("?"), Y.getChild("?")));
-					}
-				}
-				else{
-					return false;
-				}
-
-				R.put(X, Y);
-			}
-			else{
-				System.out.println("Choice types not supported for equivalence checking yet");
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 	/**
 	 * @param t1
 	 * @param t2
@@ -196,58 +118,6 @@ public class Bisimulator {
 		return t1.basicType().equals(t2.basicType());
 	}
 
-	/**
-	 * Returns the resulting set from doing the intersection between s1 and s2
-	 * @param s1
-	 * @param s2
-	 * @return
-	 */
-	private static HashSet<String> intersection(Set<String> s1, Set<String> s2){
-		HashSet<String> result = new HashSet<>();
-
-		for(String childName : s1){
-			if(s2.contains(childName)){
-				result.add(childName);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Returns the resulting set of subtracting s2 from s1 (s1 \ s2)
-	 * @param s1
-	 * @param s2
-	 * @return
-	 */
-	private static HashSet<String> subtract(Set<String> s1, Set<String> s2){
-		HashSet<String> result = new HashSet<>();
-
-		for(String childName : s1){
-			if(!s2.contains(childName)){
-				result.add(childName);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Checks if s1 is a superset of s2, that is contains at least all elements of s2
-	 * @param s1
-	 * @param s2
-	 * @return
-	 */
-	private static boolean isSuperSetOf(Set<String> s1, Set<String> s2){
-		for(String s : s2){
-			if(!s1.contains(s)){
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
 	private static boolean isSubSetOf(Set<String> s1, Set<String> s2){
 		for(String s : s1){
 			if(!s2.contains(s)){
@@ -258,90 +128,58 @@ public class Bisimulator {
 		return true;
 	}
 
-	
-	
-	public static boolean equivalent(Type t1, Type t2){
-		// return naive(t1, t2);
-		return isSubtypeOf(t1, t2) && isSubtypeOf(t2, t1);
+	private class Relation{
+		private IdentityHashMap<HashSet<Type>, HashSet<Type>> rel;
+
+		public Relation(){
+			this.rel = new IdentityHashMap<>();
+		}
+
+		public boolean contains(HashSet<Type> set1, HashSet<Type> set2){
+			return this.rel.containsKey(set1) && this.rel.get(set1) == set2;
+		}
+
+		public void insert(HashSet<Type> set1, HashSet<Type> set2){
+			this.rel.put(set1, set2);
+		}
+
+		// returns the congrunece closure of this relation
+		public Relation congruenceClosure(){
+			return this;
+		}
 	}
 
-	/**
-	 * Implementation of the naïve algorithm for checking type equivalence
-	 * @param t1
-	 * @param t2
-	 * @return
-	 */
-	private static boolean naive(Type t1, Type t2){
-		// Set<Pair<Type, Type>> relation = Collections.newSetFromMap(new IdentityHashMap<>());
-		IdentityHashMap<Type, Type> relation = new IdentityHashMap<>();
-		LinkedList<Pair<Type, Type>> queue = new LinkedList<>();
+	private boolean isSubtypeHKC(Type t1, Type t2){
+		Relation rel = new Relation();
+		LinkedList<Pair<HashSet<Type>, HashSet<Type>>> todo = new LinkedList<>();
 
-		queue.add(newPair(t1, t2));
+		HashSet<Type> X = new HashSet<>();
+		HashSet<Type> Y = new HashSet<>();
+		X.add(t1);
+		X.add(t2);
+		todo.push(this.newPair(X, Y));
 
-		while(!queue.isEmpty()){
-			Pair<Type, Type> currPair = queue.pop();
-			Type currT1 = currPair.key();
-			Type currT2 = currPair.value();
-
-			if((relation.containsKey(currT1)) && (relation.get(currT1) == currT2)){
+		while(!todo.isEmpty()){
+			Pair<HashSet<Type>, HashSet<Type>> currPair = todo.pop();
+			X = currPair.key();
+			Y = currPair.value();
+ 
+			if(rel.congruenceClosure().contains(X, Y)){ // we have processed this pair
 				continue;
-			}			
+			}
 
-			if(currT1.getClass() != currT2.getClass()){
+			// TODO define what basic typing means for sets of nodes
+			if(false){
 				return false;
 			}
 
-			if(currT1 instanceof InlineType){
-				InlineType p1 = (InlineType)currT1;
-				InlineType p2 = (InlineType)currT2;
-
-				if(!p1.basicType().equals(p2.basicType())){
-					return false;
-				}
-
-				if(p1.children().size() != p2.children().size()){
-					return false;
-				}
-
-				Set<String> childNames = p1.children().keySet();
-
-				for(String childName : childNames){
-					Type c1 = p1.getChild(childName);
-					Type c2 = p2.getChild(childName);
-
-					queue.add(newPair(c1, c2));
-				}
-				
-				relation.put(p1, p2);
-			}
-			else{
-				System.out.println("Choice types not supported for equivalence checking yet");
-				return false;
-			}
+			
 		}
 
 		return true;
 	}
 
-	private static Pair<Type, Type> newPair(Type t1, Type t2){
-		return new Pair<Type, Type>(t1, t2);
-	}
-
-	private static void printRelation(Set<Pair<Type, Type>> rel){
-		for(Pair<Type, Type> p : rel){
-			System.out.println(p.key() + " <--> " + p.value());
-		}
-	}
-
-	private static void printQueue(LinkedList<Pair<Type, Type>> queue){
-		System.out.println("queue:");
-		for(Pair<Type, Type> p : queue){
-			System.out.print("(" + p.key().prettyString() + ", " + p.value().prettyString() + "); ");
-		}
-		System.out.println();
-	}
-
-	private static void printPair(Pair<Type, Type> p){
-		System.out.println("(" + p.key().prettyString() + ", " + p.value().prettyString() + ")");
+	private Pair<HashSet<Type>,HashSet<Type>> newPair(HashSet<Type> X, HashSet<Type> Y){
+		return new Pair<HashSet<Type>, HashSet<Type>>(X, Y);
 	}
 }
