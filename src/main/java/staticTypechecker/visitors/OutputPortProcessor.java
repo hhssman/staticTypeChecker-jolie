@@ -90,19 +90,23 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 
 public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
+	private Module module;
 	public OutputPortProcessor(){}
 
 	public Type process(Module module){
+		this.module = module;
 		module.program().accept(this, module.symbols());
 		return null;
 	}
@@ -166,17 +170,32 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 	@Override
 	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
-		OLSyntaxNode passingParameter = n.passingParameter(); // TODO, check this
 		String portName = n.bindingPort().id();
 		String serviceName = n.serviceName();
 		boolean isNewPort = n.isNewPort();
+		
+		Service service = (Service)symbols.get(serviceName);
+		
+		if(service.parameter() != null){ // the service requires a parameter, check that the provided is a subtype
+			OLSyntaxNode passingParameter = n.passingParameter();
+			Type expectedType = service.parameter();
+			
+			// check that a parameter was actually provided
+			if(passingParameter == null){
+				FaultHandler.throwFault("no parameter passed to the service. Expected type:\n" + expectedType.prettyString(), n.context());
+				return null;
+			}
+
+			// check that the type of the parameter is a subtype of the expected type
+			Type providedType = (Type)symbols.get(passingParameter.toString());
+			Synthesizer.get(this.module).check(providedType, expectedType, n.context()); // check that it is a subtype
+		}
 
 		if(!isNewPort){ // this is an "embed-in" case, where we use an existing output port, check if interfaces are compatible
 			HashMap<String, Operation> requiredOperations = new HashMap<>(); // maps operation names to operation objects of all operations the port requires
 			HashMap<String, Operation> providedOperations = new HashMap<>(); // maps operation names to operation objects of all operations the service provides
 
 			OutputPort bindingPort = (OutputPort)symbols.get(portName);
-			Service service = (Service)symbols.get(serviceName);
 
 			// find required operations
 			for(String interfaceName : bindingPort.interfaces()){ // loop through each implemented interface of the output port
@@ -215,8 +234,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			}
 
 			if(!portSatisfied){ // interface requirements are not met by the service
-				// TODO, throw error
-				System.out.println("Error: service '" + serviceName + "' does not provide operation '" + scapeGoatOp + "' required by port '" + portName + "'");
+				FaultHandler.throwFault("service '" + serviceName + "' does not provide operation '" + scapeGoatOp + "' required by port '" + portName + "'");
 			}
 		}
 

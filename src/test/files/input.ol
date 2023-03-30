@@ -1,4 +1,5 @@
 from .types import imp
+from .embedMe import EmbedMe
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
 interface MyInterface {
@@ -16,7 +17,11 @@ type X: int {
 	x: X
 }
 
-service MyService(param: int) {
+type yo: int {
+	x: bool
+}
+
+service MyService(param: yo) {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -28,6 +33,8 @@ service MyService(param: int) {
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
+
+	embed EmbedMe(param) as E
 
 	main {
 		x = 10

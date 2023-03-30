@@ -1,6 +1,9 @@
 package staticTypechecker.entities;
 
 import java.util.Map.Entry;
+
+import staticTypechecker.typeStructures.Type;
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -8,7 +11,7 @@ public class Service implements Symbol {
 	private String name; // the name of the service
 	private HashMap<String, InputPort> inputPorts; // map names to input ports
 	private HashMap<String, OutputPort> outputPorts; // map names to output ports
-	private String parameter; // service parameter
+	private Type parameter; // service parameter
 
 	public Service(){
 		this.name = null;
@@ -45,16 +48,20 @@ public class Service implements Symbol {
 		return this.inputPorts.entrySet();
 	}
 
-	public String parameter(){
+	public Type parameter(){
 		return this.parameter;
 	}
 
-	public void setParameter(String parameter){
+	public void setParameter(Type parameter){
 		this.parameter = parameter;
 	}
 
 	public String prettyString(){
 		String ret = this.name;
+
+		if(this.parameter != null){
+			ret += "(" + this.parameter + ")";
+		}
 
 		if(!this.inputPorts.isEmpty()){
 			ret += "\n\tInputPorts:";

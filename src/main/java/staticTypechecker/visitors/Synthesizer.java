@@ -263,7 +263,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( AssignStatement n, Type T ){
-		System.out.println("assign");
 		// retrieve the type of the expression
 		Path path = new Path(n.variablePath().path());
 		OLSyntaxNode e = n.expression();

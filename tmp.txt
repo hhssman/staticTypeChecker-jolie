@@ -3,7 +3,27 @@ STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
+service name: EmbedMe
+type: int {
+	x: 
+		string
+		|
+		bool
+}
+passsingparameter: param
 STAGE 6: process behaviors
+
+Final tree:
+void {
+	param: int {
+		x: 
+			string
+			|
+			bool
+	}
+}
+
+--------------------------
 
 Final tree:
 void
@@ -11,18 +31,20 @@ void
 --------------------------
 
 x = 10
-assign
 void {
-	param: int
+	param: int {
+		x: bool
+	}
 	x: int
 }
 
 --------------------------
 
-y = string(50 + 5)
-assign
+y = string(x)
 void {
-	param: int
+	param: int {
+		x: bool
+	}
 	x: int
 	y: string
 }
@@ -31,7 +53,9 @@ void {
 
 Final tree:
 void {
-	param: int
+	param: int {
+		x: bool
+	}
 	x: int
 	y: string
 }

@@ -24,6 +24,7 @@ import jolie.lang.parse.ast.ForEachSubNodeStatement;
 import jolie.lang.parse.ast.ForStatement;
 import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
+import jolie.lang.parse.ast.ImportSymbolTarget;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
 import jolie.lang.parse.ast.InstallStatement;
@@ -87,12 +88,14 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
+import jolie.util.Pair;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 
@@ -128,17 +131,17 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, configParamStruct));
 
 			// add the parameter to the service object
-			String typeName = "";
-			if(paramType instanceof TypeDefinitionLink){ // an alias for a cutsom type
-				TypeDefinitionLink castedType = (TypeDefinitionLink)paramType;
-				typeName = castedType.linkedTypeName();
-			}
-			else if(paramType instanceof TypeInlineDefinition){ // a base type
-				TypeInlineDefinition castedType = (TypeInlineDefinition)paramType;
-				typeName = castedType.name();
-			}
+			// String typeName = "";
+			// if(paramType instanceof TypeDefinitionLink){ // an alias for a cutsom type
+			// 	TypeDefinitionLink castedType = (TypeDefinitionLink)paramType;
+			// 	typeName = castedType.linkedTypeName();
+			// }
+			// else if(paramType instanceof TypeInlineDefinition){ // a base type
+			// 	TypeInlineDefinition castedType = (TypeInlineDefinition)paramType;
+			// 	typeName = castedType.name();
+			// }
 
-			service.setParameter(typeName);
+			service.setParameter(configParamStruct);
 		}
 
 		// visit program of service to process input ports
@@ -199,6 +202,24 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
+		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		
+		for(ImportSymbolTarget s : n.importSymbolTargets()){
+			String originalName = s.originalSymbolName();
+			String alias = s.localSymbolName();
+			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+			
+			if(p.key().equals(SymbolType.SERVICE)){ // we imported a service
+				if(p.value() == null){ // the service has not been initalized yet
+					ModuleHandler.runVisitor(this, moduleName);
+	
+					p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+				}
+	
+				symbols.put(alias, p);
+			}
+		}
+		
 		return null;
 	}
 
