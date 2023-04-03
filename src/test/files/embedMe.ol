@@ -1,6 +1,4 @@
-type YO: int {
-	x: string | bool
-}
+from .types import YO
 
 service EmbedMe(paramEmbed: YO){
 	

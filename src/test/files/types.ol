@@ -1,3 +1,3 @@
-type imp: int{
-	x: int
+type YO: int {
+	x: string | bool
 }

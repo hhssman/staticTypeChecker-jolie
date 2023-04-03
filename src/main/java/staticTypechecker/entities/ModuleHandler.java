@@ -9,7 +9,7 @@ import staticTypechecker.visitors.TypeCheckerVisitor;
 public class ModuleHandler {
 	private static HashMap<String, Module> modules = new HashMap<>();
 
-	public static void loadModules(String initialModuleName){
+	public static void loadModule(String initialModuleName){
 		Module initialModule = new Module(initialModuleName);
 		ModuleHandler.modules.put(initialModuleName, initialModule);
 
@@ -17,7 +17,8 @@ public class ModuleHandler {
 			if(node instanceof ImportStatement){
 				ImportStatement n = (ImportStatement)node;
 				String moduleName = ModuleHandler.getModuleName(n);
-				ModuleHandler.modules.put(moduleName, new Module(moduleName));
+
+				ModuleHandler.loadModule(moduleName);
 			}
 		}
 	}

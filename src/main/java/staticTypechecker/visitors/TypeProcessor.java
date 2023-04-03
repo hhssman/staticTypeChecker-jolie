@@ -166,11 +166,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
 			if(p.key().equals(SymbolType.TYPE)){ // we imported a type
-				// if(p.value() == null){ // the type has not been initalized yet
-				// 	ModuleHandler.runVisitor(this, moduleName);
-	
-				// 	p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
-				// }
 				symbols.put(alias, p);
 			}
 		}

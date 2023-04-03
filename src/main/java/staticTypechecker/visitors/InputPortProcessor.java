@@ -228,12 +228,6 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
 			if(p.key().equals(SymbolType.SERVICE)){ // we imported a service
-				// if(p.value() == null){ // the service has not been initalized yet
-				// 	ModuleHandler.runVisitor(this, moduleName);
-					
-				// 	p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
-				// }
-	
 				symbols.put(alias, p);
 			}
 		}

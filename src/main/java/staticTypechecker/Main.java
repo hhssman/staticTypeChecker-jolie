@@ -30,8 +30,9 @@ public class Main {
 		
 		// stage 0: parse the modules
 		String moduleName = args[0];
-		ModuleHandler.loadModules(moduleName);
-	
+		ModuleHandler.loadModule(moduleName);
+		// System.out.println("loaded modules: " + ModuleHandler.modules());
+
 		// stage 1: discover symbols in all modules
 		System.out.println("STAGE 1: discover symbols");
 		

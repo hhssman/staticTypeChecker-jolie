@@ -101,29 +101,47 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	public SymbolCollector(){}
 
 	public Type process(Module module, boolean processImports){
-		SymbolTable ret = new SymbolTable();
-		module.setSymbols(ret);
-		module.program().accept(this, ret);
-		return null;
+		if(module.symbols() == null){
+			module.setSymbols(new SymbolTable());
+		}
 
-		
+		Program p = module.program();
+
+		if(!processImports){
+			// accept all children which are NOT import statements
+			for(OLSyntaxNode child : p.children()){
+				if(!(child instanceof ImportStatement)){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		else{
+			// accept all import statements
+			for(OLSyntaxNode child : p.children()){
+				if(child instanceof ImportStatement){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+
+		return null;
 	}
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
 		// accept all children which are NOT import statements first
-		for(OLSyntaxNode child : p.children()){
-			if(!(child instanceof ImportStatement)){
-				child.accept(this, symbols);
-			}
-		}
+		// for(OLSyntaxNode child : p.children()){
+		// 	if(!(child instanceof ImportStatement)){
+		// 		child.accept(this, symbols);
+		// 	}
+		// }
 
-		// then accept all import statements
-		for(OLSyntaxNode child : p.children()){
-			if(child instanceof ImportStatement){
-				child.accept(this, symbols);
-			}
-		}
+		// // then accept all import statements
+		// for(OLSyntaxNode child : p.children()){
+		// 	if(child instanceof ImportStatement){
+		// 		child.accept(this, symbols);
+		// 	}
+		// }
 
 		return null;
 	}
@@ -174,18 +192,15 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
-		if(!symbols.containsKey(n.name())){ // new symbol
-
-			// if the service has a configuration parameter, add it
-			if(n.parameterConfiguration().isPresent()){
-				String configParamPath = n.parameterConfiguration().get().variablePath();
-				symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, null));
-			}
-
-			// add the service name and accept its program to find all symbols there
-			symbols.put(n.name(), Symbol.newPair(SymbolType.SERVICE, null));
-			n.program().accept(this, symbols);
+		// if the service has a configuration parameter, add it
+		if(n.parameterConfiguration().isPresent()){
+			String configParamPath = n.parameterConfiguration().get().variablePath();
+			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, null));
 		}
+	
+		// add the service name and accept its program to find all symbols there
+		symbols.put(n.name(), Symbol.newPair(SymbolType.SERVICE, null));
+		n.program().accept(this, symbols);
 
 		return null;
 	}
