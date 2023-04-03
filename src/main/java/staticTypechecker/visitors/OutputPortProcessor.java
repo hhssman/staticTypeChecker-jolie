@@ -95,7 +95,6 @@ import staticTypechecker.typeStructures.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
@@ -105,9 +104,27 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 	private Module module;
 	public OutputPortProcessor(){}
 
-	public Type process(Module module){
+	public Type process(Module module, boolean processImports){
 		this.module = module;
-		module.program().accept(this, module.symbols());
+		Program p = module.program();
+		
+		if(!processImports){
+			// accept all children which are NOT import statements
+			for(OLSyntaxNode child : p.children()){
+				if(!(child instanceof ImportStatement)){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		else{
+			// accept all import statements
+			for(OLSyntaxNode child : p.children()){
+				if(child instanceof ImportStatement){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		
 		return null;
 	}
 
@@ -182,7 +199,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			
 			// check that a parameter was actually provided
 			if(passingParameter == null){
-				FaultHandler.throwFault("no parameter passed to the service. Expected type:\n" + expectedType.prettyString(), n.context());
+				FaultHandler.throwFault("no parameter passed to the service \"" + serviceName + "\". Expected type:\n" + expectedType.prettyString(), n.context());
 				return null;
 			}
 

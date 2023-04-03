@@ -38,7 +38,7 @@ service MyService(param: yo) {
 
 	main {
 		x = 10
-		y = string(x)
+		x.x = "hey"
 		// i = 0
 
 		// while(i < 3){

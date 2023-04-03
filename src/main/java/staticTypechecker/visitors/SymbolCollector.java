@@ -100,12 +100,13 @@ import staticTypechecker.typeStructures.Type;
 public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public SymbolCollector(){}
 
-	public Type process(Module module){
+	public Type process(Module module, boolean processImports){
 		SymbolTable ret = new SymbolTable();
 		module.setSymbols(ret);
 		module.program().accept(this, ret);
-
 		return null;
+
+		
 	}
 
 	@Override
@@ -147,13 +148,9 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		String moduleName = ModuleHandler.getModuleName(n);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
-			if(!ModuleHandler.contains(moduleName)){
-				ModuleHandler.runVisitor(this, moduleName);
-			}
-
 			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
 

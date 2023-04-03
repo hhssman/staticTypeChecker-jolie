@@ -96,26 +96,44 @@ import staticTypechecker.typeStructures.Type;
 public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public TypeProcessor(){}
 
-	public Type process(Module module){
-		module.program().accept(this, module.symbols());
+	public Type process(Module module, boolean processImports){
+		Program p = module.program();
+		
+		if(!processImports){
+			// accept all children which are NOT import statements
+			for(OLSyntaxNode child : p.children()){
+				if(!(child instanceof ImportStatement)){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		else{
+			// accept all import statements
+			for(OLSyntaxNode child : p.children()){
+				if(child instanceof ImportStatement){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		
 		return null;
 	}
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
 		// accept all children which are NOT import statements first
-		for(OLSyntaxNode child : p.children()){
-			if(!(child instanceof ImportStatement)){
-				child.accept(this, symbols);
-			}
-		}
+		// for(OLSyntaxNode child : p.children()){
+		// 	if(!(child instanceof ImportStatement)){
+		// 		child.accept(this, symbols);
+		// 	}
+		// }
 
-		// then accept all import statements
-		for(OLSyntaxNode child : p.children()){
-			if(child instanceof ImportStatement){
-				child.accept(this, symbols);
-			}
-		}
+		// // then accept all import statements
+		// for(OLSyntaxNode child : p.children()){
+		// 	if(child instanceof ImportStatement){
+		// 		child.accept(this, symbols);
+		// 	}
+		// }
 
 		return null;
 	}
@@ -140,7 +158,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		String moduleName = ModuleHandler.getModuleName(n);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();
@@ -148,12 +166,11 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
 			if(p.key().equals(SymbolType.TYPE)){ // we imported a type
-				if(p.value() == null){ // the type has not been initalized yet
-					ModuleHandler.runVisitor(this, moduleName);
+				// if(p.value() == null){ // the type has not been initalized yet
+				// 	ModuleHandler.runVisitor(this, moduleName);
 	
-					p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
-				}
-	
+				// 	p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+				// }
 				symbols.put(alias, p);
 			}
 		}

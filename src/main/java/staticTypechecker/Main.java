@@ -29,25 +29,21 @@ public class Main {
 		
 		
 		// stage 0: parse the modules
-		// ModuleHandler.loadModules(args);
+		String moduleName = args[0];
+		ModuleHandler.loadModules(moduleName);
 	
 		// stage 1: discover symbols in all modules
 		System.out.println("STAGE 1: discover symbols");
-		String moduleName = args[0];
-		ModuleHandler.loadModule(moduleName);
 		
 		SymbolCollector sCollector = new SymbolCollector();
-		sCollector.process(ModuleHandler.get(moduleName));
+		ModuleHandler.runVisitor(sCollector);
 
 		// printAllSymbols();
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");
-
 		TypeProcessor tProcessor = new TypeProcessor();
-		ModuleHandler.modules().values().forEach(m -> {
-			tProcessor.process(m);
-		});
+		ModuleHandler.runVisitor(tProcessor);
 
 		// printAllSymbols();
 
@@ -55,9 +51,7 @@ public class Main {
 		System.out.println("STAGE 3: process interfaces");
 		
 		InterfaceProcessor iProcessor = new InterfaceProcessor();
-		ModuleHandler.modules().values().forEach(m -> {
-			iProcessor.process(m);
-		});
+		ModuleHandler.runVisitor(iProcessor);
 
 		// printAllSymbols();
 
@@ -65,9 +59,7 @@ public class Main {
 		System.out.println("STAGE 4: process input ports and service parameters");
 		
 		InputPortProcessor ipProcessor = new InputPortProcessor();
-		ModuleHandler.modules().values().forEach(m -> {
-			ipProcessor.process(m);
-		});
+		ModuleHandler.runVisitor(ipProcessor);
 
 		// printAllSymbols();
 
@@ -75,17 +67,15 @@ public class Main {
 		System.out.println("STAGE 5: process output ports and embeddings");
 
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
-		ModuleHandler.modules().values().forEach(m -> {
-			opProcessor.process(m);
-		});
+		ModuleHandler.runVisitor(opProcessor);
 
 		// printAllSymbols();
 		
 		// stage 6: process service behaviors
 		System.out.println("STAGE 6: process behaviors\n");
 
-		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 		HashMap<String, Type> trees = new HashMap<>();
+		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 
 		ModuleHandler.modules().values().forEach(m -> {
 			trees.put(m.name(), bProcessor.process(m));

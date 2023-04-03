@@ -60,7 +60,7 @@ public class Service implements Symbol {
 		String ret = this.name;
 
 		if(this.parameter != null){
-			ret += "(" + this.parameter + ")";
+			ret += "(\n\t" + this.parameter.prettyString(1) + "\n)";
 		}
 
 		if(!this.inputPorts.isEmpty()){

@@ -102,8 +102,26 @@ import staticTypechecker.entities.Symbol;
 public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InputPortProcessor(){}
 
-	public Type process(Module module){
-		module.program().accept(this, module.symbols());
+	public Type process(Module module, boolean processImports){
+		Program p = module.program();
+		
+		if(!processImports){
+			// accept all children which are NOT import statements
+			for(OLSyntaxNode child : p.children()){
+				if(!(child instanceof ImportStatement)){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		else{
+			// accept all import statements
+			for(OLSyntaxNode child : p.children()){
+				if(child instanceof ImportStatement){
+					child.accept(this, module.symbols());
+				}
+			}
+		}
+		
 		return null;
 	}
 
@@ -202,7 +220,7 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		String moduleName = ModuleHandler.getModuleName(n);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();
@@ -210,11 +228,11 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
 			
 			if(p.key().equals(SymbolType.SERVICE)){ // we imported a service
-				if(p.value() == null){ // the service has not been initalized yet
-					ModuleHandler.runVisitor(this, moduleName);
-	
-					p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
-				}
+				// if(p.value() == null){ // the service has not been initalized yet
+				// 	ModuleHandler.runVisitor(this, moduleName);
+					
+				// 	p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+				// }
 	
 				symbols.put(alias, p);
 			}

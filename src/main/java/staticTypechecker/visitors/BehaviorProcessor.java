@@ -92,12 +92,11 @@ import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
 
-public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisitor {
+public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	private Module module;
 	private Synthesizer synthesizer;
 	private boolean print = false;
 
-	public BehaviorProcessor(){}
 	public BehaviorProcessor(boolean print){
 		this.print = print;
 	}
@@ -121,8 +120,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 		Type result = module.program().accept(this, new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false));
 
-		System.out.println("Final tree:");
-		this.printTree(result);
+		if(this.print){
+			System.out.println("Final tree for module " + module.name() + ":");
+			this.printTree(result);
+		}
 		
 		return result;
 	}

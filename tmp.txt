@@ -1,31 +1,84 @@
 STAGE 1: discover symbols
 STAGE 2: process types
+-----------------------------------------
+Module: ./src/test/files/embedMe.ol
+
+EmbedMe: null
+
+YO: int {
+	x: 
+		bool
+		|
+		string
+}
+
+paramEmbed: null
+______________
+Module: ./src/test/files/types.ol
+
+imp: int {
+	x: int
+}
+______________
+Module: ./src/test/files/input.ol
+
+in: null
+
+E: null
+
+MyInterface: null
+
+imp: int {
+	x: int
+}
+
+out: null
+
+helloReqRes: null
+
+EmbedMe: null
+
+param: null
+
+yo: int {
+	x: bool
+}
+
+MyService: null
+
+X: int {
+	x: int {
+		x (recursive structure)
+	}
+}
+
+Y: string {
+	x: string {
+		x (recursive structure)
+	}
+}
+
+helloOneway: null
+______________
+-----------------------------------------
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
-service name: EmbedMe
-type: int {
-	x: 
-		string
-		|
-		bool
-}
-passsingparameter: param
 STAGE 6: process behaviors
 
-Final tree:
+Final tree for module ./src/test/files/embedMe.ol:
 void {
-	param: int {
+	paramEmbed: int {
 		x: 
-			string
-			|
 			bool
+			|
+			string
 	}
 }
 
 --------------------------
 
-Final tree:
+Final tree for module ./src/test/files/types.ol:
 void
 
 --------------------------
@@ -40,24 +93,26 @@ void {
 
 --------------------------
 
-y = string(x)
+x.x = "hey"
 void {
 	param: int {
 		x: bool
 	}
-	x: int
-	y: string
+	x: int {
+		x: string
+	}
 }
 
 --------------------------
 
-Final tree:
+Final tree for module ./src/test/files/input.ol:
 void {
 	param: int {
 		x: bool
 	}
-	x: int
-	y: string
+	x: int {
+		x: string
+	}
 }
 
 --------------------------

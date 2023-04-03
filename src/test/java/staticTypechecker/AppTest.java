@@ -38,7 +38,7 @@ public class AppTest{
 	// private String moduleName = "./src/test/files/testFile.ol";
 	// private Module module = new Module(this.moduleName);
 	// private Synthesizer synth = Synthesizer.get(new Module(this.moduleName));
-	private BehaviorProcessor bProcessor = new BehaviorProcessor();
+	private BehaviorProcessor bProcessor = new BehaviorProcessor(false);
 	private final String BASE_PATH = "./src/test/files/";
 
     /**
@@ -50,7 +50,7 @@ public class AppTest{
 		Module module = new Module(moduleName);
 		
 		SymbolCollector sCollector = new SymbolCollector();
-		sCollector.process(module);
+		sCollector.process(module, false);
 
 		SymbolTable result = module.symbols();
 		SymbolTable target = new SymbolTable();
@@ -170,7 +170,7 @@ public class AppTest{
 		};
 
 		for(TypeCheckerVisitor visitor : visitors){
-			visitor.process(module);
+			visitor.process(module, false);
 		}
 
 		return module;

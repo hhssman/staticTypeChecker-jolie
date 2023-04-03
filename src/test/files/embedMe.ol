@@ -2,6 +2,6 @@ type YO: int {
 	x: string | bool
 }
 
-service EmbedMe(param: YO){
+service EmbedMe(paramEmbed: YO){
 	
 }
