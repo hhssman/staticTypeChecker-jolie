@@ -36,14 +36,16 @@ service MyService(param: yo) {
 	embed EmbedMe(param) as E
 
 	main {
+		i = 0
 		x = 10
-		x.x = "hey"
-		// i = 0
+		y = "hi"
 
-		// while(i < 3){
-		// 	x.y = x
-		// 	i++
-		// }
+		while(i < 3){
+			z = x
+			x = y
+			y = z
+			i++
+		}
 	}
 	
 }

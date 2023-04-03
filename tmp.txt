@@ -22,24 +22,57 @@ void
 
 --------------------------
 
+i = 0
+void {
+	param: int {
+		x: bool
+	}
+	i: int
+}
+
+--------------------------
+
 x = 10
 void {
 	param: int {
 		x: bool
 	}
 	x: int
+	i: int
 }
 
 --------------------------
 
-x.x = "hey"
+y = "hi"
 void {
 	param: int {
 		x: bool
 	}
-	x: int {
-		x: string
+	x: int
+	i: int
+	y: string
+}
+
+--------------------------
+
+while(i < 3)
+void {
+	param: int {
+		x: bool
 	}
+	x: int
+	i: int
+	y: string
+}
+|
+void {
+	param: int {
+		x: bool
+	}
+	x: string
+	i: int
+	y: int
+	z: int
 }
 
 --------------------------
@@ -49,10 +82,43 @@ void {
 	param: int {
 		x: bool
 	}
-	x: int {
-		x: string
+	x: int
+	i: int
+	y: string
+}
+|
+void {
+	param: int {
+		x: bool
 	}
+	x: string
+	i: int
+	y: int
+	z: int
 }
 
 --------------------------
+
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 44:
+The type:
+	void {
+		param: int {
+			x: bool
+		}
+		x: int
+		i: int
+		y: string
+		z: string
+	}
+
+is not a subtype of the type:
+	void {
+		param: int {
+			x: bool
+		}
+		x: string
+		i: int
+		y: int
+		z: int
+	}
 

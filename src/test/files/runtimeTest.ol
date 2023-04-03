@@ -8,11 +8,15 @@ service MyService() {
 	embed Console as Console
 
 	main {
-		x = 10
-		i = 0
+		x = 10L
+		x[1] = "hey"
+		x[2] = true
 
-		while(i < 3){
-			x.y << x
+		y = 5
+
+		i = 0
+		while(i < 2){
+			y = x[i]
 			i++
 		}
 

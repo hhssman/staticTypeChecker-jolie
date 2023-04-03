@@ -1,11 +1,9 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
-import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Module;
@@ -13,7 +11,6 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.WarningHandler;
-import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
