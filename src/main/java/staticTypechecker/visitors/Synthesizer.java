@@ -188,7 +188,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
@@ -204,7 +204,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
 
 		// given that p_in is of type T_in find the type of the behaviour
-		Type T_update = T.copy(false);
+		Type T_update = T.copy();
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T_update);
 		Type T1 = n.process().accept(this, T_update);
 		
@@ -248,7 +248,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(p_out, T_out, n.context());
 
 		// update type of p_in to T_in
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
@@ -269,8 +269,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T_e = e.accept(this, T);
 
 		// update the type of the node
-		Type T1 = T.copy(false);
-		TreeUtils.setTypeOfNodeByPath(path, T_e, T1);
+		Type T1 = T.copy();
+		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
+		TreeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
 
 		return T1;
 	};
@@ -279,7 +280,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(AddAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 		
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -294,7 +295,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(SubtractAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -309,7 +310,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(MultiplyAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -324,7 +325,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(DivideAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy(false);
+		Type T1 = T.copy();
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);

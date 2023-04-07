@@ -142,20 +142,19 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	@Override
 	public Type visit(ServiceNode n, Type T) {
 		Type result;
+		Type T1 = T;
 
 		if(n.parameterConfiguration().isPresent()){
-			Type T1 = T.copy();
+			T1 = T.copy();
 			Path path = new Path(n.parameterConfiguration().get().variablePath());
 			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name());
 
 			TreeUtils.setTypeOfNodeByPath(path, typeOfParam, T1);
+			this.printTree(T1);
+		}
 
-			result = n.program().accept(this, T1);
-		}
-		else{
-			// accept the program of the service node
-			result = n.program().accept(this, T);
-		}
+		// accept the program of the service node
+		result = n.program().accept(this, T1);
 
 		return result;
 	}

@@ -1,26 +1,50 @@
-from .embedMe import EmbedMe
+// from .embedMe import EmbedMe
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
 interface MyInterface {
 	RequestResponse:
 		helloReqRes( int )( string )
 	OneWay:
-		helloOneway( int )
+		helloOneway( rec1 )
 }
 
-type Y: string {
-	x: Y
+// type one: int {
+// 	x: one
+// }
+
+// type two: int {
+// 	x: string {
+// 		y: bool {
+// 			z: two
+// 		}
+// 		z: two
+// 	}
+// }
+
+// type three: int {
+// 	x: string {
+// 		y: three
+// 	}
+// 	|
+// 	bool {
+// 		z: string
+// 	}
+// }
+
+type rec1: int {
+	x: rec1
 }
 
-type X: int {
-	x: X
+type rec2: int {
+	x: int {
+		x: int {
+			x: rec2
+			y: rec1
+		}
+	}
 }
 
-type yo: int {
-	x: bool
-}
-
-service MyService(param: yo) {
+service MyService(param: rec2) {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -33,19 +57,9 @@ service MyService(param: yo) {
 		Interfaces: MyInterface
 	}
 
-	embed EmbedMe(param) as E
-
 	main {
-		i = 0
-		x = 10
-		y = "hi"
-
-		while(i < 3){
-			z = x
-			x = y
-			y = z
-			i++
-		}
+		// param.x.y = "hi!"
+		helloOneway@out(param)
 	}
 	
 }

@@ -2,6 +2,7 @@ package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map.Entry;
 
 import jolie.lang.NativeType;
@@ -35,15 +36,14 @@ public abstract class Type implements Symbol {
 	public abstract ParsingContext context();
 
 	public abstract Type copy();
-	public abstract Type copy(boolean finalize);
-	public abstract Type copy(boolean finalize, HashMap<Type, Type> rec);
+	public abstract Type copy(IdentityHashMap<Type, Type> rec);
 
-	public abstract String prettyStringHashCode();
-	public abstract String prettyStringHashCode(int level, ArrayList<Type> recursive);
+	// public abstract String prettyStringHashCode();
+	// public abstract String prettyStringHashCode(int level, ArrayList<Type> recursive);
 
 	public abstract String prettyString();
 	public abstract String prettyString(int level);
-	public abstract String prettyString(int level, ArrayList<Type> recursive);
+	public abstract String prettyString(int level, IdentityHashMap<Type, Void> recursive);
 
 	/**
 	 * Finds the type(s) of a single node

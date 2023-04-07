@@ -145,7 +145,7 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			String configParamPath = n.parameterConfiguration().get().variablePath();
 			
 			// add the type to the symbol table
-			Type configParamStruct = TypeConverter.convert(paramType);
+			Type configParamStruct = TypeConverter.convert(paramType, symbols);
 			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, configParamStruct));
 
 			// add the parameter to the service object

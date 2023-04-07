@@ -1,124 +1,84 @@
 STAGE 1: discover symbols
 STAGE 2: process types
+process type: rec1
+process type: rec1
+rec contains: rec1
+process type: rec2
+process type: x
+process type: x
+process type: rec2
+rec contains: rec2
+process type: rec1
+symbols contains: rec1
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
+process type: rec2
+symbols contains: rec2
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-Final tree for module ./src/test/files/embedMe.ol:
-void {
-	paramEmbed: int {
-		x: 
-			bool
-			|
-			string
+void (1537358694) {
+	param: int (804581391) {
+		x: int (2101440631) {
+			x: int (2109957412) {
+				x (recursive edge to 804581391)
+				y: int (901506536) {
+					x (recursive edge to 901506536)
+				}
+			}
+		}
 	}
 }
 
 --------------------------
 
-Final tree for module ./src/test/files/types.ol:
-void
-
---------------------------
-
-i = 0
-void {
-	param: int {
-		x: bool
+helloOneway@out(param)
+void (1018547642) {
+	param: int (288665596) {
+		x: int (13648335) {
+			x: int (312116338) {
+				x (recursive edge to 288665596)
+				y: int (453211571) {
+					x (recursive edge to 453211571)
+				}
+			}
+		}
 	}
-	i: int
-}
-
---------------------------
-
-x = 10
-void {
-	param: int {
-		x: bool
-	}
-	x: int
-	i: int
-}
-
---------------------------
-
-y = "hi"
-void {
-	param: int {
-		x: bool
-	}
-	x: int
-	i: int
-	y: string
-}
-
---------------------------
-
-while(i < 3)
-void {
-	param: int {
-		x: bool
-	}
-	x: int
-	i: int
-	y: string
-}
-|
-void {
-	param: int {
-		x: bool
-	}
-	x: string
-	i: int
-	y: int
-	z: int
 }
 
 --------------------------
 
 Final tree for module ./src/test/files/input.ol:
-void {
-	param: int {
-		x: bool
+void (1018547642) {
+	param: int (288665596) {
+		x: int (13648335) {
+			x: int (312116338) {
+				x (recursive edge to 288665596)
+				y: int (453211571) {
+					x (recursive edge to 453211571)
+				}
+			}
+		}
 	}
-	x: int
-	i: int
-	y: string
-}
-|
-void {
-	param: int {
-		x: bool
-	}
-	x: string
-	i: int
-	y: int
-	z: int
 }
 
 --------------------------
 
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 44:
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 62:
 The type:
-	void {
-		param: int {
-			x: bool
+	int (288665596) {
+		x: int (13648335) {
+			x: int (312116338) {
+				x (recursive edge to 288665596)
+				y: int (453211571) {
+					x (recursive edge to 453211571)
+				}
+			}
 		}
-		x: int
-		i: int
-		y: string
-		z: string
 	}
 
 is not a subtype of the type:
-	void {
-		param: int {
-			x: bool
-		}
-		x: string
-		i: int
-		y: int
-		z: int
+	int (901506536) {
+		x (recursive edge to 901506536)
 	}
 

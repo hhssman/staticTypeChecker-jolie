@@ -32,22 +32,28 @@ public class Bisimulator {
 			InlineType x = (InlineType)t1;
 			InlineType y = (InlineType)t2;
 
+			Set<String> xLabels = x.children().keySet();
+			Set<String> yLabels = y.children().keySet();
+
 			if(!basicSubtype(x, y)){
 				return false;
 			}
-			if(!isSubSetOf(y.children().keySet(), x.children().keySet())){
+			if(!isSubSetOf(yLabels, xLabels)){
 				return false;
 			}
-			for(String label : y.children().keySet()){
+			for(String label : yLabels){
 				Type xChild = x.getChild(label);
 				Type yChild = y.getChild(label);
+
+				// System.out.println("xChild: " + xChild.prettyString());
+				// System.out.println("yChild: " + yChild.prettyString());
 
 				if(!isSubtypeOfRec(xChild, yChild, R)){
 					return false;
 				}
 			}
 			if(y.isClosed()){
-				if(!isSubSetOf(x.children().keySet(), y.children().keySet()) || x.isOpen()){
+				if(!isSubSetOf(xLabels, yLabels) || x.isOpen()){
 					return false;
 				}
 			}

@@ -3,6 +3,7 @@ package staticTypechecker.typeStructures;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
@@ -77,6 +78,8 @@ public class ChoiceType extends Type {
 		return new ArrayList<>(this.choices);
 	}
 
+	
+
 	public ChoiceType put(String childName, Type structure){
 		ChoiceType copy = (ChoiceType)this.copy();
 
@@ -133,39 +136,40 @@ public class ChoiceType extends Type {
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 
-	public String toString(){
-		String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
-		return toString;
-	}
+	// public String toString(){
+	// 	String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
+	// 	return toString;
+	// }
 
 	public ChoiceType copy(){
-		return this.copy(false);
-	}
-
-	public ChoiceType copy(boolean finalize){
 		ChoiceType copy = new ChoiceType();
 		copy.setContext(this.ctx);
+
+		IdentityHashMap<Type, Type> seenTypes = new IdentityHashMap<>();
+		seenTypes.put(this, copy);
 		
 		for(InlineType choice : this.choices){
-			copy.addChoiceUnsafe(choice.copy(finalize));
+			copy.addChoiceUnsafe(choice.copy(seenTypes));
 		}
 
 		return copy;
 	}
 
-	public ChoiceType copy(boolean finalize, HashMap<Type, Type> seenTypes){
+	public ChoiceType copy(IdentityHashMap<Type, Type> seenTypes){
 		ChoiceType copy = new ChoiceType();
 		copy.setContext(this.ctx);
 
+		seenTypes.put(this, copy);
+
 		for(InlineType choice : this.choices){
-			copy.addChoiceUnsafe(choice.copy(finalize, seenTypes));
+			copy.addChoiceUnsafe(choice.copy(seenTypes));
 		}
 
 		return copy;
 	}
 
 	public String prettyString(){
-		ArrayList<Type> recursive = new ArrayList<>();
+		IdentityHashMap<Type, Void> recursive = new IdentityHashMap<>();
 		String toString = this.choices.stream()
 										.map(c -> c.prettyString(0, recursive))
 										.collect(Collectors.joining("\n|\n"));
@@ -174,37 +178,19 @@ public class ChoiceType extends Type {
 	}
 
 	public String prettyString(int level){
-		return this.prettyString(level, new ArrayList<>());
+		return this.prettyString(level, new IdentityHashMap<>());
 	}
 
-	public String prettyString(int level, ArrayList<Type> recursive){
+	public String prettyString(int level, IdentityHashMap<Type, Void> recursive){
+		recursive.put(this, null);
+		
 		int newLevel = level + 1;
 		
-		String toString = "\n" + "\t".repeat(newLevel);
+		String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
 		toString += this.choices.stream().map(c -> {
-			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
+			IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each choice
 			return c.prettyString(newLevel, rec);
 		}).collect(Collectors.joining("\n" + "\t".repeat(newLevel) + "|" + "\n" + "\t".repeat(newLevel)));
-
-		return toString;
-	}
-
-
-	public String prettyStringHashCode(){
-		ArrayList<Type> recursive = new ArrayList<>();
-		String toString = this.choices.stream()
-										.map(c -> c.prettyStringHashCode(0, recursive))
-										.collect(Collectors.joining("\n|\n"));
-
-		return toString;
-	}
-
-	public String prettyStringHashCode(int level, ArrayList<Type> recursive){
-		String toString = "\n" + "\t".repeat(level);
-		toString += this.choices.stream().map(c -> {
-			ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-			return c.prettyStringHashCode(level, rec);
-		}).collect(Collectors.joining("\n" + "\t".repeat(level) + "|" + "\n" + "\t".repeat(level)));
 
 		return toString;
 	}

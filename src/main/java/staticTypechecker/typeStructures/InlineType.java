@@ -1,17 +1,23 @@
 package staticTypechecker.typeStructures;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import java.util.ArrayList;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.utils.Bisimulator;
 
 /**
- * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name. New children can be added until the finalize function is called (open record vs closed record). 
+ * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name.
  * 
  * @author Kasper Bergstedt
  */
@@ -148,23 +154,18 @@ public class InlineType extends Type {
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 
-	public InlineType copy(){
-		return this.copy(false);
-	}
-
 	/**
 	 * Creates a deep copy of this structure
-	 * @param finalize whether or not the copy should be finalized
 	 * @return the deep copy
 	 */
-	public InlineType copy(boolean finalize){
-		return this.copy(finalize, new HashMap<>());
+	public InlineType copy(){
+		return this.copy(new IdentityHashMap<>());
 	}
 
 	/**
 	 * @param seenTypes is a HashMap which maps typestructures in the original type to their equivalent part in the copy. This is used when dealing with recursive types.
 	 */
-	public InlineType copy(boolean finalize, HashMap<Type, Type> seenTypes){
+	public InlineType copy(IdentityHashMap<Type, Type> seenTypes){
 		InlineType struct = new InlineType(this.basicType, this.cardinality, this.context, this.openRecord);
 		seenTypes.put(this, struct);
 
@@ -181,7 +182,7 @@ public class InlineType extends Type {
 			}
 
 			// otherwise we must make a new copy
-			struct.addChildUnsafe(childName, childStruct.copy(finalize, seenTypes));
+			struct.addChildUnsafe(childName, childStruct.copy(seenTypes));
 		});
 		
 		return struct;
@@ -205,14 +206,15 @@ public class InlineType extends Type {
 	 * Get a nice string representing this structure
 	 */
 	public String prettyString(){
-		return this.prettyString(0, new ArrayList<>());
+		return this.prettyString(0, new IdentityHashMap<>());
 	}
 
 	public String prettyString(int level){
-		return this.prettyString(level, new ArrayList<>());
+		return this.prettyString(level, new IdentityHashMap<>());
 	}
 
-	public String prettyString(int level, ArrayList<Type> recursive){
+	public String prettyString(int level, IdentityHashMap<Type, Void> recursive){
+		recursive.put(this, null);
 		String result = "";
 		
 		// print the basic type
@@ -222,6 +224,8 @@ public class InlineType extends Type {
 		else{
 			result += "no type";
 		}
+
+		result += " (" + System.identityHashCode(this) + ")";
 
 		// print the children if any
 		if(this.children.size() != 0){
@@ -239,14 +243,13 @@ public class InlineType extends Type {
 					continue;
 				}
 
-				if(this.containsChildExact(recursive, child)){ // child have been printed before, it is recursive
-					result += "\n" + "\t".repeat(level+1) + childName + " (recursive structure)";
+				if(recursive.containsKey(child)){ // child have been printed before, it is recursive
+					result += "\n" + "\t".repeat(level+1) + childName + " (recursive edge to " + System.identityHashCode(child) + ")";
+					continue;
 				}
-				else{ // not recursive
-					recursive.add(child);
-					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-					result += "\n" + "\t".repeat(level+1) + childName + ": " + child.prettyString(level+1, rec);
-				}
+
+				IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each chilf
+				result += "\n" + "\t".repeat(level+1) + childName + ": " + child.prettyString(level+1, rec);
 			}
 
 			result += "\n" + "\t".repeat(level) + "}"; // close the bracket again
@@ -264,50 +267,13 @@ public class InlineType extends Type {
 	 * @param type
 	 * @return
 	 */
-	private boolean containsChildExact(ArrayList<Type> list, Type type){
-		for(int i = 0; i < list.size(); i++){
-			if(list.get(i) == type){
+	private boolean containsChildExact(IdentityHashMap<Type, Void> list, Type type){
+		for(Type t : list.keySet()){
+			if(t == type){
 				return true;
 			}
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get a nice string representing this structure
-	 */
-	public String prettyStringHashCode(){
-		return this.prettyStringHashCode(0, new ArrayList<>());
-	}
-
-	public String prettyStringHashCode(int level, ArrayList<Type> recursive){
-		String prettyString = "(" + System.identityHashCode(this) + ")";
-		prettyString += this.basicType != null ? this.basicType.nativeType().id() + " " : "no type ";
-
-		if(this.cardinality != null && (this.cardinality.min() != 1 || this.cardinality.max() != 1)){ // there is a range
-			prettyString += "[" + this.cardinality.min() + "," + this.cardinality.max() + "]";
-		}
-
-		if(this.children.size() != 0){
-			prettyString += "{";
-
-			prettyString += this.children.entrySet().stream().map(child -> {
-				if(this.containsChildExact(recursive, child.getValue())){
-					return "\n" + "\t".repeat(level+1) + "(" + System.identityHashCode(child.getValue()) + ")" + child.getKey() + " (recursive structure)";
-				}
-				else{
-					recursive.add(child.getValue());
-					ArrayList<Type> rec = new ArrayList<>(recursive); // shallow copy to not pass the same to each choice
-
-					return "\n" + "\t".repeat(level+1) + "(" + System.identityHashCode(child.getValue()) + ")" + child.getKey() + ": " + child.getValue().prettyStringHashCode(level+2, rec);
-				}
-			})
-			.collect(Collectors.joining("\n"));
-
-			prettyString += "\n" + "\t".repeat(level) + "}";
-		}
-
-		return prettyString;
 	}
 }

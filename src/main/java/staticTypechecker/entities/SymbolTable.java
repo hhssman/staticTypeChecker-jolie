@@ -34,14 +34,26 @@ public class SymbolTable {
 	}
 
 	public Symbol get(String key){
+		if(!this.containsKey(key)){
+			return null;
+		}
+
 		return this.table.get(key).value();
 	}
 
 	public SymbolType getType(String key){
+		if(!this.containsKey(key)){
+			return null;
+		}
+
 		return this.table.get(key).key();
 	}
 
 	public Pair<SymbolType, Symbol> getPair(String key){
+		if(!this.containsKey(key)){
+			return null;
+		}
+		
 		return this.table.get(key);
 	}
 

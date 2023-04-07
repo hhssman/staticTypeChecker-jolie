@@ -140,19 +140,19 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.linkedTypeName(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
+		symbols.put(n.linkedTypeName(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n)));
+		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
