@@ -59,9 +59,7 @@ service MyService(param: rec1) {
 
 	main {
 		a = "hi!"
-		a.y = true
-		a.x = 10
-		param.x.x << a
+		a << param
 		// helloOneway@out(param)
 	}
 	

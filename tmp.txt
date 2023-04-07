@@ -17,28 +17,30 @@ symbols contains: rec1
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void (209813603) {
-	param: int (1057941451) {
-		x (recursive edge to 1057941451)
+void (804581391) {
+	param: int (209813603) {
+		x (recursive edge to 209813603)
 	}
 }
 
 --------------------------
 
 a = "hi!"
-void (13648335) {
-	a: string (796684896)
-	param: int (312116338) {
-		x (recursive edge to 312116338)
+void (288665596) {
+	a: string (453211571)
+	param: int (13648335) {
+		x (recursive edge to 13648335)
 	}
 }
 
 --------------------------
 
-a.y = true
-void (757108857) {
-	a: string (1809787067) {
-		y: bool (240650537)
+a << param
+void (796684896) {
+	a: int (1809787067) {
+		x: int (1802598046) {
+			x (recursive edge to 1802598046)
+		}
 	}
 	param: int (1802598046) {
 		x (recursive edge to 1802598046)
@@ -47,50 +49,15 @@ void (757108857) {
 
 --------------------------
 
-a.x = 10
-void (483422889) {
-	a: string (2088051243) {
-		x: int (1209271652)
-		y: bool (1277181601)
-	}
-	param: int (41903949) {
-		x (recursive edge to 41903949)
-	}
-}
-
---------------------------
-
-param.x.x << a
-void (93122545) {
-	a: string (985922955) {
-		x: int (1435804085)
-		y: bool (1784662007)
-	}
-	param: int (2083562754) {
-		x: int (557041912) {
-			x: string (997110508) {
-				x: int (1435804085)
-				y: bool (1784662007)
-			}
-		}
-	}
-}
-
---------------------------
-
 Final tree for module ./src/test/files/input.ol:
-void (93122545) {
-	a: string (985922955) {
-		x: int (1435804085)
-		y: bool (1784662007)
-	}
-	param: int (2083562754) {
-		x: int (557041912) {
-			x: string (997110508) {
-				x: int (1435804085)
-				y: bool (1784662007)
-			}
+void (796684896) {
+	a: int (1809787067) {
+		x: int (1802598046) {
+			x (recursive edge to 1802598046)
 		}
+	}
+	param: int (1802598046) {
+		x (recursive edge to 1802598046)
 	}
 }
 

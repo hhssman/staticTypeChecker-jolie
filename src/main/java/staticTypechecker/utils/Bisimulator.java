@@ -1,13 +1,9 @@
 package staticTypechecker.utils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
 import java.util.Set;
 
 import jolie.lang.NativeType;
-import jolie.util.Pair;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
@@ -18,7 +14,6 @@ public class Bisimulator {
 	}
 
 	public static boolean equivalent(Type t1, Type t2){
-		// return naive(t1, t2);
 		return isSubtypeOf(t1, t2) && isSubtypeOf(t2, t1);
 	}
 
@@ -44,9 +39,6 @@ public class Bisimulator {
 			for(String label : yLabels){
 				Type xChild = x.getChild(label);
 				Type yChild = y.getChild(label);
-
-				// System.out.println("xChild: " + xChild.prettyString());
-				// System.out.println("yChild: " + yChild.prettyString());
 
 				if(!isSubtypeOfRec(xChild, yChild, R)){
 					return false;
@@ -132,60 +124,5 @@ public class Bisimulator {
 		}
 		
 		return true;
-	}
-
-	private class Relation{
-		private IdentityHashMap<HashSet<Type>, HashSet<Type>> rel;
-
-		public Relation(){
-			this.rel = new IdentityHashMap<>();
-		}
-
-		public boolean contains(HashSet<Type> set1, HashSet<Type> set2){
-			return this.rel.containsKey(set1) && this.rel.get(set1) == set2;
-		}
-
-		public void insert(HashSet<Type> set1, HashSet<Type> set2){
-			this.rel.put(set1, set2);
-		}
-
-		// returns the congrunece closure of this relation
-		public Relation congruenceClosure(){
-			return this;
-		}
-	}
-
-	private boolean isSubtypeHKC(Type t1, Type t2){
-		Relation rel = new Relation();
-		LinkedList<Pair<HashSet<Type>, HashSet<Type>>> todo = new LinkedList<>();
-
-		HashSet<Type> X = new HashSet<>();
-		HashSet<Type> Y = new HashSet<>();
-		X.add(t1);
-		X.add(t2);
-		todo.push(this.newPair(X, Y));
-
-		while(!todo.isEmpty()){
-			Pair<HashSet<Type>, HashSet<Type>> currPair = todo.pop();
-			X = currPair.key();
-			Y = currPair.value();
- 
-			if(rel.congruenceClosure().contains(X, Y)){ // we have processed this pair
-				continue;
-			}
-
-			// TODO define what basic typing means for sets of nodes
-			if(false){
-				return false;
-			}
-
-			
-		}
-
-		return true;
-	}
-
-	private Pair<HashSet<Type>,HashSet<Type>> newPair(HashSet<Type> X, HashSet<Type> Y){
-		return new Pair<HashSet<Type>, HashSet<Type>>(X, Y);
 	}
 }

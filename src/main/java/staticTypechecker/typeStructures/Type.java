@@ -116,4 +116,34 @@ public abstract class Type implements Symbol {
 			return result;
 		}
 	}
+
+	public static Type merge(Type t1, Type t2){
+		if(t1 == null){
+			return t2;
+		}
+		if(t2 == null){
+			return t1;
+		}
+
+		if(t1 instanceof InlineType && t2 instanceof InlineType){
+			InlineType x = (InlineType)t1;
+			InlineType y = (InlineType)t2;
+
+			
+		}
+		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){
+			InlineType x = (InlineType)t1;
+			ChoiceType y = (ChoiceType)t2;
+		}
+		else if(t1 instanceof ChoiceType && t1 instanceof InlineType){
+			ChoiceType x = (ChoiceType)t1;
+			InlineType y = (InlineType)t2;
+		}
+		else{ // both are choice types
+			ChoiceType x = (ChoiceType)t1;
+			ChoiceType y = (ChoiceType)t2;
+		}
+
+		return null;
+	}
 }

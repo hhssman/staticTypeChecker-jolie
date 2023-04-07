@@ -366,20 +366,27 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		return null;
 	};
 
+	/**
+	 * TODO, not finished yet
+	 */
 	public Type visit( WhileStatement n, Type T ){
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 
-		this.check(T, condition, Type.BOOL); // check that the condition is of type bool
-		Type R = body.accept(this, T); // synthesize the type of the body after ONE iteration
-		this.check(R, condition, Type.BOOL); // check that the condition is still of type bool after one iteration
-		this.check(R, body, R); // check that every subsequent iteration have doesnt change the type of anything
-		
-		ChoiceType result = new ChoiceType();
-		result.addChoiceUnsafe(T);
-		result.addChoiceUnsafe(R);
+		Type currState = T;
 
-		return result;
+		for(int i = 0; i < 10; i++){
+			this.check(currState, condition, Type.BOOL); // check that the condition is of type bool
+			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
+
+			if(R.equals(currState)){ // the state didnt change
+				return R;
+			}
+			
+			currState = Type.merge(R, currState);
+		}		
+
+		return currState;
 	};
 
 	public Type visit( OrConditionNode n, Type T ){
