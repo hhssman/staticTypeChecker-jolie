@@ -18,14 +18,14 @@ import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 
 public class TreeUtils {
-	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
+	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath, boolean unfold){
 		if(root instanceof InlineType){
-			return TreeUtils.findParentAndNameRec(path, (InlineType)root, createPath, Collections.newSetFromMap(new IdentityHashMap<>()));
+			return TreeUtils.findParentAndNameRec(path, (InlineType)root, createPath, unfold, Collections.newSetFromMap(new IdentityHashMap<>()));
 		}
 		else{
 			ArrayList<Pair<InlineType, String>> result = new ArrayList<>();
 			for(InlineType choice : ((ChoiceType)root).choices()){
-				result.addAll(TreeUtils.findParentAndNameRec(path, choice, createPath, Collections.newSetFromMap(new IdentityHashMap<>())));
+				result.addAll(TreeUtils.findParentAndNameRec(path, choice, createPath, unfold, Collections.newSetFromMap(new IdentityHashMap<>())));
 			}
 
 			return result;
@@ -39,9 +39,9 @@ public class TreeUtils {
 	 * @param createPath whether the path should be created with void nodes if it is not present
 	 * @return an arraylist of the nodes found at the end of the path
 	 */
-	public static ArrayList<Type> findNodesExact(Path path, Type root, boolean createPath){
+	public static ArrayList<Type> findNodesExact(Path path, Type root, boolean createPath, boolean unfold){
 		ArrayList<Type> ret = new ArrayList<>();
-		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath);
+		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath, unfold);
 
 		for(Pair<InlineType, String> pair : parents){
 			InlineType parent = pair.key();
@@ -52,7 +52,7 @@ public class TreeUtils {
 		return ret;
 	}
 
-	private static ArrayList<Pair<InlineType, String>> findParentAndNameRec(Path path, InlineType root, boolean createPath, Set<InlineType> seenNodes){
+	private static ArrayList<Pair<InlineType, String>> findParentAndNameRec(Path path, InlineType root, boolean createPath, boolean unfold, Set<InlineType> seenNodes){
 		ArrayList<Pair<InlineType, String>> ret = new ArrayList<>();
 		seenNodes.add(root);
 				
@@ -65,26 +65,24 @@ public class TreeUtils {
 
 		if(root.contains(childToLookFor)){
 			childNode = root.getChild(childToLookFor);
+
+			if(unfold && seenNodes.contains(childNode)){
+				TreeUtils.unfold(path, root, root.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
+				childNode = root.getChild(childToLookFor); // reassign the child to the child in the unfolded version
+			}
+
+			if(path.size() == 1){ // it was the child to look for
+				ret.add(new Pair<InlineType, String>(root, childToLookFor));
+				return ret;
+			}
 			
 			if(childNode instanceof InlineType){ 
 				InlineType parsedChild = (InlineType)childNode;
-
-				if(path.size() == 1){ // it was the child to look for
-					ret.add(new Pair<InlineType, String>(root, childToLookFor));
-				}
-				else{ // continue the search
-					ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), parsedChild, createPath, seenNodes));
-				}
+				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), parsedChild, createPath, unfold, seenNodes));
 			}
 			else{ // child is choice node, continue search in all choices
 				ChoiceType parsedChild = (ChoiceType)childNode;
-				
-				if(path.size() == 1){ // it was the child to look for, add all the choices to ret
-					ret.add(new Pair<InlineType,String>(root, childToLookFor));
-				}
-				else{ // continue the search in each choice
-					parsedChild.choices().forEach(c -> ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), c, createPath, seenNodes)));
-				}
+				parsedChild.choices().forEach(c -> ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), c, createPath, unfold, seenNodes)));
 			}
 		}
 		else if(createPath){
@@ -95,7 +93,7 @@ public class TreeUtils {
 				ret.add(new Pair<InlineType,String>(root, childToLookFor));
 			}
 			else{
-				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), newChild, createPath, seenNodes));
+				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), newChild, createPath, unfold, seenNodes));
 			}
 		}
 
@@ -103,7 +101,7 @@ public class TreeUtils {
 	}
 
 	/**
-	 * Unfolds the Type root
+	 * Unfolds the Type root in place
 	 * @param root the Type to unfold
 	 * @param rootCopy a deep copy of root 
 	 * @param seenNodes a Set<Type> of the nodes that already have been processed
@@ -114,12 +112,9 @@ public class TreeUtils {
 		if(root instanceof InlineType){
 			InlineType parsedRoot = (InlineType)root;
 			InlineType parsedRootCopy = (InlineType)rootCopy;
-			System.out.println("in: " + parsedRoot.basicType().nativeType().id() + " path: " + path);
 
 			if(path.isEmpty()){ // we do not need to unfold anymore, only update the children
-				System.out.println("path is empty yo");
 				for(Entry<String, Type> ent : parsedRootCopy.children().entrySet()){
-					System.out.println("adding child to " + System.identityHashCode(parsedRoot) + " - " + ent.getKey() + ": " + System.identityHashCode(ent.getValue()));
 					parsedRoot.addChildUnsafe(ent.getKey(), ent.getValue());
 				}
 				return;
@@ -148,19 +143,6 @@ public class TreeUtils {
 								parsedRoot.addChildUnsafe(childName, childCopy);
 							}
 						}
-
-						// if(parsedRoot.getChild(childName) instanceof InlineType){
-						// 	InlineType child = (InlineType)parsedRoot.getChild(childName);
-						// 	InlineType childCopy = (InlineType)parsedRootCopy.getChild(childName);
-							
-							
-						// }
-						// else{ // choice type child
-						// 	ChoiceType child = (ChoiceType)parsedRoot.getChild(childName);
-						// 	ChoiceType childCopy = (ChoiceType)parsedRootCopy.getChild(childName);
-
-						// 	TreeUtils.unfold(path, child, childCopy, seenNodes);
-						// }
 					}
 				}
 				else{
@@ -174,7 +156,6 @@ public class TreeUtils {
 			}
 		}
 		else{ // choice type
-			System.out.println("in choice, path: " + path);
 			ChoiceType parsedRoot = (ChoiceType)root;
 			ChoiceType parsedRootCopy = (ChoiceType)rootCopy;
 
@@ -299,7 +280,7 @@ public class TreeUtils {
 	 * @param tree the tree in which the nodes reside
 	 */
 	public static void setTypeOfNodeByPath(Path path, Type type, Type tree){
-		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
+		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, false);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){
 			pair.key().addChildUnsafe(pair.value(), type);
@@ -311,7 +292,7 @@ public class TreeUtils {
 		TreeUtils.unfold(path, tree, tree.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
 		// System.out.println("\n\nUNFOLDED STRUCTURE:\n" + tree.prettyString());
 
-		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true);
+		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, false);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){
 			InlineType parent = pair.key();

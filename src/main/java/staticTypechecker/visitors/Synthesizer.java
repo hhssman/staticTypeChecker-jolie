@@ -209,7 +209,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = n.process().accept(this, T_update);
 		
 		// check that p_out is a subtype of T_out 
-		ArrayList<Type> possibleTypes = TreeUtils.findNodesExact(p_out, T1, true); // the possible types of p_out after the behaviour
+		ArrayList<Type> possibleTypes = TreeUtils.findNodesExact(p_out, T1, true, false); // the possible types of p_out after the behaviour
 		
 		Type p_out_type;
 		if(possibleTypes.size() == 1){
@@ -450,7 +450,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( VariableExpressionNode n, Type T ){
 		Path path = new Path(n.variablePath().path());
-		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false);
+		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false, false);
 
 		if(types.isEmpty()){ // return void type if no nodes was found
 			return Type.VOID;
@@ -514,7 +514,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode expression = n.rightExpression();
 
 		// find the nodes to update and their parents
-		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true);
+		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true, true);
 		Type typeOfExpression = expression.accept(this, T1);
 
 		// update the nodes with the deep copied versions
@@ -539,7 +539,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path path = new Path(n.variablePath().path());
 		Type T1 = T.copy();
 
-		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false);
+		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false, false);
 
 		for(Pair<InlineType, String> pair : nodesToRemove){
 			pair.key().removeChildUnsafe(pair.value());
@@ -614,7 +614,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( VariablePathNode n, Type T ){
 		Path path = new Path(n.path());
-		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false);
+		ArrayList<Type> types = TreeUtils.findNodesExact(path, T, false, false);
 
 		if(types.size() == 1){
 			return types.get(0);
