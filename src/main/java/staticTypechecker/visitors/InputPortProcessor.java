@@ -148,17 +148,6 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			Type configParamStruct = TypeConverter.convert(paramType, symbols);
 			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, configParamStruct));
 
-			// add the parameter to the service object
-			// String typeName = "";
-			// if(paramType instanceof TypeDefinitionLink){ // an alias for a cutsom type
-			// 	TypeDefinitionLink castedType = (TypeDefinitionLink)paramType;
-			// 	typeName = castedType.linkedTypeName();
-			// }
-			// else if(paramType instanceof TypeInlineDefinition){ // a base type
-			// 	TypeInlineDefinition castedType = (TypeInlineDefinition)paramType;
-			// 	typeName = castedType.name();
-			// }
-
 			service.setParameter(configParamStruct);
 		}
 

@@ -93,10 +93,10 @@ public class Main {
 			for(Entry<String, Pair<SymbolType, Symbol>> symbol : m.symbols().entrySet()){
 				if(!NativeType.isNativeTypeKeyword(symbol.getKey())){ // we dont want to print the base types
 					if(symbol.getValue() != null && symbol.getValue().value() != null){ // the symbol object have been initialized and can thus be pretty printed
-						System.out.println("\n" + symbol.getKey() + ": " + symbol.getValue().value().prettyString());
+						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().value().prettyString());
 					}
 					else{
-						System.out.println("\n" + symbol.getKey() + ": " + null);
+						System.out.println("\n" + symbol.getKey() + ":\n" + null);
 					}
 				}
 			}

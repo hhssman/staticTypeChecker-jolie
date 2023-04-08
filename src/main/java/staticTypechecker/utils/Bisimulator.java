@@ -1,5 +1,6 @@
 package staticTypechecker.utils;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
@@ -60,7 +61,6 @@ public class Bisimulator {
 					return true;
 				}
 			}
-
 			return false;
 		}
 		else if(t1 instanceof ChoiceType && t2 instanceof InlineType){

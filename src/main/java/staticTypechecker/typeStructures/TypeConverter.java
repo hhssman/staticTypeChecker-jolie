@@ -10,9 +10,6 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import jolie.util.Pair;
-import staticTypechecker.entities.Symbol;
-import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
 
 /**
@@ -51,15 +48,12 @@ public class TypeConverter {
 	}
 
 	private static InlineType convert(TypeInlineDefinition type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		System.out.println("process type: " + type.simpleName());
 		InlineType result = new InlineType(type.basicType(), type.cardinality(), ctx, type.untypedSubTypes());
 
 		if(rec.containsKey(type.name())){
-			System.out.println("rec contains: " + type.name());
 			return (InlineType)rec.get(type.name());
 		}
 		else if(symbols.get(type.name()) != null){
-			System.out.println("symbols contains: " + type.name());
 			return (InlineType)symbols.get(type.name());
 		}
 
@@ -91,7 +85,9 @@ public class TypeConverter {
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, new HashMap<>(rec), ctx, symbols);
 		}
 		else if(type instanceof TypeInlineDefinition){
-			list.add( TypeConverter.convert((TypeInlineDefinition)type, rec, ctx, symbols) );
+			TypeInlineDefinition parsed = (TypeInlineDefinition)type;
+			TypeInlineDefinition copy = new TypeInlineDefinition(parsed.context(), "", parsed.basicType(), parsed.cardinality()); // copy to type without name, because the choices in TypeChoiceDefinition has the same name as the choice node itself.......
+			list.add( TypeConverter.convert(copy, rec, ctx, symbols) );
 		}
 		else if(type instanceof TypeDefinitionLink){
 			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, rec, ctx, symbols);

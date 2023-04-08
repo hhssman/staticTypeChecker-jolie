@@ -44,7 +44,9 @@ type rec2: int {
 	}
 }
 
-service MyService(param: rec1) {
+type huh: int | string
+
+service MyService() {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -58,9 +60,20 @@ service MyService(param: rec1) {
 	}
 
 	main {
-		a = "hi!"
-		a << param
-		// helloOneway@out(param)
+		a = 10
+		a.x = "hey"
+		a.z = true
+
+		i = 0
+		while(i < 4){
+			a = "hey2"
+			a.x = 10
+			a.y = 20
+			undef ( a.z )
+
+			i++
+		}
+
 	}
 	
 }

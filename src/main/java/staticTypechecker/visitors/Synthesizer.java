@@ -375,12 +375,16 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		Type currState = T;
 
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 3; i++){
 			this.check(currState, condition, Type.BOOL); // check that the condition is of type bool
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
+			System.out.println("currState: " + currState.prettyString());
+			System.out.println("R: \n" + R.prettyString());
+			System.out.println("----");
 
-			if(R.equals(currState)){ // the state didnt change
-				return R;
+			if(R.isSubtypeOf(currState)){ // the new state is subtype of the current state, we return it
+				System.out.println(R.prettyString() + "\n\nis a subtype of\n\n" + currState.prettyString());
+				return currState;
 			}
 			
 			currState = Type.merge(R, currState);

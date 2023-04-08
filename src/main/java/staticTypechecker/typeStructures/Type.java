@@ -1,7 +1,7 @@
 package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map.Entry;
 
@@ -118,6 +118,13 @@ public abstract class Type implements Symbol {
 	}
 
 	public static Type merge(Type t1, Type t2){
+		// System.out.println("merging\n" + t1.prettyString() + "\n\nand\n\n" + t2.prettyString() + "\n\n");
+		Type res = Type.mergeRec(t1, t2);
+		// System.out.println("result:\n" + res.prettyString());
+		return res;
+	}
+
+	private static Type mergeRec(Type t1, Type t2){
 		if(t1 == null){
 			return t2;
 		}
@@ -125,25 +132,76 @@ public abstract class Type implements Symbol {
 			return t1;
 		}
 
+		if(t1.equals(t2)){
+			return t1.copy();
+		}
+
 		if(t1 instanceof InlineType && t2 instanceof InlineType){
 			InlineType x = (InlineType)t1;
 			InlineType y = (InlineType)t2;
 
-			
+			HashSet<String> childNames = new HashSet<String>();
+			childNames.addAll(x.children().keySet());
+			childNames.addAll(y.children().keySet());
+
+			if(x.basicType().equals(y.basicType())){
+				InlineType ret = new InlineType(x.basicType(), null, null, false);
+
+				for(String childName : childNames){
+					Type xChild = x.getChild(childName);
+					Type yChild = y.getChild(childName);
+
+					ret.addChildUnsafe(childName, Type.mergeRec(xChild, yChild));
+				}
+
+				return ret;
+			}
+
+			// base types does not match, create choice with each base type but with the same children
+			ChoiceType ret = new ChoiceType();
+			InlineType c1 = new InlineType(x.basicType(), null, null, false);
+			InlineType c2 = new InlineType(y.basicType(), null, null, false);
+
+			ret.addChoiceUnsafe(c1);
+			ret.addChoiceUnsafe(c2);
+
+			for(String childName : childNames){
+				Type xChild = x.getChild(childName);
+				Type yChild = y.getChild(childName);
+
+				Type merged = Type.mergeRec(xChild, yChild);
+				c1.addChildUnsafe(childName, merged);
+				c2.addChildUnsafe(childName, merged);
+			}
+
+			return ret;
 		}
 		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){
 			InlineType x = (InlineType)t1;
 			ChoiceType y = (ChoiceType)t2;
+
+			ChoiceType ret = new ChoiceType();
+			for(InlineType choice : y.choices()){
+				ret.addChoiceUnsafe(Type.mergeRec(x, choice));
+			}
+
+			return ret;
 		}
 		else if(t1 instanceof ChoiceType && t1 instanceof InlineType){
-			ChoiceType x = (ChoiceType)t1;
-			InlineType y = (InlineType)t2;
+			return Type.mergeRec(t2, t1); // its the same as the other order
 		}
 		else{ // both are choice types
 			ChoiceType x = (ChoiceType)t1;
 			ChoiceType y = (ChoiceType)t2;
-		}
 
-		return null;
+			ChoiceType ret = new ChoiceType();
+			for(InlineType c1 : x.choices()){
+				for(InlineType c2 : y.choices()){
+					ret.addChoiceUnsafe(Type.mergeRec(c1, c2));
+				}
+			}
+
+			return ret;
+		}
 	}
 }
