@@ -102,7 +102,7 @@ import staticTypechecker.entities.Path;
 import staticTypechecker.faults.FaultHandler;
 
 /**
- * Synthesizer for a parsed Jolie abstract syntax tree. Works as a visitor and will visit each node in the provided tree.
+ * Synthesizer for a parsed Jolie abstract syntax tree. Synthesizes the type of each node
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
@@ -375,20 +375,17 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		Type currState = T;
 
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 10; i++){
+			System.out.println("i: " + i);
 			this.check(currState, condition, Type.BOOL); // check that the condition is of type bool
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-			System.out.println("currState: " + currState.prettyString());
-			System.out.println("R: \n" + R.prettyString());
-			System.out.println("----");
 
 			if(R.isSubtypeOf(currState)){ // the new state is subtype of the current state, we return it
-				System.out.println(R.prettyString() + "\n\nis a subtype of\n\n" + currState.prettyString());
 				return currState;
 			}
 			
 			currState = Type.merge(R, currState);
-		}		
+		}
 
 		return currState;
 	};

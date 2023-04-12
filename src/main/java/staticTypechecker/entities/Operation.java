@@ -1,14 +1,19 @@
 package staticTypechecker.entities;
 
+/**
+ * Represents an operation in Jolie
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Operation implements Symbol {
 	public enum OperationType{
 		ONEWAY, REQRES
 	}
 
-	private String name; // the name of the operation
-	private String requestType; // the name of the type of the input
-	private String responseType; // the name of the type of the output
-	private OperationType operationType; // the type of operation (oneway or reqres)
+	private String name; 					// the name of the operation
+	private String requestType; 			// the name of the type of the input
+	private String responseType; 			// the name of the type of the output
+	private OperationType operationType; 	// the type of operation (oneway or reqres)
 
 	public Operation(String name, String requestType, String responseType, OperationType operationType){
 		this.name = name;
@@ -47,10 +52,6 @@ public class Operation implements Symbol {
 
 	public void setOperationType(OperationType operationType){
 		this.operationType = operationType;
-	}
-
-	public static Operation getBaseOperation(){
-		return new Operation(null, null, null, null);
 	}
 
 	public boolean isEqual(Operation other){

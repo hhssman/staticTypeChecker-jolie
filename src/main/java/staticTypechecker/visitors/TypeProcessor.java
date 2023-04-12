@@ -93,6 +93,11 @@ import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
 
+/**
+ * Parses the types of the Jolie module to InlineTypes and ChoiceTypes.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public TypeProcessor(){}
 
@@ -121,20 +126,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
-		// accept all children which are NOT import statements first
-		// for(OLSyntaxNode child : p.children()){
-		// 	if(!(child instanceof ImportStatement)){
-		// 		child.accept(this, symbols);
-		// 	}
-		// }
-
-		// // then accept all import statements
-		// for(OLSyntaxNode child : p.children()){
-		// 	if(child instanceof ImportStatement){
-		// 		child.accept(this, symbols);
-		// 	}
-		// }
-
 		return null;
 	}
 

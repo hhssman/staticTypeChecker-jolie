@@ -7,8 +7,14 @@ import java.util.stream.Collectors;
 import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.util.Pair;
 
+/**
+ * Represents a path in a type. 
+ * For example, it could store the path a.x.y
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Path {
-	private ArrayList<String> pathElems;
+	private ArrayList<String> pathElems; // the names of each element on the path
 
 	public Path(String path){
 		this.pathElems = new ArrayList<>();

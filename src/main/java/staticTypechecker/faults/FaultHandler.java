@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 import jolie.lang.parse.context.ParsingContext;
 
+/**
+ * Handles all faults which may occur during the type checking
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class FaultHandler {
 	private static ArrayList<Fault> faults = new ArrayList<>();
 

@@ -11,15 +11,22 @@ import jolie.util.Range;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.InlineType;
 
+/**
+ * Represents the symbol table for a module
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class SymbolTable {
-	// private HashMap<String, Symbol> table;
-	private HashMap<String, Pair<SymbolType, Symbol>> table;
+	private HashMap<String, Pair<SymbolType, Symbol>> table; // maps the name of the symbol to a pair containing the type of the symbol and the symbol itself
 	
 	public SymbolTable(){
 		this.table = new HashMap<>();
 		this.addBaseTypes();
 	}
 
+	/**
+	 * Adds the basic types of Jolie to this symbol table, i.e. int, string, boolean etc.
+	 */
 	private void addBaseTypes(){
 		NativeType[] baseTypes = NativeType.values();
 		for(NativeType t : baseTypes){

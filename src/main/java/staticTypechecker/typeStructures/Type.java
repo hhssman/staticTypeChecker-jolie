@@ -12,6 +12,8 @@ import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
 
 /**
+ * Represents a type in Jolie
+ * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public abstract class Type implements Symbol {
@@ -38,15 +40,12 @@ public abstract class Type implements Symbol {
 	public abstract Type copy();
 	public abstract Type copy(IdentityHashMap<Type, Type> rec);
 
-	// public abstract String prettyStringHashCode();
-	// public abstract String prettyStringHashCode(int level, ArrayList<Type> recursive);
-
 	public abstract String prettyString();
 	public abstract String prettyString(int level);
 	public abstract String prettyString(int level, IdentityHashMap<Type, Void> recursive);
 
 	/**
-	 * Finds the type(s) of a single node
+	 * Finds the type(s) of the given node
 	 * @param node the node to find the type(s) of
 	 * @return an ArrayList of BasicTypeDefinitions corresponding to the type(s) of the specified node
 	 */
@@ -117,10 +116,13 @@ public abstract class Type implements Symbol {
 		}
 	}
 
+	/**
+	 * @param t1
+	 * @param t2
+	 * @return the result of merging t1 with t2
+	 */
 	public static Type merge(Type t1, Type t2){
-		// System.out.println("merging\n" + t1.prettyString() + "\n\nand\n\n" + t2.prettyString() + "\n\n");
 		Type res = Type.mergeRec(t1, t2);
-		// System.out.println("result:\n" + res.prettyString());
 		return res;
 	}
 

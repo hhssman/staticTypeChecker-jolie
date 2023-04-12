@@ -7,6 +7,11 @@ import java.util.Map.Entry;
 
 import staticTypechecker.entities.Operation.OperationType;
 
+/**
+ * Represents an interface in Jolie
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Interface implements Symbol {
 	private String name; // the name of the interface
 	private HashMap<String, Operation> operations; // maps operation names to their object
@@ -36,10 +41,6 @@ public class Interface implements Symbol {
 		this.name = name;
 	}
 
-	public static Interface getBaseInterface(){
-		return new Interface(null);
-	}
-
 	@Override
 	public String prettyString(){
 		if(this.name == null){
@@ -51,7 +52,7 @@ public class Interface implements Symbol {
 		ArrayList<Operation> oneWay = new ArrayList<>();
 		ArrayList<Operation> reqRes = new ArrayList<>();
 
-		// sort the operations
+		// split the operations based on type
 		for(Entry<String, Operation> ent : this.operations.entrySet()){
 			Operation op = ent.getValue();
 			

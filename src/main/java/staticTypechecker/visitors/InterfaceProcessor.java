@@ -98,6 +98,11 @@ import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Interface;
 
+/**
+ * Type checks the interfaces.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InterfaceProcessor(){}
 

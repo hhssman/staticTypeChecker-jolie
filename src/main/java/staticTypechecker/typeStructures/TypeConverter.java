@@ -10,10 +10,13 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Pair;
+import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Symbol.SymbolType;
 
 /**
- * A static converter for the existing Jolie types. Converts them to my custom type used in the static typechecking, namely InlineTypes and ChoiceTypes.
+ * A static converter for the existing Jolie types. Converts them to my custom types used in the static typechecking, namely InlineTypes and ChoiceTypes.
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
@@ -48,19 +51,27 @@ public class TypeConverter {
 	}
 
 	private static InlineType convert(TypeInlineDefinition type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		InlineType result = new InlineType(type.basicType(), type.cardinality(), ctx, type.untypedSubTypes());
-
 		if(rec.containsKey(type.name())){
 			return (InlineType)rec.get(type.name());
 		}
-		else if(symbols.get(type.name()) != null){
-			return (InlineType)symbols.get(type.name());
+
+		InlineType result = new InlineType(type.basicType(), type.cardinality(), ctx, type.untypedSubTypes());
+		
+		if(symbols.containsKey(type.name())){ // it is a known type
+			InlineType st = (InlineType)symbols.get(type.name());
+
+			if(st == null){ // type has not been in initialized, we init it here
+				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
+			}
+			else if(type.subTypes() != null && !st.children().isEmpty()){ // if the type has chilren and the children of the struct is not empty, then the type has been finalized, we use it directly
+				return st;
+			}
+			else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it here
+				result = st;
+				rec.put(type.name(), result);
+			}
 		}
 
-		if(rec.isEmpty()){ // first node in the type
-			rec.put(type.name(), result);
-		}
-		
 		if(type.subTypes() != null){ // type has children
 			for(Entry<String, TypeDefinition> child : type.subTypes()){
 				String childName = child.getKey();
@@ -79,6 +90,14 @@ public class TypeConverter {
 		return new ChoiceType(choices);
 	}
 
+	private static Type convert(TypeDefinitionLink type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+		return TypeConverter.convert(type.linkedType(), rec, ctx, symbols);
+	}
+
+	private static Type convert(TypeDefinitionUndefined type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+		return null;
+	}
+
 	private static void getChoices(TypeDefinition type, HashSet<InlineType> list, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
 		if(type instanceof TypeChoiceDefinition){
 			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, new HashMap<>(rec), ctx, symbols);
@@ -95,13 +114,5 @@ public class TypeConverter {
 		else{
 			System.out.println("CONVERTION NOT SUPPORTED");
 		}
-	}
-
-	private static Type convert(TypeDefinitionLink type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		return TypeConverter.convert(type.linkedType(), rec, ctx, symbols);
-	}
-
-	private static Type convert(TypeDefinitionUndefined type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		return null;
 	}
 }

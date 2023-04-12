@@ -99,6 +99,11 @@ import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 
+/**
+ * Type checks the input ports of the services, as well as the service parameter.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	public InputPortProcessor(){}
 

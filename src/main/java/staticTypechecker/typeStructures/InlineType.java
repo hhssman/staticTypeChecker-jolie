@@ -1,32 +1,25 @@
 package staticTypechecker.typeStructures;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
-
-import java.util.ArrayList;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.utils.Bisimulator;
 
 /**
- * Represents the structure of a type in Jolie. It is a tree with a root node, which has a BasicTypeDefinition and a Range, and then a HashMap of child nodes, each referenced by a name.
+ * Represents an inline type in Jolie such as "type a: int { x: string }".
  * 
  * @author Kasper Bergstedt
  */
 public class InlineType extends Type {
-	private BasicTypeDefinition basicType; // the type of the root node
-	private HashMap<String, Type> children; // the children of the root node
-	private Range cardinality; // the cardinality of the root node
-	private boolean openRecord; // indicates whether this type is an open- or closed-record 
-	private ParsingContext context;
+	private BasicTypeDefinition basicType; 	// the type of the root node
+	private Range cardinality; 				// the cardinality of the root node
+	private HashMap<String, Type> children; // the children of the root node, maps child names to the type
+	private boolean openRecord; 			// indicates whether this type is an open or closed record 
+	private ParsingContext context;			// the parsing context of this type
 
 	public InlineType(BasicTypeDefinition basicType, Range cardinality, ParsingContext context, boolean openRecord){
 		this.basicType = basicType;
@@ -56,32 +49,56 @@ public class InlineType extends Type {
 		return !this.openRecord;
 	}
 
+	/**
+	 * Overwrites the basic type of this InlineType. WARNING: alters this object
+	 * @param basicType the new basic type 
+	 */
 	public void setBasicTypeUnsafe(BasicTypeDefinition basicType){
 		this.basicType = basicType;
 	}
 
+	/**
+	 * Overwrites the children of this InlineType. WARNING: alters this object
+	 * @param children the new children
+	 */
 	public void setChildrenUnsafe(HashMap<String, Type> children){
 		this.children = children;
 	}
 
+	/**
+	 * Adds the given children to this InlineType. WARNING: alters this object
+	 * @param children the children to add
+	 */
 	public void addChildrenUnsafe(HashMap<String, Type> children){
 		this.children.putAll(children);
 	}
 
+	/**
+	 * Overwrites the cardinality of this InlineType. WARNING: alters this object
+	 * @param cardinality the new cardinality
+	 */
 	public void setCardinalityUnsafe(Range cardinality){
 		this.cardinality = cardinality;
 	}
 
+	/**
+	 * Overwrites the context of this InlineType. WARNING: alters this object
+	 * @param context the new context
+	 */
 	public void setContextUnsafe(ParsingContext context){
 		this.context = context;
 	}
 
+	/**
+	 * Overwrites the open status of this InlineType. WARNING: alters this object
+	 * @param openRecord the new open status
+	 */
 	public void setOpenStatusUnsafe(boolean openRecord){
 		this.openRecord = openRecord;
 	}
 
 	/**
-	 * Adds the entry {name, child} to this node. Owerwrites existing entries. 
+	 * Adds the entry {name, child} to this node. Owerwrites existing entries. WARNING: alters this object
 	 * @param name the name of the child (what key to associate it to)
 	 * @param child the structure of the child
 	 */
@@ -89,23 +106,41 @@ public class InlineType extends Type {
 		this.children.put(name, child);
 	}
 
+	/**
+	 * Removes the child with the given name from this InlineType. WARNING: alters this object
+	 * @param name the name of the child to remove
+	 */
 	public void removeChildUnsafe(String name){
 		this.children.remove(name);
 	}
 
-
+	/**
+	 * Does not alter this object
+	 * @param basicType the new basic type 
+	 * @return a copy of this InlineType with the given basicType
+	 */
 	public InlineType setBasicType(BasicTypeDefinition basicType){
 		InlineType copy = this.copy();
 		copy.setBasicTypeUnsafe(basicType);
 		return copy;
 	}
 
+	/**
+	 * Does not alter this object
+	 * @param children the children types
+	 * @return a copy of this InlineType with the children overwritten by the given children
+	 */
 	public InlineType setChildren(HashMap<String, Type> children){
 		InlineType copy = this.copy();
 		copy.setChildrenUnsafe(children);
 		return copy;
 	}
 
+	/**
+	 * Does not alter this object
+	 * @param children the children types
+	 * @return a copy of this InlineType with the given children added
+	 */
 	public InlineType addChildren(HashMap<String, Type> children){
 		InlineType copy = this.copy();
 		copy.addChildrenUnsafe(children);
@@ -122,15 +157,6 @@ public class InlineType extends Type {
 		}
 
 		return this.children.get(name);
-	}
-
-	public String getChildName(Type struct){
-		for(Entry<String, Type> child : this.children.entrySet()){
-			if(child.getValue() == struct){
-				return child.getKey();
-			}
-		}
-		return null;
 	}
 
 	public HashMap<String, Type> children(){
@@ -196,14 +222,16 @@ public class InlineType extends Type {
 		}
 
 		if(this.children != null){
-			hashCode += this.children.size() * 7823; // 7823 is just a large prime number
+			hashCode += this.children.size() * 7823; // 7823 is just a prime number
 		}
+
+		hashCode += Math.pow(31, this.openRecord ? 1 : 0);
 		
 		return hashCode;
 	}
 
 	/**
-	 * Get a nice string representing this structure
+	 * @return a nice textual representation of this InlineType
 	 */
 	public String prettyString(){
 		return this.prettyString(0, new IdentityHashMap<>());
@@ -259,21 +287,5 @@ public class InlineType extends Type {
 		}
 		
 		return result;
-	}
-
-	/**
-	 * Utility function to check if the exact object given is present in the given arraylist. Used in order to handle recursive types
-	 * @param list
-	 * @param type
-	 * @return
-	 */
-	private boolean containsChildExact(IdentityHashMap<Type, Void> list, Type type){
-		for(Type t : list.keySet()){
-			if(t == type){
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

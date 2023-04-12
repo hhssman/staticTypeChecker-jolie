@@ -1,6 +1,5 @@
 package staticTypechecker.utils;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
@@ -9,6 +8,11 @@ import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
 import staticTypechecker.typeStructures.Type;
 
+/**
+ * Class for checking equality and subtype status of two types
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Bisimulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){
 		return isSubtypeOfRec(t1, t2, new IdentityHashMap<>());

@@ -90,7 +90,11 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Path;
 
-
+/**
+ * Visitor for pretty printing entities in Jolie
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class ToString implements OLVisitor<Void, String> {
 	private static ToString stringifier = new ToString();
 	private ToString(){};

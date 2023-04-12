@@ -100,6 +100,11 @@ import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 
+/**
+ * Type checks the output ports of the services.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;
 	public OutputPortProcessor(){}

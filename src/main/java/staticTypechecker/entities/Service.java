@@ -7,11 +7,16 @@ import staticTypechecker.typeStructures.Type;
 import java.util.Collection;
 import java.util.HashMap;
 
+/**
+ * Represents a service in Jolie
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Service implements Symbol {
-	private String name; // the name of the service
-	private HashMap<String, InputPort> inputPorts; // map names to input ports
-	private HashMap<String, OutputPort> outputPorts; // map names to output ports
-	private Type parameter; // service parameter
+	private String name; 								// the name of the service
+	private HashMap<String, InputPort> inputPorts; 		// map names to input ports
+	private HashMap<String, OutputPort> outputPorts; 	// map names to output ports
+	private Type parameter; 							// service parameter
 
 	public Service(){
 		this.name = null;

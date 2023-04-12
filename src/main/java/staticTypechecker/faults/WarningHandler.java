@@ -3,6 +3,11 @@ package staticTypechecker.faults;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * Handles all warnings which may occur during the type checking
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class WarningHandler {
 	private static ArrayList<Warning> warnings = new ArrayList<>();
 
@@ -20,7 +25,7 @@ public class WarningHandler {
 
 	public static String prettyString(){
 		if(WarningHandler.warnings.isEmpty()){
-			return "No warnings";
+			return "";
 		}
 
 		return WarningHandler.warnings.stream().map(w -> w.toString()).collect(Collectors.joining("\n"));

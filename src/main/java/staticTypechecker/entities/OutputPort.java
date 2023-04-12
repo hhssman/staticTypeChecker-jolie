@@ -2,11 +2,16 @@ package staticTypechecker.entities;
 
 import java.util.List;
 
+/**
+ * Represents an output port in Jolie
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class OutputPort implements Symbol {
-	private String name; // the name of the port
-	private String location; // the location of the port
-	private String protocol; // the protocol of the port
-	private List<String> interfaces; // a list of the interfaces this output port uses
+	private String name; 				// the name of the port
+	private String location; 			// the location of the port
+	private String protocol; 			// the protocol of the port
+	private List<String> interfaces; 	// a list of the interfaces this output port uses
 
 	public OutputPort(String name, String location, String protocol, List<String> interfaces){
 		this.name = name;
@@ -29,10 +34,6 @@ public class OutputPort implements Symbol {
 
 	public List<String> interfaces(){
 		return this.interfaces;
-	}
-
-	public static OutputPort getBasePort(){
-		return new OutputPort(null, null, null, null);
 	}
 
 	public void setName(String name){

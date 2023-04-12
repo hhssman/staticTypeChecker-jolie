@@ -31,9 +31,16 @@ interface MyInterface {
 // 	}
 // }
 
+
+type input: void {
+	x: rec1
+	y: rec1
+}
+
 type rec1: int {
 	x: rec1
 }
+
 
 type rec2: int {
 	x: int {
@@ -59,21 +66,27 @@ service MyService() {
 		Interfaces: MyInterface
 	}
 
-	main {
+	init {
 		a = 10
-		a.x = "hey"
-		a.z = true
-
-		i = 0
-		while(i < 4){
-			a = "hey2"
-			a.x = 10
-			a.y = 20
-			undef ( a.z )
-
-			i++
-		}
-
 	}
+	
+	// main {
+	// 	a = 10
+	// 	a.x = 10
+	// 	a.x.y = 10
+
+	// 	a.x = "hey"
+
+	// 	// i = 0
+	// 	// while(i < 4){
+	// 	// 	z = a
+	// 	// 	a = b
+	// 	// 	b = z
+	// 	// 	undef ( z )
+
+	// 	// 	i++
+	// 	// }
+
+	// }
 	
 }

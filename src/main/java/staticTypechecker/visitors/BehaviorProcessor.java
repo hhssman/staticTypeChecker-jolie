@@ -92,6 +92,11 @@ import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Path;
 
+/**
+ * Type checks the behaviours of the services, such as init and main.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	private Module module;
 	private Synthesizer synthesizer;

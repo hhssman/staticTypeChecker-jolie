@@ -2,6 +2,11 @@ package staticTypechecker.entities;
 
 import jolie.util.Pair;
 
+/**
+ * Represents any entity in Jolie, such as a type name, service name, port name etc.
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public interface Symbol {
 	public String prettyString();
 

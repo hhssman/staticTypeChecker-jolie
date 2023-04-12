@@ -1,7 +1,6 @@
 package staticTypechecker.typeStructures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.stream.Collectors;
@@ -11,13 +10,13 @@ import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.utils.Bisimulator;
 
 /**
- * A type structure representing a choice type. Choices are defined recursively as more TypeChoiceStructures
+ * Represents a choice type in Jolie, such as "type a: int | string", i.e. types which can have multiple values.
  * 
  * @author Kasper Bergstedt
  */
 public class ChoiceType extends Type {
-	private HashSet<InlineType> choices;
-	private ParsingContext ctx = null;
+	private HashSet<InlineType> choices;	// the choices of this type
+	private ParsingContext ctx = null;		// the parsing context of this type
 
 	public ChoiceType(){
 		this.choices = new HashSet<>();
@@ -35,6 +34,11 @@ public class ChoiceType extends Type {
 		this.choices = choices;
 	}
 
+	/**
+	 * Creates a new choice type with childless inline types of the given basic types
+	 * @param typesOfChoices the basic types to create the choices from
+	 * @return the new choice type
+	 */
 	public static ChoiceType fromBasicTypes(ArrayList<BasicTypeDefinition> typesOfChoices){
 		HashSet<InlineType> choices = new HashSet<>();
 
@@ -45,6 +49,10 @@ public class ChoiceType extends Type {
 		return new ChoiceType(choices);
 	}
 
+	/**
+	 * Adds a new choice to this ChoiceType object. WARNING: alters the object
+	 * @param choice the choice to add
+	 */
 	public void addChoiceUnsafe(Type choice){
 		if(choice instanceof InlineType){
 			this.choices.add((InlineType)choice);
@@ -56,6 +64,10 @@ public class ChoiceType extends Type {
 		}
 	}
 
+	/**
+	 * Overrides the choices of this ChoiceType object with the choices given. WARNING: alters the object
+	 * @param choices the choices to override with
+	 */
 	public void setChoicesUnsafe(ArrayList<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
@@ -77,8 +89,6 @@ public class ChoiceType extends Type {
 	public ArrayList<InlineType> choices(){
 		return new ArrayList<>(this.choices);
 	}
-
-	
 
 	public ChoiceType put(String childName, Type structure){
 		ChoiceType copy = (ChoiceType)this.copy();
@@ -118,9 +128,6 @@ public class ChoiceType extends Type {
 		return ret;
 	}
 
-	/**
-	 * TODO
-	 */
 	public boolean equals(Object other){
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
@@ -129,17 +136,9 @@ public class ChoiceType extends Type {
 		return Bisimulator.equivalent(this, (ChoiceType)other);
 	}
 
-	/**
-	 * TODO
-	 */
 	public boolean isSubtypeOf(Type other){
 		return Bisimulator.isSubtypeOf(this, other);
 	}
-
-	// public String toString(){
-	// 	String toString = this.choices.stream().map(c -> c.toString()).collect(Collectors.joining(" | "));
-	// 	return toString;
-	// }
 
 	public ChoiceType copy(){
 		ChoiceType copy = new ChoiceType();

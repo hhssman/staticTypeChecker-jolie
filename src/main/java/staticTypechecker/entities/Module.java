@@ -12,10 +12,15 @@ import jolie.lang.parse.ast.Program;
 import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
 
+/**
+ * Represents a Jolie module (file)
+ * 
+ * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ */
 public class Module {
-	private String name;
-	private Program program;
-	private SymbolTable symbols;
+	private String name;			// name of the module
+	private Program program;		// the Program parsed by the Jolie parser
+	private SymbolTable symbols;	// the symbol table of the module
 
 	public Module(String name){
 		this.name = name;
@@ -39,8 +44,10 @@ public class Module {
 		this.symbols = newSymbols;
 	}
 
-	public static Program parseProgram(String name){
-		// System.out.println("Name of file: " + name);
+	/**
+	 * This function parses the jolie module with the given name
+	 */
+	private static Program parseProgram(String name){
 		String[] args = {name};
 
 		try{

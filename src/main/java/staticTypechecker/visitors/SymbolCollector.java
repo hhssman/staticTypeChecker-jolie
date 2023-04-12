@@ -93,7 +93,7 @@ import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.typeStructures.Type;
 
 /**
- * This class collects all symbols in a given module with the method "collect". A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.
+ * This class collects all symbols in a given module. A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.
  * 
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
@@ -129,20 +129,6 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
-		// accept all children which are NOT import statements first
-		// for(OLSyntaxNode child : p.children()){
-		// 	if(!(child instanceof ImportStatement)){
-		// 		child.accept(this, symbols);
-		// 	}
-		// }
-
-		// // then accept all import statements
-		// for(OLSyntaxNode child : p.children()){
-		// 	if(child instanceof ImportStatement){
-		// 		child.accept(this, symbols);
-		// 	}
-		// }
-
 		return null;
 	}
 
