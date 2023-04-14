@@ -373,22 +373,23 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 
-		Type currState = T;
+		Type returnState = T;
+		Type R = body.accept(this, T); // synthesize the type of the body after the first iteration
+		
+		for(int i = 0; i < 2; i++){
+			this.check(R, condition, Type.BOOL); // check that the condition is of type bool
+			R = body.accept(this, R); // synthesize the type of the body after an iteration
 
-		for(int i = 0; i < 10; i++){
-			System.out.println("i: " + i);
-			this.check(currState, condition, Type.BOOL); // check that the condition is of type bool
-			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-
-			if(R.isSubtypeOf(currState)){ // the new state is subtype of the current state, we return it
-				System.out.println("--------------\n" + R.prettyString() + "\n\nis subtype of\n\n" + currState.prettyString() + "\n\nstoppping while\n------------");
-				return currState;
+			if(R.isSubtypeOf(returnState)){ // the new state is subtype of the return state, return it
+				System.out.println("subtype!");
+				return returnState;
 			}
 			
-			currState = Type.merge(R, currState);
+			returnState = Type.merge(R, returnState);
 		}
 
-		return currState;
+		// TODO fallback plan
+		return returnState;
 	};
 
 	public Type visit( OrConditionNode n, Type T ){
@@ -521,10 +522,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		Path leftPath = new Path(n.leftPath().path());
 		OLSyntaxNode expression = n.rightExpression();
-
-		// find the nodes to update and their parents
-		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true, true);
 		Type typeOfExpression = expression.accept(this, T1);
+		
+		// find the nodes to update and their parents
+		T1 = TreeUtils.unfold(leftPath, T1);
+		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true, false);
 
 		// update the nodes with the deep copied versions
 		for(Pair<InlineType, String> pair : leftSideNodes){
@@ -532,6 +534,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			String childName = pair.value();
 			Type child = parent.getChild(childName);
 
+			// check child for null, since we do not create it in the findParentAndName method here. If it is null, it means that it did not exist before, and we can use the void type
+			if(child == null){
+				child = Type.VOID;
+			}
+
+			TreeUtils.fold(child);
 			Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
 
 			parent.addChildUnsafe(childName, resultOfDeepCopy);

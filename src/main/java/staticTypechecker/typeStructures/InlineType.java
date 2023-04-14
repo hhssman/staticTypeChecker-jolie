@@ -107,6 +107,15 @@ public class InlineType extends Type {
 	}
 
 	/**
+	 * Adds the entry {name, child} to this node if they key does not already exist. WARNING: may alter this object
+	 * @param name the name of the child (what key to associate it to)
+	 * @param child the structure of the child
+	 */
+	public void addChildIfAbsentUnsafe(String name, Type child){
+		this.children.putIfAbsent(name, child);
+	}
+
+	/**
 	 * Removes the child with the given name from this InlineType. WARNING: alters this object
 	 * @param name the name of the child to remove
 	 */

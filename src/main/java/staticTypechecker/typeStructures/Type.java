@@ -73,23 +73,27 @@ public abstract class Type implements Symbol {
 	 * @return the result of t1 << t2
 	 */
 	public static Type deepCopy(Type t1, Type t2){
-		if(t1 instanceof InlineType && t2 instanceof InlineType){ // both are inline types, create copy of t1 and overwrite basic type and children from t2
+		Type res = Type.deepCopyRec(t1.copy(), t2.copy());
+		return res;
+	}
+
+	public static Type deepCopyRec(Type t1, Type t2){
+		if(t1 instanceof InlineType && t2 instanceof InlineType){ // both are inline types, create copy of t2 and add the children of t1 if they are not already in t2
 			InlineType p1 = (InlineType)t1;
 			InlineType p2 = (InlineType)t2;
-			InlineType result = p1.copy();
+			InlineType result = p2;
 
-			result.setBasicTypeUnsafe(p2.basicType());
-			for(Entry<String, Type> childOfP2 : p2.children().entrySet()){
-				result.addChildUnsafe(childOfP2.getKey(), childOfP2.getValue());
-			}			
-			
+			for(Entry<String, Type> ent : p1.children().entrySet()){
+				result.addChildIfAbsentUnsafe(ent.getKey(), ent.getValue());
+			}
+
 			return result;
 		}
 		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){ // t1 is inline, t2 is choice type
 			ChoiceType result = new ChoiceType();
 
 			for(InlineType choice : ((ChoiceType)t2).choices()){
-				result.addChoiceUnsafe( Type.deepCopy(t1, choice) );
+				result.addChoiceUnsafe( Type.deepCopyRec(t1, choice) );
 			}
 
 			return result;
@@ -98,7 +102,7 @@ public abstract class Type implements Symbol {
 			ChoiceType result = new ChoiceType();
 
 			for(InlineType choice : ((ChoiceType)t1).choices()){
-				result.addChoiceUnsafe( Type.deepCopy(choice, t2) );
+				result.addChoiceUnsafe( Type.deepCopyRec(choice, t2) );
 			}
 
 			return result;
@@ -108,7 +112,7 @@ public abstract class Type implements Symbol {
 
 			for(InlineType c1 : ((ChoiceType)t1).choices()){
 				for(InlineType c2 : ((ChoiceType)t2).choices()){
-					result.addChoiceUnsafe( Type.deepCopy(c1, c2) );
+					result.addChoiceUnsafe( Type.deepCopyRec(c1, c2) );
 				}
 			}
 
@@ -122,8 +126,7 @@ public abstract class Type implements Symbol {
 	 * @return the result of merging t1 with t2
 	 */
 	public static Type merge(Type t1, Type t2){
-		Type res = Type.mergeRec(t1, t2);
-		return res;
+		return Type.mergeRec(t1, t2);
 	}
 
 	private static Type mergeRec(Type t1, Type t2){
@@ -134,7 +137,10 @@ public abstract class Type implements Symbol {
 			return t1;
 		}
 
-		if(t1.equals(t2)){
+		if(t1.isSubtypeOf(t2)){
+			return t2.copy();
+		}
+		if(t2.isSubtypeOf(t1)){
 			return t1.copy();
 		}
 
@@ -154,11 +160,16 @@ public abstract class Type implements Symbol {
 					Type yChild = y.getChild(childName);
 
 					// if one of the children do not exist, we default it to a void
-					if(xChild == null){
-						xChild = Type.VOID;
-					}
-					if(yChild == null){
-						yChild = Type.VOID;
+					if(xChild == null || yChild == null){
+						ChoiceType newChild = new ChoiceType();
+						xChild = xChild == null ? Type.VOID : xChild;
+						yChild = yChild == null ? Type.VOID : yChild;
+						
+						newChild.addChoiceUnsafe(xChild);
+						newChild.addChoiceUnsafe(yChild);
+						
+						ret.addChildUnsafe(childName, newChild);
+						continue;
 					}
 
 					ret.addChildUnsafe(childName, Type.mergeRec(xChild, yChild));

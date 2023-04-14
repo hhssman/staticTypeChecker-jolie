@@ -29,7 +29,7 @@ public class TreeUtils {
 	 */
 	public static ArrayList<Type> findNodesExact(Path path, Type root, boolean createPath, boolean unfold){
 		ArrayList<Type> ret = new ArrayList<>();
-		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath, unfold);
+		ArrayList<Pair<InlineType, String>> parents = TreeUtils.findParentAndName(path, root, createPath, true);
 
 		for(Pair<InlineType, String> pair : parents){
 			InlineType parent = pair.key();
@@ -48,21 +48,25 @@ public class TreeUtils {
 	 * @param unfold whether or not to unfold the structure in case of a recursive type structure
 	 * @return an ArrayList of Pairs of InlineTypes and Strings, indicating the parent nodes and the child names
 	 */
-	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath, boolean unfold){
+	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath, boolean createChild){
 		if(root instanceof InlineType){
-			return TreeUtils.findParentAndNameRec(path, (InlineType)root, createPath, unfold, Collections.newSetFromMap(new IdentityHashMap<>()));
+			return TreeUtils.findParentAndNameRec(path, (InlineType)root, createPath, createChild, Collections.newSetFromMap(new IdentityHashMap<>()));
 		}
 		else{ // root is ChoiceType
 			ArrayList<Pair<InlineType, String>> result = new ArrayList<>();
 			for(InlineType choice : ((ChoiceType)root).choices()){
-				result.addAll(TreeUtils.findParentAndNameRec(path, choice, createPath, unfold, Collections.newSetFromMap(new IdentityHashMap<>())));
+				result.addAll(TreeUtils.findParentAndNameRec(path, choice, createPath, createChild, Collections.newSetFromMap(new IdentityHashMap<>())));
 			}
 
 			return result;
 		}
 	}
 
-	private static ArrayList<Pair<InlineType, String>> findParentAndNameRec(Path path, InlineType root, boolean createPath, boolean unfold, Set<InlineType> seenNodes){
+	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
+		return TreeUtils.findParentAndName(path, root, createPath, true);
+	}
+
+	private static ArrayList<Pair<InlineType, String>> findParentAndNameRec(Path path, InlineType root, boolean createPath, boolean createChild, Set<InlineType> seenNodes){
 		ArrayList<Pair<InlineType, String>> ret = new ArrayList<>();
 		seenNodes.add(root);
 				
@@ -70,40 +74,39 @@ public class TreeUtils {
 			return ret;
 		}
 
-		String childToLookFor = path.get(0);
+		String childNameToLookFor = path.get(0);
 		Type childNode;
 
-		if(root.contains(childToLookFor)){
-			childNode = root.getChild(childToLookFor);
-
-			if(unfold && seenNodes.contains(childNode)){
-				TreeUtils.unfold(path, root, root.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
-				childNode = root.getChild(childToLookFor); // reassign the child to the child in the unfolded version
-			}
+		if(root.contains(childNameToLookFor)){
+			childNode = root.getChild(childNameToLookFor);
 
 			if(path.size() == 1){ // it was the child to look for
-				ret.add(new Pair<InlineType, String>(root, childToLookFor));
+				ret.add(new Pair<InlineType, String>(root, childNameToLookFor));
 				return ret;
 			}
 			
 			if(childNode instanceof InlineType){ 
 				InlineType parsedChild = (InlineType)childNode;
-				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), parsedChild, createPath, unfold, seenNodes));
+				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), parsedChild, createPath, createChild, seenNodes));
 			}
 			else{ // child is choice node, continue search in all choices
 				ChoiceType parsedChild = (ChoiceType)childNode;
-				parsedChild.choices().forEach(c -> ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), c, createPath, unfold, seenNodes)));
+				parsedChild.choices().forEach(c -> ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), c, createPath, createChild, seenNodes)));
 			}
 		}
 		else if(createPath){
 			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false); // TODO ask Marco if this should be open or not, I think it should not
-			root.addChildUnsafe(childToLookFor, newChild);
 			
-			if(path.size() == 1){
-				ret.add(new Pair<InlineType,String>(root, childToLookFor));
+			if(path.size() == 1){ // this was the child to look for
+				ret.add(new Pair<InlineType,String>(root, childNameToLookFor));
+
+				if(createChild){
+					root.addChildUnsafe(childNameToLookFor, newChild);
+				}
 			}
 			else{
-				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), newChild, createPath, unfold, seenNodes));
+				root.addChildUnsafe(childNameToLookFor, newChild);
+				ret.addAll(TreeUtils.findParentAndNameRec(path.remainder(), newChild, createPath, createChild, seenNodes));
 			}
 		}
 
@@ -112,11 +115,16 @@ public class TreeUtils {
 
 	/**
 	 * Unfolds the Type root in place
+	 * @param path the path to follow. The unfolding will stop when reaching the end of this path
 	 * @param root the Type to unfold
 	 * @param rootCopy a deep copy of root 
 	 * @param seenNodes a Set<Type> of the nodes that already have been processed
 	 */
-	private static void unfold(Path path, Type root, Type rootCopy, Set<Type> seenNodes){
+	public static Type unfold(Path path, Type root){
+		return TreeUtils.unfoldRec(path, root.copy(), root.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
+	}
+	
+	public static Type unfoldRec(Path path, Type root, Type rootCopy, Set<Type> seenNodes){
 		seenNodes.add(root);
 		
 		if(root instanceof InlineType){
@@ -127,40 +135,30 @@ public class TreeUtils {
 				for(Entry<String, Type> ent : parsedRootCopy.children().entrySet()){
 					parsedRoot.addChildUnsafe(ent.getKey(), ent.getValue());
 				}
-				return;
+				return root;
 			}
 			else{
 				String childToLookFor = path.get(0);
 
-				if(parsedRoot.contains(childToLookFor)){
-					for(String childName : parsedRoot.children().keySet()){
-						Type child = parsedRoot.getChild(childName);
-						Type childCopy = parsedRootCopy.getChild(childName);
+				for(String childName : parsedRoot.children().keySet()){
+					Type child = parsedRoot.getChild(childName);
+					Type childCopy = parsedRootCopy.getChild(childName);
 
-						if(childName.equals(childToLookFor)){ // it is the next child on the path
-							if(seenNodes.contains(child)){ // a recursive edge
-								// unfold once
-								child = childCopy.copy();
-								parsedRoot.addChildUnsafe(childName, child);
-							}
-	
-							// continue on the path
-							TreeUtils.unfold(path.remainder(), child, childCopy, seenNodes);
+					if(childName.equals(childToLookFor)){ // it is the next child on the path
+						if(seenNodes.contains(child)){ // a recursive edge
+							// unfold once
+							child = childCopy.copy();
+							parsedRoot.addChildUnsafe(childName, child);
 						}
-						else{ // it is not a child on the path
-							if(seenNodes.contains(child)){ // a recursive edge
-								// point to the copy structure
-								parsedRoot.addChildUnsafe(childName, childCopy);
-							}
-						}
+
+						// continue on the path
+						TreeUtils.unfoldRec(path.remainder(), child, childCopy, seenNodes);
 					}
-				}
-				else{
-					InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false); // TODO ask Marco if this should be open or not, I think it should not
-					parsedRoot.addChildUnsafe(childToLookFor, newChild);
-					
-					if(path.size() > 1){ // if this was not the last element on the path, continue
-						TreeUtils.unfold(path.remainder(), newChild, null, seenNodes);
+					else{ // it is not a child on the path
+						if(seenNodes.contains(child)){ // a recursive edge
+							// point to the copy structure
+							parsedRoot.addChildUnsafe(childName, childCopy);
+						}
 					}
 				}
 			}
@@ -172,10 +170,39 @@ public class TreeUtils {
 			for(InlineType choice : parsedRoot.choices()){
 				for(InlineType choiceCopy : parsedRootCopy.choices()){
 					if(choice.equals(choiceCopy)){
-						TreeUtils.unfold(path, choice, choiceCopy, seenNodes);
+						TreeUtils.unfoldRec(path, choice, choiceCopy, seenNodes);
 						break;
 					}
 				}
+			}
+		}
+
+		return root;
+	}
+
+	public static void fold(Type root){
+		if(root == null){
+			return;
+		}
+
+		if(root instanceof InlineType){
+			InlineType parsedRoot = (InlineType)root;
+			for(Entry<String, Type> ent : parsedRoot.children().entrySet()){
+				String childName = ent.getKey();
+				Type child = ent.getValue();
+
+				if(child.equals(parsedRoot)){
+					parsedRoot.addChildUnsafe(childName, parsedRoot);
+				}
+				else{
+					TreeUtils.fold(child);
+				}
+			}
+		}
+		else{ // choice types
+			ChoiceType parsedRoot = (ChoiceType)root;
+			for(InlineType choice : parsedRoot.choices()){
+				TreeUtils.fold(choice);
 			}
 		}
 	}
@@ -187,7 +214,7 @@ public class TreeUtils {
 	 * @param tree the tree in which the nodes reside
 	 */
 	public static void setTypeOfNodeByPath(Path path, Type type, Type tree){
-		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, false);
+		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, true);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){
 			pair.key().addChildUnsafe(pair.value(), type);
@@ -201,9 +228,9 @@ public class TreeUtils {
 	 * @param tree the root of the tree in which to follow the path
 	 */
 	public static void setBasicTypeOfNodeByPath(Path path, ArrayList<BasicTypeDefinition> basicTypes, Type tree){
-		TreeUtils.unfold(path, tree, tree.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
+		TreeUtils.unfold(path, tree);
 
-		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, false);
+		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, true);
 		
 		for(Pair<InlineType,String> pair : nodesToUpdate){
 			InlineType parent = pair.key();

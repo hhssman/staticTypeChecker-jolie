@@ -23,8 +23,6 @@ import staticTypechecker.visitors.TypeProcessor;
 public class Main {
 
 	public static void main( String[] args ) {
-		
-		
 		// stage 0: parse the modules
 		String moduleName = args[0];
 		ModuleHandler.loadModule(moduleName);

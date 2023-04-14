@@ -5,7 +5,7 @@ interface MyInterface {
 	RequestResponse:
 		helloReqRes( int )( string )
 	OneWay:
-		helloOneway( rec1 )
+		helloOneway( rec )
 }
 
 // type one: int {
@@ -33,17 +33,17 @@ interface MyInterface {
 
 
 type input: void {
-	x: rec1
-	y: rec1
+	x: rec
+	y: rec
 }
 
-type rec1: int {
-	x: rec1
+type rec: int {
+	x: rec
 }
 
 type huh: int | string
 
-service MyService(input: rec1) {
+service MyService(x: rec) {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -57,12 +57,19 @@ service MyService(input: rec1) {
 	}
 
 	main {
-		a = "hey"
-		a.x = true
+		// a = 10
+		// a.x = "true"
+		// a.z = false
+
+		// b = "hey"
+		// b.x = 20
+		// b.z = 10
+		// x.y << x
+		// x.y << x
 
 		i = 0
 		while(i < 4){
-			a << input
+			x.y << x
 
 			i++
 		}

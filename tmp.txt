@@ -5,181 +5,134 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void (1513712028) {
-	input: int (1018547642) {
-		x (recursive edge to 1018547642)
-	}
-}
-
---------------------------
-
-a = "hey"
-void (659748578) {
-	input: int (240650537) {
-		x (recursive edge to 240650537)
-	}
-	a: string (2088051243)
-}
-
---------------------------
-
-a.x = true
-void (1277181601) {
-	input: int (41903949) {
-		x (recursive edge to 41903949)
-	}
-	a: string (488970385) {
-		x: bool (93122545)
+void (747464370) {
+	x: int (1513712028) {
+		x (recursive edge to 1513712028)
 	}
 }
 
 --------------------------
 
 i = 0
-void (2083562754) {
-	input: int (1239731077) {
-		x (recursive edge to 1239731077)
+void (1802598046) {
+	x: int (659748578) {
+		x (recursive edge to 659748578)
 	}
-	a: string (557041912) {
-		x: bool (1134712904)
-	}
-	i: int (1435804085)
+	i: int (1277181601)
 }
 
 --------------------------
 
 while(i < 4)
-i: 0
-i: 1
---------------
-void (2114889273) {
-	input: int (2047526627) {
-		x (recursive edge to 2047526627)
+void (1798286609) {
+	x: int (2036958521) {
+		x: int (1945604815) {
+			x (recursive edge to 1945604815)
+		}
+		y:  785992331
+			int (1595953398) {
+				x: int (328638398) {
+					x (recursive edge to 328638398)
+				}
+				y: int (1789550256) {
+					x: int (3447021) {
+						x (recursive edge to 3447021)
+					}
+					y: int (998351292) {
+						x (recursive edge to 998351292)
+					}
+				}
+			}
+			|
+			int (940553268) {
+				x: int (1720435669) {
+					x (recursive edge to 1720435669)
+				}
+				y: int (1020923989) {
+					x: int (2052915500) {
+						x (recursive edge to 2052915500)
+					}
+					y:  1068934215
+						void (1435804085)
+						|
+						int (998351292) {
+							x (recursive edge to 998351292)
+						}
+				}
+			}
+			|
+			void (1684106402) {
+				x: int (328638398) {
+					x (recursive edge to 328638398)
+				}
+				y: int (1789550256) {
+					x: int (3447021) {
+						x (recursive edge to 3447021)
+					}
+					y: int (998351292) {
+						x (recursive edge to 998351292)
+					}
+				}
+			}
 	}
-	a: int (1908316405) {
-		x: int (2047526627) {
-			x (recursive edge to 2047526627)
-		}
-	}
-	i: int (1873653341)
-}
-
-is subtype of
-
-void (25126016) {
-	input: int (762218386) {
-		x (recursive edge to 762218386)
-	}
-	a:  672320506
-		int (1740000325) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-		|
-		string (905544614) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-	i: int (2137589296)
-}
-
-stoppping while
-------------
-void (25126016) {
-	input: int (762218386) {
-		x (recursive edge to 762218386)
-	}
-	a:  672320506
-		int (1740000325) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-		|
-		string (905544614) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-	i: int (2137589296)
+	i: int (335471116)
 }
 
 --------------------------
 
 Final tree for module ./src/test/files/input.ol:
-void (25126016) {
-	input: int (762218386) {
-		x (recursive edge to 762218386)
+void (1798286609) {
+	x: int (2036958521) {
+		x: int (1945604815) {
+			x (recursive edge to 1945604815)
+		}
+		y:  785992331
+			int (1595953398) {
+				x: int (328638398) {
+					x (recursive edge to 328638398)
+				}
+				y: int (1789550256) {
+					x: int (3447021) {
+						x (recursive edge to 3447021)
+					}
+					y: int (998351292) {
+						x (recursive edge to 998351292)
+					}
+				}
+			}
+			|
+			int (940553268) {
+				x: int (1720435669) {
+					x (recursive edge to 1720435669)
+				}
+				y: int (1020923989) {
+					x: int (2052915500) {
+						x (recursive edge to 2052915500)
+					}
+					y:  1068934215
+						void (1435804085)
+						|
+						int (998351292) {
+							x (recursive edge to 998351292)
+						}
+				}
+			}
+			|
+			void (1684106402) {
+				x: int (328638398) {
+					x (recursive edge to 328638398)
+				}
+				y: int (1789550256) {
+					x: int (3447021) {
+						x (recursive edge to 3447021)
+					}
+					y: int (998351292) {
+						x (recursive edge to 998351292)
+					}
+				}
+			}
 	}
-	a:  672320506
-		int (1740000325) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-		|
-		string (905544614) {
-			x:  1142020464
-				int (1682092198) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-				|
-				bool (1626877848) {
-					x: int (920011586) {
-						x (recursive edge to 920011586)
-					}
-				}
-		}
-	i: int (2137589296)
+	i: int (335471116)
 }
 
 --------------------------
