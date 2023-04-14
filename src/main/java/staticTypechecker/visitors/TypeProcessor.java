@@ -94,7 +94,7 @@ import staticTypechecker.typeStructures.TypeConverter;
 import staticTypechecker.typeStructures.Type;
 
 /**
- * Parses the types of the Jolie module to InlineTypes and ChoiceTypes.
+ * Parses the types of a Jolie module to InlineTypes and ChoiceTypes.
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */

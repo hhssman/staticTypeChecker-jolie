@@ -153,6 +153,14 @@ public abstract class Type implements Symbol {
 					Type xChild = x.getChild(childName);
 					Type yChild = y.getChild(childName);
 
+					// if one of the children do not exist, we default it to a void
+					if(xChild == null){
+						xChild = Type.VOID;
+					}
+					if(yChild == null){
+						yChild = Type.VOID;
+					}
+
 					ret.addChildUnsafe(childName, Type.mergeRec(xChild, yChild));
 				}
 

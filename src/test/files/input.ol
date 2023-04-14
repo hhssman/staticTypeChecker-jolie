@@ -41,19 +41,9 @@ type rec1: int {
 	x: rec1
 }
 
-
-type rec2: int {
-	x: int {
-		x: int {
-			x: rec2
-			y: rec1
-		}
-	}
-}
-
 type huh: int | string
 
-service MyService() {
+service MyService(input: rec1) {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -66,27 +56,17 @@ service MyService() {
 		Interfaces: MyInterface
 	}
 
-	init {
-		a = 10
+	main {
+		a = "hey"
+		a.x = true
+
+		i = 0
+		while(i < 4){
+			a << input
+
+			i++
+		}
+
 	}
-	
-	// main {
-	// 	a = 10
-	// 	a.x = 10
-	// 	a.x.y = 10
-
-	// 	a.x = "hey"
-
-	// 	// i = 0
-	// 	// while(i < 4){
-	// 	// 	z = a
-	// 	// 	a = b
-	// 	// 	b = z
-	// 	// 	undef ( z )
-
-	// 	// 	i++
-	// 	// }
-
-	// }
 	
 }

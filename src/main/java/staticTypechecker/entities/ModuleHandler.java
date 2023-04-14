@@ -1,6 +1,8 @@
 package staticTypechecker.entities;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.ImportStatement;
 import jolie.lang.parse.ast.OLSyntaxNode;
@@ -12,6 +14,7 @@ import staticTypechecker.visitors.TypeCheckerVisitor;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class ModuleHandler {
+	private static String basePath = ""; // the path from the main class to the first Jolie module
 	private static HashMap<String, Module> modules = new HashMap<>(); // maps module names to their Module instances
 
 	/**
@@ -19,6 +22,14 @@ public class ModuleHandler {
 	 * @param moduleName the name of the module to load
 	 */
 	public static void loadModule(String moduleName){
+		if(ModuleHandler.basePath.equals("")){ // this is the module given to the type checker, set the basepath to the folder of this file
+			String[] path = moduleName.split("/");
+			int nameLength = path[path.length - 1].length();
+
+			String basePath = moduleName.substring(0, moduleName.length() - nameLength);
+			ModuleHandler.basePath = basePath;
+		}
+
 		Module module = new Module(moduleName);
 		ModuleHandler.modules.put(moduleName, module);
 
@@ -38,7 +49,14 @@ public class ModuleHandler {
 	 * @return the module name
 	 */
 	public static String getModuleName(ImportStatement n){
-		return "./src/test/files/" + n.importTarget().get(n.importTarget().size() - 1) + ".ol"; // TODO: figure out a way not to hardcode the path
+		List<String> importPath = n.importTarget();
+		if(importPath.get(0).equals("")){ // a relative path
+			String relativePath = importPath.subList(1, importPath.size()).stream().collect(Collectors.joining("/"));
+			return ModuleHandler.basePath + relativePath + ".ol";
+		}
+		
+		// TODO talk to Marco about absolute paths
+		return "";
 	}
 
 	/**

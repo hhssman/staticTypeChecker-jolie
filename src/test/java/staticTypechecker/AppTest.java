@@ -7,17 +7,9 @@ import java.util.Map.Entry;
 import org.junit.Test;
 
 import jolie.lang.NativeType;
-import jolie.lang.parse.OLVisitor;
-import jolie.lang.parse.ast.AssignStatement;
-import jolie.lang.parse.ast.NullProcessStatement;
-import jolie.lang.parse.ast.SequenceStatement;
-import jolie.lang.parse.ast.VariablePathNode;
-import jolie.lang.parse.ast.expression.ConstantBoolExpression;
-import jolie.lang.parse.ast.expression.ConstantIntegerExpression;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
@@ -96,7 +88,7 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		Type target = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
+		Type target = this.createInline(NativeType.VOID);
 
 		assertTrue( result.equals(target) );
 	}
@@ -108,9 +100,9 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
-		InlineType a = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
-		InlineType b = new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false);
+		InlineType target = this.createInline(NativeType.VOID);
+		InlineType a = this.createInline(NativeType.INT);
+		InlineType b = this.createInline(NativeType.STRING);
 
 		target.addChildUnsafe("a", a);
 		target.addChildUnsafe("b", b);
@@ -125,10 +117,10 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
-		InlineType inputType = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
-		inputType.addChildUnsafe("x", new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false));
-		inputType.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
+		InlineType target = this.createInline(NativeType.VOID);
+		InlineType inputType = this.createInline(NativeType.INT);
+		inputType.addChildUnsafe("x", this.createInline(NativeType.STRING));
+		inputType.addChildUnsafe("y", this.createInline(NativeType.INT));
 		target.addChildUnsafe("inputType", inputType);
 
 		assertTrue( result.equals(target) );
@@ -141,19 +133,23 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
-		InlineType inputType = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
-		InlineType p = new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false);
+		InlineType target = this.createInline(NativeType.VOID);
+		InlineType inputType = this.createInline(NativeType.INT);
+		InlineType p = this.createInline(NativeType.INT);
 
-		inputType.addChildUnsafe("x", new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false));
-		inputType.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
-		p.addChildUnsafe("x", new InlineType(BasicTypeDefinition.of(NativeType.STRING), null, null, false));
-		p.addChildUnsafe("y", new InlineType(BasicTypeDefinition.of(NativeType.INT), null, null, false));
+		inputType.addChildUnsafe("x", this.createInline(NativeType.STRING));
+		inputType.addChildUnsafe("y", this.createInline(NativeType.INT));
+		p.addChildUnsafe("x", this.createInline(NativeType.STRING));
+		p.addChildUnsafe("y", this.createInline(NativeType.INT));
 
 		target.addChildUnsafe("inputType", inputType);
 		target.addChildUnsafe("p", p);
 
 		assertTrue( result.equals(target) );
+	}
+
+	private InlineType createInline(NativeType nativeType){
+		return new InlineType(BasicTypeDefinition.of(nativeType), null, null, false);
 	}
 
 	private Module initializeModule(String moduleName){

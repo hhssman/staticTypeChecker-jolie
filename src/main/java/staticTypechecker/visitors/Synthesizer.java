@@ -381,6 +381,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
 
 			if(R.isSubtypeOf(currState)){ // the new state is subtype of the current state, we return it
+				System.out.println("--------------\n" + R.prettyString() + "\n\nis subtype of\n\n" + currState.prettyString() + "\n\nstoppping while\n------------");
 				return currState;
 			}
 			
