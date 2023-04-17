@@ -58,21 +58,19 @@ service MyService(x: rec) {
 
 	main {
 		// a = 10
-		// a.x = "true"
-		// a.z = false
-
 		// b = "hey"
-		// b.x = 20
-		// b.z = 10
-		// x.y << x
-		// x.y << x
+		// c = true
 
-		i = 0
-		while(i < 4){
-			x.y << x
+		a = 10L
+		b = "hey"
+		c = a / b
 
-			i++
-		}
+		// i = 0
+		// while(i < 4){
+		// 	x.y << x
+
+		// 	i++
+		// }
 
 	}
 	

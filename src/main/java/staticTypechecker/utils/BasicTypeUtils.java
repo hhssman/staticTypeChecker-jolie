@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
+import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.faults.Warning;
 import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.typeStructures.ChoiceType;
@@ -22,39 +23,40 @@ public class BasicTypeUtils {
 	 * @param operand the operand type
 	 * @param t1 first input
 	 * @param t2 second input
+	 * @param ctx the parsing context of the operation, used for display of warnings
 	 * @return the type of the result of the given operation on the given input types 
 	 */
-	public static Type deriveTypeOfOperation(OperandType operand, Type t1, Type t2){
+	public static Type deriveTypeOfOperation(OperandType operand, Type t1, Type t2, ParsingContext ctx){
 		if(t1 instanceof InlineType && t2 instanceof InlineType){
-			return BasicTypeUtils.deriveTypeOfOperation(operand, (InlineType)t1, (InlineType)t2);
+			return BasicTypeUtils.deriveTypeOfOperation(operand, (InlineType)t1, (InlineType)t2, ctx);
 		}
 		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){
-			return BasicTypeUtils.deriveTypeOfOperation(operand, (InlineType)t1, (ChoiceType)t2);
+			return BasicTypeUtils.deriveTypeOfOperation(operand, (InlineType)t1, (ChoiceType)t2, ctx);
 		}
 		else if(t1 instanceof ChoiceType && t2 instanceof InlineType){
-			return BasicTypeUtils.deriveTypeOfOperation(operand, (ChoiceType)t1, (InlineType)t2);
+			return BasicTypeUtils.deriveTypeOfOperation(operand, (ChoiceType)t1, (InlineType)t2, ctx);
 		}
 		else{ // both are choice types
-			return BasicTypeUtils.deriveTypeOfOperation(operand, (ChoiceType)t1, (ChoiceType)t2);
+			return BasicTypeUtils.deriveTypeOfOperation(operand, (ChoiceType)t1, (ChoiceType)t2, ctx);
 		}
 	}
 
 	/**
 	 * Derive the type when both inputs are InlineTypes
 	 */
-	private static Type deriveTypeOfOperation(OperandType operand, InlineType t1, InlineType t2){
-		BasicTypeDefinition basicType = BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, t1.basicType(), t2.basicType());
+	private static Type deriveTypeOfOperation(OperandType operand, InlineType t1, InlineType t2, ParsingContext ctx){
+		BasicTypeDefinition basicType = BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, t1.basicType(), t2.basicType(), ctx);
 		return new InlineType(basicType, null, null, false);
 	}
 
 	/**
 	 * Derive the type of one InlineType and one ChoiceType as input
 	 */
-	private static Type deriveTypeOfOperation(OperandType operand, InlineType t1, ChoiceType t2){
+	private static Type deriveTypeOfOperation(OperandType operand, InlineType t1, ChoiceType t2, ParsingContext ctx){
 		ArrayList<BasicTypeDefinition> basicTypes = new ArrayList<>();
 
 		for(InlineType choice : t2.choices()){
-			basicTypes.add(BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, t1.basicType(), choice.basicType()));
+			basicTypes.add(BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, t1.basicType(), choice.basicType(), ctx));
 		}
 
 		return ChoiceType.fromBasicTypes(basicTypes);
@@ -63,19 +65,19 @@ public class BasicTypeUtils {
 	/**
 	 * Derive the type of one InlineType and one ChoiceType as input
 	 */
-	private static Type deriveTypeOfOperation(OperandType operand, ChoiceType t1, InlineType t2){
-		return BasicTypeUtils.deriveTypeOfOperation(operand, t2, t1);
+	private static Type deriveTypeOfOperation(OperandType operand, ChoiceType t1, InlineType t2, ParsingContext ctx){
+		return BasicTypeUtils.deriveTypeOfOperation(operand, t2, t1, ctx);
 	}
 
 	/**
 	 * Derive the type when both inputs are ChoiceTypes
 	 */
-	private static Type deriveTypeOfOperation(OperandType operand, ChoiceType t1, ChoiceType t2){
+	private static Type deriveTypeOfOperation(OperandType operand, ChoiceType t1, ChoiceType t2, ParsingContext ctx){
 		ArrayList<BasicTypeDefinition> basicTypes = new ArrayList<>();
 
 		for(InlineType choice1 : t1.choices()){
 			for(InlineType choice2 : t2.choices()){
-				basicTypes.add(BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, choice1.basicType(), choice2.basicType()));
+				basicTypes.add(BasicTypeUtils.deriveTypeOfOperationOnBasicTypes(operand, choice1.basicType(), choice2.basicType(), ctx));
 			}
 		}
 
@@ -86,7 +88,7 @@ public class BasicTypeUtils {
 	/**
 	 * Derives the type of the operation given two basic types
 	 */
-	private static BasicTypeDefinition deriveTypeOfOperationOnBasicTypes(OperandType operand, BasicTypeDefinition t1, BasicTypeDefinition t2){
+	private static BasicTypeDefinition deriveTypeOfOperationOnBasicTypes(OperandType operand, BasicTypeDefinition t1, BasicTypeDefinition t2, ParsingContext ctx){
 		NativeType type1 = t1.nativeType();
 		NativeType type2 = t2.nativeType();
 
@@ -131,7 +133,7 @@ public class BasicTypeUtils {
 				}
 
 				// throw warning, division and modulo with a string only allowed if string can be parsed to int
-				WarningHandler.addWarning(new Warning("the operations 'int / string' and 'int % string' are only allowed if the string can be parsed to a number"));
+				WarningHandler.throwWarning("the operations 'int / string' and 'int % string' are only allowed if the string can be parsed to a number", ctx);
 				return BasicTypeDefinition.of(NativeType.INT);
 			}
 		}
@@ -151,7 +153,7 @@ public class BasicTypeUtils {
 				}
 
 				// throw warning, division and modulo with a string only allowed if string can be parsed to int
-				WarningHandler.addWarning(new Warning("the operations 'long / string' and 'long % string' are only allowed if the string can be parsed to a number"));
+				WarningHandler.throwWarning("the operations 'long / string' and 'long % string' are only allowed if the string can be parsed to a number", ctx);
 				return BasicTypeDefinition.of(NativeType.LONG);
 			}
 

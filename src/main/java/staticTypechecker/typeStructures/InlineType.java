@@ -62,7 +62,7 @@ public class InlineType extends Type {
 	 * @param children the new children
 	 */
 	public void setChildrenUnsafe(HashMap<String, Type> children){
-		this.children = children;
+		this.children = new HashMap<>(children);
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class InlineType extends Type {
 
 	public Type getChild(String name){
 		if(name == "?" && this.isOpen()){
-			return Type.OPEN_RECORD;
+			return Type.OPEN_RECORD();
 		}
 
 		return this.children.get(name);

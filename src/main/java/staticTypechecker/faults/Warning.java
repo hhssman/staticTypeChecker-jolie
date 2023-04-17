@@ -9,7 +9,7 @@ public class Warning {
 	private String message;
 
 	public Warning(String message){
-		this.message = "WARNING: " + message;
+		this.message = message;
 	}
 
 	public String message(){

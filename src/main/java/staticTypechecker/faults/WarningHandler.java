@@ -3,6 +3,8 @@ package staticTypechecker.faults;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import jolie.lang.parse.context.ParsingContext;
+
 /**
  * Handles all warnings which may occur during the type checking
  * 
@@ -11,8 +13,18 @@ import java.util.stream.Collectors;
 public class WarningHandler {
 	private static ArrayList<Warning> warnings = new ArrayList<>();
 
-	public static void addWarning(Warning warning){
+	public static void throwWarning(Warning warning){
 		WarningHandler.warnings.add(warning);
+	}
+
+	public static void throwWarning(String warningMessage, ParsingContext ctx){
+		if(ctx != null){
+			String message = "WARNING in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n" + warningMessage;
+			WarningHandler.warnings.add(new Warning(message));
+		}
+		else{
+			WarningHandler.warnings.add(new Warning("WARNING: " + warningMessage));
+		}
 	}
 
 	public static ArrayList<Warning> warnings(){
@@ -23,12 +35,9 @@ public class WarningHandler {
 		return WarningHandler.warnings.isEmpty();
 	}
 
-	public static String prettyString(){
-		if(WarningHandler.warnings.isEmpty()){
-			return "";
-		}
-
-		return WarningHandler.warnings.stream().map(w -> w.toString()).collect(Collectors.joining("\n"));
+	public static void printWarnings(){
+		for(Warning w : WarningHandler.warnings){
+			System.out.println(w.message());
+		}		
 	}
-
 }

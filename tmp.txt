@@ -5,135 +5,58 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void (747464370) {
-	x: int (1513712028) {
-		x (recursive edge to 1513712028)
+void (2101440631) {
+	x: int (2109957412) {
+		x (recursive edge to 2109957412)
 	}
 }
 
 --------------------------
 
-i = 0
-void (1802598046) {
-	x: int (659748578) {
-		x (recursive edge to 659748578)
+a = 10L
+void (757108857) {
+	a: long (483422889)
+	x: int (1809787067) {
+		x (recursive edge to 1809787067)
 	}
-	i: int (1277181601)
 }
 
 --------------------------
 
-while(i < 4)
-void (1798286609) {
-	x: int (2036958521) {
-		x: int (1945604815) {
-			x (recursive edge to 1945604815)
-		}
-		y:  785992331
-			int (1595953398) {
-				x: int (328638398) {
-					x (recursive edge to 328638398)
-				}
-				y: int (1789550256) {
-					x: int (3447021) {
-						x (recursive edge to 3447021)
-					}
-					y: int (998351292) {
-						x (recursive edge to 998351292)
-					}
-				}
-			}
-			|
-			int (940553268) {
-				x: int (1720435669) {
-					x (recursive edge to 1720435669)
-				}
-				y: int (1020923989) {
-					x: int (2052915500) {
-						x (recursive edge to 2052915500)
-					}
-					y:  1068934215
-						void (1435804085)
-						|
-						int (998351292) {
-							x (recursive edge to 998351292)
-						}
-				}
-			}
-			|
-			void (1684106402) {
-				x: int (328638398) {
-					x (recursive edge to 328638398)
-				}
-				y: int (1789550256) {
-					x: int (3447021) {
-						x (recursive edge to 3447021)
-					}
-					y: int (998351292) {
-						x (recursive edge to 998351292)
-					}
-				}
-			}
+b = "hey"
+void (1277181601) {
+	a: long (41903949)
+	b: string (557041912)
+	x: int (488970385) {
+		x (recursive edge to 488970385)
 	}
-	i: int (335471116)
+}
+
+--------------------------
+
+c = a / b
+void (509886383) {
+	a: long (1854778591)
+	b: string (2054798982)
+	c: long (968514068)
+	x: int (885951223) {
+		x (recursive edge to 885951223)
+	}
 }
 
 --------------------------
 
 Final tree for module ./src/test/files/input.ol:
-void (1798286609) {
-	x: int (2036958521) {
-		x: int (1945604815) {
-			x (recursive edge to 1945604815)
-		}
-		y:  785992331
-			int (1595953398) {
-				x: int (328638398) {
-					x (recursive edge to 328638398)
-				}
-				y: int (1789550256) {
-					x: int (3447021) {
-						x (recursive edge to 3447021)
-					}
-					y: int (998351292) {
-						x (recursive edge to 998351292)
-					}
-				}
-			}
-			|
-			int (940553268) {
-				x: int (1720435669) {
-					x (recursive edge to 1720435669)
-				}
-				y: int (1020923989) {
-					x: int (2052915500) {
-						x (recursive edge to 2052915500)
-					}
-					y:  1068934215
-						void (1435804085)
-						|
-						int (998351292) {
-							x (recursive edge to 998351292)
-						}
-				}
-			}
-			|
-			void (1684106402) {
-				x: int (328638398) {
-					x (recursive edge to 328638398)
-				}
-				y: int (1789550256) {
-					x: int (3447021) {
-						x (recursive edge to 3447021)
-					}
-					y: int (998351292) {
-						x (recursive edge to 998351292)
-					}
-				}
-			}
+void (509886383) {
+	a: long (1854778591)
+	b: string (2054798982)
+	c: long (968514068)
+	x: int (885951223) {
+		x (recursive edge to 885951223)
 	}
-	i: int (335471116)
 }
 
 --------------------------
 
+WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 66:
+the operations 'long / string' and 'long % string' are only allowed if the string can be parsed to a number

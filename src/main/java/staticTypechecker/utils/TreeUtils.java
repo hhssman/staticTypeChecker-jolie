@@ -236,12 +236,19 @@ public class TreeUtils {
 			InlineType parent = pair.key();
 			String childName = pair.value();
 
-			if(basicTypes.size() == 1){ // update the child in the parent with a copy of the old child with a new basic type
+			if(basicTypes.size() == 1){ // only one basic type, update the child in the parent with a copy of the old child with a new basic type
 				if(parent.getChild(childName) instanceof InlineType){
 					parent.addChildUnsafe(childName, ((InlineType)parent.getChild(childName)).setBasicType(basicTypes.get(0)));
 				}
 				else{
-					parent.addChildUnsafe(childName, ((ChoiceType)parent.getChild(childName)).updateBasicTypeOfChoices(basicTypes.get(0)));
+					ChoiceType child = ((ChoiceType)parent.getChild(childName)).updateBasicTypeOfChoices(basicTypes.get(0));
+					// this check is necessary, since changing the basic type of all choices, may make some of them equivalence, and hence they will be removed. We may be in a situation of a choice type with only one choice (which we convert to an InlineType below)
+					if(child.choices().size() == 1){
+						parent.addChildUnsafe(childName, new InlineType(basicTypes.get(0), null, child.context(), false));
+					}
+					else{
+						parent.addChildUnsafe(childName, child);
+					}
 				}
 			}
 			else{ // 
@@ -267,6 +274,73 @@ public class TreeUtils {
 				parent.addChildUnsafe(childName, newChild);
 			}
 		}
+	}
+
+	/**
+	 * Will go through the trees and any node which differs in basic type will be converted to an any{?} node 
+	 * @param orignalType
+	 * @param other
+	 * @return a copy of originalType but with all nodes converted to any{?} if the corresponding node in other has a different basic type
+	 */
+	public static Type undefine(Type orignalType, Type other){
+		Type copy = orignalType.copy();
+
+		// make a dummy root as parent for the original root
+		InlineType d1 = Type.VOID();
+		d1.addChildUnsafe("", copy);
+
+		TreeUtils.undefineRec(copy, other, "", d1);
+
+		return d1.getChild("");
+	}
+
+	/**
+	 * Checks the children of original and other
+	 * Precondition: original and other must have the same basic type
+	 * TODO
+	 */
+	private static void undefineRec(Type original, Type other, String name, InlineType parent){
+		if(original == null || other == null){
+			return;
+		}
+
+		if(original instanceof InlineType && other instanceof InlineType){
+			InlineType parsedOG = (InlineType)original;
+			InlineType parsedOther = (InlineType)other;
+
+			if(!parsedOG.basicType().equals(parsedOther.basicType())){
+				parsedOG.setBasicTypeUnsafe(BasicTypeDefinition.of(NativeType.ANY));
+			}
+
+			for(Entry<String, Type> ent : parsedOG.children().entrySet()){
+				String childName = ent.getKey();
+				Type childOG = ent.getValue();
+				Type childOther = parsedOther.getChild(childName);
+
+				TreeUtils.undefineRec(childOG, childOther, childName, parsedOG);
+			}
+		}
+		else if(original instanceof InlineType && other instanceof ChoiceType){
+			for(InlineType choice : ((ChoiceType)other).choices()){
+				TreeUtils.undefineRec(original, choice, name, parent);
+			}
+			// parent.addChildUnsafe(name, ((ChoiceType)other).updateBasicTypeOfChoices(BasicTypeDefinition.of(NativeType.ANY)));
+		}
+		else if(original instanceof ChoiceType && other instanceof InlineType){
+			for(InlineType choice : ((ChoiceType)original).choices()){
+				TreeUtils.undefineRec(choice, other, name, parent);
+			}
+
+			// InlineType newNode = new InlineType(null, null, null, false);
+			// newNode.setBasicTypeUnsafe(BasicTypeDefinition.of(NativeType.ANY));
+			// newNode.setChildrenUnsafe(((InlineType)other).children());
+
+			// parent.addChildUnsafe(name, newNode);
+		}
+		else{
+
+		}
+
 	}
 
 }

@@ -80,7 +80,7 @@ public class Main {
 		// printAllSymbols();
 
 		FaultHandler.printFaults();
-		printWarnings();
+		WarningHandler.printWarnings();
 	}
 
 	private static void printAllSymbols(){
@@ -102,12 +102,6 @@ public class Main {
 			System.out.println("______________");
 		}
 		System.out.println("-----------------------------------------");
-	}
-
-	private static void printWarnings(){
-		if(!WarningHandler.isEmpty()){
-			System.out.println(WarningHandler.prettyString());
-		}
 	}
 
 	private static void printTable(HashMap<String, Type> symbols){
