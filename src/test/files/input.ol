@@ -61,16 +61,16 @@ service MyService(x: rec) {
 		// b = "hey"
 		// c = true
 
-		a = 10L
-		b = "hey"
-		c = a / b
+		// a = 10L
+		// b = "hey"
+		// c = a / b
 
-		// i = 0
-		// while(i < 4){
-		// 	x.y << x
+		i = 0
+		while(i < 4){
+			x.y << x
 
-		// 	i++
-		// }
+			i++
+		}
 
 	}
 	

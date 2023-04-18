@@ -400,12 +400,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		// we did not find a merged state to cover all cases of the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
 		// TODO throw warning
-		WarningHandler.throwWarning(null);
+		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
 
 		// TODO fallback plan
-		// TreeUtils.undefine(originalState, state);
 		System.out.println("FALLBACK");
-		return state;
+		return TreeUtils.undefine(originalState, state);
 	};
 
 	public Type visit( OrConditionNode n, Type T ){

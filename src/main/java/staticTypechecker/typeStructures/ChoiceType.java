@@ -65,6 +65,21 @@ public class ChoiceType extends Type {
 	}
 
 	/**
+	 * Removes the given choice from this ChoiceType object if it is present, else does nothing. WARNING: may alter the object
+	 * @param choice the choice to remove
+	 */
+	public void removeChoiceUnsafe(Type choice){
+		if(choice instanceof InlineType){
+			this.choices.remove(choice);
+		}
+		else{
+			for(InlineType c : ((ChoiceType)choice).choices()){
+				this.choices.remove(c);
+			}
+		}
+	}
+
+	/**
 	 * Overrides the choices of this ChoiceType object with the choices given. WARNING: alters the object
 	 * @param choices the choices to override with
 	 */
@@ -122,6 +137,24 @@ public class ChoiceType extends Type {
 		for(InlineType choice : this.choices){
 			if(choice.contains(childName)){
 				ret.add(choice);
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Retrieves the children with the given name in all choices of this choice type
+	 * @param childName the name to search for
+	 * @return an arraylist of the children
+	 */
+	public ChoiceType getChild(String childName){
+		ChoiceType ret = new ChoiceType();
+
+		for(InlineType choice : this.choices){
+			Type child = choice.getChild(childName);
+			if(child != null){
+				ret.addChoiceUnsafe(child);
 			}
 		}
 

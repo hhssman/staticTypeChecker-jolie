@@ -88,7 +88,7 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		Type target = this.createInline(NativeType.VOID);
+		Type target = Type.VOID();
 
 		assertTrue( result.equals(target) );
 	}
@@ -100,9 +100,9 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = this.createInline(NativeType.VOID);
-		InlineType a = this.createInline(NativeType.INT);
-		InlineType b = this.createInline(NativeType.STRING);
+		InlineType target = Type.VOID();
+		InlineType a = Type.INT();
+		InlineType b = Type.STRING();
 
 		target.addChildUnsafe("a", a);
 		target.addChildUnsafe("b", b);
@@ -117,10 +117,10 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = this.createInline(NativeType.VOID);
-		InlineType inputType = this.createInline(NativeType.INT);
-		inputType.addChildUnsafe("x", this.createInline(NativeType.STRING));
-		inputType.addChildUnsafe("y", this.createInline(NativeType.INT));
+		InlineType target = Type.VOID();
+		InlineType inputType = Type.INT();
+		inputType.addChildUnsafe("x", Type.STRING());
+		inputType.addChildUnsafe("y", Type.INT());
 		target.addChildUnsafe("inputType", inputType);
 
 		assertTrue( result.equals(target) );
@@ -133,23 +133,19 @@ public class AppTest{
 
 		Type result = this.bProcessor.process(module);
 
-		InlineType target = this.createInline(NativeType.VOID);
-		InlineType inputType = this.createInline(NativeType.INT);
-		InlineType p = this.createInline(NativeType.INT);
+		InlineType target = Type.VOID();
+		InlineType inputType = Type.INT();
+		InlineType p = Type.INT();
 
-		inputType.addChildUnsafe("x", this.createInline(NativeType.STRING));
-		inputType.addChildUnsafe("y", this.createInline(NativeType.INT));
-		p.addChildUnsafe("x", this.createInline(NativeType.STRING));
-		p.addChildUnsafe("y", this.createInline(NativeType.INT));
+		inputType.addChildUnsafe("x", Type.STRING());
+		inputType.addChildUnsafe("y", Type.INT());
+		p.addChildUnsafe("x", Type.STRING());
+		p.addChildUnsafe("y", Type.INT());
 
 		target.addChildUnsafe("inputType", inputType);
 		target.addChildUnsafe("p", p);
 
 		assertTrue( result.equals(target) );
-	}
-
-	private InlineType createInline(NativeType nativeType){
-		return new InlineType(BasicTypeDefinition.of(nativeType), null, null, false);
 	}
 
 	private Module initializeModule(String moduleName){

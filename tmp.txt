@@ -5,58 +5,53 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-void (2101440631) {
-	x: int (2109957412) {
-		x (recursive edge to 2109957412)
+void (747464370) {
+	x: int (1513712028) {
+		x (recursive edge to 1513712028)
 	}
 }
 
 --------------------------
 
-a = 10L
-void (757108857) {
-	a: long (483422889)
-	x: int (1809787067) {
-		x (recursive edge to 1809787067)
+i = 0
+void (659748578) {
+	x: int (240650537) {
+		x (recursive edge to 240650537)
 	}
+	i: int (41903949)
 }
 
 --------------------------
 
-b = "hey"
-void (1277181601) {
-	a: long (41903949)
-	b: string (557041912)
-	x: int (488970385) {
-		x (recursive edge to 488970385)
+while(i < 4)
+FALLBACK
+UNDEFINING!
+BEFORE:
+void (1945604815) {
+	x: int (785992331) {
+		x (recursive edge to 785992331)
 	}
+	i: int (940060004)
 }
-
---------------------------
-
-c = a / b
-void (509886383) {
-	a: long (1854778591)
-	b: string (2054798982)
-	c: long (968514068)
-	x: int (885951223) {
-		x (recursive edge to 885951223)
-	}
+AFTER:
+void (1945604815) {
+	x: any (1121172875) { ? }
+	i: int (940060004)
+}
+void (1945604815) {
+	x: any (1121172875) { ? }
+	i: int (940060004)
 }
 
 --------------------------
 
 Final tree for module ./src/test/files/input.ol:
-void (509886383) {
-	a: long (1854778591)
-	b: string (2054798982)
-	c: long (968514068)
-	x: int (885951223) {
-		x (recursive edge to 885951223)
-	}
+void (1945604815) {
+	x: any (1121172875) { ? }
+	i: int (940060004)
 }
 
 --------------------------
 
-WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 66:
-the operations 'long / string' and 'long % string' are only allowed if the string can be parsed to a number
+WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 69:
+could not determine the resulting type of the while loop, affected types may be incorrect from here
