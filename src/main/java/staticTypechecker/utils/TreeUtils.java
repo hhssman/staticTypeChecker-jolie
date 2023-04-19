@@ -291,7 +291,6 @@ public class TreeUtils {
 
 	/**
 	 * VERSION 1, keep the children, only reset the parents
-	 * Checks the children of original and other
 	 * Precondition: original and other must have the same basic type
 	 * TODO
 	 */
@@ -342,10 +341,8 @@ public class TreeUtils {
 	}
 
 	/**
-	 * VERSION 2, keep the children, only reset the parents
-	 * Checks the children of original and other
+	 * VERSION 2, discard the children, reset the parents
 	 * Precondition: original and other must have the same basic type
-	 * TODO
 	 */
 	private static void undefineRec(Type original, Type other, String name, Type parent, Set<Type> seenNodes){
 		if(original == null || other == null){

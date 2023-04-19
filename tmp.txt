@@ -24,31 +24,168 @@ void (659748578) {
 --------------------------
 
 while(i < 4)
-FALLBACK
-UNDEFINING!
-BEFORE:
-void (1945604815) {
-	x: int (785992331) {
-		x (recursive edge to 785992331)
+-------------- ITERATION 0 -----------------
+T:
+void (659748578) {
+	x: int (240650537) {
+		x (recursive edge to 240650537)
 	}
-	i: int (940060004)
+	i: int (41903949)
 }
-AFTER:
-void (1945604815) {
-	x: any (1121172875) { ? }
-	i: int (940060004)
+
+R:
+void (1784662007) {
+	x: int (997110508) {
+		x: int (885951223) {
+			x (recursive edge to 885951223)
+		}
+		y: int (191382150) {
+			x (recursive edge to 191382150)
+		}
+	}
+	i: int (509886383)
 }
-void (1945604815) {
-	x: any (1121172875) { ? }
-	i: int (940060004)
+
+merged state:
+void (1060830840) {
+	x: int (2137211482) {
+		x: int (920011586) {
+			x (recursive edge to 920011586)
+		}
+		y: int (191382150) {
+			x (recursive edge to 191382150)
+		}
+	}
+	i: int (968514068)
+}
+
+-------------- ITERATION 1 -----------------
+T:
+void (1784662007) {
+	x: int (997110508) {
+		x: int (885951223) {
+			x (recursive edge to 885951223)
+		}
+		y: int (191382150) {
+			x (recursive edge to 191382150)
+		}
+	}
+	i: int (509886383)
+}
+
+R:
+void (1908316405) {
+	x: int (1873653341) {
+		x: int (25126016) {
+			x (recursive edge to 25126016)
+		}
+		y: int (1349414238) {
+			x: int (157627094) {
+				x (recursive edge to 157627094)
+			}
+			y: int (932607259) {
+				x (recursive edge to 932607259)
+			}
+		}
+	}
+	i: int (672320506)
+}
+
+merged state:
+void (1740000325) {
+	x: int (1142020464) {
+		x: int (1682092198) {
+			x (recursive edge to 1682092198)
+		}
+		y: int (1626877848) {
+			x: int (905544614) {
+				x (recursive edge to 905544614)
+			}
+			y: int (932607259) {
+				x (recursive edge to 932607259)
+			}
+		}
+	}
+	i: int (2137589296)
+}
+
+-------------- ITERATION 2 -----------------
+T:
+void (1908316405) {
+	x: int (1873653341) {
+		x: int (25126016) {
+			x (recursive edge to 25126016)
+		}
+		y: int (1349414238) {
+			x: int (157627094) {
+				x (recursive edge to 157627094)
+			}
+			y: int (932607259) {
+				x (recursive edge to 932607259)
+			}
+		}
+	}
+	i: int (672320506)
+}
+
+R:
+void (940553268) {
+	x: int (1720435669) {
+		x: int (1020923989) {
+			x (recursive edge to 1020923989)
+		}
+		y: int (2036958521) {
+			x: int (1945604815) {
+				x (recursive edge to 1945604815)
+			}
+			y: int (785992331) {
+				x: int (940060004) {
+					x (recursive edge to 940060004)
+				}
+				y: int (234698513) {
+					x (recursive edge to 234698513)
+				}
+			}
+		}
+	}
+	i: int (1068934215)
+}
+
+merged state:
+void (1121172875) {
+	x: int (649734728) {
+		x: int (1595953398) {
+			x (recursive edge to 1595953398)
+		}
+		y: int (998351292) {
+			x: int (1684106402) {
+				x (recursive edge to 1684106402)
+			}
+			y: int (335471116) {
+				x: int (1308927845) {
+					x (recursive edge to 1308927845)
+				}
+				y: int (234698513) {
+					x (recursive edge to 234698513)
+				}
+			}
+		}
+	}
+	i: int (2017354584)
+}
+
+FALLBACK
+void (321142942) {
+	x: any (1393931310) { ? }
+	i: int (1644443712)
 }
 
 --------------------------
 
 Final tree for module ./src/test/files/input.ol:
-void (1945604815) {
-	x: any (1121172875) { ? }
-	i: int (940060004)
+void (321142942) {
+	x: any (1393931310) { ? }
+	i: int (1644443712)
 }
 
 --------------------------

@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
 
@@ -135,6 +136,10 @@ public abstract class Type implements Symbol {
 	 * @return the result of merging t1 with t2
 	 */
 	public static Type merge(Type t1, Type t2){
+		return Type.mergeRec(t1, t2, new IdentityHashMap<>());
+	}
+	
+	private static Type mergeRec(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> seenNodes){
 		if(t1 == null){
 			return t2;
 		}
@@ -142,30 +147,31 @@ public abstract class Type implements Symbol {
 			return t1;
 		}
 
-		// generally a good idea, but essential in dealing with recursive types
-		if(t1.isSubtypeOf(t2)){
-			return t2;
-		}
-		if(t2.isSubtypeOf(t1)){
-			return t1;
-		}
-
+		// System.out.println("merging\n" + t1.prettyString() + "\n\nand\n" + t2.prettyString());
+		
 		if(t1 instanceof InlineType && t2 instanceof InlineType){
 			InlineType x = (InlineType)t1;
 			InlineType y = (InlineType)t2;
-
+			
 			HashSet<String> childNames = new HashSet<String>();
 			childNames.addAll(x.children().keySet());
 			childNames.addAll(y.children().keySet());
-
+			
 			if(x.basicType().equals(y.basicType())){
 				InlineType ret = new InlineType(x.basicType(), null, null, false);
-
+				Type.addToHashMap(t1, t2, ret, seenNodes);
+				
 				for(String childName : childNames){
 					Type xChild = x.getChild(childName);
 					Type yChild = y.getChild(childName);
 
-					ret.addChildUnsafe(childName, Type.merge(xChild, yChild));
+					// if we have already merged the two child nodes, use the result of that
+					if(Type.mapContains(xChild, yChild, seenNodes)){
+						ret.addChildUnsafe(childName, Type.mapGetResult(xChild, yChild, seenNodes));
+					}
+					else{ // else merge
+						ret.addChildUnsafe(childName, Type.mergeRec(xChild, yChild, seenNodes));
+					}
 				}
 
 				return ret;
@@ -173,6 +179,7 @@ public abstract class Type implements Symbol {
 
 			// base types does not match, create choice with each base type but with the same children
 			ChoiceType ret = new ChoiceType();
+			Type.addToHashMap(t1, t2, ret, seenNodes);
 			InlineType c1 = new InlineType(x.basicType(), null, null, false);
 			InlineType c2 = new InlineType(y.basicType(), null, null, false);
 
@@ -183,7 +190,15 @@ public abstract class Type implements Symbol {
 				Type xChild = x.getChild(childName);
 				Type yChild = y.getChild(childName);
 
-				Type merged = Type.merge(xChild, yChild);
+				Type merged;
+				
+				if(Type.mapContains(t1, t2, seenNodes)){ // again, if we already have a result, use that
+					merged = Type.mapGetResult(t1, t2, seenNodes);
+				}
+				else{ // else merge
+					merged = Type.mergeRec(xChild, yChild, seenNodes);
+				}
+				
 				c1.addChildUnsafe(childName, merged);
 				c2.addChildUnsafe(childName, merged);
 			}
@@ -203,7 +218,7 @@ public abstract class Type implements Symbol {
 					Type child = ent.getValue();
 
 					if(children.containsKey(childName)){ // already there, merge
-						children.put(childName, Type.merge(children.get(childName), child));
+						children.put(childName, Type.mergeRec(children.get(childName), child, seenNodes));
 					}
 					else{ // not there, simply put the child
 						children.put(childName, child);
@@ -228,7 +243,7 @@ public abstract class Type implements Symbol {
 			}
 		}
 		else if(t1 instanceof ChoiceType && t2 instanceof InlineType){
-			return Type.merge(t2, t1); // its the same as the other order
+			return Type.mergeRec(t2, t1, seenNodes); // its the same as the other order
 		}
 		else{ // both are choice types
 			ChoiceType x = (ChoiceType)t1;
@@ -237,14 +252,30 @@ public abstract class Type implements Symbol {
 			Type ret = null;
 
 			for(InlineType c1 : x.choices()){
-				ret = Type.merge(ret, c1);
+				ret = Type.mergeRec(ret, c1, seenNodes);
 			}
 
 			for(InlineType c2 : y.choices()){
-				ret = Type.merge(ret, c2);
+				ret = Type.mergeRec(ret, c2, seenNodes);
 			}
 
 			return ret;
 		}
+	}
+
+	private static void addToHashMap(Type t1, Type t2, Type t3, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
+		if(!map.containsKey(t1)){
+			map.put(t1, new IdentityHashMap<>());
+		}
+
+		map.get(t1).put(t2, t3);
+	}
+
+	private static boolean mapContains(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
+		return map.containsKey(t1) && map.get(t1).containsKey(t2);
+	}
+
+	private static Type mapGetResult(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
+		return map.get(t1).get(t2);
 	}
 }

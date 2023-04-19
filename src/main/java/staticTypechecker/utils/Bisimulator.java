@@ -38,7 +38,7 @@ public class Bisimulator {
 
 			if(false){ // feature toggle
 				// new
-				// filters out all void children and maps them to their name (key)
+				// filters out all void children and maps the remaining to their name (key)
 				xLabels = x.children().entrySet().stream().filter(ent -> ent.getValue().equals(Type.VOID())).map(ent -> ent.getKey()).collect(Collectors.toSet());
 				yLabels = y.children().entrySet().stream().filter(ent -> ent.getValue().equals(Type.VOID())).map(ent -> ent.getKey()).collect(Collectors.toSet());
 			}
