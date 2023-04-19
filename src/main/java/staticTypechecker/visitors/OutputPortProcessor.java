@@ -152,19 +152,22 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			if(child instanceof OutputPortInfo){
 				child.accept(this, symbols);
 
-				OutputPortInfo parsedChild = (OutputPortInfo)child;
-				String portName = parsedChild.id();
-				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+				String portName = ((OutputPortInfo)child).id();
+				if(symbols.getType(portName) == SymbolType.OUTPUT_PORT){ // we may not have created the output port here, but then it will be created in the for loop below with embeddings
+					service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+				}
 			}
 		}
 		
 		// for each embedding, create or use existing outputport and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
 			if(child instanceof EmbedServiceNode){
-				child.accept(this, symbols);
-
-				String portName = ((EmbedServiceNode)child).bindingPort().id();
-				service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+				if(((EmbedServiceNode)child).bindingPort() != null){ // check if the embedded service is bound to a port or not, if not idk what to do
+					child.accept(this, symbols);
+	
+					String portName = ((EmbedServiceNode)child).bindingPort().id();
+					service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+				}
 			}
 		}
 
@@ -185,6 +188,12 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 		OutputPort port = new OutputPort(portName, location, protocol, interfaces);
 
+		// if any of the following is true, the output port is an embedded case and thus we will add the output port there
+		if(location == null || protocol == null || interfaces.isEmpty()){
+			System.out.println("fail");
+			return null;
+		}
+
 		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, port));
 
 		return null;
@@ -195,16 +204,15 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 		String portName = n.bindingPort().id();
 		String serviceName = n.serviceName();
 		boolean isNewPort = n.isNewPort();
-		
 		Service service = (Service)symbols.get(serviceName);
-		
+
 		if(service.parameter() != null){ // the service requires a parameter, check that the provided is a subtype
 			OLSyntaxNode passingParameter = n.passingParameter();
 			Type expectedType = service.parameter();
 			
 			// check that a parameter was actually provided
 			if(passingParameter == null){
-				FaultHandler.throwFault("no parameter passed to the service \"" + serviceName + "\". Expected type:\n" + expectedType.prettyString(), n.context());
+				FaultHandler.throwFault("no parameter passed to the service \"" + serviceName + "\". Expected type:\n" + expectedType.prettyString(), n.context(), true);
 				return null;
 			}
 
@@ -258,6 +266,19 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			if(!portSatisfied){ // interface requirements are not met by the service
 				FaultHandler.throwFault("service '" + serviceName + "' does not provide operation '" + scapeGoatOp + "' required by port '" + portName + "'");
 			}
+		}
+		else{ // in the case of an "embed as" output port, create a new and add it to symbols
+			// TODO, figure out what it means to use the same interface as the input port of the embedded service, talk to marco
+			OutputPortInfo port = n.bindingPort();
+			String location = port.location() != null ? ((ConstantStringExpression)port.location()).value() : null; // the location of the port, if it exists, otherwise null
+			String protocol = port.protocolId().equals("") ? null : port.protocolId(); // the id of the protocol, if it exsist, otherwise null
+			List<String> interfaces = port.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
+													.stream()
+													.map(interfaceDef -> interfaceDef.name())
+													.distinct() // for some reason each interface appears twice, so this will remove duplicates
+													.collect(Collectors.toList()); 
+
+			symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, new OutputPort(portName, location, protocol, interfaces)));
 		}
 
 		return null;

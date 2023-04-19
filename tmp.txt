@@ -1,194 +1,84 @@
 STAGE 1: discover symbols
-STAGE 2: process types
-STAGE 3: process interfaces
-STAGE 4: process input ports and service parameters
-STAGE 5: process output ports and embeddings
-STAGE 6: process behaviors
+COLLECTING INPUT PORT
+COLLECTING OUTPUT PORT
+COLLECTING OUTPUT PORT
+COLLECTING EMBEDSERVICENODE
+COLLECTING INPUT PORT
+COLLECTING INPUT PORT
+-----------------------------------------
+Module: ./src/test/files/testSymbolCollector.ol
 
-void (747464370) {
-	x: int (1513712028) {
-		x (recursive edge to 1513712028)
-	}
-}
+MyInterface:
+null
 
---------------------------
+helloReqRes:
+null
 
-i = 0
-void (659748578) {
-	x: int (240650537) {
-		x (recursive edge to 240650537)
-	}
-	i: int (41903949)
-}
+paramType:
+null
 
---------------------------
+outputPort:
+null
 
-while(i < 4)
--------------- ITERATION 0 -----------------
-T:
-void (659748578) {
-	x: int (240650537) {
-		x (recursive edge to 240650537)
-	}
-	i: int (41903949)
-}
+EmbedMe:
+null
 
-R:
-void (1784662007) {
-	x: int (997110508) {
-		x: int (885951223) {
-			x (recursive edge to 885951223)
-		}
-		y: int (191382150) {
-			x (recursive edge to 191382150)
-		}
-	}
-	i: int (509886383)
-}
+param:
+null
 
-merged state:
-void (1060830840) {
-	x: int (2137211482) {
-		x: int (920011586) {
-			x (recursive edge to 920011586)
-		}
-		y: int (191382150) {
-			x (recursive edge to 191382150)
-		}
-	}
-	i: int (968514068)
-}
+MyService:
+null
 
--------------- ITERATION 1 -----------------
-T:
-void (1784662007) {
-	x: int (997110508) {
-		x: int (885951223) {
-			x (recursive edge to 885951223)
-		}
-		y: int (191382150) {
-			x (recursive edge to 191382150)
-		}
-	}
-	i: int (509886383)
-}
+inputPort:
+null
 
-R:
-void (1908316405) {
-	x: int (1873653341) {
-		x: int (25126016) {
-			x (recursive edge to 25126016)
-		}
-		y: int (1349414238) {
-			x: int (157627094) {
-				x (recursive edge to 157627094)
-			}
-			y: int (932607259) {
-				x (recursive edge to 932607259)
-			}
-		}
-	}
-	i: int (672320506)
-}
+X:
+null
 
-merged state:
-void (1740000325) {
-	x: int (1142020464) {
-		x: int (1682092198) {
-			x (recursive edge to 1682092198)
-		}
-		y: int (1626877848) {
-			x: int (905544614) {
-				x (recursive edge to 905544614)
-			}
-			y: int (932607259) {
-				x (recursive edge to 932607259)
-			}
-		}
-	}
-	i: int (2137589296)
-}
+Y:
+null
 
--------------- ITERATION 2 -----------------
-T:
-void (1908316405) {
-	x: int (1873653341) {
-		x: int (25126016) {
-			x (recursive edge to 25126016)
-		}
-		y: int (1349414238) {
-			x: int (157627094) {
-				x (recursive edge to 157627094)
-			}
-			y: int (932607259) {
-				x (recursive edge to 932607259)
-			}
-		}
-	}
-	i: int (672320506)
-}
+helloOneway:
+null
 
-R:
-void (940553268) {
-	x: int (1720435669) {
-		x: int (1020923989) {
-			x (recursive edge to 1020923989)
-		}
-		y: int (2036958521) {
-			x: int (1945604815) {
-				x (recursive edge to 1945604815)
-			}
-			y: int (785992331) {
-				x: int (940060004) {
-					x (recursive edge to 940060004)
-				}
-				y: int (234698513) {
-					x (recursive edge to 234698513)
-				}
-			}
-		}
-	}
-	i: int (1068934215)
-}
+embedMe:
+null
 
-merged state:
-void (1121172875) {
-	x: int (649734728) {
-		x: int (1595953398) {
-			x (recursive edge to 1595953398)
-		}
-		y: int (998351292) {
-			x: int (1684106402) {
-				x (recursive edge to 1684106402)
-			}
-			y: int (335471116) {
-				x: int (1308927845) {
-					x (recursive edge to 1308927845)
-				}
-				y: int (234698513) {
-					x (recursive edge to 234698513)
-				}
-			}
-		}
-	}
-	i: int (2017354584)
-}
+penguin:
+null
+______________
+Module: ./src/test/files/testFilesForSymbolChecking/embedMe.ol
 
-FALLBACK
-void (321142942) {
-	x: any (1393931310) { ? }
-	i: int (1644443712)
-}
+MyInterface:
+null
 
---------------------------
+helloReqRes:
+null
 
-Final tree for module ./src/test/files/input.ol:
-void (321142942) {
-	x: any (1393931310) { ? }
-	i: int (1644443712)
-}
+EmbedMe:
+null
 
---------------------------
+inputPort2:
+null
 
-WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/input.ol' on line 69:
-could not determine the resulting type of the while loop, affected types may be incorrect from here
+inputPort:
+null
+
+Y:
+null
+
+inputType:
+null
+
+helloOneway:
+null
+
+paramEmbed:
+null
+______________
+Module: ./src/test/files/testFilesForSymbolChecking/types.ol
+
+penguin:
+null
+______________
+-----------------------------------------

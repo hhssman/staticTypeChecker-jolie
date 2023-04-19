@@ -1,5 +1,5 @@
-from .types import imp
-from. embedMe import EmbedMe
+from .testFilesForSymbolChecking.types import penguin
+from .testFilesForSymbolChecking.embedMe import EmbedMe
 
 interface MyInterface {
 	RequestResponse:
@@ -16,9 +16,12 @@ type X: int {
 	x: X
 }
 
-service MyService(param: int) {
-	embed EmbedMe as EmbedMe
+type paramType: string {
+	x: int
+	y: bool
+}
 
+service MyService(param: paramType) {
 	inputPort inputPort {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -30,4 +33,7 @@ service MyService(param: int) {
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
+
+	embed EmbedMe(param) as embedMe
+
 }

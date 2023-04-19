@@ -21,7 +21,7 @@ public class ModuleHandler {
 	 * Loads the Jolie module with the given name by parsing it and creating Module instances, which are saved in ModuleHandler. Also loads all dependency-modules (modules which are imported from this one). 
 	 * @param moduleName the name of the module to load
 	 */
-	public static void loadModule(String moduleName){
+	public static Module loadModule(String moduleName){
 		if(ModuleHandler.basePath.equals("")){ // this is the module given to the type checker, set the basepath to the folder of this file
 			String[] path = moduleName.split("/");
 			int nameLength = path[path.length - 1].length();
@@ -41,6 +41,8 @@ public class ModuleHandler {
 				ModuleHandler.loadModule(importedModuleName);
 			}
 		}
+
+		return module;
 	}
 
 	/**
@@ -83,5 +85,9 @@ public class ModuleHandler {
 
 	public static HashMap<String, Module> modules(){
 		return ModuleHandler.modules;
+	}
+
+	public static void clear(){
+		ModuleHandler.modules.clear();
 	}
 }

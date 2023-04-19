@@ -129,6 +129,9 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(Program p, SymbolTable symbols) {
+		for(OLSyntaxNode child : p.children()){
+			child.accept(this, symbols);
+		}
 		return null;
 	}
 
@@ -204,6 +207,14 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 		String portName = n.id();
 		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, null));
 		
+		return null;
+	}
+
+	@Override
+	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
+		if(n.isNewPort()){
+			symbols.put(n.bindingPort().id(), Symbol.newPair(SymbolType.OUTPUT_PORT, null));
+		}
 		return null;
 	}
 
@@ -559,11 +570,6 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(ProvideUntilStatement n, SymbolTable symbols) {
-		return null;
-	}
-
-	@Override
-	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
 		return null;
 	}
 }

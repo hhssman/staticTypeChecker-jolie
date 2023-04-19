@@ -67,7 +67,7 @@ service MyService(x: rec) {
 
 		i = 0
 		while(i < 4){
-			x.y << x
+			x.y = x
 
 			i++
 		}

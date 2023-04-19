@@ -34,7 +34,8 @@ public class Main {
 		SymbolCollector sCollector = new SymbolCollector();
 		ModuleHandler.runVisitor(sCollector);
 
-		// printAllSymbols();
+		printAllSymbols();
+		System.exit(0);
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");
@@ -65,17 +66,17 @@ public class Main {
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
 		ModuleHandler.runVisitor(opProcessor);
 
-		// printAllSymbols();
+		printAllSymbols();
 		
 		// stage 6: process service behaviors
-		System.out.println("STAGE 6: process behaviors\n");
+		// System.out.println("STAGE 6: process behaviors\n");
 
-		HashMap<String, Type> trees = new HashMap<>();
-		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
+		// HashMap<String, Type> trees = new HashMap<>();
+		// BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 
-		ModuleHandler.modules().values().forEach(m -> {
-			trees.put(m.name(), bProcessor.process(m));
-		});
+		// ModuleHandler.modules().values().forEach(m -> {
+		// 	trees.put(m.name(), bProcessor.process(m));
+		// });
 
 		// printAllSymbols();
 
@@ -91,7 +92,7 @@ public class Main {
 			for(Entry<String, Pair<SymbolType, Symbol>> symbol : m.symbols().entrySet()){
 				if(!NativeType.isNativeTypeKeyword(symbol.getKey())){ // we dont want to print the base types
 					if(symbol.getValue() != null && symbol.getValue().value() != null){ // the symbol object have been initialized and can thus be pretty printed
-						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().value().prettyString());
+						System.out.println("\n" + symbol.getKey() + " (" + symbol.getValue().key() + "):\n" + symbol.getValue().value().prettyString());
 					}
 					else{
 						System.out.println("\n" + symbol.getKey() + ":\n" + null);

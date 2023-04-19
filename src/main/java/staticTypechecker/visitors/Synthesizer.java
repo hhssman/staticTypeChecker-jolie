@@ -382,11 +382,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		// in this loop, T is the state of the previous iteration, and R is the state resulting from the current iteration
 		for(int i = 0; i < 3; i++){
-			System.out.println("-------------- ITERATION " + i + " -----------------" );
-			System.out.println("T:\n" + T.prettyString() + "\n");
+			// System.out.println("-------------- ITERATION " + i + " -----------------" );
+			// System.out.println("T:\n" + T.prettyString() + "\n");
 			this.check(T, condition, Type.BOOL()); // check that the condition is of type bool
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-			System.out.println("R:\n" + R.prettyString() + "\n");
+			// System.out.println("R:\n" + R.prettyString() + "\n");
 			
 			if(R.isSubtypeOf(state)){ // the new state is subtype of the merged state, return the merged state
 				System.out.println("subtype!");
@@ -394,7 +394,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			}
 
 			state = Type.merge(state, R);
-			System.out.println("merged state:\n" + state.prettyString() + "\n");
+			// System.out.println("merged state:\n" + state.prettyString() + "\n");
 			T = R;
 		}
 
