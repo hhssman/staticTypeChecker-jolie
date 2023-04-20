@@ -1,5 +1,5 @@
-from .testFilesForSymbolChecking.types import penguin
-from .testFilesForSymbolChecking.embedMe import EmbedMe
+from .types import penguin
+from .embedMe import EmbedMe
 
 interface MyInterface {
 	RequestResponse:

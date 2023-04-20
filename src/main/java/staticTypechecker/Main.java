@@ -34,8 +34,7 @@ public class Main {
 		SymbolCollector sCollector = new SymbolCollector();
 		ModuleHandler.runVisitor(sCollector);
 
-		printAllSymbols();
-		System.exit(0);
+		// printAllSymbols();
 
 		// stage 2: process type definitions in all modules
 		System.out.println("STAGE 2: process types");
@@ -66,17 +65,17 @@ public class Main {
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
 		ModuleHandler.runVisitor(opProcessor);
 
-		printAllSymbols();
+		// printAllSymbols();
 		
 		// stage 6: process service behaviors
-		// System.out.println("STAGE 6: process behaviors\n");
+		System.out.println("STAGE 6: process behaviors\n");
 
-		// HashMap<String, Type> trees = new HashMap<>();
-		// BehaviorProcessor bProcessor = new BehaviorProcessor(true);
+		HashMap<String, Type> trees = new HashMap<>();
+		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 
-		// ModuleHandler.modules().values().forEach(m -> {
-		// 	trees.put(m.name(), bProcessor.process(m));
-		// });
+		ModuleHandler.modules().values().forEach(m -> {
+			trees.put(m.name(), bProcessor.process(m));
+		});
 
 		// printAllSymbols();
 

@@ -19,17 +19,23 @@ import jolie.lang.parse.util.ParsingUtils;
  */
 public class Module {
 	private String name;			// name of the module
+	private String path;			// the path to the folder of the module
 	private Program program;		// the Program parsed by the Jolie parser
 	private SymbolTable symbols;	// the symbol table of the module
 
-	public Module(String name){
+	public Module(String name, String path){
 		this.name = name;
-		this.program = Module.parseProgram(name);
+		this.path = path;
+		this.program = Module.parseProgram(path + "/" + name);
 		this.symbols = null;
 	}
 
 	public String name(){
-		return name;
+		return this.name;
+	}
+
+	public String path(){
+		return this.path;
 	}
 
 	public Program program(){

@@ -3,6 +3,7 @@ package staticTypechecker.typeStructures;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
@@ -83,7 +84,7 @@ public class ChoiceType extends Type {
 	 * Overrides the choices of this ChoiceType object with the choices given. WARNING: alters the object
 	 * @param choices the choices to override with
 	 */
-	public void setChoicesUnsafe(ArrayList<InlineType> choices){
+	public void setChoicesUnsafe(Set<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
 
@@ -202,6 +203,7 @@ public class ChoiceType extends Type {
 
 	public String prettyString(){
 		IdentityHashMap<Type, Void> recursive = new IdentityHashMap<>();
+		recursive.put(this, null);
 		String toString = this.choices.stream()
 										.map(c -> c.prettyString(0, recursive))
 										.collect(Collectors.joining("\n|\n"));
@@ -219,10 +221,15 @@ public class ChoiceType extends Type {
 		int newLevel = level + 1;
 		
 		String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
-		toString += this.choices.stream().map(c -> {
-			IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each choice
-			return c.prettyString(newLevel, rec);
-		}).collect(Collectors.joining("\n" + "\t".repeat(newLevel) + "|" + "\n" + "\t".repeat(newLevel)));
+		toString += this.choices.stream()
+			.map(c -> {
+				if(recursive.containsKey(c)){
+					return "recursive edge to (" + System.identityHashCode(c) + ")";
+				}
+				IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each choice
+				return c.prettyString(newLevel, rec);
+			})
+			.collect(Collectors.joining("\n" + "\t".repeat(newLevel) + "|" + "\n" + "\t".repeat(newLevel)));
 
 		return toString;
 	}

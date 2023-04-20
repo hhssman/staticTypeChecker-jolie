@@ -1,5 +1,6 @@
 package staticTypechecker;
 
+import java.util.List;
 import java.util.Map.Entry;
 
 import jolie.util.Pair;
@@ -11,12 +12,19 @@ import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.visitors.SymbolCollector;
 
 public class TestSymbolChecking {
-	public static boolean test(String moduleName){
-		Module module = ModuleHandler.loadModule(moduleName);
-		SymbolCollector sCollector = new SymbolCollector();
-		ModuleHandler.runVisitor(sCollector);
+	public static boolean test(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForSymbolChecking/main.ol";
+		List<Module> modules = ModuleHandler.loadModule(moduleName);
 
-		SymbolTable result = module.symbols();
+		SymbolCollector sCollector = new SymbolCollector();
+		for(Module m : modules){
+			sCollector.process(m, false);
+		}
+		for(Module m : modules){
+			sCollector.process(m, true);
+		}
+
+		SymbolTable result = modules.get(0).symbols();
 		SymbolTable target = new SymbolTable();
 
 		target.put("penguin", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));

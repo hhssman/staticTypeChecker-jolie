@@ -1,84 +1,17 @@
 STAGE 1: discover symbols
-COLLECTING INPUT PORT
-COLLECTING OUTPUT PORT
-COLLECTING OUTPUT PORT
-COLLECTING EMBEDSERVICENODE
-COLLECTING INPUT PORT
-COLLECTING INPUT PORT
------------------------------------------
-Module: ./src/test/files/testSymbolCollector.ol
+STAGE 2: process types
+STAGE 3: process interfaces
+STAGE 4: process input ports and service parameters
+STAGE 5: process output ports and embeddings
+STAGE 6: process behaviors
 
-MyInterface:
-null
+Final tree for module importedTypes.ol:
+void (457233904)
 
-helloReqRes:
-null
+--------------------------
 
-paramType:
-null
+Final tree for module main.ol:
+void (1012570586)
 
-outputPort:
-null
+--------------------------
 
-EmbedMe:
-null
-
-param:
-null
-
-MyService:
-null
-
-inputPort:
-null
-
-X:
-null
-
-Y:
-null
-
-helloOneway:
-null
-
-embedMe:
-null
-
-penguin:
-null
-______________
-Module: ./src/test/files/testFilesForSymbolChecking/embedMe.ol
-
-MyInterface:
-null
-
-helloReqRes:
-null
-
-EmbedMe:
-null
-
-inputPort2:
-null
-
-inputPort:
-null
-
-Y:
-null
-
-inputType:
-null
-
-helloOneway:
-null
-
-paramEmbed:
-null
-______________
-Module: ./src/test/files/testFilesForSymbolChecking/types.ol
-
-penguin:
-null
-______________
------------------------------------------

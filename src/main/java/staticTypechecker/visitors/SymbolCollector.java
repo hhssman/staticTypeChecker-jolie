@@ -98,9 +98,13 @@ import staticTypechecker.typeStructures.Type;
  * @author Kasper Bergstedt, kberg18@student.sdu.dk
  */
 public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
+	private Module module;
+
 	public SymbolCollector(){}
 
 	public Type process(Module module, boolean processImports){
+		this.module = module;
+
 		if(module.symbols() == null){
 			module.setSymbols(new SymbolTable());
 		}
@@ -155,7 +159,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = ModuleHandler.getModuleName(n);
+		String moduleName = ModuleHandler.findFullPath(n, this.module);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();

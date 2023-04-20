@@ -93,8 +93,19 @@ public class InlineType extends Type {
 	 * Overwrites the open status of this InlineType. WARNING: alters this object
 	 * @param openRecord the new open status
 	 */
-	public void setOpenStatusUnsafe(boolean openRecord){
-		this.openRecord = openRecord;
+	public void setOpenStatusUnsafe(boolean openStatus){
+		this.openRecord = openStatus;
+	}
+
+	/**
+	 * Does not alter this object
+	 * @param openStatus the new open status
+	 * @return a copy of this object with the open status changed to the given boolean
+	 */
+	public InlineType setOpenStatus(boolean openStatus){
+		InlineType copy = this.copy();
+		copy.setOpenStatusUnsafe(openStatus);
+		return copy;
 	}
 
 	/**
@@ -142,6 +153,17 @@ public class InlineType extends Type {
 	public InlineType setChildren(HashMap<String, Type> children){
 		InlineType copy = this.copy();
 		copy.setChildrenUnsafe(children);
+		return copy;
+	}
+
+	/**
+	 * Does not alter this object
+	 * @param child the child to add
+	 * @return a copy of this InlineType with the given children added
+	 */
+	public InlineType addChild(String name, Type child){
+		InlineType copy = this.copy();
+		copy.addChildUnsafe(name, child);
 		return copy;
 	}
 

@@ -1,5 +1,7 @@
 package staticTypechecker.visitors;
 
+import java.util.Map.Entry;
+
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -82,6 +84,7 @@ import jolie.lang.parse.ast.expression.SumExpressionNode;
 import jolie.lang.parse.ast.expression.VariableExpressionNode;
 import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
+import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
@@ -99,9 +102,13 @@ import staticTypechecker.typeStructures.Type;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
+	private Module module;
+
 	public TypeProcessor(){}
 
 	public Type process(Module module, boolean processImports){
+		this.module = module;
+
 		Program p = module.program();
 		
 		if(!processImports){
@@ -120,6 +127,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 				}
 			}
 		}
+
 		
 		return null;
 	}
@@ -131,25 +139,50 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
+		// this.print(n);
 		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
+		// this.print(n);
 		symbols.put(n.linkedTypeName(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
+		// this.print(n);
 		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}
 
+	private void print(TypeDefinition type){
+
+		if(type instanceof TypeInlineDefinition){
+			TypeInlineDefinition parsed = (TypeInlineDefinition)type;
+			System.out.println(type.name() + "(" + System.identityHashCode(type) + ") is INLINE with type " + parsed.basicType().nativeType().id());
+			for(Entry<String, TypeDefinition> ent : parsed.subTypes()){
+				this.print(ent.getValue());
+			}
+		}
+		else if(type instanceof TypeChoiceDefinition){
+			TypeChoiceDefinition parsed = (TypeChoiceDefinition)type;
+			System.out.println(type.name() + "(" + System.identityHashCode(type) + ") is CHOICE with left: " + parsed.left().getClass() + "(" + System.identityHashCode(parsed.left()) + ") and right: " + parsed.right().getClass() + "(" + System.identityHashCode(parsed.right()) + ")");
+			this.print(parsed.left());
+			this.print(parsed.right());
+		}
+		else{
+			TypeDefinitionLink parsed = (TypeDefinitionLink)type;
+			System.out.println(type.name() + "(" + System.identityHashCode(type) + ") is LINK TO: " + parsed.linkedType().getClass() + "(" + System.identityHashCode(parsed.linkedType()) + ")");
+			this.print(parsed.linkedType());
+		}
+	}
+
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = ModuleHandler.getModuleName(n);
+		String moduleName = ModuleHandler.findFullPath(n, this.module);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();

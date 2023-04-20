@@ -1,5 +1,6 @@
 package staticTypechecker.entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,47 +15,63 @@ import staticTypechecker.visitors.TypeCheckerVisitor;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class ModuleHandler {
-	private static String basePath = ""; // the path from the main class to the first Jolie module
 	private static HashMap<String, Module> modules = new HashMap<>(); // maps module names to their Module instances
 
 	/**
 	 * Loads the Jolie module with the given name by parsing it and creating Module instances, which are saved in ModuleHandler. Also loads all dependency-modules (modules which are imported from this one). 
 	 * @param moduleName the name of the module to load
 	 */
-	public static Module loadModule(String moduleName){
-		if(ModuleHandler.basePath.equals("")){ // this is the module given to the type checker, set the basepath to the folder of this file
-			String[] path = moduleName.split("/");
-			int nameLength = path[path.length - 1].length();
+	public static List<Module> loadModule(String fullPath){
+		ArrayList<Module> loadedModules = new ArrayList<>();
 
-			String basePath = moduleName.substring(0, moduleName.length() - nameLength);
-			ModuleHandler.basePath = basePath;
-		}
+		String moduleName = ModuleHandler.getModuleName(fullPath);
+		String pathToFolder = ModuleHandler.getPath(fullPath);
+		Module module = new Module(moduleName, pathToFolder);
+		ModuleHandler.modules.put(fullPath, module);
 
-		Module module = new Module(moduleName);
-		ModuleHandler.modules.put(moduleName, module);
+		loadedModules.add(module);
 
 		for(OLSyntaxNode node : module.program().children()){
 			if(node instanceof ImportStatement){
 				ImportStatement n = (ImportStatement)node;
-				String importedModuleName = ModuleHandler.getModuleName(n);
+				String fullPathToImportedModule = ModuleHandler.findFullPath(n, module);
 
-				ModuleHandler.loadModule(importedModuleName);
+				if(!ModuleHandler.contains(fullPathToImportedModule)){
+					loadedModules.addAll( ModuleHandler.loadModule(fullPathToImportedModule) );
+				}
+				else{
+					loadedModules.add(ModuleHandler.get(fullPathToImportedModule));
+				}
 			}
 		}
 
-		return module;
+		return loadedModules;
+	}
+
+	private static String getPath(String fullPath){
+		String[] split = fullPath.split("/");
+		int nameLength = split[split.length - 1].length();
+
+		String path = fullPath.substring(0, fullPath.length() - nameLength - 1);
+		return path;
+	}
+
+	private static String getModuleName(String fullPath){
+		String[] split = fullPath.split("/");
+		return split[split.length - 1];
 	}
 
 	/**
-	 * Returns the module name of the given import statement
-	 * @param n the importstatement
-	 * @return the module name
+	 * Returns the full path to the module being imported in the given import statement
+	 * @param n the import statement
+	 * @return the full path
 	 */
-	public static String getModuleName(ImportStatement n){
+	public static String findFullPath(ImportStatement n, Module importer){
 		List<String> importPath = n.importTarget();
+
 		if(importPath.get(0).equals("")){ // a relative path
 			String relativePath = importPath.subList(1, importPath.size()).stream().collect(Collectors.joining("/"));
-			return ModuleHandler.basePath + relativePath + ".ol";
+			return importer.path() + "/" + relativePath + ".ol";
 		}
 		
 		// TODO talk to Marco about absolute paths
@@ -69,7 +86,6 @@ public class ModuleHandler {
 		for(Module m : ModuleHandler.modules.values()){
 			visitor.process(m, false);
 		}
-	
 		for(Module m : ModuleHandler.modules.values()){
 			visitor.process(m, true);
 		}
@@ -85,9 +101,5 @@ public class ModuleHandler {
 
 	public static HashMap<String, Module> modules(){
 		return ModuleHandler.modules;
-	}
-
-	public static void clear(){
-		ModuleHandler.modules.clear();
 	}
 }

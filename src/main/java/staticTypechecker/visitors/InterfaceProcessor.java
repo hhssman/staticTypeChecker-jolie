@@ -104,9 +104,12 @@ import staticTypechecker.entities.Interface;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
+	private Module module;
+
 	public InterfaceProcessor(){}
 
 	public Type process(Module module, boolean processImports){
+		this.module = module;
 		Program p = module.program();
 		
 		if(!processImports){
@@ -185,7 +188,7 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 
 	@Override
 	public Void visit(ImportStatement n, SymbolTable symbols) {
-		String moduleName = ModuleHandler.getModuleName(n);
+		String moduleName = ModuleHandler.findFullPath(n, this.module);
 		
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();

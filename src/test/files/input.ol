@@ -56,6 +56,7 @@ service MyService(x: rec) {
 		Interfaces: MyInterface
 	}
 
+	/** this is a comment */
 	main {
 		// a = 10
 		// b = "hey"

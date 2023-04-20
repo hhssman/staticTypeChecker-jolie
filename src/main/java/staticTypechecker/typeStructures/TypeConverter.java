@@ -1,7 +1,7 @@
 package staticTypechecker.typeStructures;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
@@ -27,10 +27,10 @@ public class TypeConverter {
 	 * @return the structure instance representing the specified type
 	 */
 	public static Type convert(TypeDefinition type, SymbolTable symbols){
-		return convert(type, new HashMap<>(), type.context(), symbols);
+		return convert(type, new IdentityHashMap<>(), type.context(), symbols);
 	}
 
-	private static Type convert(TypeDefinition type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static Type convert(TypeDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
 		if(type instanceof TypeInlineDefinition){
 			return TypeConverter.convert((TypeInlineDefinition)type, rec, ctx, symbols);
 		}
@@ -50,66 +50,113 @@ public class TypeConverter {
 		return null;
 	}
 
-	private static InlineType convert(TypeInlineDefinition type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		if(rec.containsKey(type.name())){
-			return (InlineType)rec.get(type.name());
+	private static InlineType convert(TypeInlineDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
+		if(rec.containsKey(type)){
+			return (InlineType)rec.get(type);
 		}
 
 		InlineType result = new InlineType(type.basicType(), type.cardinality(), ctx, type.untypedSubTypes());
-		
-		if(symbols.containsKey(type.name())){ // it is a known type
-			InlineType st = (InlineType)symbols.get(type.name());
 
-			if(st == null){ // type has not been in initialized, we init it here
+		if(symbols.containsKey(type.name())){ // it is a known type
+			if(symbols.get(type.name()) == null){ // type has not been in initialized, we init it here
 				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
 			}
-			else if(type.subTypes() != null && !st.children().isEmpty()){ // if the type has chilren and the children of the struct is not empty, then the type has been finalized, we use it directly
-				return st;
-			}
-			else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it here
-				result = st;
-				rec.put(type.name(), result);
+			else if(symbols.get(type.name()) instanceof InlineType){ // check that the symbol is of the right type, it may be a choice type, if this node's parent is a choice, this node will have the same name as the parent, and thus the symbol table will hold the parent under this name
+				InlineType existingType = (InlineType)symbols.get(type.name());
+
+				if(type.subTypes() != null && !existingType.children().isEmpty()){ // if the type has chilren and the children of the struct is not empty, then the type has been finalized, we use it directly
+					return existingType;
+				}
+				else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it in this method call then
+					result = existingType;
+				}
 			}
 		}
+		rec.put(type, result);
 
 		if(type.subTypes() != null){ // type has children
-			for(Entry<String, TypeDefinition> child : type.subTypes()){
-				String childName = child.getKey();
-				Type subStructure = TypeConverter.convert(child.getValue(), rec, ctx, symbols);
+			for(Entry<String, TypeDefinition> ent : type.subTypes()){
+				String childName = ent.getKey();
+				Type child = TypeConverter.convert(ent.getValue(), rec, ctx, symbols);
 
-				result.addChildUnsafe(childName, subStructure);
+				result.addChildUnsafe(childName, child);
 			}
 		}
 
 		return result;
 	}
 
-	private static Type convert(TypeChoiceDefinition type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		HashSet<InlineType> choices = new HashSet<>();
-		TypeConverter.getChoices(type, choices, rec, ctx, symbols);
-		return new ChoiceType(choices);
+	private static ChoiceType convert(TypeChoiceDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
+		// System.out.println("choice in rec? " + rec.containsKey(type));
+		if(rec.containsKey(type)){
+			return (ChoiceType)rec.get(type);
+		}
+
+		ChoiceType result = new ChoiceType();
+		rec.put(type, result);
+
+		if(symbols.containsKey(type.name())){ // it is a known type
+			ChoiceType st = (ChoiceType)symbols.get(type.name());
+			
+			if(st == null){ // type has not been in initialized, we init it here
+				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
+			}
+			else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it in this method call then
+				return st;
+			}
+		}
+
+		// TODO talk to Marco and figure out if it is allowed to have types on the form: type A: A | int. In such a case, we need to make choice types able to hold other choice types right? 
+		HashSet<TypeInlineDefinition> choices = TypeConverter.getChoices(type);
+		for(TypeInlineDefinition def : choices){
+			InlineType t = TypeConverter.convert(def, new IdentityHashMap<>(rec), ctx, symbols);
+			result.addChoiceUnsafe( t );
+		}
+
+		return result;
 	}
 
-	private static Type convert(TypeDefinitionLink type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static Type convert(TypeDefinitionLink type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
 		return TypeConverter.convert(type.linkedType(), rec, ctx, symbols);
 	}
 
-	private static Type convert(TypeDefinitionUndefined type, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static Type convert(TypeDefinitionUndefined type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
 		return null;
 	}
 
-	private static void getChoices(TypeDefinition type, HashSet<InlineType> list, HashMap<String, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static HashSet<TypeInlineDefinition> getChoices(TypeDefinition type){
+		HashSet<TypeInlineDefinition> choices = new HashSet<>();
+		TypeConverter.getChoicesRec(type, choices);
+		return choices;
+	}
+	
+	private static void getChoicesRec(TypeDefinition type, HashSet<TypeInlineDefinition> list){
 		if(type instanceof TypeChoiceDefinition){
-			TypeConverter.getChoices(((TypeChoiceDefinition)type).left(), list, new HashMap<>(rec), ctx, symbols);
-			TypeConverter.getChoices(((TypeChoiceDefinition)type).right(), list, new HashMap<>(rec), ctx, symbols);
+			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).left(), list);
+			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).right(), list);
 		}
 		else if(type instanceof TypeInlineDefinition){
 			TypeInlineDefinition parsed = (TypeInlineDefinition)type;
-			TypeInlineDefinition copy = new TypeInlineDefinition(parsed.context(), "", parsed.basicType(), parsed.cardinality()); // copy to type without name, because the choices in TypeChoiceDefinition has the same name as the choice node itself.......
-			list.add( TypeConverter.convert(copy, rec, ctx, symbols) );
+			
+			list.add(parsed);
+
+			// // copy to type without name, because the choices in TypeChoiceDefinition has the same name as the choice node itself.......
+			// TypeInlineDefinition copy = new TypeInlineDefinition(parsed.context(), "", parsed.basicType(), parsed.cardinality()); 
+			
+			// Set<Entry<String, TypeDefinition>> children = parsed.subTypes();
+
+			// if(children != null){
+			// 	for(Entry<String, TypeDefinition> ent : children){
+			// 		copy.putSubType(ent.getValue());
+			// 	}
+			// }
+
+			// copy.setUntypedSubTypes(parsed.untypedSubTypes());
+
+			// list.add( copy );
 		}
 		else if(type instanceof TypeDefinitionLink){
-			TypeConverter.getChoices(((TypeDefinitionLink)type).linkedType(), list, rec, ctx, symbols);
+			TypeConverter.getChoicesRec(((TypeDefinitionLink)type).linkedType(), list);
 		}
 		else{
 			System.out.println("CONVERTION NOT SUPPORTED");

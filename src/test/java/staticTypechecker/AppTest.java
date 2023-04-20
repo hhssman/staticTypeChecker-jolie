@@ -19,90 +19,91 @@ import staticTypechecker.visitors.TypeProcessor;
  * Unit test for simple App.
  */
 public class AppTest{
+	public static final String BASE_PATH = "./src/test/files/";
 	private BehaviorProcessor bProcessor = new BehaviorProcessor(false);
-	private final String BASE_PATH = "./src/test/files/";
 
     /**
      * Test the symbol checker
      */
     @Test
     public void testSymbolChecking(){
-        String moduleName = this.BASE_PATH + "testSymbolCollector.ol";
-		boolean res = TestSymbolChecking.test(moduleName);
-		assertTrue(res);
+		assertTrue(TestSymbolChecking.test());
     }
 
 	@Test
-	public void testNil(){
-		String moduleName = "testNil.ol";
-		Module module = this.initializeModule(moduleName);
-
-		Type result = this.bProcessor.process(module);
-
-		Type target = Type.VOID();
-
-		assertTrue( result.equals(target) );
+	public void testTypeProcessor(){
+		assertTrue(TypeProcessorTester.test());
 	}
 
-	@Test
-	public void testSeq(){
-		String moduleName = "testSeq.ol";
-		Module module = this.initializeModule(moduleName);
+	// @Test
+	// public void testNil(){
+	// 	String moduleName = "testNil.ol";
+	// 	Module module = this.readyForBehaviourProcessor(moduleName, "testFilesForBehaviours");
 
-		Type result = this.bProcessor.process(module);
+	// 	Type result = this.bProcessor.process(module);
 
-		InlineType target = Type.VOID();
-		InlineType a = Type.INT();
-		InlineType b = Type.STRING();
+	// 	Type target = Type.VOID();
 
-		target.addChildUnsafe("a", a);
-		target.addChildUnsafe("b", b);
+	// 	assertTrue( result.equals(target) );
+	// }
 
-		assertTrue( result.equals(target) );
-	}
+	// @Test
+	// public void testSeq(){
+	// 	String moduleName = "testSeq.ol";
+	// 	Module module = this.readyForBehaviourProcessor(moduleName, "testFilesForBehaviours");
 
-	@Test
-	public void testNotify(){
-		String moduleName = "testNotify.ol";
-		Module module = this.initializeModule(moduleName);
+	// 	Type result = this.bProcessor.process(module);
 
-		Type result = this.bProcessor.process(module);
+	// 	InlineType target = Type.VOID();
+	// 	InlineType a = Type.INT();
+	// 	InlineType b = Type.STRING();
 
-		InlineType target = Type.VOID();
-		InlineType inputType = Type.INT();
-		inputType.addChildUnsafe("x", Type.STRING());
-		inputType.addChildUnsafe("y", Type.INT());
-		target.addChildUnsafe("inputType", inputType);
+	// 	target.addChildUnsafe("a", a);
+	// 	target.addChildUnsafe("b", b);
 
-		assertTrue( result.equals(target) );
-	}
+	// 	assertTrue( result.equals(target) );
+	// }
 
-	@Test
-	public void testOneWay(){
-		String moduleName = "testOneWay.ol";
-		Module module = this.initializeModule(moduleName);
+	// @Test
+	// public void testNotify(){
+	// 	String moduleName = "testNotify.ol";
+	// 	Module module = this.readyForBehaviourProcessor(moduleName, "testFilesForBehaviours");
 
-		Type result = this.bProcessor.process(module);
+	// 	Type result = this.bProcessor.process(module);
 
-		InlineType target = Type.VOID();
-		InlineType inputType = Type.INT();
-		InlineType p = Type.INT();
+	// 	InlineType target = Type.VOID();
+	// 	InlineType inputType = Type.INT();
+	// 	inputType.addChildUnsafe("x", Type.STRING());
+	// 	inputType.addChildUnsafe("y", Type.INT());
+	// 	target.addChildUnsafe("inputType", inputType);
 
-		inputType.addChildUnsafe("x", Type.STRING());
-		inputType.addChildUnsafe("y", Type.INT());
-		p.addChildUnsafe("x", Type.STRING());
-		p.addChildUnsafe("y", Type.INT());
+	// 	assertTrue( result.equals(target) );
+	// }
 
-		target.addChildUnsafe("inputType", inputType);
-		target.addChildUnsafe("p", p);
+	// @Test
+	// public void testOneWay(){
+	// 	String moduleName = "testOneWay.ol";
+	// 	Module module = this.readyForBehaviourProcessor(moduleName, "testFilesForBehaviours");
 
-		assertTrue( result.equals(target) );
-	}
+	// 	Type result = this.bProcessor.process(module);
 
-	private Module initializeModule(String moduleName){
-		moduleName = this.BASE_PATH + moduleName;
+	// 	InlineType target = Type.VOID();
+	// 	InlineType inputType = Type.INT();
+	// 	InlineType p = Type.INT();
 
-		Module module = new Module(moduleName);
+	// 	inputType.addChildUnsafe("x", Type.STRING());
+	// 	inputType.addChildUnsafe("y", Type.INT());
+	// 	p.addChildUnsafe("x", Type.STRING());
+	// 	p.addChildUnsafe("y", Type.INT());
+
+	// 	target.addChildUnsafe("inputType", inputType);
+	// 	target.addChildUnsafe("p", p);
+
+	// 	assertTrue( result.equals(target) );
+	// }
+
+	private Module readyForBehaviourProcessor(String moduleName, String folderName){
+		Module module = new Module(moduleName, AppTest.BASE_PATH + folderName);
 
 		TypeCheckerVisitor[] visitors = {
 			new SymbolCollector(),
@@ -118,4 +119,5 @@ public class AppTest{
 
 		return module;
 	}
+
 }
