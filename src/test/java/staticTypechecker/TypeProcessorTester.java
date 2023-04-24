@@ -3,7 +3,6 @@ package staticTypechecker;
 import java.util.List;
 import java.util.Map.Entry;
 
-import jolie.lang.NativeType;
 import jolie.util.Pair;
 import staticTypechecker.entities.ModuleHandler;
 import staticTypechecker.entities.Symbol;

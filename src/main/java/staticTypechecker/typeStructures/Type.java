@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol;
 

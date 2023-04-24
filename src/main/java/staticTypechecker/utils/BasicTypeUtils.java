@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import staticTypechecker.faults.Warning;
 import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.typeStructures.ChoiceType;
 import staticTypechecker.typeStructures.InlineType;
