@@ -103,7 +103,7 @@ public class InlineType extends Type {
 	 * @return a copy of this object with the open status changed to the given boolean
 	 */
 	public InlineType setOpenStatus(boolean openStatus){
-		InlineType copy = this.copy();
+		InlineType copy = this.shallowCopy();
 		copy.setOpenStatusUnsafe(openStatus);
 		return copy;
 	}
@@ -140,7 +140,7 @@ public class InlineType extends Type {
 	 * @return a copy of this InlineType with the given basicType
 	 */
 	public InlineType setBasicType(BasicTypeDefinition basicType){
-		InlineType copy = this.copy();
+		InlineType copy = this.shallowCopy();
 		copy.setBasicTypeUnsafe(basicType);
 		return copy;
 	}
@@ -151,7 +151,7 @@ public class InlineType extends Type {
 	 * @return a copy of this InlineType with the children overwritten by the given children
 	 */
 	public InlineType setChildren(HashMap<String, Type> children){
-		InlineType copy = this.copy();
+		InlineType copy = this.shallowCopy();
 		copy.setChildrenUnsafe(children);
 		return copy;
 	}
@@ -162,7 +162,7 @@ public class InlineType extends Type {
 	 * @return a copy of this InlineType with the given children added
 	 */
 	public InlineType addChild(String name, Type child){
-		InlineType copy = this.copy();
+		InlineType copy = this.shallowCopy();
 		copy.addChildUnsafe(name, child);
 		return copy;
 	}
@@ -173,7 +173,7 @@ public class InlineType extends Type {
 	 * @return a copy of this InlineType with the given children added
 	 */
 	public InlineType addChildren(HashMap<String, Type> children){
-		InlineType copy = this.copy();
+		InlineType copy = this.shallowCopy();
 		copy.addChildrenUnsafe(children);
 		return copy;
 	}

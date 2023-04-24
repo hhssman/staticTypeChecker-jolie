@@ -2,7 +2,6 @@ package staticTypechecker.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -96,7 +95,7 @@ public class TreeUtils {
 			}
 		}
 		else if(createPath){
-			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false); // TODO ask Marco if this should be open or not, I think it should not
+			InlineType newChild = new InlineType(BasicTypeDefinition.of(NativeType.VOID), null, null, false);
 			
 			if(path.size() == 1){ // this was the child to look for
 				ret.add(new Pair<InlineType,String>(root, childNameToLookFor));
