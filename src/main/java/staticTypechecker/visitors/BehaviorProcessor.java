@@ -144,9 +144,9 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		Type T1 = T;
 
 		if(n.parameterConfiguration().isPresent()){
-			T1 = T.copy();
 			Path path = new Path(n.parameterConfiguration().get().variablePath());
 			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name());
+			T1 = T.shallowCopyExcept(path);
 
 			TreeUtils.setTypeOfNodeByPath(path, typeOfParam, T1);
 			this.printTree(T1);

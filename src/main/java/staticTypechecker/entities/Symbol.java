@@ -15,6 +15,10 @@ public interface Symbol {
 	}
 
 	public static boolean equals(Symbol A, Symbol B){
+		if(A == B){
+			return true;
+		}
+		
 		if(A instanceof InputPort){
 			return ((InputPort)A).equals(B);
 		}

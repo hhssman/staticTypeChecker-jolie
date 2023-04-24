@@ -200,6 +200,10 @@ public class InlineType extends Type {
 	 * @return true if the objects are structural equivalent and false otherwise
 	 */
 	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+		
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
 		}

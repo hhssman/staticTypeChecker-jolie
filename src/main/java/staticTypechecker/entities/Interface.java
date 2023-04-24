@@ -42,8 +42,11 @@ public class Interface implements Symbol {
 	}
 
 	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+		
 		if(!(other instanceof Interface)){
-			System.out.println("not same class");
 			return false;
 		}
 
@@ -53,14 +56,11 @@ public class Interface implements Symbol {
 			Operation op = ent.getValue();
 
 			if(!parsedOther.operations.containsKey(opName)){
-				System.out.println("other does not contain " + opName);
 				return false;
 			}
 			if(!op.equals(parsedOther.operations.get(opName))){
-				System.out.println(opName + " are not the same");
 				return false;
 			}
-
 		}
 
 		return true;

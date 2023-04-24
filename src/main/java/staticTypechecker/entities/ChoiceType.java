@@ -97,23 +97,13 @@ public class ChoiceType extends Type {
 	}
 
 	public ChoiceType addChoice(Type choice){
-		ChoiceType copy = (ChoiceType)this.copy();
+		ChoiceType copy = (ChoiceType)this.shallowCopy();
 		copy.addChoiceUnsafe(choice);
 		return copy;
 	}
 
 	public ArrayList<InlineType> choices(){
 		return new ArrayList<>(this.choices);
-	}
-
-	public ChoiceType put(String childName, Type structure){
-		ChoiceType copy = (ChoiceType)this.copy();
-
-		for(InlineType choice : copy.choices){
-			choice.addChildUnsafe(childName, structure);
-		}
-		
-		return copy;
 	}
 
 	public ChoiceType updateBasicTypeOfChoices(BasicTypeDefinition newType){
@@ -174,6 +164,10 @@ public class ChoiceType extends Type {
 	}
 
 	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+		
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
 		}

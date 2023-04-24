@@ -1,9 +1,7 @@
 package staticTypechecker;
 
 import java.util.List;
-import java.util.Map.Entry;
 
-import jolie.util.Pair;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Symbol;

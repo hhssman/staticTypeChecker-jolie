@@ -48,6 +48,11 @@ public class AppTest{
 		assertTrue(InterfaceProcessorTester.run());
 	}
 
+	@Test
+	public void testInputPortProcessor(){
+		assertTrue(InputPortProcessorTester.run());
+	}
+
 	// @Test
 	// public void testNil(){
 	// 	String moduleName = "testNil.ol";

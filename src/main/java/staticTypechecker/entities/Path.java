@@ -93,6 +93,10 @@ public class Path {
 	}
 
 	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+		
 		if(!(other instanceof Path)){
 			return false;
 		}

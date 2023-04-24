@@ -55,10 +55,13 @@ public class Operation implements Symbol {
 	}
 
 	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+		
 		if(!(other instanceof Operation)){
 			return false;
 		}
-
 		
 		Operation parsedOther = (Operation)other;
 
