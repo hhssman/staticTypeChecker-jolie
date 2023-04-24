@@ -8,21 +8,13 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
-import staticTypechecker.visitors.SymbolCollector;
+import staticTypechecker.utils.ModuleHandler;
 
-public class TestSymbolChecking {
-	public static boolean test(){
-		String moduleName = AppTest.BASE_PATH + "testFilesForSymbolChecking/main.ol";
+public class SymbolCollectorTester {
+	public static boolean run(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForSymbolChecker/main.ol";
 		List<Module> modules = ModuleHandler.loadModule(moduleName);
-
-		SymbolCollector sCollector = new SymbolCollector();
-		for(Module m : modules){
-			sCollector.process(m, false);
-		}
-		for(Module m : modules){
-			sCollector.process(m, true);
-		}
+		AppTest.runProcessors(modules, 0);
 
 		SymbolTable result = modules.get(0).symbols();
 		SymbolTable target = new SymbolTable();

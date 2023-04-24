@@ -1,4 +1,4 @@
-package staticTypechecker.entities;
+package staticTypechecker.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import jolie.lang.parse.ast.ImportStatement;
 import jolie.lang.parse.ast.OLSyntaxNode;
 import staticTypechecker.visitors.TypeCheckerVisitor;
+import staticTypechecker.entities.Module;
 
 /**
  * Handles the Module instances of all the necessary Jolie modules

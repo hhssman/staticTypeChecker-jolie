@@ -2,11 +2,14 @@ package staticTypechecker;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import staticTypechecker.entities.Module;
-import staticTypechecker.typeStructures.InlineType;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.utils.ModuleHandler;
+import staticTypechecker.entities.InlineType;
+import staticTypechecker.entities.Type;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
@@ -27,12 +30,17 @@ public class AppTest{
      */
     @Test
     public void testSymbolChecking(){
-		assertTrue(TestSymbolChecking.test());
+		assertTrue(SymbolCollectorTester.run());
     }
 
 	@Test
 	public void testTypeProcessor(){
-		assertTrue(TypeProcessorTester.test());
+		assertTrue(TypeProcessorTester.run());
+	}
+
+	@Test
+	public void testInterfaceProcessor(){
+		assertTrue(InterfaceProcessorTester.run());
 	}
 
 	// @Test
@@ -102,9 +110,16 @@ public class AppTest{
 	// 	assertTrue( result.equals(target) );
 	// }
 
-	private Module readyForBehaviourProcessor(String moduleName, String folderName){
-		Module module = new Module(moduleName, AppTest.BASE_PATH + folderName);
-
+	/**
+	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
+	 * Step 0: symbolcollector,
+	 * Step 1: type processor,
+	 * Step 2: interface processor,
+	 * Step 3: input port processor,
+	 * Step 4: output port processor,
+	 * Step 5: behaviour processor 
+	 */
+	public static void runProcessors(List<Module> modules, int steps){
 		TypeCheckerVisitor[] visitors = {
 			new SymbolCollector(),
 			new TypeProcessor(),
@@ -113,11 +128,14 @@ public class AppTest{
 			new OutputPortProcessor()
 		};
 
-		for(TypeCheckerVisitor visitor : visitors){
-			visitor.process(module, false);
+		for(int i = 0; i <= steps; i++){
+			for(Module m : modules){
+				visitors[i].process(m, false);
+			}
+
+			for(Module m : modules){
+				visitors[i].process(m, true);
+			}
 		}
-
-		return module;
 	}
-
 }

@@ -91,11 +91,11 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.typeStructures.Type;
-import staticTypechecker.typeStructures.TypeConverter;
+import staticTypechecker.entities.Type;
+import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 

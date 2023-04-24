@@ -5,13 +5,13 @@ import java.util.HashMap;
 
 import jolie.lang.NativeType;
 import jolie.util.Pair;
-import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.WarningHandler;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.Type;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
@@ -49,7 +49,8 @@ public class Main {
 		InterfaceProcessor iProcessor = new InterfaceProcessor();
 		ModuleHandler.runVisitor(iProcessor);
 
-		// printAllSymbols();
+		printAllSymbols();
+		System.exit(0);
 
 		// stage 4: process service-parameters and input ports in all services
 		System.out.println("STAGE 4: process input ports and service parameters");

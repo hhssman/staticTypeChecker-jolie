@@ -1,6 +1,6 @@
 package staticTypechecker.visitors;
 
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Module;
 
 /**

@@ -1,4 +1,4 @@
-package staticTypechecker.typeStructures;
+package staticTypechecker.entities;
 
 import java.util.ArrayList;
 import java.util.HashSet;

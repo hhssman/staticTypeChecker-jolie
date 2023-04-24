@@ -41,6 +41,31 @@ public class Interface implements Symbol {
 		this.name = name;
 	}
 
+	public boolean equals(Object other){
+		if(!(other instanceof Interface)){
+			System.out.println("not same class");
+			return false;
+		}
+
+		Interface parsedOther = (Interface)other;
+		for(Entry<String, Operation> ent : this.operations.entrySet()){
+			String opName = ent.getKey();
+			Operation op = ent.getValue();
+
+			if(!parsedOther.operations.containsKey(opName)){
+				System.out.println("other does not contain " + opName);
+				return false;
+			}
+			if(!op.equals(parsedOther.operations.get(opName))){
+				System.out.println(opName + " are not the same");
+				return false;
+			}
+
+		}
+
+		return true;
+	}
+
 	@Override
 	public String prettyString(){
 		if(this.name == null){

@@ -1,4 +1,4 @@
-package staticTypechecker.typeStructures;
+package staticTypechecker.entities;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;

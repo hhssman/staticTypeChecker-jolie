@@ -4,35 +4,22 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import jolie.util.Pair;
-import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
-import staticTypechecker.typeStructures.ChoiceType;
-import staticTypechecker.typeStructures.InlineType;
-import staticTypechecker.typeStructures.Type;
-import staticTypechecker.visitors.SymbolCollector;
-import staticTypechecker.visitors.TypeProcessor;
+import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.InlineType;
+import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Module;;
 
 public class TypeProcessorTester {
-	public static boolean test(){
-		String moduleName = AppTest.BASE_PATH + "testFilesForTypeProcessing/main.ol";
+	public static boolean run(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForTypeProcessor/main.ol";
 		List<Module> modules = ModuleHandler.loadModule(moduleName);
-
-		SymbolCollector sC = new SymbolCollector();
-		TypeProcessor tP = new TypeProcessor();
-		for(Module m : modules){
-			sC.process(m, false);
-			tP.process(m, false);
-		}
-		for(Module m : modules){
-			sC.process(m, true);
-			tP.process(m, true);
-		}
+		AppTest.runProcessors(modules, 1);
 
 		SymbolTable result = ModuleHandler.get(moduleName).symbols();
-
 		SymbolTable target = new SymbolTable();
 
 		// add all the types manually
@@ -122,10 +109,10 @@ public class TypeProcessorTester {
 		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
 			String typeName = ent.getKey();
 			Type targetType = (Type)ent.getValue().value();
-			Type resulType = (Type)result.get(typeName);
+			Type resultType = (Type)result.get(typeName);
 
-			if(!targetType.equals(resulType)){
-				System.out.println("FAIL on type " + typeName + ":\n" + targetType.prettyString() + "\n\nis not equal to\n\n" + resulType.prettyString());
+			if(!targetType.equals(resultType)){
+				System.out.println("FAIL on type " + typeName + ":\n" + targetType.prettyString() + "\n\nis not equal to\n\n" + resultType.prettyString());
 				return false;
 			}
 		}

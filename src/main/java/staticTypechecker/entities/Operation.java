@@ -54,13 +54,20 @@ public class Operation implements Symbol {
 		this.operationType = operationType;
 	}
 
-	public boolean isEqual(Operation other){
-		boolean isEqual = 	this.name.equals(other.name) && 
-							this.operationType.equals(other.operationType) && 
-							this.requestType.equals(other.requestType);
+	public boolean equals(Object other){
+		if(!(other instanceof Operation)){
+			return false;
+		}
+
+		
+		Operation parsedOther = (Operation)other;
+
+		boolean isEqual = 	this.name.equals(parsedOther.name) && 
+							this.operationType.equals(parsedOther.operationType) && 
+							this.requestType.equals(parsedOther.requestType);
 
 		if(this.operationType == OperationType.REQRES){
-			isEqual = isEqual && this.responseType.equals(other.responseType);
+			isEqual = isEqual && this.responseType.equals(parsedOther.responseType);
 		}
 
 		return isEqual;

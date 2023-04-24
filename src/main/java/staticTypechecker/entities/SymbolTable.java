@@ -9,7 +9,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.typeStructures.InlineType;
+import staticTypechecker.entities.InlineType;
 
 /**
  * Represents the symbol table for a module
@@ -73,6 +73,11 @@ public class SymbolTable {
 	}
 
 	public String toString(){
-		return this.table.toString();
+		String res = "";
+		for(Entry<String, Pair<SymbolType,Symbol>> ent : this.table.entrySet()){
+			res += ent.getKey() + " (" + ent.getValue().key() + ") = " + ent.getValue().value() + "\n";
+		}
+
+		return res;
 	}
 }

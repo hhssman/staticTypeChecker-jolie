@@ -89,12 +89,12 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.typeStructures.TypeConverter;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.utils.TypeConverter;
+import staticTypechecker.entities.Type;
 
 /**
  * Parses the types of a Jolie module to InlineTypes and ChoiceTypes.
@@ -139,6 +139,12 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
+		// if(n.getDocumentation().isPresent()){
+		// 	System.out.println("documentation for " + n.name() + ": " + n.getDocumentation().get());
+		// }
+		// else{
+		// 	System.out.println("no documentation for " + n.name());
+		// }
 		// this.print(n);
 		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;

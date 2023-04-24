@@ -91,7 +91,7 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
@@ -254,7 +254,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 				if(
 					!providedOperations.containsKey(operationName) || 	// if the provided operations does not contain the required operation name
-					!op.isEqual(providedOperations.get(operationName)) 	// if the two operations are not equal
+					!op.equals(providedOperations.get(operationName)) 	// if the two operations are not equal
 				){ 
 					portSatisfied = false;
 					scapeGoatOp = operationName;

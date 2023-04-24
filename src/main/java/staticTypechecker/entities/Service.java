@@ -2,8 +2,6 @@ package staticTypechecker.entities;
 
 import java.util.Map.Entry;
 
-import staticTypechecker.typeStructures.Type;
-
 import java.util.Collection;
 import java.util.HashMap;
 

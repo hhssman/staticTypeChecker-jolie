@@ -86,11 +86,11 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Module;
-import staticTypechecker.entities.ModuleHandler;
+import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.Type;
 
 /**
  * This class collects all symbols in a given module. A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.

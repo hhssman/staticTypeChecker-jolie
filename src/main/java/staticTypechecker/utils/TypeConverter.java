@@ -1,4 +1,4 @@
-package staticTypechecker.typeStructures;
+package staticTypechecker.utils;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -11,8 +11,11 @@ import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
+import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Symbol.SymbolType;
 
 /**

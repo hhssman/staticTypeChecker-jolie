@@ -11,9 +11,9 @@ import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Path;
-import staticTypechecker.typeStructures.ChoiceType;
-import staticTypechecker.typeStructures.InlineType;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.InlineType;
+import staticTypechecker.entities.Type;
 
 /**
  * Utily functions for working with type trees

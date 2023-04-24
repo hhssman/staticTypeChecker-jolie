@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import jolie.lang.NativeType;
-import staticTypechecker.typeStructures.ChoiceType;
-import staticTypechecker.typeStructures.InlineType;
-import staticTypechecker.typeStructures.Type;
+import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.InlineType;
+import staticTypechecker.entities.Type;
 
 /**
  * Class for checking equality and subtype status of two types

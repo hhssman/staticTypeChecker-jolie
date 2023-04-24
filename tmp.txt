@@ -1,129 +1,83 @@
 STAGE 1: discover symbols
 STAGE 2: process types
+documentation for A: 
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
 x = 10
-void (2030562336) {
-	x: int (679890578)
+void (804581391) {
+	x: int (1975358023)
 }
 
 --------------------------
 
 x.y = "hey"
-void (716143810) {
-	x: int (1849433705) {
-		y: string (1792845110)
+void (1513712028) {
+	x: int (1018547642) {
+		y: string (312116338)
 	}
 }
 
 --------------------------
 
 y = true
-void (687241927) {
-	x: int (627185331) {
-		y: string (706277948)
+void (796684896) {
+	x: int (757108857) {
+		y: string (1809787067)
 	}
-	y: bool (1321640594)
+	y: bool (483422889)
 }
 
 --------------------------
 
 i = 0
-void (457233904) {
-	x: int (245672235) {
-		y: string (1012570586)
+void (2088051243) {
+	x: int (1277181601) {
+		y: string (41903949)
 	}
-	y: bool (1207140081)
-	i: int (290658609)
+	y: bool (488970385)
+	i: int (557041912)
 }
 
 --------------------------
 
 while(i < 3)
--------------- ITERATION 0 -----------------
-T:
-void (457233904) {
-	x: int (245672235) {
-		y: string (1012570586)
-	}
-	y: bool (1207140081)
-	i: int (290658609)
-}
-
-R:
-void (288665596) {
-	x: string (13648335) {
-		y: string (312116338)
-	}
-	y: int (240650537)
-	i: int (796684896)
-}
-
-merged state:
-void (288665596) {
-	x: string (13648335) {
-		y: string (312116338)
-	}
-	y: int (240650537)
-	i: int (796684896)
-}
-
--------------- ITERATION 1 -----------------
-T:
-void (288665596) {
-	x: string (13648335) {
-		y: string (312116338)
-	}
-	y: int (240650537)
-	i: int (796684896)
-}
-
-R:
-void (2054798982) {
-	x: string (885951223) {
-		y: string (191382150)
-	}
-	y: int (873415566)
-	i: int (1060830840)
-}
-
 subtype!
-void (457233904) {
-	x: int (245672235) {
-		y: string (1012570586)
+void (2088051243) {
+	x: int (1277181601) {
+		y: string (41903949)
 	}
-	y: bool (1207140081)
-	i: int (290658609)
+	y: bool (488970385)
+	i: int (557041912)
 }
 |
-void (288665596) {
-	x: string (13648335) {
-		y: string (312116338)
+void (434091818) {
+	x: string (398887205) {
+		y: string (2114889273)
 	}
-	y: int (240650537)
-	i: int (796684896)
+	y: int (672320506)
+	i: int (1504109395)
 }
 
 --------------------------
 
 Final tree for module main.ol:
-void (457233904) {
-	x: int (245672235) {
-		y: string (1012570586)
+void (2088051243) {
+	x: int (1277181601) {
+		y: string (41903949)
 	}
-	y: bool (1207140081)
-	i: int (290658609)
+	y: bool (488970385)
+	i: int (557041912)
 }
 |
-void (288665596) {
-	x: string (13648335) {
-		y: string (312116338)
+void (434091818) {
+	x: string (398887205) {
+		y: string (2114889273)
 	}
-	y: int (240650537)
-	i: int (796684896)
+	y: int (672320506)
+	i: int (1504109395)
 }
 
 --------------------------

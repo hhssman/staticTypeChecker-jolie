@@ -1,4 +1,4 @@
-package staticTypechecker.typeStructures;
+package staticTypechecker.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,6 @@ import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
-import staticTypechecker.entities.Symbol;
 
 /**
  * Represents a type in Jolie
