@@ -5,13 +5,126 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-Final tree for module importedTypes.ol:
-void (457233904)
+x = 10
+void (2030562336) {
+	x: int (679890578)
+}
+
+--------------------------
+
+x.y = "hey"
+void (716143810) {
+	x: int (1849433705) {
+		y: string (1792845110)
+	}
+}
+
+--------------------------
+
+y = true
+void (687241927) {
+	x: int (627185331) {
+		y: string (706277948)
+	}
+	y: bool (1321640594)
+}
+
+--------------------------
+
+i = 0
+void (457233904) {
+	x: int (245672235) {
+		y: string (1012570586)
+	}
+	y: bool (1207140081)
+	i: int (290658609)
+}
+
+--------------------------
+
+while(i < 3)
+-------------- ITERATION 0 -----------------
+T:
+void (457233904) {
+	x: int (245672235) {
+		y: string (1012570586)
+	}
+	y: bool (1207140081)
+	i: int (290658609)
+}
+
+R:
+void (288665596) {
+	x: string (13648335) {
+		y: string (312116338)
+	}
+	y: int (240650537)
+	i: int (796684896)
+}
+
+merged state:
+void (288665596) {
+	x: string (13648335) {
+		y: string (312116338)
+	}
+	y: int (240650537)
+	i: int (796684896)
+}
+
+-------------- ITERATION 1 -----------------
+T:
+void (288665596) {
+	x: string (13648335) {
+		y: string (312116338)
+	}
+	y: int (240650537)
+	i: int (796684896)
+}
+
+R:
+void (2054798982) {
+	x: string (885951223) {
+		y: string (191382150)
+	}
+	y: int (873415566)
+	i: int (1060830840)
+}
+
+subtype!
+void (457233904) {
+	x: int (245672235) {
+		y: string (1012570586)
+	}
+	y: bool (1207140081)
+	i: int (290658609)
+}
+|
+void (288665596) {
+	x: string (13648335) {
+		y: string (312116338)
+	}
+	y: int (240650537)
+	i: int (796684896)
+}
 
 --------------------------
 
 Final tree for module main.ol:
-void (1012570586)
+void (457233904) {
+	x: int (245672235) {
+		y: string (1012570586)
+	}
+	y: bool (1207140081)
+	i: int (290658609)
+}
+|
+void (288665596) {
+	x: string (13648335) {
+		y: string (312116338)
+	}
+	y: int (240650537)
+	i: int (796684896)
+}
 
 --------------------------
 

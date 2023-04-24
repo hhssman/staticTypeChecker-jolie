@@ -16,6 +16,10 @@ import staticTypechecker.typeStructures.Type;
  */
 public class Bisimulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){
+		if(t2 == null){ // if t2 is null, then t1 must also be null
+			return t1 == null;
+		}
+
 		return isSubtypeOfRec(t1, t2, new IdentityHashMap<>());
 	}
 

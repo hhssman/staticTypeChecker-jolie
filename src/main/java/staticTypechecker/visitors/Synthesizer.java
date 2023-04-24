@@ -378,7 +378,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		OLSyntaxNode body = n.body();
 		Type originalState = T; // used in fallback
 
-		Type state = T; // state is the final state of the while loop. For each iteration it is merged with the resulting state of that iteration, hopefully resulting in a merged state of all the iterations
+		// the return type is a conjunction between the original state and the one found through the iterations
+		ChoiceType result = new ChoiceType();
+		result.addChoiceUnsafe(originalState);
+
+		Type mergedState = null; // this is the result of merging the states throughout the iterations
 
 		// in this loop, T is the state of the previous iteration, and R is the state resulting from the current iteration
 		for(int i = 0; i < 3; i++){
@@ -388,23 +392,23 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
 			// System.out.println("R:\n" + R.prettyString() + "\n");
 			
-			if(R.isSubtypeOf(state)){ // the new state is subtype of the merged state, return the merged state
+			if(R.isSubtypeOf(mergedState)){ // the new state is subtype of the merged state, return the merged state
 				System.out.println("subtype!");
-				return state;
+				result.addChoiceUnsafe(mergedState);
+				return result;
 			}
 
-			state = Type.merge(state, R);
-			// System.out.println("merged state:\n" + state.prettyString() + "\n");
+			mergedState = Type.merge(mergedState, R);
+			// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
 			T = R;
 		}
 
 		// we did not find a merged state to cover all cases of the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
-		// TODO throw warning
-		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
-
-		// TODO fallback plan
 		System.out.println("FALLBACK");
-		return TreeUtils.undefine(originalState, state);
+
+		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
+		result.addChoiceUnsafe(TreeUtils.undefine(originalState, mergedState));
+		return result;
 	};
 
 	public Type visit( OrConditionNode n, Type T ){

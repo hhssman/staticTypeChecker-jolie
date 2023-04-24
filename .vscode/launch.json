@@ -17,7 +17,7 @@
 			"mainClass": "staticTypechecker.Main",
 			"projectName": "staticTypechecker",
 			// "args": "./src/test/files/input.ol > tmp.txt"
-			"args": "./src/test/files/testFilesForTypeProcessing/main.ol > tmp.txt"
+			"args": "./src/test/files/testFilesForTypeHints/main.ol > tmp.txt"
 		}
 	]
 }
