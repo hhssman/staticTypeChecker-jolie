@@ -132,13 +132,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	
 	@Override
 	public Type visit(Program p, Type T) {
-		Type T1 = T.copy();
-
 		for(OLSyntaxNode n : p.children()){
-			T1 = n.accept(this, T1);
+			T = n.accept(this, T);
 		}
-
-		return T1;
+		return T;
 	}
  
 	@Override
@@ -168,13 +165,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(SequenceStatement n, Type T) {
-		Type T1 = T.copy();
-
 		for(OLSyntaxNode child : n.children()){
-			T1 = child.accept(this, T1);
+			T = child.accept(this, T);
 		}
-
-		return T1;
+		return T;
 	}
 
 	@Override
@@ -322,7 +316,6 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 	@Override
 	public Type visit(NDChoiceStatement n, Type T) {
 		Type T1 = this.synthesizer.synthesize(n, T);
-
 		this.printTree(T1);
 		return T1;
 	}

@@ -50,6 +50,10 @@ public class Path {
 	 * @return the path element at the specified index
 	 */
 	public String get(int index){
+		if(this.isEmpty()){
+			return null;
+		}
+
 		int i = (this.pathElems.size() + index) % this.pathElems.size();
 		return this.pathElems.get(i);
 	}

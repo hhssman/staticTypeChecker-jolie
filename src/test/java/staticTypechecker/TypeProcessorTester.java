@@ -106,17 +106,6 @@ public class TypeProcessorTester {
 		InlineType K = Type.INT().addChild("x", importedCircular);		
 		target.put("K", Symbol.newPair(SymbolType.TYPE, K));
 
-		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
-			String typeName = ent.getKey();
-			Type targetType = (Type)ent.getValue().value();
-			Type resultType = (Type)result.get(typeName);
-
-			if(!targetType.equals(resultType)){
-				System.out.println("FAIL on type " + typeName + ":\n" + targetType.prettyString() + "\n\nis not equal to\n\n" + resultType.prettyString());
-				return false;
-			}
-		}
-		
-		return true;
+		return AppTest.testSymbolsForEquality(result, target);
 	}
 }

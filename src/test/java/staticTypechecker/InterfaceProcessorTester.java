@@ -40,18 +40,6 @@ public class InterfaceProcessorTester {
 		target.put("ImportedInterface", Symbol.newPair(SymbolType.INTERFACE, importedInterface));
 
 
-		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
-			String symbolName = ent.getKey();
-			Symbol targetSymbol = ent.getValue().value();
-			Symbol resultSymbol = result.get(symbolName);
-
-			if(!Symbol.equals(targetSymbol, resultSymbol)){
-				System.out.println("FAIL on symbol " + symbolName + ":\n" + resultSymbol.prettyString() + "\n\nis not equal to\n\n" + resultSymbol.prettyString());
-				return false;
-			}
-		}
-
-		
-		return true;
+		return AppTest.testSymbolsForEquality(result, target);
 	}
 }

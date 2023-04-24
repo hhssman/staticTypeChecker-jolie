@@ -211,6 +211,27 @@ public class InlineType extends Type {
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 
+	public InlineType shallowCopy(){
+		InlineType copy = new InlineType(this.basicType, this.cardinality, this.context, this.openRecord);
+		copy.setChildrenUnsafe(this.children);
+		return copy;
+	}
+
+	public Type shallowCopyExcept(Path p){
+		if(p.isEmpty()){
+			this.shallowCopy();
+		}
+
+		InlineType result = this.shallowCopy();
+		String childName = p.get(0);
+		
+		if(this.contains(childName)){
+			result.addChild(childName, this.getChild(childName).shallowCopyExcept(p.remainder()));
+		}
+		
+		return result;
+	}
+
 	/**
 	 * Creates a deep copy of this structure
 	 * @return the deep copy

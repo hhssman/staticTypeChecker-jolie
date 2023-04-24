@@ -290,57 +290,6 @@ public class TreeUtils {
 	}
 
 	/**
-	 * VERSION 1, keep the children, only reset the parents
-	 * Precondition: original and other must have the same basic type
-	 * TODO
-	 */
-	private static void undefineRec1(Type original, Type other, String name, Type parent){
-		if(original == null || other == null){
-			return;
-		}
-
-		if(original instanceof InlineType && other instanceof InlineType){
-			InlineType parsedOG = (InlineType)original;
-			InlineType parsedOther = (InlineType)other;
-
-			if(!parsedOG.basicType().equals(parsedOther.basicType())){ // type of node has changed, undefine it
-				TreeUtils.resetNodeType(parsedOG, parent, name);
-			}
-
-			for(Entry<String, Type> ent : parsedOG.children().entrySet()){
-				String childName = ent.getKey();
-				Type childOG = ent.getValue();
-				Type childOther = parsedOther.getChild(childName);
-
-				TreeUtils.undefineRec1(childOG, childOther, childName, parsedOG);
-			}
-		}
-		else if(original instanceof InlineType && other instanceof ChoiceType){
-			InlineType parsedOG = (InlineType)original;
-			ChoiceType parsedOther = (ChoiceType)other;
-
-			TreeUtils.resetNodeType(parsedOG, parent, name);
-
-			for(Entry<String, Type> ent : parsedOG.children().entrySet()){
-				String childName = ent.getKey();
-				Type child = ent.getValue();
-
-				ChoiceType choiceChildren = parsedOther.getChild(childName);
-				TreeUtils.undefineRec1(child, choiceChildren, childName, parsedOG);
-			}
-		}
-		else if(original instanceof ChoiceType && other instanceof InlineType){
-			for(InlineType choice : ((ChoiceType)original).choices()){
-				TreeUtils.undefineRec1(choice, other, name, parent);
-			}
-		}
-		else{
-
-		}
-
-	}
-
-	/**
 	 * VERSION 2, discard the children, reset the parents
 	 * Precondition: original and other must have the same basic type
 	 */
@@ -357,31 +306,30 @@ public class TreeUtils {
 			InlineType parsedOG = (InlineType)original;
 			InlineType parsedOther = (InlineType)other;
 
-			HashMap<String, Type> children = new HashMap<>(parsedOG.children()); // make copy, since we modify the original hashmap during the for loop
-			for(Entry<String, Type> ent : children.entrySet()){
+			if(!parsedOG.basicType().equals(parsedOther.basicType())){ // basic types are different, reset node and return
+				TreeUtils.resetNodeType(parsedOG, parent, name);
+				return;
+			}
+
+			// otherwise the basic types are equal, thus we must do the same check for the children
+			for(Entry<String, Type> ent : parsedOG.children().entrySet()){
 				String childName = ent.getKey();
 				Type childOG = ent.getValue();
 				Type childOther = parsedOther.getChild(childName);
-
 				TreeUtils.undefineRec(childOG, childOther, childName, parsedOG, seenNodes);
 			}
-
-			if(!parsedOG.equals(parsedOther)){ // type of node has changed, undefine it
-				TreeUtils.resetNodeType(parsedOG, parent, name);
-			}
 		}
-		else if(original instanceof InlineType && other instanceof ChoiceType){
+		else if(original instanceof InlineType && other instanceof ChoiceType){ // not same type, we must reset
 			TreeUtils.resetNodeType(original, parent, name);
 		}
-		else if(original instanceof ChoiceType && other instanceof InlineType){
+		else if(original instanceof ChoiceType && other instanceof InlineType){ // not same type, we must reset
 			TreeUtils.resetNodeType(original, parent, name);
 		}
 		else{
-			if(!original.equals(other)){
+			if(!original.equals(other)){ 
 				TreeUtils.resetNodeType(original, parent, name);
 			}
 		}
-
 	}
 
 	private static void removeChildOrChoice(Type child, Type parent, String name){
@@ -400,19 +348,6 @@ public class TreeUtils {
 		else{
 			((ChoiceType)parent).addChoiceUnsafe(child);
 		}
-	}
-
-	private static void resetNodeType1(Type node, Type parent, String name){
-		TreeUtils.removeChildOrChoice(node, parent, name);
-		
-		if(node instanceof InlineType){
-			((InlineType)node).setBasicTypeUnsafe(BasicTypeDefinition.of(NativeType.ANY));
-		}
-		else{
-			((ChoiceType)node).updateBasicTypeOfChoices(BasicTypeDefinition.of(NativeType.ANY));
-		}
-		
-		TreeUtils.addChildOrChoice(node, parent, name);
 	}
 
 	private static void resetNodeType(Type node, Type parent, String name){

@@ -156,13 +156,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( SequenceStatement n, Type T ){
-		Type T1 = T.copy();
-
 		for(OLSyntaxNode child : n.children()){
-			T1 = child.accept(this, T1);
+			T = child.accept(this, T);
 		}
-
-		return T1;
+		return T;
 	};
 
 	public Type visit( NDChoiceStatement n, Type T ){
@@ -189,7 +186,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(p_in);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
@@ -205,7 +202,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
 
 		// given that p_in is of type T_in find the type of the behaviour
-		Type T_update = T.copy();
+		Type T_update = T.shallowCopyExcept(p_in);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T_update);
 		Type T1 = n.process().accept(this, T_update);
 		
@@ -249,7 +246,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(p_out, T_out, n.context());
 
 		// update type of p_in to T_in
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(p_in);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
 		return T1;
@@ -269,8 +266,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T_e = e.accept(this, T);
 		
 		// update the type of the node
-		Type T1 = T.copy();
 		Path path = new Path(n.variablePath().path());
+		Type T1 = T.shallowCopyExcept(path);
 		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
 		TreeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
 
@@ -281,7 +278,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(AddAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(path);
 		
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -296,7 +293,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(SubtractAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(path);
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -311,7 +308,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(MultiplyAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(path);
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -326,7 +323,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit(DivideAssignStatement n, Type T) {
 		Path path = new Path(n.variablePath().path());
 
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(path);
 
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
@@ -376,39 +373,74 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( WhileStatement n, Type T ){
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
+		this.check(T, condition, Type.BOOL()); // check that the initial condition is of type bool
+
 		Type originalState = T; // used in fallback
 
 		// the return type is a conjunction between the original state and the one found through the iterations
 		ChoiceType result = new ChoiceType();
 		result.addChoiceUnsafe(originalState);
 
-		Type mergedState = null; // this is the result of merging the states throughout the iterations
+		ChoiceType mergedState = null; // this is the result of merging the states throughout the iterations
 
-		// in this loop, T is the state of the previous iteration, and R is the state resulting from the current iteration
-		for(int i = 0; i < 3; i++){
-			// System.out.println("-------------- ITERATION " + i + " -----------------" );
-			// System.out.println("T:\n" + T.prettyString() + "\n");
-			this.check(T, condition, Type.BOOL()); // check that the condition is of type bool
-			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-			// System.out.println("R:\n" + R.prettyString() + "\n");
-			
-			if(R.isSubtypeOf(mergedState)){ // the new state is subtype of the merged state, return the merged state
-				System.out.println("subtype!");
-				result.addChoiceUnsafe(mergedState);
-				return result;
+		boolean toggle = true;
+		if(toggle){ // feature toggle
+			// new
+
+			mergedState = new ChoiceType();
+			mergedState.addChoiceUnsafe(originalState);
+
+			for(int i = 0; i < 10; i++){
+				// System.out.println("-------------- ITERATION " + i + " -----------------" );
+				// System.out.println("T:\n" + T.prettyString() + "\n");
+				
+				Type R = body.accept(this, T); // synthesize the type of the body after an iteration
+				this.check(R, condition, Type.BOOL()); // check that the condition is of type bool
+				// System.out.println("R:\n" + R.prettyString() + "\n");
+				
+				if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
+					System.out.println("subtype!");
+					result.addChoiceUnsafe(mergedState);
+					return result;
+				}
+
+				mergedState.addChoiceUnsafe(R);
+				// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
+				T = R;
 			}
-
-			mergedState = Type.merge(mergedState, R);
-			// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
-			T = R;
+		}
+		else{
+			// old
+			// ChoiceType mergedState = null; // this is the result of merging the states throughout the iterations
+	
+			// in this loop, T is the state of the previous iteration, and R is the state resulting from the current iteration
+			for(int i = 0; i < 10; i++){
+				// System.out.println("-------------- ITERATION " + i + " -----------------" );
+				// System.out.println("T:\n" + T.prettyString() + "\n");
+				this.check(T, condition, Type.BOOL()); // check that the condition is of type bool
+				Type R = body.accept(this, T); // synthesize the type of the body after an iteration
+				// System.out.println("R:\n" + R.prettyString() + "\n");
+				
+				if(R.isSubtypeOf(mergedState)){ // the new state is subtype of the merged state, return the merged state
+					System.out.println("subtype!");
+					result.addChoiceUnsafe(mergedState);
+					return result;
+				}
+	
+				// mergedState = Type.merge(mergedState, R);
+				// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
+				T = R;
+			}
 		}
 
 		// we did not find a merged state to cover all cases of the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
 		System.out.println("FALLBACK");
+		System.out.println("mergedState:\n" + mergedState.prettyString());
+		System.out.println("\n\n");
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
-		result.addChoiceUnsafe(TreeUtils.undefine(originalState, mergedState));
-		return result;
+		result.addChoiceUnsafe(TreeUtils.undefine(originalState, T)); // T is now the most recently found state
+		return result.convertIfPossible();
 	};
 
 	public Type visit( OrConditionNode n, Type T ){
@@ -537,9 +569,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( DeepCopyStatement n, Type T ){
-		Type T1 = T.copy();
-
 		Path leftPath = new Path(n.leftPath().path());
+		Type T1 = T.shallowCopyExcept(leftPath);
+		
 		OLSyntaxNode expression = n.rightExpression();
 		Type typeOfExpression = expression.accept(this, T1);
 		
@@ -573,7 +605,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( UndefStatement n, Type T ){
 		Path path = new Path(n.variablePath().path());
-		Type T1 = T.copy();
+		Type T1 = T.shallowCopyExcept(path);
 
 		ArrayList<Pair<InlineType, String>> nodesToRemove = TreeUtils.findParentAndName(path, T1, false, false);
 

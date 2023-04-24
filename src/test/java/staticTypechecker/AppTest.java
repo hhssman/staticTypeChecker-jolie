@@ -3,13 +3,18 @@ package staticTypechecker;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
+import jolie.util.Pair;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.Symbol;
+import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
@@ -137,5 +142,21 @@ public class AppTest{
 				visitors[i].process(m, true);
 			}
 		}
+	}
+
+	public static boolean testSymbolsForEquality(SymbolTable result, SymbolTable target){
+		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
+			String symbolName = ent.getKey();
+			Symbol targetSymbol = ent.getValue().value();
+			Symbol resultSymbol = result.get(symbolName);
+
+			if(!Symbol.equals(targetSymbol, resultSymbol)){
+				System.out.println("FAIL on symbol " + symbolName + ":\n" + resultSymbol.prettyString() + "\n\nis not equal to\n\n" + resultSymbol.prettyString());
+				return false;
+			}
+
+		}
+		
+		return true;
 	}
 }

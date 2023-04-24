@@ -46,6 +46,8 @@ public abstract class Type implements Symbol {
 
 	public abstract ParsingContext context();
 
+	public abstract Type shallowCopy();
+	public abstract Type shallowCopyExcept(Path p);
 	public abstract Type copy();
 	public abstract Type copy(IdentityHashMap<Type, Type> rec);
 

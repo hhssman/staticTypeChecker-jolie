@@ -43,7 +43,7 @@ type rec: int {
 
 type huh: int | string
 
-service MyService(x: rec) {
+service MyService() {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -58,19 +58,21 @@ service MyService(x: rec) {
 
 	/** this is a comment */
 	main {
-		// a = 10
-		// b = "hey"
-		// c = true
+		a = 10
+		b = "hey"
+		c = true
 
-		// a = 10L
-		// b = "hey"
-		// c = a / b
+		while(false){
+			z = a
+			a = b
+			b = c
+			c = z
 
-		i = 0
-		while(i < 4){
-			x.y = x
+			if(i == 10){
+				a = 20.0
+			}
 
-			i++
+			undef ( z )
 		}
 
 	}

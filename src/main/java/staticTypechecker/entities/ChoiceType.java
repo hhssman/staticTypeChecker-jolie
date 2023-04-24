@@ -32,7 +32,7 @@ public class ChoiceType extends Type {
 	}
 
 	public ChoiceType(HashSet<InlineType> choices){
-		this.choices = choices;
+		this.choices = new HashSet<>(choices);
 	}
 
 	/**
@@ -162,6 +162,17 @@ public class ChoiceType extends Type {
 		return ret;
 	}
 
+	/**
+	 * @return the only possibility for this choice type, if it only contains one choice, else this object
+	 */
+	public Type convertIfPossible(){
+		if(this.choices.size() == 1){
+			return (InlineType)this.choices.toArray()[0];
+		}
+		
+		return this;
+	}
+
 	public boolean equals(Object other){
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;
@@ -172,6 +183,22 @@ public class ChoiceType extends Type {
 
 	public boolean isSubtypeOf(Type other){
 		return Bisimulator.isSubtypeOf(this, other);
+	}
+
+	public ChoiceType shallowCopy(){
+		return new ChoiceType(this.choices);
+	}
+
+	public Type shallowCopyExcept(Path p){
+		if(p.isEmpty()){
+			return this.shallowCopy();
+		}
+
+		ChoiceType result = new ChoiceType();
+		for(InlineType choice : this.choices){
+			result.addChoiceUnsafe(choice.shallowCopyExcept(p));
+		}
+		return result;
 	}
 
 	public ChoiceType copy(){
