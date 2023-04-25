@@ -1,7 +1,6 @@
 package staticTypechecker.faults;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import jolie.lang.parse.context.ParsingContext;
 

@@ -104,21 +104,4 @@ public class Main {
 		}
 		System.out.println("-----------------------------------------");
 	}
-
-	private static void printTable(HashMap<String, Type> symbols){
-		System.out.println("--------------------------------");
-		for(Entry<String, Type> e : symbols.entrySet()){
-			System.out.println(e.getKey() + " = " + e.getValue());
-		}
-		System.out.println("--------------------------------");
-	}
-
-	private static void prettyPrintTable(HashMap<String, Type> symbols){
-		System.out.println("--------------------------------");
-		for(Entry<String, Type> e : symbols.entrySet()){
-			System.out.println(e.getKey() + " = " + e.getValue().prettyString());
-			System.out.println();
-		}
-		System.out.println("--------------------------------");
-	}
 }

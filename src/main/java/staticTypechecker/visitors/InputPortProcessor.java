@@ -95,7 +95,6 @@ import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.InputPort;
-import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Service;

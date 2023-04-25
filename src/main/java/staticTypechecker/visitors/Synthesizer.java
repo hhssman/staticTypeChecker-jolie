@@ -367,73 +367,40 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		return null;
 	};
 
-	/**
-	 * TODO, not finished yet
-	 */
 	public Type visit( WhileStatement n, Type T ){
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 		this.check(T, condition, Type.BOOL()); // check that the initial condition is of type bool
 
-		Type originalState = T; // used in fallback
+		Type originalState = T; // saved here, since it is used in the fallback plan
 
-		// the return type is a conjunction between the original state and the one found through the iterations
+		// the return type is a conjunction between the original state and the one found through the iterations OR the fallback
 		ChoiceType result = new ChoiceType();
 		result.addChoiceUnsafe(originalState);
 
-		ChoiceType mergedState = null; // this is the result of merging the states throughout the iterations
+		ChoiceType mergedState = new ChoiceType();
+		mergedState.addChoiceUnsafe(originalState);
 
-		boolean toggle = true;
-		if(toggle){ // feature toggle
-			// new
-
-			mergedState = new ChoiceType();
-			mergedState.addChoiceUnsafe(originalState);
-
-			for(int i = 0; i < 10; i++){
-				// System.out.println("-------------- ITERATION " + i + " -----------------" );
-				// System.out.println("T:\n" + T.prettyString() + "\n");
-				
-				Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-				this.check(R, condition, Type.BOOL()); // check that the condition is of type bool
-				// System.out.println("R:\n" + R.prettyString() + "\n");
-				
-				if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
-					System.out.println("subtype!");
-					result.addChoiceUnsafe(mergedState);
-					return result;
-				}
-
-				mergedState.addChoiceUnsafe(R);
-				// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
-				T = R;
+		for(int i = 0; i < 10; i++){
+			// System.out.println("-------------- ITERATION " + i + " -----------------" );
+			// System.out.println("T:\n" + T.prettyString() + "\n");
+			
+			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
+			this.check(R, condition, Type.BOOL()); // check that the condition is of type bool
+			// System.out.println("R:\n" + R.prettyString() + "\n");
+			
+			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
+				System.out.println("subtype!");
+				result.addChoiceUnsafe(mergedState);
+				return result;
 			}
-		}
-		else{
-			// old
-			// ChoiceType mergedState = null; // this is the result of merging the states throughout the iterations
-	
-			// in this loop, T is the state of the previous iteration, and R is the state resulting from the current iteration
-			for(int i = 0; i < 10; i++){
-				// System.out.println("-------------- ITERATION " + i + " -----------------" );
-				// System.out.println("T:\n" + T.prettyString() + "\n");
-				this.check(T, condition, Type.BOOL()); // check that the condition is of type bool
-				Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-				// System.out.println("R:\n" + R.prettyString() + "\n");
-				
-				if(R.isSubtypeOf(mergedState)){ // the new state is subtype of the merged state, return the merged state
-					System.out.println("subtype!");
-					result.addChoiceUnsafe(mergedState);
-					return result;
-				}
-	
-				// mergedState = Type.merge(mergedState, R);
-				// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
-				T = R;
-			}
+
+			mergedState.addChoiceUnsafe(R);
+			// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
+			T = R;
 		}
 
-		// we did not find a merged state to cover all cases of the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
+		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
 		System.out.println("FALLBACK");
 		System.out.println("mergedState:\n" + mergedState.prettyString());
 		System.out.println("\n\n");

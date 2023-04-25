@@ -2,7 +2,6 @@ package staticTypechecker.utils;
 
 import java.util.IdentityHashMap;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jolie.lang.NativeType;
 import staticTypechecker.entities.ChoiceType;
@@ -40,17 +39,8 @@ public class Bisimulator {
 			Set<String> xLabels; 
 			Set<String> yLabels;
 
-			if(false){ // feature toggle
-				// new
-				// filters out all void children and maps the remaining to their name (key)
-				xLabels = x.children().entrySet().stream().filter(ent -> ent.getValue().equals(Type.VOID())).map(ent -> ent.getKey()).collect(Collectors.toSet());
-				yLabels = y.children().entrySet().stream().filter(ent -> ent.getValue().equals(Type.VOID())).map(ent -> ent.getKey()).collect(Collectors.toSet());
-			}
-			else{
-				// old
-				xLabels = x.children().keySet();
-				yLabels = y.children().keySet();
-			}
+			xLabels = x.children().keySet();
+			yLabels = y.children().keySet();
 
 			if(!basicSubtype(x, y)){
 				return false;
