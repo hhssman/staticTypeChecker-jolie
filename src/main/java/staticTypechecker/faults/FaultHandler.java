@@ -40,6 +40,10 @@ public class FaultHandler {
 		}
 	}
 
+	public static boolean isEmpty(){
+		return FaultHandler.faults.isEmpty();
+	}
+
 	public static void printFaults(){
 		for(Fault f : FaultHandler.faults){
 			System.out.println(f.message());

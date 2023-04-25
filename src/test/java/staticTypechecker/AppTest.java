@@ -73,6 +73,21 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testOneWay());
 	}
 
+	@Test
+	public void testSolicit(){
+		assertTrue(BehaviourProcessorTester.testSolicit());
+	}
+	
+	@Test
+	public void testRequest(){
+		assertTrue(BehaviourProcessorTester.testRequest());
+	}
+	
+	@Test
+	public void testChoice(){
+		assertTrue(BehaviourProcessorTester.testChoice());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,
