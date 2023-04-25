@@ -9,7 +9,6 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.entities.InlineType;
 
 /**
  * Represents the symbol table for a module

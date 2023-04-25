@@ -3,48 +3,117 @@ STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
-STAGE 6: process behaviors
+-----------------------------------------
+Module: importServices.ol
 
-void (288665596) {
-	x: void (13648335) {
-		x: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-		y: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-	}
+a (TYPE):
+int (1360767589)
+
+InputPort2 (INPUT_PORT):
+InputPort2 at socket://localhost:8083 via http exposing [ImportedInterface2]
+
+InputPort1 (INPUT_PORT):
+InputPort1 at socket://localhost:8082 via sodep exposing [ImportedInterface1]
+
+ImportedInterface1 (INTERFACE):
+ImportedInterface1
+	OneWay:
+	RequestResponse:
+
+ImportedInterface2 (INTERFACE):
+ImportedInterface2
+	OneWay:
+	RequestResponse:
+
+ImportService1 (SERVICE):
+ImportService1(
+	int (1360767589)
+)
+	InputPorts:
+		InputPort2
+		InputPort1
+	OutputPorts:
+
+ImportService2 (SERVICE):
+ImportService2
+	InputPorts:
+		InputPort2
+	OutputPorts:
+______________
+Module: main.ol
+
+MyOneWay2 (OPERATION):
+MyOneWay2(int)
+
+OutputPort2 (OUTPUT_PORT):
+OutputPort2 at socket://localhost:8081 via http using [MyInterface2]
+
+A (TYPE):
+any (873415566) {
+	x: string (818403870)
+	y (recursive edge to 873415566)
 }
 
---------------------------
+B (TYPE):
+int (398887205)
+|
+string (2114889273)
 
-a = 10
-void (1809787067) {
-	x: void (13648335) {
-		x: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-		y: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-	}
-	a: int (240650537)
-}
+ImportedInterface1 (INTERFACE):
+ImportedInterface1
+	OneWay:
+	RequestResponse:
 
---------------------------
+ImportedInterface2 (INTERFACE):
+ImportedInterface2
+	OneWay:
+	RequestResponse:
 
-Final tree for module input.ol:
-void (1809787067) {
-	x: void (13648335) {
-		x: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-		y: int (312116338) {
-			x (recursive edge to 312116338)
-		}
-	}
-	a: int (240650537)
-}
+i1 (OUTPUT_PORT):
+i1 at socket://localhost:8083 via http using [ImportedInterface1]
 
---------------------------
+MyOneWay (OPERATION):
+MyOneWay(bool)
 
+ImportService1 (SERVICE):
+ImportService1(
+	int (1360767589)
+)
+	InputPorts:
+		InputPort2
+		InputPort1
+	OutputPorts:
+
+ImportService2 (SERVICE):
+ImportService2
+	InputPorts:
+		InputPort2
+	OutputPorts:
+
+MyReqRes (OPERATION):
+MyReqRes(int)(string)
+
+MyInterface2 (INTERFACE):
+MyInterface2
+	OneWay:
+		MyOneWay2(int)
+	RequestResponse:
+		MyReqRes2(A)(B)
+
+MyInterface1 (INTERFACE):
+MyInterface1
+	OneWay:
+		MyOneWay(bool)
+	RequestResponse:
+		MyReqRes(int)(string)
+
+MyService (SERVICE):
+MyService
+
+MyReqRes2 (OPERATION):
+MyReqRes2(A)(B)
+
+OutputPort1 (OUTPUT_PORT):
+OutputPort1 at socket://localhost:8080 via sodep using [MyInterface1]
+______________
+-----------------------------------------

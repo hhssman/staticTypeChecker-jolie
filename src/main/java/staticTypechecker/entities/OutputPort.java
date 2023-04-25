@@ -52,6 +52,23 @@ public class OutputPort implements Symbol {
 		this.interfaces = interfaces;
 	}
 
+	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+
+		if(!(other instanceof OutputPort)){
+			return false;
+		}
+
+		OutputPort parsedOther = (OutputPort)other;
+
+		return 	this.name.equals(parsedOther.name) && 
+				this.location.equals(parsedOther.location) && 
+				this.protocol.equals(parsedOther.protocol) && 
+				this.interfaces.equals(parsedOther.interfaces);
+	}
+
 	public String prettyString(){
 		if(this.name == null){
 			return "null";

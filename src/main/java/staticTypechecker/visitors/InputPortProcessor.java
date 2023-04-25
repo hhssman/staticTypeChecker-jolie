@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -94,6 +95,7 @@ import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.InputPort;
+import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Service;
@@ -222,10 +224,19 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
-			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+			SymbolTable otherSymbols = ModuleHandler.get(moduleName).symbols();
+			Pair<SymbolType, Symbol> importedSymbol = otherSymbols.getPair(originalName);
 			
-			if(p.key().equals(SymbolType.SERVICE)){ // we imported a service
-				symbols.put(alias, p);
+			if(importedSymbol.key().equals(SymbolType.SERVICE)){ // we imported a service
+				symbols.put(alias, importedSymbol);
+
+				// import the interfaces used in the service's input ports as well
+				Service service = (Service)importedSymbol.value();
+				List<String> interfaces = service.inputPorts().stream().map(port -> port.getValue().interfaces()).reduce(new ArrayList<String>(), (a, b) -> {a.addAll(b); return a;});
+
+				for(String interfaceName : interfaces){
+					symbols.put(interfaceName, otherSymbols.getPair(interfaceName));
+				}
 			}
 		}
 		

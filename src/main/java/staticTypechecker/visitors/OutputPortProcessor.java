@@ -114,22 +114,11 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 		Program p = module.program();
 		
 		if(!processImports){
-			// accept all children which are NOT import statements
 			for(OLSyntaxNode child : p.children()){
-				if(!(child instanceof ImportStatement)){
-					child.accept(this, module.symbols());
-				}
+				child.accept(this, module.symbols());
 			}
 		}
-		else{
-			// accept all import statements
-			for(OLSyntaxNode child : p.children()){
-				if(child instanceof ImportStatement){
-					child.accept(this, module.symbols());
-				}
-			}
-		}
-		
+
 		return null;
 	}
 
@@ -217,6 +206,10 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 			// check that the type of the parameter is a subtype of the expected type
 			Type providedType = (Type)symbols.get(passingParameter.toString());
+			if(providedType == null){ // the symbol is not in the symbol table, try to synthesize it
+				providedType = Synthesizer.get(this.module).synthesize(passingParameter, null);
+			}
+
 			Synthesizer.get(this.module).check(providedType, expectedType, n.context()); // check that it is a subtype
 		}
 
@@ -267,15 +260,12 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			}
 		}
 		else{ // in the case of an "embed as" output port, create a new and add it to symbols
-			// TODO, figure out what it means to use the same interface as the input port of the embedded service, talk to marco
-			OutputPortInfo port = n.bindingPort();
-			String location = port.location() != null ? ((ConstantStringExpression)port.location()).value() : null; // the location of the port, if it exists, otherwise null
-			String protocol = port.protocolId().equals("") ? null : port.protocolId(); // the id of the protocol, if it exsist, otherwise null
-			List<String> interfaces = port.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
-													.stream()
-													.map(interfaceDef -> interfaceDef.name())
-													.distinct() // for some reason each interface appears twice, so this will remove duplicates
-													.collect(Collectors.toList()); 
+			// TODO, figure out what it means to use the same interface as the input port of the embedded service, talk to marco, especially what happens if there are multiple input ports?
+			List<InputPort> inputPortsOfService = service.inputPorts().stream().map(ent -> ent.getValue()).collect(Collectors.toList());
+			InputPort portToUse = inputPortsOfService.get(0); // TODO
+			String location = portToUse.location();
+			String protocol = portToUse.protocol();
+			List<String> interfaces = portToUse.interfaces();
 
 			symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, new OutputPort(portName, location, protocol, interfaces)));
 		}
