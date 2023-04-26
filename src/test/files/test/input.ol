@@ -15,12 +15,14 @@ type input: void {
 }
 
 type rec: int {
-	x: rec
+	x: string {
+		y: rec
+	}
 }
 
 type huh: int | string
 
-service MyService(x: input) {
+service MyService() {
 	inputPort in {
 		Location: "socket://localhost:8080"
 		Protocol: http { format = "json" }
@@ -33,29 +35,19 @@ service MyService(x: input) {
 		Interfaces: MyInterface
 	}
 
-	/** this is a comment */
 	main {
-		a = 10
-		// b = "hey"
-		// c = true
+		// a = 10
 
-		// while(false){
-		// 	z = a
-		// 	a = b
-		// 	b = c
-		// 	c = z
-
-		// 	if(i == 10){
-		// 		a = 20.0
-		// 		b = 20L
-		// 	}
-
-		// 	undef ( z )
+		// if(false){
+		// 	a = "hey"
 		// }
 
 		// a = 10
-		// helloReqRes@out( a )( out )
 
+		a = 10
+		a.b = 10
+
+		b << (a + "hey")
 	}
 	
 }

@@ -283,8 +283,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.ADD, typeOfRightSide, typeOfExpression, n.context());
-		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+
+		this.deriveTypeAndUpdateNode(path, T1, OperandType.ADD, typeOfRightSide, typeOfExpression, n.context());
+		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.ADD, typeOfRightSide, typeOfExpression, n.context()); // TODO
+
+		// TreeUtils.setTypeOfNodeByPath(path, newType, T1); // TODO
 
 		return T1;
 	}
@@ -298,8 +301,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.SUBTRACT, typeOfRightSide, typeOfExpression, n.context());
-		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.SUBTRACT, typeOfRightSide, typeOfExpression, n.context());
+		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		this.deriveTypeAndUpdateNode(path, T1, OperandType.SUBTRACT, typeOfRightSide, typeOfExpression, n.context());
+
 		
 		return T1;
 	}
@@ -313,8 +318,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.MULTIPLY, typeOfRightSide, typeOfExpression, n.context());
-		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.MULTIPLY, typeOfRightSide, typeOfExpression, n.context());
+		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		this.deriveTypeAndUpdateNode(path, T1, OperandType.MULTIPLY, typeOfRightSide, typeOfExpression, n.context());
 		
 		return T1;
 	}
@@ -328,10 +334,16 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.DIVIDE, typeOfRightSide, typeOfExpression, n.context());
-		TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.DIVIDE, typeOfRightSide, typeOfExpression, n.context());
+		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
+		this.deriveTypeAndUpdateNode(path, T1, OperandType.DIVIDE, typeOfRightSide, typeOfExpression, n.context());
 		
 		return T1;
+	}
+
+	private void deriveTypeAndUpdateNode(Path path, Type tree, OperandType opType, Type rightSide, Type expression, ParsingContext ctx){
+		List<BasicTypeDefinition> newBasicTypes = BasicTypeUtils.deriveTypeOfOperation(opType, rightSide, expression, ctx);
+		TreeUtils.setBasicTypeOfNodeByPath(path, newBasicTypes, tree);
 	}
 
 	public Type visit( IfStatement n, Type T ){
@@ -390,7 +402,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			// System.out.println("R:\n" + R.prettyString() + "\n");
 			
 			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
-				System.out.println("subtype!");
+				// System.out.println("subtype!");
 				result.addChoiceUnsafe(mergedState);
 				return result;
 			}
@@ -401,9 +413,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 
 		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
-		System.out.println("FALLBACK");
-		System.out.println("mergedState:\n" + mergedState.prettyString());
-		System.out.println("\n\n");
+		// System.out.println("FALLBACK");
+		// System.out.println("mergedState:\n" + mergedState.prettyString());
+		// System.out.println("\n\n");
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
 		result.addChoiceUnsafe(TreeUtils.undefine(originalState, T)); // T is now the most recently found state
@@ -447,34 +459,41 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( ProductExpressionNode n, Type T ){
-		Type typeOfSum = Type.VOID();  // set initial type to void to make sure it will be overwritten by any other type
-
-		List<Pair<OperandType, OLSyntaxNode>> operands = n.operands();
-		for(Pair<OperandType, OLSyntaxNode> pair : operands){
-			OperandType currOp = pair.key();
-			OLSyntaxNode currTerm = pair.value();
-			Type typeOfCurrTerm = currTerm.accept(this, T);
-
-			typeOfSum = BasicTypeUtils.deriveTypeOfOperation(currOp, typeOfSum, typeOfCurrTerm, n.context());
-		}
-
-		return typeOfSum;
+		return this.getTypeOfSumOrProduct(n, T);
 	};
 
 	public Type visit( SumExpressionNode n, Type T ){
-		Type typeOfSum = Type.VOID();  // set initial type to void to make sure it will be overwritten by any other type
+		return this.getTypeOfSumOrProduct(n, T);
+	};
 
-		List<Pair<OperandType, OLSyntaxNode>> operands = n.operands();
-		for(Pair<OperandType, OLSyntaxNode> pair : operands){
-			OperandType currOp = pair.key();
-			OLSyntaxNode currTerm = pair.value();
-			Type typeOfCurrTerm = currTerm.accept(this, T);
+	private Type getTypeOfSumOrProduct(OLSyntaxNode n, Type T){
+		List<Pair<OperandType, OLSyntaxNode>> operands;
 
-			typeOfSum = BasicTypeUtils.deriveTypeOfOperation(currOp, typeOfSum, typeOfCurrTerm, n.context());
+		if(n instanceof SumExpressionNode){
+			operands = ((SumExpressionNode)n).operands();
+		}
+		else{
+			operands = ((ProductExpressionNode)n).operands();
 		}
 
-		return typeOfSum;
-	};
+		Type currType = Type.VOID(); // set initial type to void to make sure it will be overwritten by any other type
+
+		for(Pair<OperandType, OLSyntaxNode> pair : operands){
+			OperandType currOp = pair.key();
+			Type nextType = pair.value().accept(this, T);
+
+			List<BasicTypeDefinition> basicTypes = BasicTypeUtils.deriveTypeOfOperation(currOp, currType, nextType, n.context());
+
+			if(basicTypes.size() == 1){
+				currType = new InlineType(basicTypes.get(0), null, null, false);
+			}
+			else{
+				currType = ChoiceType.fromBasicTypes(basicTypes);
+			}
+		}
+
+		return currType;
+	}
 
 	public Type visit( VariableExpressionNode n, Type T ){
 		Path path = new Path(n.variablePath().path());
@@ -559,7 +578,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 			TreeUtils.fold(child);
 			Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
-
 			parent.addChildUnsafe(childName, resultOfDeepCopy);
 		}
 

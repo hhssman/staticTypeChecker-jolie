@@ -45,3 +45,9 @@ type J: int {
 type K: int {
 	x: importedCircular
 }
+
+type L: int {
+	x: string {
+		y: L
+	}
+}

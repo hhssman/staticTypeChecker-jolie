@@ -3,117 +3,83 @@ STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
------------------------------------------
-Module: importServices.ol
+STAGE 6: process behaviors
 
-a (TYPE):
-int (1360767589)
-
-InputPort2 (INPUT_PORT):
-InputPort2 at socket://localhost:8083 via http exposing [ImportedInterface2]
-
-InputPort1 (INPUT_PORT):
-InputPort1 at socket://localhost:8082 via sodep exposing [ImportedInterface1]
-
-ImportedInterface1 (INTERFACE):
-ImportedInterface1
-	OneWay:
-	RequestResponse:
-
-ImportedInterface2 (INTERFACE):
-ImportedInterface2
-	OneWay:
-	RequestResponse:
-
-ImportService1 (SERVICE):
-ImportService1(
-	int (1360767589)
-)
-	InputPorts:
-		InputPort2
-		InputPort1
-	OutputPorts:
-
-ImportService2 (SERVICE):
-ImportService2
-	InputPorts:
-		InputPort2
-	OutputPorts:
-______________
-Module: main.ol
-
-MyOneWay2 (OPERATION):
-MyOneWay2(int)
-
-OutputPort2 (OUTPUT_PORT):
-OutputPort2 at socket://localhost:8081 via http using [MyInterface2]
-
-A (TYPE):
-any (873415566) {
-	x: string (818403870)
-	y (recursive edge to 873415566)
+a = 10
+void (1416233903) {
+	a: int (1856426318)
 }
 
-B (TYPE):
-int (398887205)
+--------------------------
+
+i = 0
+void (716143810) {
+	a: int (1856426318)
+	i: int (897913732)
+}
+
+--------------------------
+
+while(i < 3)
+fallback
+original:
+void (716143810) {
+	a: int (1856426318)
+	i: int (897913732)
+}
+T:
+void (335471116) {
+	a: int (1308927845) {
+		b: int (510113906) {
+			b: int (1622006612) {
+				b: int (66233253) {
+					b: int (1286783232) {
+						b: int (1874154700) {
+							b: int (1632392469) {
+								b: int (2008362258) {
+									b: int (760563749) {
+										b: int (1753447031) {
+											b: int (1096283470)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	i: int (391447681)
+}
+void (716143810) {
+	a: int (1856426318)
+	i: int (897913732)
+}
 |
-string (2114889273)
+void (152005629) {
+	a: int (75457651) {
+		b: any (1225373914) { ? }
+	}
+	i: int (362239120)
+}
 
-ImportedInterface1 (INTERFACE):
-ImportedInterface1
-	OneWay:
-	RequestResponse:
+--------------------------
 
-ImportedInterface2 (INTERFACE):
-ImportedInterface2
-	OneWay:
-	RequestResponse:
+Final tree for module testWhileFallback.ol:
+void (716143810) {
+	a: int (1856426318)
+	i: int (897913732)
+}
+|
+void (152005629) {
+	a: int (75457651) {
+		b: any (1225373914) { ? }
+	}
+	i: int (362239120)
+}
 
-i1 (OUTPUT_PORT):
-i1 at socket://localhost:8083 via http using [ImportedInterface1]
+--------------------------
 
-MyOneWay (OPERATION):
-MyOneWay(bool)
-
-ImportService1 (SERVICE):
-ImportService1(
-	int (1360767589)
-)
-	InputPorts:
-		InputPort2
-		InputPort1
-	OutputPorts:
-
-ImportService2 (SERVICE):
-ImportService2
-	InputPorts:
-		InputPort2
-	OutputPorts:
-
-MyReqRes (OPERATION):
-MyReqRes(int)(string)
-
-MyInterface2 (INTERFACE):
-MyInterface2
-	OneWay:
-		MyOneWay2(int)
-	RequestResponse:
-		MyReqRes2(A)(B)
-
-MyInterface1 (INTERFACE):
-MyInterface1
-	OneWay:
-		MyOneWay(bool)
-	RequestResponse:
-		MyReqRes(int)(string)
-
-MyService (SERVICE):
-MyService
-
-MyReqRes2 (OPERATION):
-MyReqRes2(A)(B)
-
-OutputPort1 (OUTPUT_PORT):
-OutputPort1 at socket://localhost:8080 via sodep using [MyInterface1]
-______________
------------------------------------------
+WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForBehaviours/testWhileFallback.ol' on line 7:
+could not determine the resulting type of the while loop, affected types may be incorrect from here

@@ -146,8 +146,54 @@ public class BehaviourProcessorTester {
 		target.addChoiceUnsafe(tree2);
 		target.addChoiceUnsafe(tree3);
 
-		// System.out.println("target:\n" + target.prettyString());
-		// System.out.println("result:\n" + result.prettyString());
+		return result.equals(target);
+	}
+
+	public static boolean testWhile(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhile.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = new BehaviorProcessor(false).process(modules.get(0));
+
+		ChoiceType target = new ChoiceType();
+
+		// first option, not entering the while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, 1st iteration of the while loop, not entering the if statement
+		InlineType option2 = Type.VOID().addChild("a", Type.INT()).addChild("b", Type.STRING()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option2);
+
+		// third option, 1st iteration of the while loop, entering the if statement
+		InlineType option3 = Type.VOID().addChild("a", Type.BOOL()).addChild("b", Type.STRING()).addChild("c", Type.BOOL()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option3);
+
+		// fourth option, 2nd iteration of the while loop, not entering the if statement
+		InlineType option4 = Type.VOID().addChild("a", Type.INT()).addChild("b", Type.STRING()).addChild("c", Type.BOOL()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option4);
+
+		return result.equals(target);
+	}
+
+	public static boolean testWhileFallback(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = new BehaviorProcessor(false).process(modules.get(0));
+
+		InlineType target = Type.VOID();
+
+		return result.equals(target);
+	}
+
+	public static boolean testWhileTypeHint(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileTypeHint.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = new BehaviorProcessor(false).process(modules.get(0));
+
+		InlineType target = Type.VOID();
 
 		return result.equals(target);
 	}

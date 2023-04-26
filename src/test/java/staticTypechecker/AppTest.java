@@ -88,6 +88,11 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testChoice());
 	}
 
+	@Test
+	public void testWhile(){
+		assertTrue(BehaviourProcessorTester.testWhile());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,

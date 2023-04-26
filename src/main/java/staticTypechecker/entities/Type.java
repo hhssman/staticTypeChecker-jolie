@@ -27,19 +27,14 @@ public abstract class Type implements Symbol {
 	private final static InlineType ANY = new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, false);
 	private final static InlineType OPEN_RECORD = new InlineType(BasicTypeDefinition.of(NativeType.ANY), null, null, true);
 
-	public static InlineType BOOL(){ return Type.BOOL.copy(); };
-	public static InlineType INT(){ return Type.INT.copy(); };
-	public static InlineType LONG(){ return Type.LONG.copy(); };
-	public static InlineType DOUBLE(){ return Type.DOUBLE.copy(); };
-	public static InlineType STRING(){ return Type.STRING.copy(); };
-	public static InlineType VOID(){ return Type.VOID.copy(); };
-	public static InlineType ANY(){ return Type.ANY.copy(); };
-	public static InlineType OPEN_RECORD(){ return Type.OPEN_RECORD.copy(); };
-
-	// add the recursive child to the open record node
-	// static {
-	// 	OPEN_RECORD.addChildUnsafe("?", OPEN_RECORD);
-	// }
+	public static InlineType BOOL(){ return Type.BOOL.shallowCopy(); };
+	public static InlineType INT(){ return Type.INT.shallowCopy(); };
+	public static InlineType LONG(){ return Type.LONG.shallowCopy(); };
+	public static InlineType DOUBLE(){ return Type.DOUBLE.shallowCopy(); };
+	public static InlineType STRING(){ return Type.STRING.shallowCopy(); };
+	public static InlineType VOID(){ return Type.VOID.shallowCopy(); };
+	public static InlineType ANY(){ return Type.ANY.shallowCopy(); };
+	public static InlineType OPEN_RECORD(){ return Type.OPEN_RECORD.shallowCopy(); };
 
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract boolean equals(Object other);

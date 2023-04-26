@@ -3,6 +3,7 @@ package staticTypechecker.entities;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class ChoiceType extends Type {
 	 * @param typesOfChoices the basic types to create the choices from
 	 * @return the new choice type
 	 */
-	public static ChoiceType fromBasicTypes(ArrayList<BasicTypeDefinition> typesOfChoices){
+	public static ChoiceType fromBasicTypes(List<BasicTypeDefinition> typesOfChoices){
 		HashSet<InlineType> choices = new HashSet<>();
 
 		for(BasicTypeDefinition type : typesOfChoices){

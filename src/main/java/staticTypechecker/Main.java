@@ -65,8 +65,7 @@ public class Main {
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
 		ModuleHandler.runVisitor(opProcessor);
 
-		printAllSymbols();
-		System.exit(0);
+		// printAllSymbols();
 		
 		// stage 6: process service behaviors
 		System.out.println("STAGE 6: process behaviors\n");

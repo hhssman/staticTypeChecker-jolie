@@ -3,6 +3,7 @@ package staticTypechecker.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -227,7 +228,7 @@ public class TreeUtils {
 	 * @param basicTypes the new basic types
 	 * @param tree the root of the tree in which to follow the path
 	 */
-	public static void setBasicTypeOfNodeByPath(Path path, ArrayList<BasicTypeDefinition> basicTypes, Type tree){
+	public static void setBasicTypeOfNodeByPath(Path path, List<BasicTypeDefinition> basicTypes, Type tree){
 		TreeUtils.unfold(path, tree);
 
 		ArrayList<Pair<InlineType,String>> nodesToUpdate = TreeUtils.findParentAndName(path, tree, true, true);
@@ -242,7 +243,7 @@ public class TreeUtils {
 				}
 				else{
 					ChoiceType child = ((ChoiceType)parent.getChild(childName)).updateBasicTypeOfChoices(basicTypes.get(0));
-					// this check is necessary, since changing the basic type of all choices, may make some of them equivalence, and hence they will be removed. We may be in a situation of a choice type with only one choice (which we convert to an InlineType below)
+					// this check is necessary, since changing the basic type of all choices, may make some of them equivalent, and hence they will be removed. We may be in a situation of a choice type with only one choice (which we convert to an InlineType below)
 					if(child.choices().size() == 1){
 						parent.addChildUnsafe(childName, new InlineType(basicTypes.get(0), null, child.context(), false));
 					}
@@ -282,51 +283,57 @@ public class TreeUtils {
 	 * @param other
 	 * @return a copy of originalType but with all nodes converted to any{?} if the corresponding node in other has a different basic type
 	 */
-	public static Type undefine(Type orignalType, Type other){
-		Type copy = orignalType.copy();
-		TreeUtils.undefineRec(copy, other, null, null, Collections.newSetFromMap(new IdentityHashMap<>()));
+	public static Type undefine(Type T0, Type Tk){
+		Type copy = T0.copy();
+		TreeUtils.undefineRec(copy, Tk, null, null, Collections.newSetFromMap(new IdentityHashMap<>()));
 		return copy;
 	}
 
 	/**
-	 * VERSION 2, discard the children, reset the parents
+	 * Discard the children, reset the parents
 	 * Precondition: original and other must have the same basic type
 	 */
-	private static void undefineRec(Type original, Type other, String name, Type parent, Set<Type> seenNodes){
-		if(original == null || other == null){
+	private static void undefineRec(Type T0, Type Tk, String name, Type parent, Set<Type> seenNodes){
+		if(T0 == null || Tk == null){
 			return;
 		}
-		if(seenNodes.contains(original)){
+		if(seenNodes.contains(T0)){
 			return;
 		}
-		seenNodes.add(original);
+		seenNodes.add(T0);
 
-		if(original instanceof InlineType && other instanceof InlineType){
-			InlineType parsedOG = (InlineType)original;
-			InlineType parsedOther = (InlineType)other;
+		if(T0 instanceof InlineType && Tk instanceof InlineType){
+			InlineType parsedT0 = (InlineType)T0;
+			InlineType parsedTk = (InlineType)Tk;
 
-			if(!parsedOG.basicType().equals(parsedOther.basicType())){ // basic types are different, reset node and return
-				TreeUtils.resetNodeType(parsedOG, parent, name);
+			if(!parsedT0.basicType().equals(parsedTk.basicType())){ // basic types are different, reset node and return
+				TreeUtils.resetNodeType(parsedT0, parent, name);
 				return;
 			}
 
 			// otherwise the basic types are equal, thus we must do the same check for the children
-			for(Entry<String, Type> ent : parsedOG.children().entrySet()){
+			for(Entry<String, Type> ent : parsedTk.children().entrySet()){
 				String childName = ent.getKey();
-				Type childOG = ent.getValue();
-				Type childOther = parsedOther.getChild(childName);
-				TreeUtils.undefineRec(childOG, childOther, childName, parsedOG, seenNodes);
+				Type childTk = ent.getValue();
+				Type childT0 = parsedT0.getChild(childName);
+
+				if(childT0 == null){
+					parsedT0.addChildUnsafe(childName, Type.OPEN_RECORD());
+				}
+				else{
+					TreeUtils.undefineRec(childT0, childTk, childName, parsedT0, seenNodes);
+				}
 			}
 		}
-		else if(original instanceof InlineType && other instanceof ChoiceType){ // not same type, we must reset
-			TreeUtils.resetNodeType(original, parent, name);
+		else if(T0 instanceof InlineType && Tk instanceof ChoiceType){ // not same type, we must reset
+			TreeUtils.resetNodeType(T0, parent, name);
 		}
-		else if(original instanceof ChoiceType && other instanceof InlineType){ // not same type, we must reset
-			TreeUtils.resetNodeType(original, parent, name);
+		else if(T0 instanceof ChoiceType && Tk instanceof InlineType){ // not same type, we must reset
+			TreeUtils.resetNodeType(T0, parent, name);
 		}
 		else{
-			if(!original.equals(other)){ 
-				TreeUtils.resetNodeType(original, parent, name);
+			if(!T0.equals(Tk)){ 
+				TreeUtils.resetNodeType(T0, parent, name);
 			}
 		}
 	}
