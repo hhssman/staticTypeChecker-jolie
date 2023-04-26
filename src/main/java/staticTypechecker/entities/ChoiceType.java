@@ -164,6 +164,10 @@ public class ChoiceType extends Type {
 		return this;
 	}
 
+	public void clear(){
+		this.choices.clear();
+	}
+
 	public boolean equals(Object other){
 		if(this == other){
 			return true;

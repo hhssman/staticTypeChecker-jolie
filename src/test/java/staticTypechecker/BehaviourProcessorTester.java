@@ -176,16 +176,58 @@ public class BehaviourProcessorTester {
 		return result.equals(target);
 	}
 
-	public static boolean testWhileFallback(){
-		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback.ol";
+	public static boolean testWhileFallback1(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback1.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
 		Type result = new BehaviorProcessor(false).process(modules.get(0));
 
-		InlineType target = Type.VOID();
+		ChoiceType target = new ChoiceType();
+
+		// first option, never entered the while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, enter the while loop, but fail to find a steady state, so fallback plan
+		InlineType option2 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.OPEN_RECORD())).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option2);
 
 		return result.equals(target);
 	}
+
+	public static boolean testWhileFallback2(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback2.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = new BehaviorProcessor(false).process(modules.get(0));
+
+		ChoiceType target = new ChoiceType();
+
+		// first option, not in if statement, and not entered the while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, in if statement, and not entered the while loop
+		InlineType option2 = Type.VOID().addChild("a", Type.STRING());
+		target.addChoiceUnsafe(option2);
+
+		// enter the while loop, but fail to find a steady state, so fallback plan
+		// first choice of fallback
+		InlineType fallback1 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.OPEN_RECORD()).addChild("c", Type.OPEN_RECORD()));
+		target.addChoiceUnsafe(fallback1);
+
+		// second choice of fallback
+		InlineType fallback2 = Type.VOID().addChild("a", Type.STRING().addChild("b", Type.OPEN_RECORD()).addChild("c", Type.OPEN_RECORD()));
+
+		target.addChoiceUnsafe(fallback2);
+
+		// System.out.println("result:\n" + result.prettyString());
+		// System.out.println("target:\n" + target.prettyString());
+
+		return result.equals(target);
+	}
+
+	
 
 	public static boolean testWhileTypeHint(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileTypeHint.ol";

@@ -230,7 +230,7 @@ public class InlineType extends Type {
 		String childName = p.get(0);
 		
 		if(this.contains(childName)){
-			result.addChild(childName, this.getChild(childName).shallowCopyExcept(p.remainder()));
+			result.addChildUnsafe(childName, this.getChild(childName).shallowCopyExcept(p.remainder()));
 		}
 		
 		return result;

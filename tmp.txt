@@ -6,80 +6,77 @@ STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
 a = 10
-void (1416233903) {
-	a: int (1856426318)
+void (679890578) {
+	a: int (1748225580)
 }
 
 --------------------------
 
-i = 0
-void (716143810) {
-	a: int (1856426318)
-	i: int (897913732)
-}
+if(true)
 
---------------------------
-
-while(i < 3)
-fallback
-original:
-void (716143810) {
-	a: int (1856426318)
-	i: int (897913732)
-}
-T:
-void (335471116) {
-	a: int (1308927845) {
-		b: int (510113906) {
-			b: int (1622006612) {
-				b: int (66233253) {
-					b: int (1286783232) {
-						b: int (1874154700) {
-							b: int (1632392469) {
-								b: int (2008362258) {
-									b: int (760563749) {
-										b: int (1753447031) {
-											b: int (1096283470)
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	i: int (391447681)
-}
-void (716143810) {
-	a: int (1856426318)
-	i: int (897913732)
+void (1792845110) {
+	a: string (1321640594)
 }
 |
-void (152005629) {
-	a: int (75457651) {
-		b: any (1225373914) { ? }
-	}
-	i: int (362239120)
+void (679890578) {
+	a: int (1748225580)
 }
 
 --------------------------
 
-Final tree for module testWhileFallback.ol:
-void (716143810) {
-	a: int (1856426318)
-	i: int (897913732)
+while(true)
+FALLBACK
+
+
+
+void (1792845110) {
+	a: string (1321640594)
 }
 |
-void (152005629) {
-	a: int (75457651) {
-		b: any (1225373914) { ? }
+void (679890578) {
+	a: int (1748225580)
+}
+|
+void (1453774246) {
+	a: string (416153648) {
+		b: any (1797712197) { ? }
+		c: any (1671846437) { ? }
 	}
-	i: int (362239120)
+}
+|
+void (2051853139) {
+	a: int (815674463) {
+		b: any (1422222071) { ? }
+		c: any (831236296) { ? }
+	}
 }
 
 --------------------------
 
-WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForBehaviours/testWhileFallback.ol' on line 7:
+Final tree for module testWhileFallback2.ol:
+void (1792845110) {
+	a: string (1321640594)
+}
+|
+void (679890578) {
+	a: int (1748225580)
+}
+|
+void (1453774246) {
+	a: string (416153648) {
+		b: any (1797712197) { ? }
+		c: any (1671846437) { ? }
+	}
+}
+|
+void (2051853139) {
+	a: int (815674463) {
+		b: any (1422222071) { ? }
+		c: any (831236296) { ? }
+	}
+}
+
+--------------------------
+
+WARNING in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForBehaviours/testWhileFallback2.ol' on line 11:
 could not determine the resulting type of the while loop, affected types may be incorrect from here

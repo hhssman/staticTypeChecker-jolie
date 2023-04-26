@@ -3,6 +3,7 @@ package staticTypechecker.visitors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 import jolie.lang.Constants.OperandType;
 import jolie.lang.parse.OLVisitor;
@@ -109,6 +110,8 @@ import staticTypechecker.faults.WarningHandler;
  */
 public class Synthesizer implements OLVisitor<Type, Type> {
 	private static HashMap<String, Synthesizer> synths = new HashMap<>(); // maps module name to synthesizer
+	private boolean inWhileLoop = false;
+	private Stack<ArrayList<Path>> pathsAlteredInWhile = new Stack<>();
 	
 	public static Synthesizer get(Module module){
 		Synthesizer ret = Synthesizer.synths.get(module.name());
@@ -189,6 +192,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = T.shallowCopyExcept(p_in);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(p_in);
+		}
+
 		return T1;
 	};
 
@@ -249,6 +256,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = T.shallowCopyExcept(p_in);
 		TreeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(p_in);
+		}
+
 		return T1;
 	};
 
@@ -270,6 +281,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = T.shallowCopyExcept(path);
 		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
 		TreeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
+
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(path);
+		}
 
 		return T1;
 	};
@@ -344,6 +359,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	private void deriveTypeAndUpdateNode(Path path, Type tree, OperandType opType, Type rightSide, Type expression, ParsingContext ctx){
 		List<BasicTypeDefinition> newBasicTypes = BasicTypeUtils.deriveTypeOfOperation(opType, rightSide, expression, ctx);
 		TreeUtils.setBasicTypeOfNodeByPath(path, newBasicTypes, tree);
+
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(path);
+		}
 	}
 
 	public Type visit( IfStatement n, Type T ){
@@ -380,6 +399,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( WhileStatement n, Type T ){
+		this.setInWhileStatus(true);
+
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
 		this.check(T, condition, Type.BOOL()); // check that the initial condition is of type bool
@@ -404,6 +425,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
 				// System.out.println("subtype!");
 				result.addChoiceUnsafe(mergedState);
+				this.setInWhileStatus(false);
 				return result;
 			}
 
@@ -414,13 +436,25 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
 		// System.out.println("FALLBACK");
-		// System.out.println("mergedState:\n" + mergedState.prettyString());
+		result.addChoiceUnsafe( TreeUtils.undefine(originalState, this.pathsAlteredInWhile.peek()) );
 		// System.out.println("\n\n");
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
-		result.addChoiceUnsafe(TreeUtils.undefine(originalState, T)); // T is now the most recently found state
+		
+		this.setInWhileStatus(false);
 		return result.convertIfPossible();
 	};
+
+	private void setInWhileStatus(boolean status){
+		this.inWhileLoop = status;
+
+		if(status){
+			this.pathsAlteredInWhile.push(new ArrayList<>());
+		}
+		else{
+			this.pathsAlteredInWhile.pop();
+		}
+	}
 
 	public Type visit( OrConditionNode n, Type T ){
 		return Type.BOOL();
@@ -558,28 +592,42 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path leftPath = new Path(n.leftPath().path());
 		Type T1 = T.shallowCopyExcept(leftPath);
 		
-		OLSyntaxNode expression = n.rightExpression();
-		Type typeOfExpression = expression.accept(this, T1);
-		
-		// find the nodes to update and their parents
 		T1 = TreeUtils.unfold(leftPath, T1);
-		ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, T1, true, false);
 
-		// update the nodes with the deep copied versions
-		for(Pair<InlineType, String> pair : leftSideNodes){
-			InlineType parent = pair.key();
-			String childName = pair.value();
-			Type child = parent.getChild(childName);
-
-			// check child for null, since we do not create it in the findParentAndName method here. If it is null, it means that it did not exist before, and we can use the void type
-			if(child == null){
-				child = Type.VOID();
-			}
-
-			TreeUtils.fold(child);
-			Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
-			parent.addChildUnsafe(childName, resultOfDeepCopy);
+		ArrayList<InlineType> trees = new ArrayList<>();
+	
+		if(T1 instanceof InlineType){
+			trees.add((InlineType)T1);
 		}
+		else{
+			ChoiceType parsed = (ChoiceType)T1;
+			trees = parsed.choices();
+		}
+
+		for(InlineType tree : trees){
+			Type typeOfExpression = n.rightExpression().accept(this, tree);
+			// System.out.println("type of ex:\n" + typeOfExpression.prettyString() + "\n");
+	
+			// find the nodes to update and their parents
+			ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, tree, true, false);
+	
+			// update the nodes with the deep copied versions
+			for(Pair<InlineType, String> pair : leftSideNodes){
+				InlineType parent = pair.key();
+				String childName = pair.value();
+				Type child = parent.getChild(childName);
+	
+				TreeUtils.fold(child);
+				Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
+				parent.addChildUnsafe(childName, resultOfDeepCopy);
+			}
+		}
+
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(leftPath);
+		}
+
+		// System.out.println("result of deep copy:\n" + T1.prettyString() + "\n");
 
 		return T1;
 	};
@@ -596,6 +644,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		for(Pair<InlineType, String> pair : nodesToRemove){
 			pair.key().removeChildUnsafe(pair.value());
+		}
+
+		if(this.inWhileLoop){
+			this.pathsAlteredInWhile.peek().add(path);
 		}
 
 		return T1;

@@ -79,10 +79,61 @@ public abstract class Type implements Symbol {
 	 * @return the result of t1 << t2
 	 */
 	public static Type deepCopy(Type t1, Type t2){
-		return Type.deepCopyRec(t1.copy(), t2.copy());
+		if(t1 == null){
+			return t2.shallowCopy();
+		}
+		if(t2 == null){
+			return t1.shallowCopy();
+		}
+
+		return Type.deepCopyRec(t1, t2.copy());
 	}
 
+	// public static Type deepCopyRec(Type t1, Type t2){
+	// 	if(t1 instanceof InlineType && t2 instanceof InlineType){ // both are inline types, take t2 and add the children of t1 if they are not already in t2
+	// 		InlineType p1 = (InlineType)t1;
+	// 		InlineType p2 = (InlineType)t2;
+	// 		InlineType result = p2;
+
+	// 		for(Entry<String, Type> ent : p1.children().entrySet()){
+	// 			result.addChildIfAbsentUnsafe(ent.getKey(), ent.getValue());
+	// 		}
+
+	// 		return result;
+	// 	}
+	// 	else if(t1 instanceof InlineType && t2 instanceof ChoiceType){ // t1 is inline, t2 is choice type
+	// 		ChoiceType result = new ChoiceType();
+
+	// 		for(InlineType choice : ((ChoiceType)t2).choices()){
+	// 			result.addChoiceUnsafe( Type.deepCopyRec(t1, choice) );
+	// 		}
+
+	// 		return result;
+	// 	}
+	// 	else if(t2 instanceof InlineType){ // t1 is choice and t2 is inline type
+	// 		ChoiceType result = new ChoiceType();
+
+	// 		for(InlineType choice : ((ChoiceType)t1).choices()){
+	// 			result.addChoiceUnsafe( Type.deepCopyRec(choice, t2) );
+	// 		}
+
+	// 		return result;
+	// 	}
+	// 	else{ // both are choice types
+	// 		ChoiceType result = new ChoiceType();
+
+	// 		for(InlineType c1 : ((ChoiceType)t1).choices()){
+	// 			for(InlineType c2 : ((ChoiceType)t2).choices()){
+	// 				result.addChoiceUnsafe( Type.deepCopyRec(c1, c2) );
+	// 			}
+	// 		}
+
+	// 		return result;
+	// 	}
+	// }
+
 	public static Type deepCopyRec(Type t1, Type t2){
+		// System.out.println("\ndeep copy:\nt1:\n" + t1.prettyString() + "\nt2:\n" + t2.prettyString() + "\n");
 		if(t1 instanceof InlineType && t2 instanceof InlineType){ // both are inline types, take t2 and add the children of t1 if they are not already in t2
 			InlineType p1 = (InlineType)t1;
 			InlineType p2 = (InlineType)t2;
@@ -96,31 +147,20 @@ public abstract class Type implements Symbol {
 		}
 		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){ // t1 is inline, t2 is choice type
 			ChoiceType result = new ChoiceType();
-
-			for(InlineType choice : ((ChoiceType)t2).choices()){
-				result.addChoiceUnsafe( Type.deepCopyRec(t1, choice) );
-			}
-
+			result.addChoiceUnsafe(t1);
+			result.addChoiceUnsafe(t2);
 			return result;
 		}
 		else if(t2 instanceof InlineType){ // t1 is choice and t2 is inline type
 			ChoiceType result = new ChoiceType();
-
-			for(InlineType choice : ((ChoiceType)t1).choices()){
-				result.addChoiceUnsafe( Type.deepCopyRec(choice, t2) );
-			}
-
+			result.addChoiceUnsafe(t1);
+			result.addChoiceUnsafe(t2);
 			return result;
 		}
 		else{ // both are choice types
 			ChoiceType result = new ChoiceType();
-
-			for(InlineType c1 : ((ChoiceType)t1).choices()){
-				for(InlineType c2 : ((ChoiceType)t2).choices()){
-					result.addChoiceUnsafe( Type.deepCopyRec(c1, c2) );
-				}
-			}
-
+			result.addChoiceUnsafe(t1);
+			result.addChoiceUnsafe(t2);
 			return result;
 		}
 	}

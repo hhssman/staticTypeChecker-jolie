@@ -93,6 +93,16 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testWhile());
 	}
 
+	@Test
+	public void testWhileFallback1(){
+		assertTrue(BehaviourProcessorTester.testWhileFallback1());
+	}
+
+	@Test
+	public void testWhileFallback2(){
+		assertTrue(BehaviourProcessorTester.testWhileFallback2());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,
