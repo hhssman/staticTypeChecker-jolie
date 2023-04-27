@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jolie.lang.NativeType;
-import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import jolie.util.Pair;
 import staticTypechecker.faults.WarningHandler;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
@@ -209,7 +207,7 @@ public class BasicTypeUtils {
 			}
 		}
 		else if(type1 == NativeType.LONG){
-			if(type2 == NativeType.BOOL || type2 == NativeType.INT){
+			if(type2 == NativeType.BOOL || type2 == NativeType.INT || type2 == NativeType.LONG){
 				return BasicTypeDefinition.of(NativeType.LONG);
 			}
 			if(type2 == NativeType.DOUBLE){
@@ -235,7 +233,7 @@ public class BasicTypeUtils {
 			}
 			if(type2 == NativeType.STRING){
 				if(operand == OperandType.ADD){
-					return BasicTypeDefinition.of(NativeType.DOUBLE);
+					return BasicTypeDefinition.of(NativeType.STRING);
 				}
 				
 				return BasicTypeDefinition.of(NativeType.DOUBLE);

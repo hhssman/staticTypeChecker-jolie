@@ -102,6 +102,51 @@ public class AppTest{
 	public void testWhileFallback2(){
 		assertTrue(BehaviourProcessorTester.testWhileFallback2());
 	}
+	
+	@Test
+	public void testNestedWhile(){
+		assertTrue(BehaviourProcessorTester.testNestedWhile());
+	}
+
+	@Test
+	public void testNestedWhileFallback(){
+		assertTrue(BehaviourProcessorTester.testNestedWhileFallback());
+	}
+
+	@Test
+	public void testIf(){
+		assertTrue(BehaviourProcessorTester.testIf());
+	}
+
+	@Test
+	public void testNestedIf(){
+		assertTrue(BehaviourProcessorTester.testNestedIf());
+	}
+
+	@Test
+	public void testAssign(){
+		assertTrue(BehaviourProcessorTester.testAssign());
+	}
+
+	@Test
+	public void testUndef(){
+		assertTrue(BehaviourProcessorTester.testUndef());
+	}
+
+	@Test
+	public void testDeepCopy(){
+		assertTrue(BehaviourProcessorTester.testDeepCopy());
+	}
+
+	@Test
+	public void testOperationAssign(){
+		assertTrue(BehaviourProcessorTester.testOperationAssign());
+	}
+
+	@Test
+	public void testTypeCasting(){
+		assertTrue(BehaviourProcessorTester.testTypeCasting());
+	}
 
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
