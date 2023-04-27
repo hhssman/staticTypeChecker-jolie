@@ -16,8 +16,8 @@
 			"request": "launch",
 			"mainClass": "staticTypechecker.Main",
 			"projectName": "staticTypechecker",
-			// "args": "./src/test/files/test/input.ol > tmp.txt"
-			"args": "./src/test/files/testFilesForBehaviours/testNestedWhileFallback.ol > tmp.txt"
+			"args": "./src/test/files/test/input.ol > tmp.txt"
+			// "args": "./src/test/files/testFilesForBehaviours/testNestedWhileFallback.ol > tmp.txt"
 		}
 	]
 }

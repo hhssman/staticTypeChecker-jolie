@@ -6,8 +6,10 @@ import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
+import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Operation.OperationType;
 import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
 
@@ -24,19 +26,20 @@ public class InterfaceProcessorTester {
 
 		// MyInterface
 		Interface myInterface = new Interface("MyInterface");
-		myInterface.addOperation("myReqRes", new Operation("myReqRes", "int", "reqResReturn", OperationType.REQRES));
-		myInterface.addOperation("myOneWay", new Operation("myOneWay", "string", null, OperationType.ONEWAY));
-		myInterface.addOperation("mySecondOneWay", new Operation("mySecondOneWay", "A", null, OperationType.ONEWAY));
+		myInterface.addOperation("myReqRes", new Operation("myReqRes", Type.INT(), Type.INT().addChild("x", Type.INT()).addChild("y", Type.STRING()), OperationType.REQRES));
+		myInterface.addOperation("myOneWay", new Operation("myOneWay", Type.STRING(), null, OperationType.ONEWAY));
+		myInterface.addOperation("mySecondOneWay", new Operation("mySecondOneWay", Type.BOOL(), null, OperationType.ONEWAY));
 
 		target.put("MyInterface", Symbol.newPair(SymbolType.INTERFACE, myInterface));
 		
 		// ImportedInterface
 		Interface importedInterface = new Interface("ImportedInterface");
-		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", "A", "B", OperationType.REQRES));
-		importedInterface.addOperation("importedOneWay", new Operation("importedOneWay", "int", null, OperationType.ONEWAY));
+		InlineType B = Type.INT();
+		B.addChildUnsafe("x", B);
+		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", Type.STRING().addChild("x", Type.INT()), B, OperationType.REQRES));
+		importedInterface.addOperation("importedOneWay", new Operation("importedOneWay", Type.INT(), null, OperationType.ONEWAY));
 
 		target.put("ImportedInterface", Symbol.newPair(SymbolType.INTERFACE, importedInterface));
-
 
 		return AppTest.testSymbolsForEquality(result, target);
 	}

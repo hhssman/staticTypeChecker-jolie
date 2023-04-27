@@ -169,16 +169,16 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		// otherwise create it
 		if(decl instanceof RequestResponseOperationDeclaration){ // req res
 			RequestResponseOperationDeclaration parsedDecl = (RequestResponseOperationDeclaration)decl;
-			String requestType = parsedDecl.requestType().name();
-			String responseType = parsedDecl.responseType().name();
+			String requestTypeName = parsedDecl.requestType().name();
+			String responseTypeName = parsedDecl.responseType().name();
 
-			op = new Operation(name, requestType, responseType, OperationType.REQRES);
+			op = new Operation(name, (Type)symbols.get(requestTypeName), (Type)symbols.get(responseTypeName), OperationType.REQRES);
 		}
 		else{ // one way
 			OneWayOperationDeclaration parsedDecl = (OneWayOperationDeclaration)decl;
-			String requestType = parsedDecl.requestType().name();
+			String requestTypeName = parsedDecl.requestType().name();
 
-			op = new Operation(name, requestType, null, OperationType.ONEWAY);
+			op = new Operation(name, (Type)symbols.get(requestTypeName), null, OperationType.ONEWAY);
 		}
 
 		symbols.put(name, Symbol.newPair(SymbolType.OPERATION, op));

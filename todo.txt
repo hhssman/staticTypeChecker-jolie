@@ -1,10 +1,3 @@
 
 
 Check lige om vi nogen steder skal bruge struct i operation input eller output type. Lige nu gemmer vi jo kun navnet, og jeg antager, at jeg slår navnet op i symbol table. MEN hvad nu hvis man importerer et interface, der har en operation, som tager et "A" som input. Er dette A også defineret i denne fil eller skal vi gøre noget andet her? Evt. kunne man jo gemme type strukturen direkte i operationen i stedet for en string med navnet.
-
-
-
-
-
-TESTS:
-	- løb lige alle AST nodes igennem og lav tests til at de virker rigtigt (har ikke overskud lige nu, men en anden dag måske)

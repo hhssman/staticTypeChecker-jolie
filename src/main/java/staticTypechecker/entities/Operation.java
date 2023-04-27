@@ -11,11 +11,11 @@ public class Operation implements Symbol {
 	}
 
 	private String name; 					// the name of the operation
-	private String requestType; 			// the name of the type of the input
-	private String responseType; 			// the name of the type of the output
+	private Type requestType; 			// the name of the type of the input
+	private Type responseType; 			// the name of the type of the output
 	private OperationType operationType; 	// the type of operation (oneway or reqres)
 
-	public Operation(String name, String requestType, String responseType, OperationType operationType){
+	public Operation(String name, Type requestType, Type responseType, OperationType operationType){
 		this.name = name;
 		this.requestType = requestType;
 		this.responseType = responseType;
@@ -26,11 +26,11 @@ public class Operation implements Symbol {
 		return this.name;
 	}
 
-	public String requestType(){
+	public Type requestType(){
 		return this.requestType;
 	}
 
-	public String responseType(){
+	public Type responseType(){
 		return this.responseType;
 	}
 
@@ -42,11 +42,11 @@ public class Operation implements Symbol {
 		this.name = name;
 	}
 	
-	public void setRequestType(String requestType){
+	public void setRequestType(Type requestType){
 		this.requestType = requestType;
 	}
 
-	public void setResponseType(String responseType){
+	public void setResponseType(Type responseType){
 		this.responseType = responseType;
 	}
 
@@ -82,10 +82,10 @@ public class Operation implements Symbol {
 		}
 
 		if(this.operationType == OperationType.REQRES){
-			return this.name + "(" + this.requestType() + ")" + "(" + this.responseType() + ")";
+			return this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)" + "\n\t\t(\n\t\t\t" + this.responseType().prettyString(3) + "\n\t\t)";
 		}
 		else{
-			return this.name + "(" + this.requestType() + ")";
+			return this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)";
 		}
 	}
 }

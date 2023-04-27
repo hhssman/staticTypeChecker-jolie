@@ -151,7 +151,7 @@ public class ToString implements OLVisitor<Void, String> {
 	public String visit( NotificationOperationStatement n, Void v ){
 		String name = n.id();
 		String portId = n.outputPortId();
-		String outputPath = n.outputExpression().toString();
+		String outputPath = n.outputExpression().accept(this, null);
 		return name + "@" + portId + "(" + outputPath + ")";
 	};
 

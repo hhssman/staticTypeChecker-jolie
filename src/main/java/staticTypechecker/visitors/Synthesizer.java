@@ -185,7 +185,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( OneWayOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
-		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the data type which is EXPECTED by the oneway operation
+		Type T_in = op.requestType(); // the data type which is EXPECTED by the oneway operation
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
@@ -202,8 +202,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( RequestResponseOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
-		Type T_in = (Type)this.module.symbols().get(op.requestType()); // the type of the data the operation EXPECTS as input
-		Type T_out = (Type)this.module.symbols().get(op.responseType()); // the type of the data RETURNED from the operation
+		Type T_in = op.requestType(); // the type of the data the operation EXPECTS as input
+		Type T_out = op.responseType(); // the type of the data RETURNED from the operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given AS INPUT to the operation
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
@@ -232,7 +232,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( NotificationOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 		
-		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the oneway operation
+		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
 
 		this.check(p_out, T_out, n.context());
@@ -243,8 +243,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( SolicitResponseOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
-		Type T_in = (Type)this.module.symbols().get(op.responseType()); // the type of the data which is RETURNED by the reqres operation
-		Type T_out = (Type)this.module.symbols().get(op.requestType()); // the type of the data which is EXPECTED of the reqres operation
+		Type T_in = op.responseType(); // the type of the data which is RETURNED by the reqres operation
+		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the reqres operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the reqres operation
