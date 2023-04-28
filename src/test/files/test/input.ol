@@ -24,6 +24,8 @@ type rec: int {
 
 type huh: int | string
 
+type lol: lol | int { x: lol }
+
 service MyService() {
 	inputPort in {
 		Location: "socket://localhost:8080"
@@ -38,7 +40,9 @@ service MyService() {
 	}
 
 	main {
-		importedOneWay@out(1)
+		a = "h"
+		a.x = 10
+		importedOneWay@out(a)
 	}
 	
 }

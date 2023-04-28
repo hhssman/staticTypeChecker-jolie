@@ -1,7 +1,9 @@
 package staticTypechecker.utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
@@ -17,6 +19,7 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.faults.FaultHandler;
 
 /**
  * A static converter for the existing Jolie types. Converts them to my custom types used in the static typechecking, namely InlineTypes and ChoiceTypes.
@@ -129,37 +132,26 @@ public class TypeConverter {
 
 	private static HashSet<TypeInlineDefinition> getChoices(TypeDefinition type){
 		HashSet<TypeInlineDefinition> choices = new HashSet<>();
-		TypeConverter.getChoicesRec(type, choices);
+		TypeConverter.getChoicesRec(type, choices, type);
 		return choices;
 	}
 	
-	private static void getChoicesRec(TypeDefinition type, HashSet<TypeInlineDefinition> list){
+	private static void getChoicesRec(TypeDefinition type, HashSet<TypeInlineDefinition> list, TypeDefinition root){
 		if(type instanceof TypeChoiceDefinition){
-			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).left(), list);
-			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).right(), list);
+			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).left(), list, root);
+			TypeConverter.getChoicesRec(((TypeChoiceDefinition)type).right(), list, root);
 		}
 		else if(type instanceof TypeInlineDefinition){
-			TypeInlineDefinition parsed = (TypeInlineDefinition)type;
-			
-			list.add(parsed);
-
-			// // copy to type without name, because the choices in TypeChoiceDefinition has the same name as the choice node itself.......
-			// TypeInlineDefinition copy = new TypeInlineDefinition(parsed.context(), "", parsed.basicType(), parsed.cardinality()); 
-			
-			// Set<Entry<String, TypeDefinition>> children = parsed.subTypes();
-
-			// if(children != null){
-			// 	for(Entry<String, TypeDefinition> ent : children){
-			// 		copy.putSubType(ent.getValue());
-			// 	}
-			// }
-
-			// copy.setUntypedSubTypes(parsed.untypedSubTypes());
-
-			// list.add( copy );
+			list.add((TypeInlineDefinition)type);
 		}
 		else if(type instanceof TypeDefinitionLink){
-			TypeConverter.getChoicesRec(((TypeDefinitionLink)type).linkedType(), list);
+			TypeDefinition linkedType = ((TypeDefinitionLink)type).linkedType();
+
+			if(linkedType == root){
+				FaultHandler.throwFault("Type definition link loop detected: " + root.name() + " (this might mean that the referred type has not been defined or could not be retrieved)", root.context(), true);
+			}
+
+			TypeConverter.getChoicesRec(linkedType, list, root);
 		}
 		else{
 			System.out.println("CONVERTION NOT SUPPORTED");

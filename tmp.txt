@@ -1,31 +1,5 @@
 STAGE 1: discover symbols
 STAGE 2: process types
-STAGE 3: process interfaces
-STAGE 4: process input ports and service parameters
-STAGE 5: process output ports and embeddings
-STAGE 6: process behaviors
-
-Final tree for module importInterface.ol:
-void (873415566)
-
---------------------------
-
-importedOneWay@out(1)
-void (1504109395)
-
---------------------------
-
-Final tree for module input.ol:
-void (1504109395)
-
---------------------------
-
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/test/input.ol' on line 41:
-The type:
-	int (1468177767)
-
-is not a subtype of the type:
-	string (434091818) {
-		x: int (398887205)
-	}
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/test/input.ol' on line 29:
+Type definition link loop detected: lol (this might mean that the referred type has not been defined or could not be retrieved)
 
