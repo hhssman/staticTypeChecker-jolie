@@ -182,7 +182,15 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 	public Void visit(InputPortInfo n, SymbolTable symbols) {
 		// ready the data
 		String portName = n.id();
-		String location = ((ConstantStringExpression)n.location()).value();
+		String location;
+
+		if(n.location() instanceof ConstantStringExpression){
+			location = ((ConstantStringExpression)n.location()).value();
+		}
+		else{
+			location = ((VariableExpressionNode)n.location()).toString();
+		}
+
 		String protocol = n.protocolId();
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
 									.stream()

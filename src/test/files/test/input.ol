@@ -1,4 +1,4 @@
-from .importInterface import ImportedInterface
+// from .importInterface import ImportedInterface
 // from .embedMe import EmbedMe
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
@@ -6,43 +6,22 @@ interface MyInterface {
 	RequestResponse:
 		helloReqRes( int )( string )
 	OneWay:
-		helloOneway( rec )
+		helloOneway( A )
 }
 
-type A: bool
+type A: bool { x: A }
 
-type input: void {
-	x: rec
-	y: rec
-}
 
-type rec: int {
-	x: string {
-		y: rec
-	}
-}
-
-type huh: int | string
-
-type lol: lol | int { x: lol }
 
 service MyService() {
-	inputPort in {
-		Location: "socket://localhost:8080"
-		Protocol: http { format = "json" }
-		Interfaces: MyInterface 
-	}
-	
-	outputPort out {
+	outputPort out1 {
 		Location: "socket://localhost:8081"
 		Protocol: http { format = "json" }
-		Interfaces: ImportedInterface
+		Interfaces: MyInterface
 	}
 
 	main {
-		a = "h"
-		a.x = 10
-		importedOneWay@out(a)
+		a = 10
 	}
 	
 }

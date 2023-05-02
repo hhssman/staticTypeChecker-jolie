@@ -1,9 +1,7 @@
 package staticTypechecker.utils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
@@ -11,7 +9,6 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
@@ -33,67 +30,65 @@ public class TypeConverter {
 	 * @return the structure instance representing the specified type
 	 */
 	public static Type convert(TypeDefinition type, SymbolTable symbols){
-		return convert(type, new IdentityHashMap<>(), type.context(), symbols);
+		return convert(type, new IdentityHashMap<>(), symbols);
 	}
 
-	private static Type convert(TypeDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static Type convert(TypeDefinition type, IdentityHashMap<TypeDefinition, Type> rec, SymbolTable symbols){
 		if(type instanceof TypeInlineDefinition){
-			return TypeConverter.convert((TypeInlineDefinition)type, rec, ctx, symbols);
+			return TypeConverter.convert((TypeInlineDefinition)type, rec, symbols);
 		}
 
 		if(type instanceof TypeChoiceDefinition){
-			return TypeConverter.convert((TypeChoiceDefinition)type, rec, ctx, symbols);
+			return TypeConverter.convert((TypeChoiceDefinition)type, rec, symbols);
 		}
 
 		if(type instanceof TypeDefinitionLink){
-			return TypeConverter.convert((TypeDefinitionLink)type, rec, ctx, symbols);
+			return TypeConverter.convert((TypeDefinitionLink)type, rec, symbols);
 		}
 
 		if(type instanceof TypeDefinitionUndefined){
-			return TypeConverter.convert((TypeDefinitionUndefined)type, rec, ctx, symbols);
+			return TypeConverter.convert((TypeDefinitionUndefined)type, rec, symbols);
 		}
 
 		return null;
 	}
 
-	private static InlineType convert(TypeInlineDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static InlineType convert(TypeInlineDefinition type, IdentityHashMap<TypeDefinition, Type> rec, SymbolTable symbols){
 		if(rec.containsKey(type)){
 			return (InlineType)rec.get(type);
 		}
 
-		InlineType result = new InlineType(type.basicType(), type.cardinality(), ctx, type.untypedSubTypes());
+		InlineType result = new InlineType(type.basicType(), type.cardinality(), type.context(), type.untypedSubTypes());
 
 		if(symbols.containsKey(type.name())){ // it is a known type
-			if(symbols.get(type.name()) == null){ // type has not been in initialized, we init it here
+			Symbol symbol = symbols.get(type.name());
+
+			if(symbol == null){ // type has not been in initialized, we init it here
 				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
 			}
-			else if(symbols.get(type.name()) instanceof InlineType){ // check that the symbol is of the right type, it may be a choice type, if this node's parent is a choice, this node will have the same name as the parent, and thus the symbol table will hold the parent under this name
-				InlineType existingType = (InlineType)symbols.get(type.name());
-
-				if(type.subTypes() != null && !existingType.children().isEmpty()){ // if the type has chilren and the children of the struct is not empty, then the type has been finalized, we use it directly
-					return existingType;
-				}
-				else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it in this method call then
-					result = existingType;
-				}
+			else if(symbol instanceof InlineType){ // check that the symbol is of the right type, it may be a choice type, if this node's parent is a choice, this node will have the same name as the parent, and thus the symbol table will hold the parent under this name
+					
+				return (InlineType)symbol;
 			}
 		}
 		rec.put(type, result);
 
 		if(type.subTypes() != null){ // type has children
+			String UUID = "!" + System.identityHashCode(result); // unique name for this node
+			result.addChildUnsafe(UUID, Type.VOID()); // this child is added to make the type unique if added to a chocie type (necessary in the case of: type A: int { x: A | int }). The A choice of x is added as recursive edge BEFORE the child x is added to the node, and thus it will be equivalent to just int, and the resulting choice will only have one choice, namely the int
 			for(Entry<String, TypeDefinition> ent : type.subTypes()){
 				String childName = ent.getKey();
-				Type child = TypeConverter.convert(ent.getValue(), rec, ctx, symbols);
+				Type child = TypeConverter.convert(ent.getValue(), rec, symbols);
 
 				result.addChildUnsafe(childName, child);
 			}
+			result.removeChildUnsafe(UUID);
 		}
 
 		return result;
 	}
 
-	private static ChoiceType convert(TypeChoiceDefinition type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		// System.out.println("choice in rec? " + rec.containsKey(type));
+	private static ChoiceType convert(TypeChoiceDefinition type, IdentityHashMap<TypeDefinition, Type> rec, SymbolTable symbols){
 		if(rec.containsKey(type)){
 			return (ChoiceType)rec.get(type);
 		}
@@ -107,26 +102,25 @@ public class TypeConverter {
 			if(st == null){ // type has not been in initialized, we init it here
 				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
 			}
-			else{ // otherwise the base type has been initialized but it has not been finalized, we finalize it in this method call then
+			else{ // otherwise we can use it
 				return st;
 			}
 		}
 
-		// TODO talk to Marco and figure out if it is allowed to have types on the form: type A: A | int. In such a case, we need to make choice types able to hold other choice types right? 
 		HashSet<TypeInlineDefinition> choices = TypeConverter.getChoices(type);
 		for(TypeInlineDefinition def : choices){
-			InlineType t = TypeConverter.convert(def, new IdentityHashMap<>(rec), ctx, symbols);
-			result.addChoiceUnsafe( t );
+			InlineType t = TypeConverter.convert(def, new IdentityHashMap<>(rec), symbols);
+			result.addChoiceUnsafe(t);
 		}
 
 		return result;
 	}
 
-	private static Type convert(TypeDefinitionLink type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
-		return TypeConverter.convert(type.linkedType(), rec, ctx, symbols);
+	private static Type convert(TypeDefinitionLink type, IdentityHashMap<TypeDefinition, Type> rec, SymbolTable symbols){
+		return TypeConverter.convert(type.linkedType(), rec, symbols);
 	}
 
-	private static Type convert(TypeDefinitionUndefined type, IdentityHashMap<TypeDefinition, Type> rec, ParsingContext ctx, SymbolTable symbols){
+	private static Type convert(TypeDefinitionUndefined type, IdentityHashMap<TypeDefinition, Type> rec, SymbolTable symbols){
 		return null;
 	}
 

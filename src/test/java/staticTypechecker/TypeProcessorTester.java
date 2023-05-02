@@ -104,6 +104,14 @@ public class TypeProcessorTester {
 		InlineType K = Type.INT().addChild("x", importedCircular);		
 		target.put("K", Symbol.newPair(SymbolType.TYPE, K));
 
+		// type Weird
+		InlineType weird = Type.INT();
+		ChoiceType weirdChild = new ChoiceType();
+		weird.addChildUnsafe("y", weirdChild);
+		weirdChild.addChoiceUnsafe(weird);
+		weirdChild.addChoiceUnsafe(Type.INT());
+		target.put("Weird", Symbol.newPair(SymbolType.TYPE, weird));
+
 		return AppTest.testSymbolsForEquality(result, target);
 	}
 }

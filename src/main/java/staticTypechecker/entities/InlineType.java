@@ -212,6 +212,10 @@ public class InlineType extends Type {
 	}
 
 	public boolean isSubtypeOf(Type other){
+		if(this == other){
+			return true;
+		}
+
 		return Bisimulator.isSubtypeOf(this, other);
 	}
 

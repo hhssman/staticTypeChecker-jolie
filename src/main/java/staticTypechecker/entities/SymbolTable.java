@@ -20,13 +20,13 @@ public class SymbolTable {
 	
 	public SymbolTable(){
 		this.table = new HashMap<>();
-		this.addBaseTypes();
+		this.addBasicTypes();
 	}
 
 	/**
 	 * Adds the basic types of Jolie to this symbol table, i.e. int, string, boolean etc.
 	 */
-	private void addBaseTypes(){
+	private void addBasicTypes(){
 		NativeType[] baseTypes = NativeType.values();
 		for(NativeType t : baseTypes){
 			InlineType typeStruct = new InlineType(BasicTypeDefinition.of(t), new Range(1, 1), null, false);
@@ -74,7 +74,7 @@ public class SymbolTable {
 	public String toString(){
 		String res = "";
 		for(Entry<String, Pair<SymbolType,Symbol>> ent : this.table.entrySet()){
-			res += ent.getKey() + " (" + ent.getValue().key() + ") = " + ent.getValue().value() + "\n";
+			res += ent.getKey() + " (" + ent.getValue().key() + ") = " + ent.getValue().value() + " (" + System.identityHashCode(ent.getValue()) + ")\n";
 		}
 
 		return res;

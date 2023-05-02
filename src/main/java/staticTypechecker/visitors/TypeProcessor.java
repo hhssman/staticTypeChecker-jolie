@@ -107,7 +107,7 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 		this.module = module;
 
 		Program p = module.program();
-		
+
 		if(!processImports){
 			// accept all children which are NOT import statements
 			for(OLSyntaxNode child : p.children()){
@@ -136,12 +136,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		// if(n.getDocumentation().isPresent()){
-		// 	System.out.println("documentation for " + n.name() + ": " + n.getDocumentation().get());
-		// }
-		// else{
-		// 	System.out.println("no documentation for " + n.name());
-		// }
 		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
 		return null;
 	}

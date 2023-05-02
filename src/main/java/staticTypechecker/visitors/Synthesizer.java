@@ -97,6 +97,7 @@ import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.utils.BasicTypeUtils;
 import staticTypechecker.utils.TreeUtils;
+import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Path;
@@ -231,6 +232,32 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( NotificationOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id());
+
+		// if the notify is inside a while-loop and it is an assertion, it is a typehint, so we must check 
+		if(this.inWhileLoop){ 
+			String operationName = op.name();
+			String outputPortName = n.outputPortId();
+
+			if(operationName.equals("assert") && outputPortName.equals("assertions")){
+				if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
+					FaultHandler.throwFault("argument given to assert must be an instanceof expression", n.context(), true);
+				}
+				InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
+				OLSyntaxNode expression = parsedNode.expression();
+
+				if(!(expression instanceof VariableExpressionNode)){
+					FaultHandler.throwFault("first argument of instanceof must be a path to a variable", n.context(), true);
+				}
+				
+				Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
+				this.check(T, expression, type);
+
+				Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
+				Type T1 = T.shallowCopyExcept(path);
+				TreeUtils.setTypeOfNodeByPath(path, type, T1);
+				return T1;
+			}
+		}
 		
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
@@ -590,8 +617,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( DeepCopyStatement n, Type T ){
 		Path leftPath = new Path(n.leftPath().path());
-		Type T1 = T.shallowCopyExcept(leftPath);
 		
+		Type T1 = T.shallowCopyExcept(leftPath);
 		T1 = TreeUtils.unfold(leftPath, T1);
 
 		ArrayList<InlineType> trees = new ArrayList<>();
@@ -606,7 +633,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		for(InlineType tree : trees){
 			Type typeOfExpression = n.rightExpression().accept(this, tree);
-			// System.out.println("type of ex:\n" + typeOfExpression.prettyString() + "\n");
 	
 			// find the nodes to update and their parents
 			ArrayList<Pair<InlineType, String>> leftSideNodes = TreeUtils.findParentAndName(leftPath, tree, true, false);
@@ -616,8 +642,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 				InlineType parent = pair.key();
 				String childName = pair.value();
 				Type child = parent.getChild(childName);
-	
-				TreeUtils.fold(child);
+
+				
+				// TreeUtils.fold(child);
 				Type resultOfDeepCopy = Type.deepCopy(child, typeOfExpression);
 				parent.addChildUnsafe(childName, resultOfDeepCopy);
 			}
@@ -626,8 +653,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		if(this.inWhileLoop){
 			this.pathsAlteredInWhile.peek().add(leftPath);
 		}
-
-		// System.out.println("result of deep copy:\n" + T1.prettyString() + "\n");
 
 		return T1;
 	};
@@ -694,7 +719,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( InstanceOfExpressionNode n, Type T ){
-		return T;
+		return Type.BOOL();
 	};
 
 	public Type visit( TypeCastExpressionNode n, Type T ){

@@ -37,11 +37,11 @@ public class ModuleHandler {
 				ImportStatement n = (ImportStatement)node;
 				String fullPathToImportedModule = ModuleHandler.findFullPath(n, module);
 
-				if(!ModuleHandler.contains(fullPathToImportedModule)){
-					loadedModules.addAll( ModuleHandler.loadModule(fullPathToImportedModule) );
+				if(ModuleHandler.contains(fullPathToImportedModule)){
+					loadedModules.add(ModuleHandler.get(fullPathToImportedModule));
 				}
 				else{
-					loadedModules.add(ModuleHandler.get(fullPathToImportedModule));
+					loadedModules.addAll( ModuleHandler.loadModule(fullPathToImportedModule) );
 				}
 			}
 		}
@@ -90,6 +90,7 @@ public class ModuleHandler {
 		for(Module m : ModuleHandler.modules.values()){
 			visitor.process(m, true);
 		}
+		
 	}
 
 	public static Module get(String name){

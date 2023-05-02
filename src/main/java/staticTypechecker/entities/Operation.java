@@ -81,11 +81,12 @@ public class Operation implements Symbol {
 			return "null";
 		}
 
+		String ret = this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)";
+
 		if(this.operationType == OperationType.REQRES){
-			return this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)" + "\n\t\t(\n\t\t\t" + this.responseType().prettyString(3) + "\n\t\t)";
+			ret += "\n\t\t(\n\t\t\t" + this.responseType().prettyString(3) + "\n\t\t)";
 		}
-		else{
-			return this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)";
-		}
+
+		return ret;
 	}
 }

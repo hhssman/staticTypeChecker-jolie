@@ -51,3 +51,7 @@ type L: int {
 		y: L
 	}
 }
+
+type Weird: int {
+	y: Weird | int
+}

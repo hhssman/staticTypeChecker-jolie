@@ -1,5 +1,180 @@
 STAGE 1: discover symbols
 STAGE 2: process types
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/test/input.ol' on line 29:
-Type definition link loop detected: lol (this might mean that the referred type has not been defined or could not be retrieved)
+STAGE 3: process interfaces
+STAGE 4: process input ports and service parameters
+STAGE 5: process output ports and embeddings
+-----------------------------------------
+Module: assertions.ol
+
+AssertionsInterface (INTERFACE):
+AssertionsInterface
+	OneWay:
+		assert
+		(
+			bool (920011586)
+		)
+	RequestResponse:
+
+in (INPUT_PORT):
+in at local via sodep exposing [AssertionsInterface]
+
+assert (OPERATION):
+assert
+		(
+			bool (920011586)
+		)
+
+Assertions (SERVICE):
+Assertions
+	InputPorts:
+		in
+	OutputPorts:
+______________
+Module: main.ol
+
+AssertionsInterface (INTERFACE):
+AssertionsInterface
+	OneWay:
+		assert
+		(
+			bool (920011586)
+		)
+	RequestResponse:
+
+Assertions (SERVICE):
+Assertions
+	InputPorts:
+		in
+	OutputPorts:
+
+MyService (SERVICE):
+MyService
+
+assert (OPERATION):
+assert
+		(
+			bool (920011586)
+		)
+
+assertions (OUTPUT_PORT):
+assertions at null via null using [AssertionsInterface]
+
+Wierd (TYPE):
+int (796684896) {
+	y:  968514068
+		int (1468177767)
+		|
+		recursive edge to (796684896)
+}
+______________
+-----------------------------------------
+STAGE 6: process behaviors
+
+void (1873653341) {
+	inBool: bool (920011586)
+}
+
+--------------------------
+
+Final tree for module assertions.ol:
+void (1873653341) {
+	inBool: bool (920011586)
+}
+
+--------------------------
+
+x = 10
+void (762218386) {
+	x: int (1349414238)
+}
+
+--------------------------
+
+while(true)
+body class:  class jolie.lang.parse.ast.SequenceStatement
+-------------- ITERATION 0 -----------------
+T:
+void (762218386) {
+	x: int (1349414238)
+}
+
+class jolie.lang.parse.ast.DeepCopyStatement
+class jolie.lang.parse.ast.NotificationOperationStatement
+R:
+void (249515771) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+merged state:
+void (762218386) {
+	x: int (1349414238)
+}
+|
+void (249515771) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+-------------- ITERATION 1 -----------------
+T:
+void (249515771) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+class jolie.lang.parse.ast.DeepCopyStatement
+class jolie.lang.parse.ast.NotificationOperationStatement
+R:
+void (649734728) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+void (762218386) {
+	x: int (1349414238)
+}
+|
+void (249515771) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+--------------------------
+
+Final tree for module main.ol:
+void (762218386) {
+	x: int (1349414238)
+}
+|
+void (249515771) {
+	x: int (796684896) {
+		y:  968514068
+			int (1468177767)
+			|
+			recursive edge to (796684896)
+	}
+}
+
+--------------------------
 

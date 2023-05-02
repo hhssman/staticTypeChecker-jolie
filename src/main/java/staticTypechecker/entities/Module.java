@@ -73,7 +73,7 @@ public class Module {
 				intConf.jolieClassLoader(),
 				intConf.constants(),
 				semVerConfig,
-				false 
+				true 
 			);
 
 			cmdParser.close();

@@ -177,11 +177,6 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 		OutputPort port = new OutputPort(portName, location, protocol, interfaces);
 
-		// if any of the following is true, the output port is an embedded case and thus we will add the output port later
-		if(location == null || protocol == null || interfaces.isEmpty()){
-			return null;
-		}
-
 		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, port));
 
 		return null;
