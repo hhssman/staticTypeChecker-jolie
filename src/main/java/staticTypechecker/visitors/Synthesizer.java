@@ -96,12 +96,15 @@ import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.utils.BasicTypeUtils;
+import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.Path;
 import staticTypechecker.faults.FaultHandler;
+import staticTypechecker.faults.MiscFault;
+import staticTypechecker.faults.TypeFault;
 import staticTypechecker.faults.WarningHandler;
 
 /**
@@ -225,7 +228,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			p_out_type = new ChoiceType(possibleTypes);
 		}
 
-		this.check(p_out_type, T_out, n.context());
+		this.check(p_out_type, T_out, n.context(), op.name() + " does not have the expected return type");
 
 		return T1;
 	};
@@ -240,17 +243,17 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 			if(operationName.equals("assert") && outputPortName.equals("assertions")){
 				if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
-					FaultHandler.throwFault("argument given to assert must be an instanceof expression", n.context(), true);
+					FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression"), n.context(), true);
 				}
 				InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
 				OLSyntaxNode expression = parsedNode.expression();
 
 				if(!(expression instanceof VariableExpressionNode)){
-					FaultHandler.throwFault("first argument of instanceof must be a path to a variable", n.context(), true);
+					FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable"), n.context(), true);
 				}
 				
 				Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
-				this.check(T, expression, type);
+				this.check(T, expression, type, ToString.of(expression) + " does not have the same type as the typehint");
 
 				Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
 				Type T1 = T.shallowCopyExcept(path);
@@ -262,7 +265,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
 
-		this.check(p_out, T_out, n.context());
+		this.check(p_out, T_out, n.context(), "type given to " + op.name() + " is different from what is expected");
 
 		return T;
 	};
@@ -277,7 +280,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
-		this.check(p_out, T_out, n.context());
+		this.check(p_out, T_out, n.context(), "type given to " + op.name() + " is different from what is expected");
 
 		// update type of p_in to T_in
 		Type T1 = T.shallowCopyExcept(p_in);
@@ -325,11 +328,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-
 		this.deriveTypeAndUpdateNode(path, T1, OperandType.ADD, typeOfRightSide, typeOfExpression, n.context());
-		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.ADD, typeOfRightSide, typeOfExpression, n.context()); // TODO
-
-		// TreeUtils.setTypeOfNodeByPath(path, newType, T1); // TODO
 
 		return T1;
 	}
@@ -343,11 +342,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.SUBTRACT, typeOfRightSide, typeOfExpression, n.context());
-		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		this.deriveTypeAndUpdateNode(path, T1, OperandType.SUBTRACT, typeOfRightSide, typeOfExpression, n.context());
 
-		
 		return T1;
 	}
 
@@ -360,8 +356,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.MULTIPLY, typeOfRightSide, typeOfExpression, n.context());
-		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		this.deriveTypeAndUpdateNode(path, T1, OperandType.MULTIPLY, typeOfRightSide, typeOfExpression, n.context());
 		
 		return T1;
@@ -376,8 +370,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type typeOfRightSide = n.variablePath().accept(this, T);
 		Type typeOfExpression = n.expression().accept(this, T);
 
-		// Type newType = BasicTypeUtils.deriveTypeOfOperation(OperandType.DIVIDE, typeOfRightSide, typeOfExpression, n.context());
-		// TreeUtils.setTypeOfNodeByPath(path, newType, T1);
 		this.deriveTypeAndUpdateNode(path, T1, OperandType.DIVIDE, typeOfRightSide, typeOfExpression, n.context());
 		
 		return T1;
@@ -400,7 +392,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			OLSyntaxNode body = p.value();
 
 			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
-				this.check(T, expression, Type.BOOL()); // check that expression is of type bool
+				this.check(T, expression, Type.BOOL(), "guard of if-statement is not of type bool"); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
 				resultType.addChoiceUnsafe(T1);
 			}
@@ -430,7 +422,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
-		this.check(T, condition, Type.BOOL()); // check that the initial condition is of type bool
+		this.check(T, condition, Type.BOOL(), "guard of while loop is not of type bool"); // check that the initial condition is of type bool
 
 		Type originalState = T; // saved here, since it is used in the fallback plan
 
@@ -446,7 +438,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			// System.out.println("T:\n" + T.prettyString() + "\n");
 			
 			Type R = body.accept(this, T); // synthesize the type of the body after an iteration
-			this.check(R, condition, Type.BOOL()); // check that the condition is of type bool
+			this.check(R, condition, Type.BOOL(), "guard of while loop is not of type bool"); // check that the condition is of type bool
 			// System.out.println("R:\n" + R.prettyString() + "\n");
 			
 			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
@@ -824,16 +816,16 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	 * @param n the node to check the type of
 	 * @param S the type of which the type of n must be a subtype
 	 */
-	public void check(Type T, OLSyntaxNode n, Type S){
+	public void check(Type T, OLSyntaxNode n, Type S, String faultPreamble){
 		Type typeOfN = n.accept(this, T);
 		if(!typeOfN.isSubtypeOf(S)){
-			FaultHandler.throwFault("The type:\n\t" + typeOfN.prettyString(1) + "\n\nis not a subtype of the type:\n\t" + S.prettyString(1), n.context());
+			FaultHandler.throwFault(new TypeFault(typeOfN, S, faultPreamble), n.context(), false);
 		}
 	}
 
-	public void check(Type T, Type S, ParsingContext ctx){
+	public void check(Type T, Type S, ParsingContext ctx, String faultPreamble){
 		if(!T.isSubtypeOf(S)){
-			FaultHandler.throwFault("The type:\n\t" + T.prettyString(1) + "\n\nis not a subtype of the type:\n\t" + S.prettyString(1), ctx);
+			FaultHandler.throwFault(new TypeFault(T, S, faultPreamble), ctx, false);
 		}
 	}
 }

@@ -10,29 +10,11 @@ import jolie.lang.parse.context.ParsingContext;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class FaultHandler {
-	private static ArrayList<Fault> faults = new ArrayList<>();
+	private static ArrayList<String> faults = new ArrayList<>();
 
-	public static void throwFault(String faultMessage, ParsingContext ctx){
-		FaultHandler.throwFault(faultMessage, ctx, false);
-	}
-	
-	public static void throwFault(String faultMessage, ParsingContext ctx, boolean terminate){
-		String message = "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n" + faultMessage;
-		FaultHandler.faults.add(new Fault(message));
-
-		if(terminate){
-			FaultHandler.printFaults();
-			System.exit(0);
-		}
-	}
-
-	public static void throwFault(String faultMessage){
-		FaultHandler.throwFault(faultMessage, false);
-	}
-
-	public static void throwFault(String faultMessage, boolean terminate){
-		String message = "Critical error: " + faultMessage;
-		FaultHandler.faults.add(new Fault(message));
+	public static void throwFault(Fault fault, ParsingContext ctx, boolean terminate){
+		String message = "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n" + fault.getMessage();
+		FaultHandler.faults.add(message);
 
 		if(terminate){
 			FaultHandler.printFaults();
@@ -45,8 +27,8 @@ public class FaultHandler {
 	}
 
 	public static void printFaults(){
-		for(Fault f : FaultHandler.faults){
-			System.out.println(f.message());
+		for(String f : FaultHandler.faults){
+			System.out.println(f);
 			System.out.println();
 		}
 	}

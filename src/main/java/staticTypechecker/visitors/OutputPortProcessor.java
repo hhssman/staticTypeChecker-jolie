@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -91,6 +92,8 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
+import staticTypechecker.faults.NoServiceParameterFault;
+import staticTypechecker.faults.PortsIncompatibleFault;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.InputPort;
 import staticTypechecker.entities.Interface;
@@ -195,7 +198,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			
 			// check that a parameter was actually provided
 			if(passingParameter == null){
-				FaultHandler.throwFault("no parameter passed to the service \"" + serviceName + "\". Expected type:\n" + expectedType.prettyString(), n.context(), true);
+				FaultHandler.throwFault(new NoServiceParameterFault(service), n.context(), false);
 				return null;
 			}
 
@@ -205,7 +208,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				providedType = Synthesizer.get(this.module).synthesize(passingParameter, null);
 			}
 
-			Synthesizer.get(this.module).check(providedType, expectedType, n.context()); // check that it is a subtype
+			Synthesizer.get(this.module).check(providedType, expectedType, n.context(), "type given to " + serviceName + " is not of expected type"); // check that it is a subtype
 		}
 
 		if(!isNewPort){ // this is an "embed-in" case, where we use an existing output port, check if interfaces are compatible
@@ -235,23 +238,22 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 
 			// check if all required operations are provided
 			boolean portSatisfied = true;
-			String scapeGoatOp = null;
+			List<Operation> scapeGoatOps = new ArrayList<>();
 			for(Entry<String, Operation> ent : requiredOperations.entrySet()){
 				String operationName = ent.getKey();
 				Operation op = ent.getValue();
 
 				if(
 					!providedOperations.containsKey(operationName) || 	// if the provided operations does not contain the required operation name
-					!op.equals(providedOperations.get(operationName)) 	// if the two operations are not equal
+					!op.isCompatibleWith(providedOperations.get(operationName)) 	// if the two operations are not compatible
 				){ 
 					portSatisfied = false;
-					scapeGoatOp = operationName;
-					break;
+					scapeGoatOps.add(op);
 				}
 			}
 
 			if(!portSatisfied){ // interface requirements are not met by the service
-				FaultHandler.throwFault("service '" + serviceName + "' does not provide operation '" + scapeGoatOp + "' required by port '" + portName + "'");
+				FaultHandler.throwFault(new PortsIncompatibleFault(bindingPort, service, scapeGoatOps), n.context(), false);
 			}
 		}
 		else{ // in the case of an "embed as" output port, create a new and add it to symbols

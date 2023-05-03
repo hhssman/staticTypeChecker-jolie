@@ -17,6 +17,7 @@ import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.faults.FaultHandler;
+import staticTypechecker.faults.TypeDefinitionLinkLoopFault;
 
 /**
  * A static converter for the existing Jolie types. Converts them to my custom types used in the static typechecking, namely InlineTypes and ChoiceTypes.
@@ -142,7 +143,7 @@ public class TypeConverter {
 			TypeDefinition linkedType = ((TypeDefinitionLink)type).linkedType();
 
 			if(linkedType == root){
-				FaultHandler.throwFault("Type definition link loop detected: " + root.name() + " (this might mean that the referred type has not been defined or could not be retrieved)", root.context(), true);
+				FaultHandler.throwFault(new TypeDefinitionLinkLoopFault(root.name()), root.context(), true);
 			}
 
 			TypeConverter.getChoicesRec(linkedType, list, root);

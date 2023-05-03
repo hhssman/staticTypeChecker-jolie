@@ -1,7 +1,7 @@
 from .assertions import Assertions, AssertionsInterface
 
-type Wierd: int {
-	y: Wierd | int
+type Weird: int {
+	y: Weird | int
 }
 
 service MyService{
@@ -16,7 +16,7 @@ service MyService{
 
 		while(true){
 			x.y << x
-			assert@assertions(x instanceof Wierd)
+			assert@assertions(x instanceof Weird)
 		}
 	}
 }

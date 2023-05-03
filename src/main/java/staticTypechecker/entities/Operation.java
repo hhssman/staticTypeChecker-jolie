@@ -76,6 +76,20 @@ public class Operation implements Symbol {
 		return isEqual;
 	}
 
+	public boolean isCompatibleWith(Operation other){
+		Operation parsedOther = (Operation)other;
+
+		boolean isEqual = 	this.name.equals(parsedOther.name) && 
+							this.operationType.equals(parsedOther.operationType) && 
+							this.requestType.isSubtypeOf(parsedOther.requestType);
+
+		if(this.operationType == OperationType.REQRES){
+			isEqual = isEqual && this.responseType.isSubtypeOf(parsedOther.responseType);
+		}
+
+		return isEqual;
+	}
+
 	public String prettyString(){
 		if(this.name == null){
 			return "null";

@@ -71,7 +71,7 @@ public class Main {
 		System.out.println("STAGE 6: process behaviors\n");
 
 		HashMap<String, Type> trees = new HashMap<>();
-		BehaviorProcessor bProcessor = new BehaviorProcessor(true);
+		BehaviorProcessor bProcessor = new BehaviorProcessor(false);
 
 		ModuleHandler.modules().values().forEach(m -> {
 			trees.put(m.name(), bProcessor.process(m));

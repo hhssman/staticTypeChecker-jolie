@@ -5,14 +5,6 @@ package staticTypechecker.faults;
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
-public class Fault {
-	private String message;
-
-	public Fault(String message){
-		this.message = message;
-	}
-
-	public String message(){
-		return this.message;
-	}
+public interface Fault {
+	public String getMessage();
 }
