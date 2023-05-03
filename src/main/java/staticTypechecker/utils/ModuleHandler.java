@@ -28,6 +28,7 @@ public class ModuleHandler {
 		String moduleName = ModuleHandler.getModuleName(fullPath);
 		String pathToFolder = ModuleHandler.getPath(fullPath);
 		Module module = new Module(moduleName, pathToFolder);
+		System.out.println(moduleName);
 		ModuleHandler.modules.put(fullPath, module);
 
 		loadedModules.add(module);
@@ -51,8 +52,13 @@ public class ModuleHandler {
 
 	private static String getPath(String fullPath){
 		String[] split = fullPath.split("/");
+		
+		if(split.length == 1){ // working with path of just the filename
+			return fullPath;
+		}
+		
+		// working with path like "a/b/c"
 		int nameLength = split[split.length - 1].length();
-
 		String path = fullPath.substring(0, fullPath.length() - nameLength - 1);
 		return path;
 	}
@@ -75,8 +81,7 @@ public class ModuleHandler {
 			return importer.path() + "/" + relativePath + ".ol";
 		}
 		
-		// TODO talk to Marco about absolute paths
-		return "";
+		return "./" + importPath.stream().collect(Collectors.joining("/")) + ".ol";
 	}
 
 	/**

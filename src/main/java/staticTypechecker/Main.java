@@ -23,6 +23,9 @@ import staticTypechecker.visitors.TypeProcessor;
 public class Main {
 
 	public static void main( String[] args ) {
+		String jolie_home = System.getenv("JOLIE_HOME");
+		System.out.println("jolie home: " + jolie_home);
+
 		// stage 0: parse the modules
 		String moduleName = args[0];
 		ModuleHandler.loadModule(moduleName);

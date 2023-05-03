@@ -170,6 +170,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		// ready the data
 		String portName = n.id();
+		System.out.println("creating output port " + portName);
 		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null; // the location of the port, if it exists, otherwise null
 		String protocol = n.protocolId().equals("") ? null : n.protocolId(); // the id of the protocol, if it exsist, otherwise null
 		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
@@ -190,6 +191,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 		String portName = n.bindingPort().id();
 		String serviceName = n.serviceName();
 		boolean isNewPort = n.isNewPort();
+		System.out.println("service name??? " + serviceName);
 		Service service = (Service)symbols.get(serviceName);
 
 		if(service.parameter() != null){ // the service requires a parameter, check that the provided is a subtype

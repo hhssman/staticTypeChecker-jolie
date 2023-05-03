@@ -1,2 +1,60 @@
-Error parsing module: ./src/test/files/test/runtimeTest.ol:
-jolie.lang.parse.module.ModuleException: /mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/test/runtimeTest.ol:1: error: jolie.lang.parse.module.exceptions.ModuleNotFoundException: Module "[runtime]" not found from lookup path [Module "[runtime]" not found from lookup path [runtime.ol, /mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/lib/runtime.jap]]
+jolie home: /usr/lib/jolie
+input.ol
+STAGE 1: discover symbols
+STAGE 2: process types
+STAGE 3: process interfaces
+STAGE 4: process input ports and service parameters
+STAGE 5: process output ports and embeddings
+creating output port out1
+-----------------------------------------
+Module: input.ol
+
+A (TYPE):
+bool (687241927) {
+	x (recursive edge to 687241927)
+}
+
+MyInterface (INTERFACE):
+MyInterface
+	OneWay:
+		helloOneway
+		(
+			bool (687241927) {
+				x (recursive edge to 687241927)
+			}
+		)
+	RequestResponse:
+		helloReqRes
+		(
+			int (290658609)
+		)
+		(
+			string (1577213552)
+		)
+
+helloReqRes (OPERATION):
+helloReqRes
+		(
+			int (290658609)
+		)
+		(
+			string (1577213552)
+		)
+
+MyService (SERVICE):
+MyService
+
+out1 (OUTPUT_PORT):
+out1 at socket://localhost:8081 via http using [MyInterface]
+
+helloOneway (OPERATION):
+helloOneway
+		(
+			bool (687241927) {
+				x (recursive edge to 687241927)
+			}
+		)
+______________
+-----------------------------------------
+STAGE 6: process behaviors
+
