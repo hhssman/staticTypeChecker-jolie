@@ -84,6 +84,7 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import staticTypechecker.entities.Type;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
 import staticTypechecker.entities.Module;
@@ -120,6 +121,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		this.module = module;
 		this.synthesizer = Synthesizer.get(module);
 
+		if(this.print){
+			System.out.println("---- Processing behaviours for " + module.name() + "--------");
+		}
+
 		Type result = module.program().accept(this, Type.VOID());
 
 		if(this.print){
@@ -145,7 +150,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 
 		if(n.parameterConfiguration().isPresent()){
 			Path path = new Path(n.parameterConfiguration().get().variablePath());
-			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name());
+			Type typeOfParam = (Type)this.module.symbols().get(n.parameterConfiguration().get().type().name(), SymbolType.TYPE);
 			T1 = T.shallowCopyExcept(path);
 
 			TreeUtils.setTypeOfNodeByPath(path, typeOfParam, T1);

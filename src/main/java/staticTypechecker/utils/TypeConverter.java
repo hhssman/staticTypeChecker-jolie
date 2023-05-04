@@ -9,7 +9,6 @@ import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeDefinitionUndefined;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Symbol;
@@ -62,10 +61,10 @@ public class TypeConverter {
 		InlineType result = new InlineType(type.basicType(), type.cardinality(), type.context(), type.untypedSubTypes());
 
 		if(symbols.containsKey(type.name())){ // it is a known type
-			Symbol symbol = symbols.get(type.name());
+			Symbol symbol = symbols.get(type.name(), SymbolType.TYPE);
 
 			if(symbol == null){ // type has not been in initialized, we init it here
-				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
+				symbols.put(SymbolTable.newPair(type.name(), SymbolType.TYPE), result);
 			}
 			else if(symbol instanceof InlineType){ // check that the symbol is of the right type, it may be a choice type, if this node's parent is a choice, this node will have the same name as the parent, and thus the symbol table will hold the parent under this name
 					
@@ -98,10 +97,10 @@ public class TypeConverter {
 		rec.put(type, result);
 
 		if(symbols.containsKey(type.name())){ // it is a known type
-			ChoiceType st = (ChoiceType)symbols.get(type.name());
+			ChoiceType st = (ChoiceType)symbols.get(type.name(), SymbolType.TYPE);
 			
 			if(st == null){ // type has not been in initialized, we init it here
-				symbols.put(type.name(), new Pair<SymbolType, Symbol>(SymbolType.TYPE, result));
+				symbols.put(SymbolTable.newPair(type.name(), SymbolType.TYPE), result);
 			}
 			else{ // otherwise we can use it
 				return st;

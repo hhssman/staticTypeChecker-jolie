@@ -1,5 +1,7 @@
 package staticTypechecker.visitors;
 
+import java.util.List;
+
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
 import jolie.lang.parse.ast.AssignStatement;
@@ -84,12 +86,12 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.entities.SymbolTable.Pair;
 import staticTypechecker.entities.Type;
 
 /**
@@ -141,19 +143,19 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), null);
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), null);
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, null));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), null);
 		return null;
 	}
 
@@ -165,8 +167,10 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
 
-			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
-			symbols.put(alias, p);
+			List<Pair<Symbol, SymbolType>> importedSymbols = ModuleHandler.get(moduleName).symbols().getAllSymbols(originalName);
+			for(Pair<Symbol, SymbolType> p : importedSymbols){
+				symbols.put(SymbolTable.newPair(alias, p.value()), p.key());
+			}
 		}
 
 		return null;
@@ -175,10 +179,10 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
 		n.operationsMap().keySet().forEach(opName -> {
-			symbols.put(opName, Symbol.newPair(SymbolType.OPERATION, null));
+			symbols.put(SymbolTable.newPair(opName, SymbolType.OPERATION), null);
 		});
 
-		symbols.put(n.name(), Symbol.newPair(SymbolType.INTERFACE, null));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.INTERFACE), null);
 
 		return null;
 	}
@@ -188,11 +192,11 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 		// if the service has a configuration parameter, add it
 		if(n.parameterConfiguration().isPresent()){
 			String configParamPath = n.parameterConfiguration().get().variablePath();
-			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, null));
+			symbols.put(SymbolTable.newPair(configParamPath, SymbolType.TYPE), null);
 		}
 	
 		// add the service name and accept its program to find all symbols there
-		symbols.put(n.name(), Symbol.newPair(SymbolType.SERVICE, null));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.SERVICE), null);
 		n.program().accept(this, symbols);
 
 		return null;
@@ -201,7 +205,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(InputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-		symbols.put(portName, Symbol.newPair(SymbolType.INPUT_PORT, null));
+		symbols.put(SymbolTable.newPair(portName, SymbolType.INPUT_PORT), null);
 		
 		return null;
 	}
@@ -209,7 +213,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		String portName = n.id();
-		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, null));
+		symbols.put(SymbolTable.newPair(portName, SymbolType.OUTPUT_PORT), null);
 		
 		return null;
 	}
@@ -217,7 +221,7 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 	@Override
 	public Void visit(EmbedServiceNode n, SymbolTable symbols) {
 		if(n.isNewPort()){
-			symbols.put(n.bindingPort().id(), Symbol.newPair(SymbolType.OUTPUT_PORT, null));
+			symbols.put(SymbolTable.newPair(n.bindingPort().id(), SymbolType.OUTPUT_PORT), null);
 		}
 		return null;
 	}

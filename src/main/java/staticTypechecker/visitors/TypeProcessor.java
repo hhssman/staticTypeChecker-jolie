@@ -84,7 +84,6 @@ import jolie.lang.parse.ast.expression.VoidExpressionNode;
 import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Symbol;
@@ -124,7 +123,6 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 				}
 			}
 		}
-
 		
 		return null;
 	}
@@ -136,19 +134,20 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(TypeInlineDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), TypeConverter.convert(n, symbols));
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeDefinitionLink n, SymbolTable symbols) {
-		symbols.put(n.linkedTypeName(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), TypeConverter.convert(n, symbols));
+
 		return null;
 	}
 
 	@Override
 	public Void visit(TypeChoiceDefinition n, SymbolTable symbols) {
-		symbols.put(n.name(), Symbol.newPair(SymbolType.TYPE, TypeConverter.convert(n, symbols)));
+		symbols.put(SymbolTable.newPair(n.name(), SymbolType.TYPE), TypeConverter.convert(n, symbols));
 		return null;
 	}
 
@@ -159,10 +158,12 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 		for(ImportSymbolTarget s : n.importSymbolTargets()){
 			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
-			Pair<SymbolType, Symbol> p = ModuleHandler.get(moduleName).symbols().getPair(originalName);
+			Symbol p = ModuleHandler.get(moduleName).symbols().get(originalName, SymbolType.TYPE);
 			
-			if(p.key().equals(SymbolType.TYPE)){ // we imported a type
-				symbols.put(alias, p);
+
+
+			if(p != null){ // we imported a type
+				symbols.put(SymbolTable.newPair(alias, SymbolType.TYPE), p);
 			}
 		}
 		

@@ -1,7 +1,5 @@
 package staticTypechecker.entities;
 
-import jolie.util.Pair;
-
 /**
  * Represents any entity in Jolie, such as a type name, service name, port name etc.
  * 
@@ -9,10 +7,6 @@ import jolie.util.Pair;
  */
 public interface Symbol {
 	public String prettyString();
-
-	public static Pair<SymbolType, Symbol> newPair(SymbolType type, Symbol symbol){
-		return new Pair<SymbolType, Symbol>(type, symbol);
-	}
 
 	public static boolean equals(Symbol A, Symbol B){
 		if(A == B){
@@ -42,6 +36,6 @@ public interface Symbol {
 	}
 
 	public enum SymbolType{
-		TYPE, INTERFACE, OPERATION, SERVICE, INPUT_PORT, OUTPUT_PORT
+		TYPE, INTERFACE, OPERATION, SERVICE, INPUT_PORT, OUTPUT_PORT, ANY
 	}
 }

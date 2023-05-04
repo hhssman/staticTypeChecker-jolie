@@ -95,6 +95,7 @@ import jolie.util.Pair;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
+import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.utils.BasicTypeUtils;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TreeUtils;
@@ -187,7 +188,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( OneWayOperationStatement n, Type T ){
-		Operation op = (Operation)this.module.symbols().get(n.id());
+		Operation op = (Operation)this.module.symbols().get(n.id(), SymbolType.OPERATION);
 
 		Type T_in = op.requestType(); // the data type which is EXPECTED by the oneway operation
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
@@ -204,7 +205,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( RequestResponseOperationStatement n, Type T ){
-		Operation op = (Operation)this.module.symbols().get(n.id());
+		Operation op = (Operation)this.module.symbols().get(n.id(), SymbolType.OPERATION);
 		
 		Type T_in = op.requestType(); // the type of the data the operation EXPECTS as input
 		Type T_out = op.responseType(); // the type of the data RETURNED from the operation
@@ -234,7 +235,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( NotificationOperationStatement n, Type T ){
-		Operation op = (Operation)this.module.symbols().get(n.id());
+		Operation op = (Operation)this.module.symbols().get(n.id(), SymbolType.OPERATION);
 
 		// if the notify is inside a while-loop and it is an assertion, it is a typehint, so we must check 
 		String operationName = op.name();
@@ -261,7 +262,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 		
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
-		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the oneway operation
+		Type p_out = n.outputExpression() != null ? n.outputExpression().accept(this, T) : Type.VOID(); // the type which is GIVEN to the oneway operation
 
 		this.check(p_out, T_out, n.context(), "type given to " + op.name() + " is different from what is expected");
 
@@ -269,13 +270,14 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( SolicitResponseOperationStatement n, Type T ){
-		Operation op = (Operation)this.module.symbols().get(n.id());
+		Operation op = (Operation)this.module.symbols().get(n.id(), SymbolType.OPERATION);
+		System.out.println("op: " + op);
 
 		Type T_in = op.responseType(); // the type of the data which is RETURNED by the reqres operation
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the reqres operation
 		
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node in which to store the returned data
-		Type p_out = n.outputExpression().accept(this, T); // the type which is GIVEN to the reqres operation
+		Type p_out = n.outputExpression() != null ? n.outputExpression().accept(this, T) : Type.VOID(); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of T_out
 		this.check(p_out, T_out, n.context(), "type given to " + op.name() + " is different from what is expected");

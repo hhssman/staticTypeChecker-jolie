@@ -4,7 +4,6 @@ import java.util.List;
 
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Operation;
-import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Operation.OperationType;
@@ -30,7 +29,7 @@ public class InterfaceProcessorTester {
 		myInterface.addOperation("myOneWay", new Operation("myOneWay", Type.STRING(), null, OperationType.ONEWAY));
 		myInterface.addOperation("mySecondOneWay", new Operation("mySecondOneWay", Type.BOOL(), null, OperationType.ONEWAY));
 
-		target.put("MyInterface", Symbol.newPair(SymbolType.INTERFACE, myInterface));
+		target.put("MyInterface", SymbolTable.newPair(SymbolType.INTERFACE, myInterface));
 		
 		// ImportedInterface
 		Interface importedInterface = new Interface("ImportedInterface");
@@ -39,7 +38,7 @@ public class InterfaceProcessorTester {
 		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", Type.STRING().addChild("x", Type.INT()), B, OperationType.REQRES));
 		importedInterface.addOperation("importedOneWay", new Operation("importedOneWay", Type.INT(), null, OperationType.ONEWAY));
 
-		target.put("ImportedInterface", Symbol.newPair(SymbolType.INTERFACE, importedInterface));
+		target.put("ImportedInterface", SymbolTable.newPair(SymbolType.INTERFACE, importedInterface));
 
 		return AppTest.testSymbolsForEquality(result, target);
 	}

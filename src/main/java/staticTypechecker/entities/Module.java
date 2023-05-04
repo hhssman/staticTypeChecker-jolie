@@ -1,8 +1,6 @@
 package staticTypechecker.entities;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import jolie.Interpreter;
 import jolie.cli.CommandLineException;

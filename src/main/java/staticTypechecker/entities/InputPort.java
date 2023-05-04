@@ -1,6 +1,6 @@
 package staticTypechecker.entities;
 
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Represents an input port in Jolie
@@ -11,9 +11,9 @@ public class InputPort implements Symbol {
 	private String name; 				// the name of the port
 	private String location; 			// the location of the port
 	private String protocol; 			// the protocol of the port
-	private List<String> interfaces; 	// a list of the interfaces this input port uses
+	private HashSet<Interface> interfaces; 	// a list of the interfaces this input port uses
 
-	public InputPort(String name, String location, String protocol, List<String> interfaces){
+	public InputPort(String name, String location, String protocol, HashSet<Interface> interfaces){
 		this.name = name;
 		this.location = location;
 		this.protocol = protocol;
@@ -32,7 +32,7 @@ public class InputPort implements Symbol {
 		return this.protocol;
 	}
 
-	public List<String> interfaces(){
+	public HashSet<Interface> interfaces(){
 		return this.interfaces;
 	}
 
@@ -48,7 +48,7 @@ public class InputPort implements Symbol {
 		this.protocol = protocol;
 	}
 
-	public void setInterfaces(List<String> interfaces){
+	public void setInterfaces(HashSet<Interface> interfaces){
 		this.interfaces = interfaces;
 	}
 

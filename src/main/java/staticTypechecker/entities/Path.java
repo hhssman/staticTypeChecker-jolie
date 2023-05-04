@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.OLSyntaxNode;
-import jolie.util.Pair;
+// import jolie.util.Pair;
+// import jolie.util.Pair;
 
 /**
  * Represents a path in a type. 
@@ -25,7 +26,7 @@ public class Path {
 		}
 	}
 
-	public Path(List<Pair<OLSyntaxNode, OLSyntaxNode>> path){
+	public Path(List<jolie.util.Pair<OLSyntaxNode, OLSyntaxNode>> path){
 		this.pathElems = new ArrayList<>();
 		path.forEach(pair -> this.pathElems.add(pair.key().toString()));
 	}

@@ -3,7 +3,7 @@ package staticTypechecker;
 import java.util.List;
 import java.util.Map.Entry;
 
-import jolie.util.Pair;
+import staticTypechecker.entities.SymbolTable.Pair;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
@@ -19,19 +19,19 @@ public class SymbolCollectorTester {
 		SymbolTable result = modules.get(0).symbols();
 		SymbolTable target = new SymbolTable();
 
-		target.put("penguin", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
-		target.put("EmbedMe", new Pair<SymbolType, Symbol>(SymbolType.SERVICE, null));
-		target.put("MyInterface", new Pair<SymbolType, Symbol>(SymbolType.INTERFACE, null));
-		target.put("helloReqRes", new Pair<SymbolType, Symbol>(SymbolType.OPERATION, null));
-		target.put("helloOneway", new Pair<SymbolType, Symbol>(SymbolType.OPERATION, null));
-		target.put("Y", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
-		target.put("X", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
-		target.put("paramType", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
-		target.put("MyService", new Pair<SymbolType, Symbol>(SymbolType.SERVICE, null));
-		target.put("param", new Pair<SymbolType, Symbol>(SymbolType.TYPE, null));
-		target.put("inputPort", new Pair<SymbolType, Symbol>(SymbolType.INPUT_PORT, null));
-		target.put("outputPort", new Pair<SymbolType, Symbol>(SymbolType.OUTPUT_PORT, null));
-		target.put("embedMe", new Pair<SymbolType, Symbol>(SymbolType.OUTPUT_PORT, null));
+		target.put("penguin", SymbolTable.newPair(SymbolType.TYPE, null));
+		target.put("EmbedMe", SymbolTable.newPair(SymbolType.SERVICE, null));
+		target.put("MyInterface", SymbolTable.newPair(SymbolType.INTERFACE, null));
+		target.put("helloReqRes", SymbolTable.newPair(SymbolType.OPERATION, null));
+		target.put("helloOneway", SymbolTable.newPair(SymbolType.OPERATION, null));
+		target.put("Y", SymbolTable.newPair(SymbolType.TYPE, null));
+		target.put("X", SymbolTable.newPair(SymbolType.TYPE, null));
+		target.put("paramType", SymbolTable.newPair(SymbolType.TYPE, null));
+		target.put("MyService", SymbolTable.newPair(SymbolType.SERVICE, null));
+		target.put("param", SymbolTable.newPair(SymbolType.TYPE, null));
+		target.put("inputPort", SymbolTable.newPair(SymbolType.INPUT_PORT, null));
+		target.put("outputPort", SymbolTable.newPair(SymbolType.OUTPUT_PORT, null));
+		target.put("embedMe", SymbolTable.newPair(SymbolType.OUTPUT_PORT, null));
 
 		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
 			String key = ent.getKey();

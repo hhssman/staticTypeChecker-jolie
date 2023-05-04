@@ -2,6 +2,7 @@ package staticTypechecker.visitors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -101,7 +102,6 @@ import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
-import staticTypechecker.entities.Symbol;
 
 /**
  * Type checks the output ports of the services.
@@ -137,7 +137,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 	@Override
 	public Void visit(ServiceNode n, SymbolTable symbols) {
 		String serviceName = n.name();
-		Service service = (Service)symbols.get(serviceName);
+		Service service = (Service)symbols.get(SymbolTable.newPair(serviceName, SymbolType.SERVICE));
 
 		// for each output port of the service, create an OutputPort instance and add it to the symbol table and service object
 		for(OLSyntaxNode child : n.program().children()){
@@ -145,8 +145,8 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				child.accept(this, symbols);
 
 				String portName = ((OutputPortInfo)child).id();
-				if(symbols.getType(portName) == SymbolType.OUTPUT_PORT){ // we may not have created the output port here, but then it will be created in the for loop below with embeddings
-					service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+				if(symbols.get(SymbolTable.newPair(portName, SymbolType.OUTPUT_PORT)) != null){ // we may not have created the output port here, but then it will be created in the for loop below with embeddings
+					service.addOutputPort(portName, (OutputPort)symbols.get(portName, SymbolType.OUTPUT_PORT));
 				}
 			}
 		}
@@ -158,7 +158,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 					child.accept(this, symbols);
 	
 					String portName = ((EmbedServiceNode)child).bindingPort().id();
-					service.addOutputPort(portName, (OutputPort)symbols.get(portName));
+					service.addOutputPort(portName, (OutputPort)symbols.get(portName, SymbolType.OUTPUT_PORT));
 				}
 			}
 		}
@@ -173,15 +173,16 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 		System.out.println("creating output port " + portName);
 		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null; // the location of the port, if it exists, otherwise null
 		String protocol = n.protocolId().equals("") ? null : n.protocolId(); // the id of the protocol, if it exsist, otherwise null
-		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
-												.stream()
-												.map(interfaceDef -> interfaceDef.name())
-												.distinct() // for some reason each interface appears twice, so this will remove duplicates
-												.collect(Collectors.toList()); 
+
+		HashSet<Interface> interfaces = new HashSet<>();
+		for(InterfaceDefinition id : n.getInterfaceList()){
+			String nameOfInterface = id.name();
+			interfaces.add((Interface)symbols.get(nameOfInterface, SymbolType.INTERFACE));
+		}
 
 		OutputPort port = new OutputPort(portName, location, protocol, interfaces);
 
-		symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, port));
+		symbols.put(SymbolTable.newPair(portName, SymbolType.OUTPUT_PORT), port);
 
 		return null;
 	}
@@ -191,8 +192,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 		String portName = n.bindingPort().id();
 		String serviceName = n.serviceName();
 		boolean isNewPort = n.isNewPort();
-		System.out.println("service name??? " + serviceName);
-		Service service = (Service)symbols.get(serviceName);
+		Service service = (Service)symbols.get(SymbolTable.newPair(serviceName, SymbolType.SERVICE));
 
 		if(service.parameter() != null){ // the service requires a parameter, check that the provided is a subtype
 			OLSyntaxNode passingParameter = n.passingParameter();
@@ -205,7 +205,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			}
 
 			// check that the type of the parameter is a subtype of the expected type
-			Type providedType = (Type)symbols.get(passingParameter.toString());
+			Type providedType = (Type)symbols.get(passingParameter.toString(), SymbolType.TYPE);
 			if(providedType == null){ // the symbol is not in the symbol table, try to synthesize it
 				providedType = Synthesizer.get(this.module).synthesize(passingParameter, null);
 			}
@@ -217,11 +217,10 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			HashMap<String, Operation> requiredOperations = new HashMap<>(); // maps operation names to operation objects of all operations the port requires
 			HashMap<String, Operation> providedOperations = new HashMap<>(); // maps operation names to operation objects of all operations the service provides
 
-			OutputPort bindingPort = (OutputPort)symbols.get(portName);
+			OutputPort bindingPort = (OutputPort)symbols.get(portName, SymbolType.OUTPUT_PORT);
 
 			// find required operations
-			for(String interfaceName : bindingPort.interfaces()){ // loop through each implemented interface of the output port
-				Interface inter = (Interface)symbols.get(interfaceName);
+			for(Interface inter : bindingPort.interfaces()){ // loop through each implemented interface of the output port
 				for(Entry<String, Operation> ent : inter.operations()){ // loop through each operation required by the interface
 					requiredOperations.put(ent.getKey(), ent.getValue()); // add the operation as required
 				}
@@ -230,8 +229,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			// find provided operations
 			for(Entry<String, InputPort> IPEnt : service.inputPorts()){ // loop through each input port of the service
 				InputPort port = IPEnt.getValue();
-				for(String interfaceName : port.interfaces()){ // loop through each implemented interface of the port 
-					Interface inter = (Interface)symbols.get(interfaceName);
+				for(Interface inter : port.interfaces()){ // loop through each implemented interface of the port 
 					for(Entry<String, Operation> OPEnt : inter.operations()){ // loop through each operation required by the interface
 						providedOperations.put(OPEnt.getKey(), OPEnt.getValue()); // add the operation as provided
 					}
@@ -264,9 +262,19 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			InputPort portToUse = inputPortsOfService.get(0); // HERE
 			String location = portToUse.location();
 			String protocol = portToUse.protocol();
-			List<String> interfaces = portToUse.interfaces();
+			HashSet<Interface> interfaces = portToUse.interfaces();
 
-			symbols.put(portName, Symbol.newPair(SymbolType.OUTPUT_PORT, new OutputPort(portName, location, protocol, interfaces)));
+			// add all operations to the symbol table
+			for(Interface inter : interfaces){
+				for(Entry<String, Operation> ent : inter.operations()){
+					String opName = ent.getKey();
+					Operation op = ent.getValue();
+
+					symbols.put(SymbolTable.newPair(opName, SymbolType.OPERATION), op);
+				}
+			}
+
+			symbols.put(SymbolTable.newPair(portName, SymbolType.OUTPUT_PORT), new OutputPort(portName, location, protocol, interfaces));
 		}
 
 		return null;

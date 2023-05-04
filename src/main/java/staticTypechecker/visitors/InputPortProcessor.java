@@ -1,8 +1,6 @@
 package staticTypechecker.visitors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
 
 import jolie.lang.parse.OLVisitor;
 import jolie.lang.parse.ast.AddAssignStatement;
@@ -89,12 +87,12 @@ import jolie.lang.parse.ast.types.TypeChoiceDefinition;
 import jolie.lang.parse.ast.types.TypeDefinition;
 import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
-import jolie.util.Pair;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.InputPort;
+import staticTypechecker.entities.Interface;
 import staticTypechecker.entities.Module;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.entities.Service;
@@ -155,7 +153,7 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			
 			// add the type to the symbol table
 			Type configParamStruct = TypeConverter.convert(paramType, symbols);
-			symbols.put(configParamPath, Symbol.newPair(SymbolType.TYPE, configParamStruct));
+			symbols.put(SymbolTable.newPair(configParamPath, SymbolType.TYPE), configParamStruct);
 
 			service.setParameter(configParamStruct);
 		}
@@ -169,11 +167,11 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 				InputPortInfo parsedChild = (InputPortInfo)child;
 				String portName = parsedChild.id();
 
-				service.addInputPort(portName, (InputPort)symbols.get(portName));
+				service.addInputPort(portName, (InputPort)symbols.get(portName, SymbolType.INPUT_PORT));
 			}
 		}
 
-		symbols.put(serviceName, Symbol.newPair(SymbolType.SERVICE, service));
+		symbols.put(SymbolTable.newPair(serviceName, SymbolType.SERVICE), service);
 		
 		return null;
 	}
@@ -192,14 +190,15 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		}
 
 		String protocol = n.protocolId();
-		List<String> interfaces = n.getInterfaceList() // map InterfaceDefinitions to their names and join them to a List
-									.stream()
-									.map(interfaceDef -> interfaceDef.name())
-									.collect(Collectors.toList()); 
+		HashSet<Interface> interfaces = new HashSet<>();
+		for(InterfaceDefinition id : n.getInterfaceList()){
+			String nameOfInterface = id.name();
+			interfaces.add((Interface)symbols.get(nameOfInterface, SymbolType.INTERFACE));
+		}
 
 		InputPort port = new InputPort(portName, location, protocol, interfaces);
 
-		symbols.put(portName, Symbol.newPair(SymbolType.INPUT_PORT, port));
+		symbols.put(SymbolTable.newPair(portName, SymbolType.INPUT_PORT), port);
 
 		return null;
 	}
@@ -232,17 +231,17 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			String originalName = s.originalSymbolName();
 			String alias = s.localSymbolName();
 			SymbolTable otherSymbols = ModuleHandler.get(moduleName).symbols();
-			Pair<SymbolType, Symbol> importedSymbol = otherSymbols.getPair(originalName);
+			Symbol importedSymbol = otherSymbols.get(originalName, SymbolType.SERVICE);
 			
-			if(importedSymbol.key().equals(SymbolType.SERVICE)){ // we imported a service
-				symbols.put(alias, importedSymbol);
+			if(importedSymbol != null){ // we imported a service
+				symbols.put(SymbolTable.newPair(alias, SymbolType.SERVICE), importedSymbol);
 
 				// import the interfaces used in the service's input ports as well
-				Service service = (Service)importedSymbol.value();
-				List<String> interfaces = service.inputPorts().stream().map(port -> port.getValue().interfaces()).reduce(new ArrayList<String>(), (a, b) -> {a.addAll(b); return a;});
+				Service service = (Service)importedSymbol;
+				HashSet<Interface> interfaces = service.inputPorts().stream().map(port -> port.getValue().interfaces()).reduce(new HashSet<Interface>(), (a, b) -> {a.addAll(b); return a;});
 
-				for(String interfaceName : interfaces){
-					symbols.put(interfaceName, otherSymbols.getPair(interfaceName));
+				for(Interface i : interfaces){
+					symbols.put(SymbolTable.newPair(i.name(), SymbolType.INTERFACE), i);
 				}
 			}
 		}

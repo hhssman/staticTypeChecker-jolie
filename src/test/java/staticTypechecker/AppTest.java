@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import jolie.util.Pair;
+import staticTypechecker.entities.SymbolTable.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;

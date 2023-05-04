@@ -4,8 +4,8 @@ import java.util.Map.Entry;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
-import jolie.util.Pair;
 import staticTypechecker.utils.ModuleHandler;
+import staticTypechecker.entities.SymbolTable.Pair;
 import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
@@ -53,7 +53,7 @@ public class Main {
 		InterfaceProcessor iProcessor = new InterfaceProcessor();
 		ModuleHandler.runVisitor(iProcessor);
 
-		// printAllSymbols();
+		printAllSymbols();
 
 		// stage 4: process service-parameters and input ports in all services
 		System.out.println("STAGE 4: process input ports and service parameters");
@@ -92,10 +92,10 @@ public class Main {
 		for(Module m : ModuleHandler.modules().values()){
 			System.out.println("Module: " + m.name());
 
-			for(Entry<String, Pair<SymbolType, Symbol>> symbol : m.symbols().entrySet()){
-				if(!NativeType.isNativeTypeKeyword(symbol.getKey())){ // we dont want to print the base types
-					if(symbol.getValue() != null && symbol.getValue().value() != null){ // the symbol object have been initialized and can thus be pretty printed
-						System.out.println("\n" + symbol.getKey() + " (" + symbol.getValue().key() + "):\n" + symbol.getValue().value().prettyString());
+			for(Entry<Pair<String, SymbolType>, Symbol> symbol : m.symbols().entrySet()){
+				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key())){ // we dont want to print the base types
+					if(symbol.getValue() != null && symbol.getValue() != null){ // the symbol object have been initialized and can thus be pretty printed
+						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().prettyString());
 					}
 					else{
 						System.out.println("\n" + symbol.getKey() + ":\n" + null);

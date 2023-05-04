@@ -3,7 +3,6 @@ package staticTypechecker;
 import java.util.List;
 
 import staticTypechecker.utils.ModuleHandler;
-import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.ChoiceType;
@@ -26,7 +25,7 @@ public class TypeProcessorTester {
 		InlineType importedType1 = Type.INT();
 		importedType1.addChildUnsafe("x", Type.INT());
 		importedType1.addChildUnsafe("y", Type.INT());
-		target.put("importedType1", Symbol.newPair(SymbolType.TYPE, importedType1));
+		target.put("importedType1", SymbolTable.newPair(SymbolType.TYPE, importedType1));
 
 		// type importedType2
 		InlineType importedType2 = Type.STRING();
@@ -34,47 +33,47 @@ public class TypeProcessorTester {
 		importedC.addChoiceUnsafe(Type.STRING());
 		importedC.addChoiceUnsafe(Type.INT());
 		importedType2.addChildUnsafe("x", importedC);
-		target.put("importedType2", Symbol.newPair(SymbolType.TYPE, importedType2));
+		target.put("importedType2", SymbolTable.newPair(SymbolType.TYPE, importedType2));
 
 		// type importedCircular
 		InlineType importedCircular = Type.VOID();
 		InlineType importedK = Type.INT();
 		importedK.addChildUnsafe("x", importedCircular);
 		importedCircular.addChildUnsafe("x", importedK);
-		target.put("importedCircular", Symbol.newPair(SymbolType.TYPE, importedCircular));
+		target.put("importedCircular", SymbolTable.newPair(SymbolType.TYPE, importedCircular));
 
 		// type A
 		InlineType A = Type.VOID();
 		A.addChildUnsafe("x", Type.INT());
 		A.addChildUnsafe("y", Type.STRING().addChild("z", Type.BOOL()));
-		target.put("A", Symbol.newPair(SymbolType.TYPE, A));
+		target.put("A", SymbolTable.newPair(SymbolType.TYPE, A));
 
 		// type B
 		InlineType B = Type.ANY().setOpenStatus(true);
 		B.addChildUnsafe("x", Type.INT());
-		target.put("B", Symbol.newPair(SymbolType.TYPE, B));
+		target.put("B", SymbolTable.newPair(SymbolType.TYPE, B));
 
 		// type C
 		ChoiceType C = new ChoiceType();
 		C.addChoiceUnsafe(Type.STRING());
 		C.addChoiceUnsafe(Type.INT());
-		target.put("C", Symbol.newPair(SymbolType.TYPE, C));
+		target.put("C", SymbolTable.newPair(SymbolType.TYPE, C));
 
 		// type D
 		ChoiceType D = new ChoiceType();
 		D.addChoiceUnsafe(A);
 		D.addChoiceUnsafe(C);
-		target.put("D", Symbol.newPair(SymbolType.TYPE, D));
+		target.put("D", SymbolTable.newPair(SymbolType.TYPE, D));
 
 		// type E
 		InlineType E = Type.INT();
 		E.addChildUnsafe("x", A);
-		target.put("E", Symbol.newPair(SymbolType.TYPE, E));
+		target.put("E", SymbolTable.newPair(SymbolType.TYPE, E));
 
 		// type F
 		InlineType F = Type.STRING();
 		F.addChildUnsafe("x", F);
-		target.put("F", Symbol.newPair(SymbolType.TYPE, F));
+		target.put("F", SymbolTable.newPair(SymbolType.TYPE, F));
 
 		// type G and H
 		InlineType G = Type.STRING();
@@ -83,8 +82,8 @@ public class TypeProcessorTester {
 		G.addChildUnsafe("x", H);
 		H.addChildUnsafe("x", G);
 
-		target.put("G", Symbol.newPair(SymbolType.TYPE, G));
-		target.put("H", Symbol.newPair(SymbolType.TYPE, H));
+		target.put("G", SymbolTable.newPair(SymbolType.TYPE, G));
+		target.put("H", SymbolTable.newPair(SymbolType.TYPE, H));
 
 		// type I
 		InlineType I = Type.BOOL();
@@ -93,16 +92,16 @@ public class TypeProcessorTester {
 		IChildX.addChoiceUnsafe(Type.VOID());
 		I.addChildUnsafe("x", IChildX);
 
-		target.put("I", Symbol.newPair(SymbolType.TYPE, I));
+		target.put("I", SymbolTable.newPair(SymbolType.TYPE, I));
 
 		// type J
 		InlineType J = Type.INT();
 		J.addChildUnsafe("x", Type.STRING().addChild("y", J));
-		target.put("J", Symbol.newPair(SymbolType.TYPE, J));
+		target.put("J", SymbolTable.newPair(SymbolType.TYPE, J));
 
 		// type K
 		InlineType K = Type.INT().addChild("x", importedCircular);		
-		target.put("K", Symbol.newPair(SymbolType.TYPE, K));
+		target.put("K", SymbolTable.newPair(SymbolType.TYPE, K));
 
 		// type Weird
 		InlineType weird = Type.INT();
@@ -110,7 +109,7 @@ public class TypeProcessorTester {
 		weird.addChildUnsafe("y", weirdChild);
 		weirdChild.addChoiceUnsafe(weird);
 		weirdChild.addChoiceUnsafe(Type.INT());
-		target.put("Weird", Symbol.newPair(SymbolType.TYPE, weird));
+		target.put("Weird", SymbolTable.newPair(SymbolType.TYPE, weird));
 
 		return AppTest.testSymbolsForEquality(result, target);
 	}

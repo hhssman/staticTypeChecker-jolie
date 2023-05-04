@@ -4,3 +4,6 @@
 
 
 - fjern identity hashcodes fra pretty print
+
+
+- hvis der ikke er en variabel i return af en solicit? som i dumpState@runtime()() <--- normalt ville der stå en variabel i parentes #2
