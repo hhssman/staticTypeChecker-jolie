@@ -1,7 +1,6 @@
 - Der er ikke styr på absolute paths endnu
+
 - embed-as case i embeddings, skal jeg lige lave færdig også. Husk at jeg har en note i hæftet om dette
-- rework faults sådan at vi har en klasse til hver type fejl
-	- overvej om vi bare skal reject ligeså snart at der er en fejl
 
 
 - fjern identity hashcodes fra pretty print

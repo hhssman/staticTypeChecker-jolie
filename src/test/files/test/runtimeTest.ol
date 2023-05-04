@@ -1,4 +1,3 @@
-from .input import MyInterface
 from runtime import Runtime
 from console import Console
 

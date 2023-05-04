@@ -27,8 +27,8 @@ public class ModuleHandler {
 
 		String moduleName = ModuleHandler.getModuleName(fullPath);
 		String pathToFolder = ModuleHandler.getPath(fullPath);
+
 		Module module = new Module(moduleName, pathToFolder);
-		System.out.println(moduleName);
 		ModuleHandler.modules.put(fullPath, module);
 
 		loadedModules.add(module);
@@ -81,7 +81,8 @@ public class ModuleHandler {
 			return importer.path() + "/" + relativePath + ".ol";
 		}
 		
-		return "./" + importPath.stream().collect(Collectors.joining("/")) + ".ol";
+		// NOTE this is hardcoded, since I assume everytime the programmer makes an import with an absolute path, they want something from the std lib
+		return System.getenv("JOLIE_HOME") + "/packages/" + importPath.stream().collect(Collectors.joining("/")) + ".ol";
 	}
 
 	/**

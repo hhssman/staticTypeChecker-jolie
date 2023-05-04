@@ -1,11 +1,11 @@
-// from runtime import Runtime
-// from console import Console
+from runtime import Runtime
+from console import Console
 
 service MyService() {
 	execution{ single }
 	
-	// embed Runtime as Runtime
-	// embed Console as Console
+	embed Runtime as Runtime
+	embed Console as Console
 
 	main {
 		// booleans 

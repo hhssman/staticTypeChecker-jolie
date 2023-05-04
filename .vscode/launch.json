@@ -16,9 +16,9 @@
 			"request": "launch",
 			"mainClass": "staticTypechecker.Main",
 			"projectName": "staticTypechecker",
-			"args": "./src/test/files/test/input.ol > tmp.txt"
+			// "args": "./src/test/files/test/input.ol > tmp.txt"
 			// "args": "./src/test/files/testFilesForOutputPortProcessor/main.ol > tmp.txt"
-			// "args": "./src/test/files/test/runtimeTest.ol > tmp.txt"
+			"args": "./src/test/files/test/runtimeTest.ol > tmp.txt"
 		}
 	]
 }

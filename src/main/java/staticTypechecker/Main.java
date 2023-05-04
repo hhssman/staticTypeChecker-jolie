@@ -1,6 +1,7 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
+import java.io.File;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
@@ -23,8 +24,12 @@ import staticTypechecker.visitors.TypeProcessor;
 public class Main {
 
 	public static void main( String[] args ) {
-		String jolie_home = System.getenv("JOLIE_HOME");
-		System.out.println("jolie home: " + jolie_home);
+		// String stdlib = System.getenv("JOLIE_HOME") + "/packages";
+		// File jolieFolder = new File(stdlib);
+		// for(File f : jolieFolder.listFiles()){
+		// 	System.out.println(f.getName());
+		// }
+		// System.out.println("jolie home: " + stdlib);
 
 		// stage 0: parse the modules
 		String moduleName = args[0];

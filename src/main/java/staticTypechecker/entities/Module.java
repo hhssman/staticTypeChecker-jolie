@@ -1,6 +1,8 @@
 package staticTypechecker.entities;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import jolie.Interpreter;
 import jolie.cli.CommandLineException;
@@ -63,13 +65,15 @@ public class Module {
 
 			SemanticVerifier.Configuration semVerConfig = new SemanticVerifier.Configuration( intConf.executionTarget() );
 			semVerConfig.setCheckForMain( false );
+			
+			String[] hardcodedPathToStdLib = {System.getenv("JOLIE_HOME") + "/packages"};
 
 			Program program = ParsingUtils.parseProgram(
 				intConf.inputStream(),
 				intConf.programFilepath().toURI(),
 				intConf.charset(),
 				intConf.includePaths(),
-				intConf.packagePaths(),
+				hardcodedPathToStdLib,
 				intConf.jolieClassLoader(),
 				intConf.constants(),
 				semVerConfig,
