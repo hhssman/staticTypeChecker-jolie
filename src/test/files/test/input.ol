@@ -9,7 +9,7 @@ interface MyInterface {
 		helloOneway( A )
 }
 
-type A: bool { x: A }
+type A: int { x: string }
 
 
 
@@ -22,6 +22,9 @@ service MyService() {
 
 	main {
 		a = 10
+		a.x = "hey"
+
+
 	}
 	
 }

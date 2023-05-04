@@ -1,7 +1,6 @@
 package staticTypechecker;
 
 import java.util.Map.Entry;
-import java.io.File;
 import java.util.HashMap;
 
 import jolie.lang.NativeType;
@@ -20,16 +19,13 @@ import staticTypechecker.visitors.OutputPortProcessor;
 import staticTypechecker.visitors.SymbolCollector;
 import staticTypechecker.visitors.TypeProcessor;
 
-
 public class Main {
 
 	public static void main( String[] args ) {
-		// String stdlib = System.getenv("JOLIE_HOME") + "/packages";
-		// File jolieFolder = new File(stdlib);
-		// for(File f : jolieFolder.listFiles()){
-		// 	System.out.println(f.getName());
-		// }
-		// System.out.println("jolie home: " + stdlib);
+		// set the default value of the typehints to assertions
+		if(System.getProperty("typehint") == null){
+			System.setProperty("typehint", "assertions");
+		}
 
 		// stage 0: parse the modules
 		String moduleName = args[0];
@@ -73,15 +69,15 @@ public class Main {
 		OutputPortProcessor opProcessor = new OutputPortProcessor();
 		ModuleHandler.runVisitor(opProcessor);
 
-		printAllSymbols();
+		// printAllSymbols();
 		
 		// stage 6: process service behaviors
 		System.out.println("STAGE 6: process behaviors\n");
 
 		HashMap<String, Type> trees = new HashMap<>();
-		BehaviorProcessor bProcessor = new BehaviorProcessor(false);
-
+		
 		ModuleHandler.modules().values().forEach(m -> {
+			BehaviorProcessor bProcessor = new BehaviorProcessor(m.fullPath().equals(args[0]));
 			trees.put(m.name(), bProcessor.process(m));
 		});
 

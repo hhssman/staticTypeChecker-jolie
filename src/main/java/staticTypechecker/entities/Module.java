@@ -40,6 +40,10 @@ public class Module {
 		return this.path;
 	}
 
+	public String fullPath(){
+		return this.path + "/" + this.name;
+	}
+
 	public Program program(){
 		return this.program;
 	}

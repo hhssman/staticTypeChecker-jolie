@@ -237,29 +237,27 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Operation op = (Operation)this.module.symbols().get(n.id());
 
 		// if the notify is inside a while-loop and it is an assertion, it is a typehint, so we must check 
-		if(this.inWhileLoop){ 
-			String operationName = op.name();
-			String outputPortName = n.outputPortId();
+		String operationName = op.name();
+		String outputPortName = n.outputPortId();
 
-			if(operationName.equals("assert") && outputPortName.equals("assertions")){
-				if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
-					FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression"), n.context(), true);
-				}
-				InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
-				OLSyntaxNode expression = parsedNode.expression();
-
-				if(!(expression instanceof VariableExpressionNode)){
-					FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable"), n.context(), true);
-				}
-				
-				Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
-				this.check(T, expression, type, ToString.of(expression) + " does not have the same type as the typehint");
-
-				Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
-				Type T1 = T.shallowCopyExcept(path);
-				TreeUtils.setTypeOfNodeByPath(path, type, T1);
-				return T1;
+		if(operationName.equals("assert") && outputPortName.equals(System.getProperty("typehint"))){
+			if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
+				FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression"), n.context(), true);
 			}
+			InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
+			OLSyntaxNode expression = parsedNode.expression();
+
+			if(!(expression instanceof VariableExpressionNode)){
+				FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable"), n.context(), true);
+			}
+			
+			Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
+			this.check(T, expression, type, ToString.of(expression) + " does not have the same type as the typehint");
+
+			Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
+			Type T1 = T.shallowCopyExcept(path);
+			TreeUtils.setTypeOfNodeByPath(path, type, T1);
+			return T1;
 		}
 		
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation

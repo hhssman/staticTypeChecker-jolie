@@ -5,18 +5,18 @@ type Weird: int {
 }
 
 service MyService{
-	outputPort assertions{
+	outputPort lolleren{
 		interfaces: AssertionsInterface
 	}
 
-	embed Assertions in assertions
+	embed Assertions in lolleren
 
 	main {
 		x = 10
 
 		while(true){
 			x.y << x
-			assert@assertions(x instanceof Weird)
+			assert@lolleren(x instanceof Weird)
 		}
 	}
 }

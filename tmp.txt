@@ -1,38 +1,49 @@
-
-loading module. Full path: ./src/test/files/test/runtimeTest.ol
-moduleName: runtimeTest.ol
-pathToFolder: ./src/test/files/test
-
-
-loading module. Full path: /usr/lib/jolie/packages/runtime.ol
-moduleName: runtime.ol
-pathToFolder: /usr/lib/jolie/packages
-
-
-loading module. Full path: /usr/lib/jolie/packages/types/JavaException.ol
-moduleName: JavaException.ol
-pathToFolder: /usr/lib/jolie/packages/types
-
-
-loading module. Full path: /usr/lib/jolie/packages/types/IOException.ol
-moduleName: IOException.ol
-pathToFolder: /usr/lib/jolie/packages/types
-
-
-loading module. Full path: /usr/lib/jolie/packages/types/Binding.ol
-moduleName: Binding.ol
-pathToFolder: /usr/lib/jolie/packages/types
-
-
-loading module. Full path: /usr/lib/jolie/packages/console.ol
-moduleName: console.ol
-pathToFolder: /usr/lib/jolie/packages
-
+TYPEHINT keyword: lolleren
 STAGE 1: discover symbols
 STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
-creating output port Runtime
-creating output port Console
-service name??? Runtime
+creating output port lolleren
+service name??? Assertions
+STAGE 6: process behaviors
+
+x = 10
+void (1873653341) {
+	x: int (672320506)
+}
+
+--------------------------
+
+while(true)
+void (1873653341) {
+	x: int (672320506)
+}
+|
+void (905544614) {
+	x: int (240650537) {
+		y:  1627960023
+			recursive edge to (240650537)
+			|
+			int (357863579)
+	}
+}
+
+--------------------------
+
+Final tree for module main.ol:
+void (1873653341) {
+	x: int (672320506)
+}
+|
+void (905544614) {
+	x: int (240650537) {
+		y:  1627960023
+			recursive edge to (240650537)
+			|
+			int (357863579)
+	}
+}
+
+--------------------------
+
