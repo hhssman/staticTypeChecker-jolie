@@ -271,7 +271,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( SolicitResponseOperationStatement n, Type T ){
 		Operation op = (Operation)this.module.symbols().get(n.id(), SymbolType.OPERATION);
-		System.out.println("op: " + op);
 
 		Type T_in = op.responseType(); // the type of the data which is RETURNED by the reqres operation
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the reqres operation

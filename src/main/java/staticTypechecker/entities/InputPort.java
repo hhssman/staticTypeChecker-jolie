@@ -52,6 +52,10 @@ public class InputPort implements Symbol {
 		this.interfaces = interfaces;
 	}
 
+	public int hashCode(){
+		return (int)(this.name.hashCode() + 31 * this.location.hashCode() + Math.pow(31, 2) * this.protocol.hashCode() + Math.pow(31, 3) * this.interfaces.hashCode());
+	}
+
 	public boolean equals(Object other){
 		if(this == other){
 			return true;
@@ -63,17 +67,42 @@ public class InputPort implements Symbol {
 
 		InputPort parsedOther = (InputPort)other;
 
-		return 	this.name.equals(parsedOther.name) && 
-				this.location.equals(parsedOther.location) && 
-				this.protocol.equals(parsedOther.protocol) && 
-				this.interfaces.equals(parsedOther.interfaces);
-	}
+		if(!(this.name.equals(parsedOther.name) && this.location.equals(parsedOther.location) && this.protocol.equals(parsedOther.protocol))){
+			return false;
+		}
 
+		if(this.interfaces.size() != parsedOther.interfaces.size()){
+			return false;
+		}
+
+		for(Interface i : this.interfaces){
+			if(!parsedOther.interfaces.contains(i)){
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
 	public String prettyString(){
+		
 		if(this.name == null){
 			return "null";
 		}
 		
-		return this.name + " at " + this.location + " via " + this.protocol + " exposing " + this.interfaces;
+		String res = this.name + " at " + this.location + " via " + this.protocol + " exposing [";
+
+		if(this.interfaces.size() == 0){
+			res += "]";
+		}
+		else{
+			for(Interface i : this.interfaces){
+				res += "\n-\n" + i.prettyString();
+			}
+
+			res += "\n]";
+		}
+
+		return res;
 	}
 }

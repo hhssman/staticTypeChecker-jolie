@@ -29,7 +29,7 @@ public class InterfaceProcessorTester {
 		myInterface.addOperation("myOneWay", new Operation("myOneWay", Type.STRING(), null, OperationType.ONEWAY));
 		myInterface.addOperation("mySecondOneWay", new Operation("mySecondOneWay", Type.BOOL(), null, OperationType.ONEWAY));
 
-		target.put("MyInterface", SymbolTable.newPair(SymbolType.INTERFACE, myInterface));
+		target.put(SymbolTable.newPair("MyInterface", SymbolType.INTERFACE), myInterface);
 		
 		// ImportedInterface
 		Interface importedInterface = new Interface("ImportedInterface");
@@ -38,7 +38,7 @@ public class InterfaceProcessorTester {
 		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", Type.STRING().addChild("x", Type.INT()), B, OperationType.REQRES));
 		importedInterface.addOperation("importedOneWay", new Operation("importedOneWay", Type.INT(), null, OperationType.ONEWAY));
 
-		target.put("ImportedInterface", SymbolTable.newPair(SymbolType.INTERFACE, importedInterface));
+		target.put(SymbolTable.newPair("ImportedInterface", SymbolType.INTERFACE), importedInterface);
 
 		return AppTest.testSymbolsForEquality(result, target);
 	}

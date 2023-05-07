@@ -52,6 +52,10 @@ public class OutputPort implements Symbol {
 		this.interfaces = interfaces;
 	}
 
+	public int hashCode(){
+		return (int)(this.name.hashCode() + 31 * this.location.hashCode() + Math.pow(31, 2) * this.protocol.hashCode() + Math.pow(31, 3) * this.interfaces.hashCode());
+	}
+
 	public boolean equals(Object other){
 		if(this == other){
 			return true;
@@ -63,10 +67,21 @@ public class OutputPort implements Symbol {
 
 		OutputPort parsedOther = (OutputPort)other;
 
-		return 	this.name.equals(parsedOther.name) && 
-				this.location.equals(parsedOther.location) && 
-				this.protocol.equals(parsedOther.protocol) && 
-				this.interfaces.equals(parsedOther.interfaces);
+		if(!(this.name.equals(parsedOther.name) && this.location.equals(parsedOther.location) && this.protocol.equals(parsedOther.protocol))){
+			return false;
+		}
+
+		if(this.interfaces.size() != parsedOther.interfaces.size()){
+			return false;
+		}
+
+		for(Interface i : this.interfaces){
+			if(!parsedOther.interfaces.contains(i)){
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public String prettyString(){

@@ -178,10 +178,11 @@ public class AppTest{
 	}
 
 	public static boolean testSymbolsForEquality(SymbolTable result, SymbolTable target){
-		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
-			String symbolName = ent.getKey();
-			Symbol targetSymbol = ent.getValue().value();
-			Symbol resultSymbol = result.get(symbolName);
+		for(Entry<Pair<String, SymbolType>, Symbol> ent : target.entrySet()){
+			String symbolName = ent.getKey().key();
+			SymbolType symbolType = ent.getKey().value();
+			Symbol targetSymbol = ent.getValue();
+			Symbol resultSymbol = result.get(symbolName, symbolType);
 
 			if(targetSymbol == null || resultSymbol == null){
 				System.out.println("One is null for symbol: " + symbolName + "\n  Result: " + resultSymbol + "\n  Target: " + targetSymbol);

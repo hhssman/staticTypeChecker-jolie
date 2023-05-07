@@ -19,33 +19,25 @@ public class SymbolCollectorTester {
 		SymbolTable result = modules.get(0).symbols();
 		SymbolTable target = new SymbolTable();
 
-		target.put("penguin", SymbolTable.newPair(SymbolType.TYPE, null));
-		target.put("EmbedMe", SymbolTable.newPair(SymbolType.SERVICE, null));
-		target.put("MyInterface", SymbolTable.newPair(SymbolType.INTERFACE, null));
-		target.put("helloReqRes", SymbolTable.newPair(SymbolType.OPERATION, null));
-		target.put("helloOneway", SymbolTable.newPair(SymbolType.OPERATION, null));
-		target.put("Y", SymbolTable.newPair(SymbolType.TYPE, null));
-		target.put("X", SymbolTable.newPair(SymbolType.TYPE, null));
-		target.put("paramType", SymbolTable.newPair(SymbolType.TYPE, null));
-		target.put("MyService", SymbolTable.newPair(SymbolType.SERVICE, null));
-		target.put("param", SymbolTable.newPair(SymbolType.TYPE, null));
-		target.put("inputPort", SymbolTable.newPair(SymbolType.INPUT_PORT, null));
-		target.put("outputPort", SymbolTable.newPair(SymbolType.OUTPUT_PORT, null));
-		target.put("embedMe", SymbolTable.newPair(SymbolType.OUTPUT_PORT, null));
+		target.put(SymbolTable.newPair("penguin", SymbolType.TYPE), null);
+		target.put(SymbolTable.newPair("EmbedMe", SymbolType.SERVICE), null);
+		target.put(SymbolTable.newPair("MyInterface", SymbolType.INTERFACE), null);
+		target.put(SymbolTable.newPair("helloReqRes", SymbolType.OPERATION), null);
+		target.put(SymbolTable.newPair("helloOneway", SymbolType.OPERATION), null);
+		target.put(SymbolTable.newPair("Y", SymbolType.TYPE), null);
+		target.put(SymbolTable.newPair("X", SymbolType.TYPE), null);
+		target.put(SymbolTable.newPair("paramType", SymbolType.TYPE), null);
+		target.put(SymbolTable.newPair("MyService", SymbolType.SERVICE), null);
+		target.put(SymbolTable.newPair("param", SymbolType.TYPE), null);
+		target.put(SymbolTable.newPair("inputPort", SymbolType.INPUT_PORT), null);
+		target.put(SymbolTable.newPair("outputPort", SymbolType.OUTPUT_PORT), null);
+		target.put(SymbolTable.newPair("embedMe", SymbolType.OUTPUT_PORT), null);
 
-		for(Entry<String, Pair<SymbolType, Symbol>> ent : target.entrySet()){
-			String key = ent.getKey();
-
+		for(Entry<Pair<String, SymbolType>, Symbol> ent : target.entrySet()){
+			Pair<String, SymbolType> key = ent.getKey();
+			
 			if(!result.containsKey(key)){
 				System.out.println("symbol table does not include " + key);
-				return false;
-			}
-
-			Pair<SymbolType, Symbol> p1 = result.getPair(key);
-			Pair<SymbolType, Symbol> p2 = target.getPair(key);
-
-			if(p1.key() != p2.key()){
-				System.out.println(p1.key() + " != " + p2.key());
 				return false;
 			}
 		}

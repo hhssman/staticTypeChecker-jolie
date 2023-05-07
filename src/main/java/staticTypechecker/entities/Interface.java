@@ -25,6 +25,10 @@ public class Interface implements Symbol {
 		this.operations.put(opName, op);
 	}
 
+	public void addOperation(Operation op){
+		this.operations.put(op.name(), op);
+	}
+
 	public Operation getOperation(String name){
 		return this.operations.get(name);
 	}
@@ -39,6 +43,10 @@ public class Interface implements Symbol {
 
 	public void setName(String name){
 		this.name = name;
+	}
+
+	public int hashCode(){
+		return this.name.hashCode() + 31 * this.operations.hashCode();
 	}
 
 	public boolean equals(Object other){

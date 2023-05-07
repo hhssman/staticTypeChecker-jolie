@@ -54,6 +54,10 @@ public class Operation implements Symbol {
 		this.operationType = operationType;
 	}
 
+	public int hashCode(){
+		return (int)(this.name.hashCode() + 31 * this.requestType.hashCode() + Math.pow(31, 2) * (this.responseType == null ? 0 : this.responseType.hashCode()) + this.operationType.hashCode());
+	}
+
 	public boolean equals(Object other){
 		if(this == other){
 			return true;

@@ -23,7 +23,6 @@ public class ModuleHandler {
 	 * @param moduleName the name of the module to load
 	 */
 	public static List<Module> loadModule(String fullPath){
-		System.out.println("load module: " + fullPath);
 		ArrayList<Module> loadedModules = new ArrayList<>();
 
 		String moduleName = ModuleHandler.getModuleName(fullPath);

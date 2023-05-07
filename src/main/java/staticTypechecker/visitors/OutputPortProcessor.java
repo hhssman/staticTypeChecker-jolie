@@ -170,7 +170,6 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 	public Void visit(OutputPortInfo n, SymbolTable symbols) {
 		// ready the data
 		String portName = n.id();
-		System.out.println("creating output port " + portName);
 		String location = n.location() != null ? ((ConstantStringExpression)n.location()).value() : null; // the location of the port, if it exists, otherwise null
 		String protocol = n.protocolId().equals("") ? null : n.protocolId(); // the id of the protocol, if it exsist, otherwise null
 

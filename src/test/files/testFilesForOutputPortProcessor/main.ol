@@ -34,6 +34,6 @@ service MyService {
 		Interfaces: MyInterface2
 	}
 
-	embed ImportService1(10) as i1
+	embed ImportService1(10) as i3
 	embed ImportService2 in OutputPort2
 }
