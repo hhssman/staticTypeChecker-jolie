@@ -26,6 +26,10 @@ public class Path {
 		}
 	}
 
+	public Path(){
+		this.pathElems = new ArrayList<>();
+	}
+
 	public Path(List<jolie.util.Pair<OLSyntaxNode, OLSyntaxNode>> path){
 		this.pathElems = new ArrayList<>();
 		path.forEach(pair -> this.pathElems.add(pair.key().toString()));

@@ -159,7 +159,7 @@ public class ToString implements OLVisitor<Void, String> {
 		String name = n.id();
 		Path inputPath = n.inputVarPath() != null ? new Path(n.inputVarPath().path()) : new Path("");
 		String portId = n.outputPortId();
-		String outputPath = n.outputExpression() != null ? n.outputExpression().toString() : "";
+		String outputPath = n.outputExpression() != null ? n.outputExpression().accept(this, null) : "";
 
 		return name + "@" + portId + "(" + outputPath + ")(" + inputPath + ")";
 	};

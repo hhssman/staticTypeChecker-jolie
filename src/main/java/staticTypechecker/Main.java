@@ -81,7 +81,7 @@ public class Main {
 			trees.put(m.name(), bProcessor.process(m));
 		});
 
-		// printAllSymbols();
+		// printAllSymbols(trees);
 
 		FaultHandler.printFaults();
 		WarningHandler.printWarnings();
@@ -102,6 +102,29 @@ public class Main {
 					}
 				}
 			}
+
+			System.out.println("______________");
+		}
+		System.out.println("-----------------------------------------");
+	}
+
+	private static void printAllSymbols(HashMap<String, Type> trees){
+		System.out.println("-----------------------------------------");
+		for(Module m : ModuleHandler.modules().values()){
+			System.out.println("Module: " + m.name());
+
+			for(Entry<Pair<String, SymbolType>, Symbol> symbol : m.symbols().entrySet()){
+				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key())){ // we dont want to print the base types
+					if(symbol.getValue() != null && symbol.getValue() != null){ // the symbol object have been initialized and can thus be pretty printed
+						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().prettyString());
+					}
+					else{
+						System.out.println("\n" + symbol.getKey() + ":\n" + null);
+					}
+				}
+			}
+
+			System.out.println(trees.get(m.name()).prettyString());
 
 			System.out.println("______________");
 		}

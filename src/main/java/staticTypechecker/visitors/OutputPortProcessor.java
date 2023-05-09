@@ -209,7 +209,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				providedType = Synthesizer.get(this.module).synthesize(passingParameter, null);
 			}
 
-			Synthesizer.get(this.module).check(providedType, expectedType, n.context(), "type given to " + serviceName + " is not of expected type"); // check that it is a subtype
+			Synthesizer.get(this.module).check(providedType, expectedType, n.context(), "Type given to service: \"" + serviceName + "\" is not of expected type.\nType given: \n" + providedType.prettyString() + "\n\nType expected:\n" + expectedType.prettyString()); // check that it is a subtype
 		}
 
 		if(!isNewPort){ // this is an "embed-in" case, where we use an existing output port, check if interfaces are compatible

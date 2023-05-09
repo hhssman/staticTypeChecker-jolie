@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
-import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.Simulator;
 
 /**
  * Represents an inline type in Jolie such as "type a: int { x: string }".
@@ -208,7 +208,7 @@ public class InlineType extends Type {
 			return false;
 		}
 
-		return Bisimulator.equivalent(this, (InlineType)other);
+		return Simulator.equivalent(this, (InlineType)other);
 	}
 
 	public boolean isSubtypeOf(Type other){
@@ -216,7 +216,7 @@ public class InlineType extends Type {
 			return true;
 		}
 
-		return Bisimulator.isSubtypeOf(this, other);
+		return Simulator.isSubtypeOf(this, other);
 	}
 
 	public InlineType shallowCopy(){

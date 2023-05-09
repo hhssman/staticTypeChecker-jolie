@@ -11,14 +11,14 @@ public class Operation implements Symbol {
 	}
 
 	private String name; 					// the name of the operation
-	private Type requestType; 			// the name of the type of the input
-	private Type responseType; 			// the name of the type of the output
+	private Type requestType; 				// the name of the type of the input
+	private Type responseType; 				// the name of the type of the output
 	private OperationType operationType; 	// the type of operation (oneway or reqres)
 
 	public Operation(String name, Type requestType, Type responseType, OperationType operationType){
 		this.name = name;
-		this.requestType = requestType;
-		this.responseType = responseType;
+		this.requestType = requestType == null ? Type.VOID() : requestType;
+		this.responseType = responseType == null ? Type.VOID() : responseType;
 		this.operationType = operationType;
 	}
 

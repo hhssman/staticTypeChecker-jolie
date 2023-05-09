@@ -22,11 +22,8 @@ service MyService() {
 
 	main {
 		a = 10
-		a.x = "hey"
-
-
+		helloReqRes@out1(a)()
 	}
-	
 }
 
 

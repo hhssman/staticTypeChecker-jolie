@@ -1,424 +1,277 @@
-load module: ./src/test/files/test/runtimeTest.ol
-load module: /usr/lib/jolie/packages/runtime.ol
-load module: /usr/lib/jolie/packages/types/JavaException.ol
-load module: /usr/lib/jolie/packages/types/IOException.ol
-load module: /usr/lib/jolie/packages/types/Binding.ol
 STAGE 1: discover symbols
 STAGE 2: process types
 STAGE 3: process interfaces
+request: undefined
+response: void
 -----------------------------------------
 Module: Binding.ol
 
 (Binding, TYPE):
-void (586617651) {
-	protocol: string (1556595366) { ? }
-	location: string (194494468)
+void (3447021) {
+	protocol: string (1597462040) { ? }
+	location: string (403716510)
 }
+
+(undefined, TYPE):
+any (853119666) { ? }
 ______________
 Module: IOException.ol
 
 (JavaExceptionType, TYPE):
-string (99347477) {
-	stackTrace: string (1167116739)
+string (1720435669) {
+	stackTrace: string (559670971)
 }
 
 (IOExceptionType, TYPE):
-string (440434003) {
-	stackTrace: string (853993923)
+string (566034357) {
+	stackTrace: string (1144648478)
 }
+
+(undefined, TYPE):
+any (1576861390) { ? }
 ______________
 Module: runtimeTest.ol
 
-(MyService, SERVICE):
+(Math, SERVICE):
+null
+
+(Console, SERVICE):
+null
+
+(Runtime, SERVICE):
+null
+
+(Console, OUTPUT_PORT):
 null
 
 (Runtime, OUTPUT_PORT):
 null
 
-(Runtime, SERVICE):
+(undefined, TYPE):
+any (600746945) { ? }
+
+(MyService, SERVICE):
+null
+
+(Math, OUTPUT_PORT):
 null
 ______________
 Module: JavaException.ol
 
 (JavaExceptionType, TYPE):
-string (99347477) {
-	stackTrace: string (1167116739)
+string (1720435669) {
+	stackTrace: string (559670971)
 }
 
+(undefined, TYPE):
+any (1566502717) { ? }
+
 (WeakJavaExceptionType, TYPE):
-any (940553268) {
-	stackTrace: string (1347870667)
+any (2052915500) {
+	stackTrace: string (1458849419)
 }
 ______________
 Module: runtime.ol
 
-(GetOutputPortsResponse, TYPE):
-void (905654280) {
-	port: void (1419810764) {
-		protocol: string (1702146597)
-		name: string (644460953)
-		location: string (591723622)
-	}
-}
-
-(Binding, TYPE):
-void (586617651) {
-	protocol: string (1556595366) { ? }
-	location: string (194494468)
-}
-
-(getVersion, OPERATION):
-getVersion
+(getIncludePaths, OPERATION):
+getIncludePaths
 		(
-			void (1166726978)
+			void (1824835605)
 		)
-		(
-			string (95395916)
-		)
-
-(setMonitor, OPERATION):
-setMonitor
 		(
 			void (423031029) {
-				protocol: string (1856056345) { ? }
-				location: any (1778535015)
-			}
-		)
-		(
-			void (1166726978)
-		)
-
-(removeRedirection, OPERATION):
-removeRedirection
-		(
-			void (391447681) {
-				inputPortName: string (2032251042)
-				resourceName: string (24433162)
-			}
-		)
-		(
-			void (1166726978)
-		)
-
-(SetOutputPortRequest, TYPE):
-void (66233253) {
-	protocol: string (1725097945) { ? }
-	name: string (519821334)
-	location: any (1781256139)
-}
-
-(HaltRequest, TYPE):
-void (1387228415) {
-	status: int (1307096070)
-}
-
-(getRedirection, OPERATION):
-getRedirection
-		(
-			void (391447681) {
-				inputPortName: string (2032251042)
-				resourceName: string (24433162)
-			}
-		)
-		(
-			 1014328909
-				string (1525262377)
-				|
-				void (1837760739)
-		)
-
-(SetRedirectionRequest, TYPE):
-void (745160567) {
-	inputPortName: string (1418428263)
-	outputPortName: string (2059904228)
-	resourceName: string (1836643189)
-}
-
-(GetOutputPortResponse, TYPE):
-void (1740035246) {
-	protocol: string (1355316001)
-	name: string (1597462040)
-	location: string (403716510)
-}
-
-(JavaExceptionType, TYPE):
-string (99347477) {
-	stackTrace: string (1167116739)
-}
-
-(getLocalLocation, OPERATION):
-getLocalLocation
-		(
-			void (1166726978)
-		)
-		(
-			any (853119666)
-		)
-
-(setOutputPort, OPERATION):
-setOutputPort
-		(
-			void (66233253) {
-				protocol: string (1725097945) { ? }
-				name: string (519821334)
-				location: any (1781256139)
-			}
-		)
-		(
-			void (1166726978)
-		)
-
-(Stats, TYPE):
-void (546718765) {
-	memory: void (592179046) {
-		total: long (559670971)
-		used: long (1144648478)
-		free: long (1576861390)
-	}
-	os: void (331844619) {
-		availableProcessors: int (600746945)
-		systemLoadAverage: double (1566502717)
-		name: string (1458849419)
-		arch: string (1824835605)
-		version: string (981661423)
-	}
-	files: void (110992469) {
-		openCount: long (269468037)
-		maxCount: long (1681595665)
-	}
-}
-
-(dumpState, OPERATION):
-dumpState
-		(
-			void (1166726978)
-		)
-		(
-			string (95395916)
-		)
-
-(callExit, OPERATION):
-callExit
-		(
-			any (853119666)
-		)
-		(
-			void (1166726978)
-		)
-
-(loadLibrary, OPERATION):
-loadLibrary
-		(
-			string (95395916)
-		)
-		(
-			void (1166726978)
-		)
-
-(MaybeString, TYPE):
-string (1525262377)
-|
-void (1837760739)
-
-(removeOutputPort, OPERATION):
-removeOutputPort
-		(
-			string (95395916)
-		)
-		(
-			void (1166726978)
-		)
-
-(loadEmbeddedService, OPERATION):
-loadEmbeddedService
-		(
-			 57494364
-				void (234698513) {
-					filepath: string (1828757853)
-					service: string (1374677625)
-					type: string (1345636186)
-					params: any (963269035) { ? }
-				}
-				|
-				void (335471116) {
-					code: string (1359484306)
-				}
-		)
-		(
-			any (853119666)
-		)
-
-(SetMonitorRequest, TYPE):
-void (423031029) {
-	protocol: string (1856056345) { ? }
-	location: any (1778535015)
-}
-
-(getOutputPort, OPERATION):
-getOutputPort
-		(
-			void (759156157) {
-				name: string (2140832232)
-			}
-		)
-		(
-			void (1740035246) {
-				protocol: string (1355316001)
-				name: string (1597462040)
-				location: string (403716510)
-			}
-		)
-
-(getOutputPorts, OPERATION):
-getOutputPorts
-		(
-			void (1166726978)
-		)
-		(
-			void (905654280) {
-				port: void (1419810764) {
-					protocol: string (1702146597)
-					name: string (644460953)
-					location: string (591723622)
-				}
+				path: string (981661423)
 			}
 		)
 
 (setRedirection, OPERATION):
 setRedirection
 		(
-			void (745160567) {
-				inputPortName: string (1418428263)
-				outputPortName: string (2059904228)
-				resourceName: string (1836643189)
+			void (1393931310) {
+				inputPortName: string (269468037)
+				outputPortName: string (1681595665)
+				resourceName: string (787867107)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 
-(getIncludePaths, OPERATION):
-getIncludePaths
+(Binding, TYPE):
+void (3447021) {
+	protocol: string (1597462040) { ? }
+	location: string (403716510)
+}
+
+(getOutputPorts, OPERATION):
+getOutputPorts
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			void (75457651) {
-				path: string (157456214)
+			void (922151033) {
+				port: void (55909012) {
+					protocol: string (57494364)
+					name: string (1828757853)
+					location: string (1374677625)
+				}
 			}
 		)
 
-(LoadEmbeddedServiceRequest, TYPE):
-void (234698513) {
-	filepath: string (1828757853)
-	service: string (1374677625)
-	type: string (1345636186)
-	params: any (963269035) { ? }
-}
-|
-void (335471116) {
-	code: string (1359484306)
+(RuntimeExceptionType, TYPE):
+string (66233253) {
+	stackTrace: string (1345636186)
 }
 
-(getenv, OPERATION):
-getenv
+(SetOutputPortRequest, TYPE):
+void (1632392469) {
+	protocol: string (963269035) { ? }
+	name: string (1359484306)
+	location: any (2140832232)
+}
+
+(GetOutputPortsResponse, TYPE):
+void (922151033) {
+	port: void (55909012) {
+		protocol: string (57494364)
+		name: string (1828757853)
+		location: string (1374677625)
+	}
+}
+
+(getRedirection, OPERATION):
+getRedirection
 		(
-			string (95395916)
+			void (321142942) {
+				inputPortName: string (157456214)
+				resourceName: string (1659791576)
+			}
 		)
 		(
-			 1014328909
-				string (1525262377)
+			 1935365522
+				void (221036634)
 				|
-				void (1837760739)
+				string (1335050193)
 		)
 
 (getProcessId, OPERATION):
 getProcessId
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			string (95395916)
+			string (1418370913)
 		)
 
-(halt, OPERATION):
-halt
+(removeRedirection, OPERATION):
+removeRedirection
 		(
-			void (1387228415) {
-				status: int (1307096070)
+			void (321142942) {
+				inputPortName: string (157456214)
+				resourceName: string (1659791576)
 			}
 		)
 		(
-			void (1166726978)
-		)
-
-(stats, OPERATION):
-stats
-		(
-			void (1166726978)
-		)
-		(
-			void (546718765) {
-				memory: void (592179046) {
-					total: long (559670971)
-					used: long (1144648478)
-					free: long (1576861390)
-				}
-				os: void (331844619) {
-					availableProcessors: int (600746945)
-					systemLoadAverage: double (1566502717)
-					name: string (1458849419)
-					arch: string (1824835605)
-					version: string (981661423)
-				}
-				files: void (110992469) {
-					openCount: long (269468037)
-					maxCount: long (1681595665)
-				}
-			}
+			void (1824835605)
 		)
 
 (ip, INPUT_PORT):
 null
 
-(RuntimeExceptionType, TYPE):
-string (1566723494) {
-	stackTrace: string (1659791576)
+(getOutputPort, OPERATION):
+getOutputPort
+		(
+			void (1740035246) {
+				name: string (391359742)
+			}
+		)
+		(
+			void (1845066581) {
+				protocol: string (2081853534)
+				name: string (707610042)
+				location: string (710714889)
+			}
+		)
+
+(halt, OPERATION):
+halt
+		(
+			void (546718765) {
+				status: int (551734240)
+			}
+		)
+		(
+			void (1824835605)
+		)
+
+(GetOutputPortResponse, TYPE):
+void (1845066581) {
+	protocol: string (2081853534)
+	name: string (707610042)
+	location: string (710714889)
 }
 
-(GetRedirectionRequest, TYPE):
-void (391447681) {
-	inputPortName: string (2032251042)
-	resourceName: string (24433162)
+(HaltRequest, TYPE):
+void (546718765) {
+	status: int (551734240)
+}
+
+(Stats, TYPE):
+void (1937348256) {
+	memory: void (1358444045) {
+		total: long (1757293506)
+		used: long (687780858)
+		free: long (1734161410)
+	}
+	os: void (159259014) {
+		availableProcessors: int (1364614850)
+		systemLoadAverage: double (1211076369)
+		name: string (361993357)
+		arch: string (459296537)
+		version: string (2015601401)
+	}
+	files: void (863831416) {
+		openCount: long (1287712235)
+		maxCount: long (1165897474)
+	}
+}
+
+(SetMonitorRequest, TYPE):
+void (60830820) {
+	protocol: string (1551870003) { ? }
+	location: any (967765295)
 }
 
 (GetIncludePathResponse, TYPE):
-void (75457651) {
-	path: string (157456214)
+void (423031029) {
+	path: string (981661423)
 }
 
-(IOExceptionType, TYPE):
-string (440434003) {
-	stackTrace: string (853993923)
-}
-
-(GetOutputPortRequest, TYPE):
-void (759156157) {
-	name: string (2140832232)
-}
-
-(Runtime, SERVICE):
-null
-
-(SendMessageRequest, TYPE):
-void (760563749) {
-	binding: void (1810132623) {
-		protocol: string (1935365522) { ? }
-		location: string (1483022288)
-	}
-	message: any (1159785389) { ? }
-	operation: string (1410986873)
-}
+(stats, OPERATION):
+stats
+		(
+			void (1824835605)
+		)
+		(
+			void (1937348256) {
+				memory: void (1358444045) {
+					total: long (1757293506)
+					used: long (687780858)
+					free: long (1734161410)
+				}
+				os: void (159259014) {
+					availableProcessors: int (1364614850)
+					systemLoadAverage: double (1211076369)
+					name: string (361993357)
+					arch: string (459296537)
+					version: string (2015601401)
+				}
+				files: void (863831416) {
+					openCount: long (1287712235)
+					maxCount: long (1165897474)
+				}
+			}
+		)
 
 (RuntimeInterface, INTERFACE):
 RuntimeInterface
@@ -426,231 +279,720 @@ RuntimeInterface
 	RequestResponse:
 		getVersion
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		loadLibrary
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		removeOutputPort
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		setRedirection
 		(
-			void (745160567) {
-				inputPortName: string (1418428263)
-				outputPortName: string (2059904228)
-				resourceName: string (1836643189)
+			void (1393931310) {
+				inputPortName: string (269468037)
+				outputPortName: string (1681595665)
+				resourceName: string (787867107)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		getOutputPorts
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			void (905654280) {
-				port: void (1419810764) {
-					protocol: string (1702146597)
-					name: string (644460953)
-					location: string (591723622)
+			void (922151033) {
+				port: void (55909012) {
+					protocol: string (57494364)
+					name: string (1828757853)
+					location: string (1374677625)
 				}
 			}
 		)
 		loadEmbeddedService
 		(
-			 57494364
-				void (234698513) {
-					filepath: string (1828757853)
-					service: string (1374677625)
-					type: string (1345636186)
-					params: any (963269035) { ? }
+			 1917513796
+				void (391447681) {
+					code: string (1182320432)
 				}
 				|
-				void (335471116) {
-					code: string (1359484306)
+				void (1595953398) {
+					filepath: string (1734853116)
+					service: string (703504298)
+					type: string (201556483)
+					params: any (214074868) { ? }
 				}
 		)
 		(
-			any (853119666)
+			any (1442045361)
 		)
 		getOutputPort
 		(
-			void (759156157) {
-				name: string (2140832232)
+			void (1740035246) {
+				name: string (391359742)
 			}
 		)
 		(
-			void (1740035246) {
-				protocol: string (1355316001)
-				name: string (1597462040)
-				location: string (403716510)
+			void (1845066581) {
+				protocol: string (2081853534)
+				name: string (707610042)
+				location: string (710714889)
 			}
 		)
 		dumpState
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		getLocalLocation
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			any (853119666)
+			any (1442045361)
 		)
 		getRedirection
 		(
-			void (391447681) {
-				inputPortName: string (2032251042)
-				resourceName: string (24433162)
+			void (321142942) {
+				inputPortName: string (157456214)
+				resourceName: string (1659791576)
 			}
 		)
 		(
-			 1014328909
-				string (1525262377)
+			 1935365522
+				void (221036634)
 				|
-				void (1837760739)
+				string (1335050193)
 		)
 		setOutputPort
 		(
-			void (66233253) {
-				protocol: string (1725097945) { ? }
-				name: string (519821334)
-				location: any (1781256139)
+			void (1632392469) {
+				protocol: string (963269035) { ? }
+				name: string (1359484306)
+				location: any (2140832232)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		halt
 		(
-			void (1387228415) {
-				status: int (1307096070)
+			void (546718765) {
+				status: int (551734240)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		callExit
 		(
-			any (853119666)
+			any (1442045361)
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		stats
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			void (546718765) {
-				memory: void (592179046) {
-					total: long (559670971)
-					used: long (1144648478)
-					free: long (1576861390)
+			void (1937348256) {
+				memory: void (1358444045) {
+					total: long (1757293506)
+					used: long (687780858)
+					free: long (1734161410)
 				}
-				os: void (331844619) {
-					availableProcessors: int (600746945)
-					systemLoadAverage: double (1566502717)
-					name: string (1458849419)
-					arch: string (1824835605)
-					version: string (981661423)
+				os: void (159259014) {
+					availableProcessors: int (1364614850)
+					systemLoadAverage: double (1211076369)
+					name: string (361993357)
+					arch: string (459296537)
+					version: string (2015601401)
 				}
-				files: void (110992469) {
-					openCount: long (269468037)
-					maxCount: long (1681595665)
+				files: void (863831416) {
+					openCount: long (1287712235)
+					maxCount: long (1165897474)
 				}
 			}
 		)
 		removeRedirection
 		(
-			void (391447681) {
-				inputPortName: string (2032251042)
-				resourceName: string (24433162)
+			void (321142942) {
+				inputPortName: string (157456214)
+				resourceName: string (1659791576)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		setMonitor
 		(
-			void (423031029) {
-				protocol: string (1856056345) { ? }
-				location: any (1778535015)
+			void (60830820) {
+				protocol: string (1551870003) { ? }
+				location: any (967765295)
 			}
 		)
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		getProcessId
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		getIncludePaths
 		(
-			void (1166726978)
+			void (1824835605)
 		)
 		(
-			void (75457651) {
-				path: string (157456214)
+			void (423031029) {
+				path: string (981661423)
 			}
 		)
 		getenv
 		(
-			string (95395916)
+			string (1418370913)
 		)
 		(
-			 1014328909
-				string (1525262377)
+			 1935365522
+				void (221036634)
 				|
-				void (1837760739)
+				string (1335050193)
 		)
+
+(getLocalLocation, OPERATION):
+getLocalLocation
+		(
+			void (1824835605)
+		)
+		(
+			any (1442045361)
+		)
+
+(GetOutputPortRequest, TYPE):
+void (1740035246) {
+	name: string (391359742)
+}
+
+(getVersion, OPERATION):
+getVersion
+		(
+			void (1824835605)
+		)
+		(
+			string (1418370913)
+		)
+
+(Runtime, SERVICE):
+null
+
+(MaybeString, TYPE):
+void (221036634)
+|
+string (1335050193)
+
+(getenv, OPERATION):
+getenv
+		(
+			string (1418370913)
+		)
+		(
+			 1935365522
+				void (221036634)
+				|
+				string (1335050193)
+		)
+
+(setMonitor, OPERATION):
+setMonitor
+		(
+			void (60830820) {
+				protocol: string (1551870003) { ? }
+				location: any (967765295)
+			}
+		)
+		(
+			void (1824835605)
+		)
+
+(JavaExceptionType, TYPE):
+string (1720435669) {
+	stackTrace: string (559670971)
+}
+
+(callExit, OPERATION):
+callExit
+		(
+			any (1442045361)
+		)
+		(
+			void (1824835605)
+		)
+
+(IOExceptionType, TYPE):
+string (566034357) {
+	stackTrace: string (1144648478)
+}
+
+(undefined, TYPE):
+any (415138788) { ? }
+
+(SendMessageRequest, TYPE):
+void (895947612) {
+	binding: void (1096283470) {
+		protocol: string (13326370) { ? }
+		location: string (1268650975)
+	}
+	message: any (731395981) { ? }
+	operation: string (1196765369)
+}
+
+(setOutputPort, OPERATION):
+setOutputPort
+		(
+			void (1632392469) {
+				protocol: string (963269035) { ? }
+				name: string (1359484306)
+				location: any (2140832232)
+			}
+		)
+		(
+			void (1824835605)
+		)
+
+(LoadEmbeddedServiceRequest, TYPE):
+void (391447681) {
+	code: string (1182320432)
+}
+|
+void (1595953398) {
+	filepath: string (1734853116)
+	service: string (703504298)
+	type: string (201556483)
+	params: any (214074868) { ? }
+}
+
+(loadEmbeddedService, OPERATION):
+loadEmbeddedService
+		(
+			 1917513796
+				void (391447681) {
+					code: string (1182320432)
+				}
+				|
+				void (1595953398) {
+					filepath: string (1734853116)
+					service: string (703504298)
+					type: string (201556483)
+					params: any (214074868) { ? }
+				}
+		)
+		(
+			any (1442045361)
+		)
+
+(removeOutputPort, OPERATION):
+removeOutputPort
+		(
+			string (1418370913)
+		)
+		(
+			void (1824835605)
+		)
+
+(SetRedirectionRequest, TYPE):
+void (1393931310) {
+	inputPortName: string (269468037)
+	outputPortName: string (1681595665)
+	resourceName: string (787867107)
+}
+
+(GetRedirectionRequest, TYPE):
+void (321142942) {
+	inputPortName: string (157456214)
+	resourceName: string (1659791576)
+}
+
+(loadLibrary, OPERATION):
+loadLibrary
+		(
+			string (1418370913)
+		)
+		(
+			void (1824835605)
+		)
+
+(dumpState, OPERATION):
+dumpState
+		(
+			void (1824835605)
+		)
+		(
+			string (1418370913)
+		)
+______________
+Module: math.ol
+
+(PowRequest, TYPE):
+void (853993923) {
+	base: double (486898233)
+	exponent: double (650023597)
+}
+
+(pi, OPERATION):
+pi
+		(
+			void (1282473384)
+		)
+		(
+			double (575593575)
+		)
+
+(Math, SERVICE):
+null
+
+(MathInterface, INTERFACE):
+MathInterface
+	OneWay:
+	RequestResponse:
+		random
+		(
+			void (1282473384)
+		)
+		(
+			double (575593575)
+		)
+		abs
+		(
+			int (346861221)
+		)
+		(
+			int (346861221)
+		)
+		round
+		(
+			double (1556595366) {
+				decimals: int (1188392295)
+			}
+		)
+		(
+			double (575593575)
+		)
+		pi
+		(
+			void (1282473384)
+		)
+		(
+			double (575593575)
+		)
+		pow
+		(
+			void (853993923) {
+				base: double (486898233)
+				exponent: double (650023597)
+			}
+		)
+		(
+			double (575593575)
+		)
+		summation
+		(
+			void (591723622) {
+				from: int (226710952)
+				to: int (1509563803)
+			}
+		)
+		(
+			int (346861221)
+		)
+
+(pow, OPERATION):
+pow
+		(
+			void (853993923) {
+				base: double (486898233)
+				exponent: double (650023597)
+			}
+		)
+		(
+			double (575593575)
+		)
+
+(round, OPERATION):
+round
+		(
+			double (1556595366) {
+				decimals: int (1188392295)
+			}
+		)
+		(
+			double (575593575)
+		)
+
+(ip, INPUT_PORT):
+null
+
+(undefined, TYPE):
+any (684874119) { ? }
+
+(RoundRequestType, TYPE):
+double (1556595366) {
+	decimals: int (1188392295)
+}
+
+(SummationRequest, TYPE):
+void (591723622) {
+	from: int (226710952)
+	to: int (1509563803)
+}
+
+(random, OPERATION):
+random
+		(
+			void (1282473384)
+		)
+		(
+			double (575593575)
+		)
+
+(abs, OPERATION):
+abs
+		(
+			int (346861221)
+		)
+		(
+			int (346861221)
+		)
+
+(summation, OPERATION):
+summation
+		(
+			void (591723622) {
+				from: int (226710952)
+				to: int (1509563803)
+			}
+		)
+		(
+			int (346861221)
+		)
+______________
+Module: console.ol
+
+(registerForInput, OPERATION):
+registerForInput
+		(
+			void (1725097945) {
+				enableSessionListener: bool (1157740463)
+			}
+		)
+		(
+			void (1379435698)
+		)
+
+(unsubscribeSessionListener, OPERATION):
+unsubscribeSessionListener
+		(
+			void (1223685984) {
+				token: string (1529306539)
+			}
+		)
+		(
+			void (1379435698)
+		)
+
+(in, OPERATION):
+in
+		(
+			string (1525262377) {
+				token: string (1635985705)
+			}
+		)
+
+(SubscribeSessionListener, TYPE):
+void (1307096070) {
+	token: string (695682681)
+}
+
+(println, OPERATION):
+println
+		(
+			any (1073502961) { ? }
+		)
+		(
+			void (1379435698)
+		)
+
+(ConsoleInput, INPUT_PORT):
+null
+
+(enableTimestamp, OPERATION):
+enableTimestamp
+		(
+			bool (1778535015) {
+				format: string (1582797472)
+			}
+		)
+		(
+			void (1379435698)
+		)
+
+(Console, SERVICE):
+null
+
+(UnsubscribeSessionListener, TYPE):
+void (1223685984) {
+	token: string (1529306539)
+}
+
+(InRequest, TYPE):
+string (1525262377) {
+	token: string (1635985705)
+}
+
+(subscribeSessionListener, OPERATION):
+subscribeSessionListener
+		(
+			void (1307096070) {
+				token: string (695682681)
+			}
+		)
+		(
+			void (1379435698)
+		)
+
+(ConsoleIface, INTERFACE):
+ConsoleIface
+	OneWay:
+	RequestResponse:
+		print
+		(
+			any (1073502961) { ? }
+		)
+		(
+			void (1379435698)
+		)
+		println
+		(
+			any (1073502961) { ? }
+		)
+		(
+			void (1379435698)
+		)
+		registerForInput
+		(
+			void (1725097945) {
+				enableSessionListener: bool (1157740463)
+			}
+		)
+		(
+			void (1379435698)
+		)
+		unsubscribeSessionListener
+		(
+			void (1223685984) {
+				token: string (1529306539)
+			}
+		)
+		(
+			void (1379435698)
+		)
+		subscribeSessionListener
+		(
+			void (1307096070) {
+				token: string (695682681)
+			}
+		)
+		(
+			void (1379435698)
+		)
+		enableTimestamp
+		(
+			bool (1778535015) {
+				format: string (1582797472)
+			}
+		)
+		(
+			void (1379435698)
+		)
+
+(RegisterForInputRequest, TYPE):
+void (1725097945) {
+	enableSessionListener: bool (1157740463)
+}
+
+(undefined, TYPE):
+any (1073502961) { ? }
+
+(EnableTimestampRequest, TYPE):
+bool (1778535015) {
+	format: string (1582797472)
+}
+
+(print, OPERATION):
+print
+		(
+			any (1073502961) { ? }
+		)
+		(
+			void (1379435698)
+		)
+
+(ConsoleInputInterface, INTERFACE):
+ConsoleInputInterface
+	OneWay:
+		in
+		(
+			string (1525262377) {
+				token: string (1635985705)
+			}
+		)
+	RequestResponse:
 ______________
 -----------------------------------------
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
-creating output port Runtime
 STAGE 6: process behaviors
 
 ---- Processing behaviours for runtimeTest.ol--------
-a = 10
-void (201556483) {
-	a: int (146611050)
-}
+random@Math()()
+void (395629617)
 
 --------------------------
 
 dumpState@Runtime()(s1)
-op: staticTypechecker.entities.Operation@18be83e4
-void (731395981) {
-	a: int (146611050)
-	s1: string (95395916)
+void (876563773) {
+	s1: string (1418370913)
+}
+
+--------------------------
+
+print@Console(s1)()
+void (87765719) {
+	s1: string (1418370913)
 }
 
 --------------------------
 
 Final tree for module runtimeTest.ol:
-void (731395981) {
-	a: int (146611050)
-	s1: string (95395916)
+void (87765719) {
+	s1: string (1418370913)
 }
 
 --------------------------

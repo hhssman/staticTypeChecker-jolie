@@ -1,5 +1,8 @@
 package staticTypechecker.utils;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,7 @@ public class ModuleHandler {
 		String pathToFolder = ModuleHandler.getPath(fullPath);
 
 		Module module = new Module(moduleName, pathToFolder);
+
 		ModuleHandler.modules.put(fullPath, module);
 
 		loadedModules.add(module);
@@ -80,9 +84,18 @@ public class ModuleHandler {
 			String relativePath = importPath.subList(1, importPath.size()).stream().collect(Collectors.joining("/"));
 			return importer.path() + "/" + relativePath + ".ol";
 		}
+
+		String strPath = importPath.stream().collect(Collectors.joining("/")) + ".ol";
+		Path path = Paths.get(strPath);
+
+		if(Files.exists(path)){ // an actual file
+			return strPath;
+		}
+		else{ // from the std lib
+			// NOTE this is hardcoded, since I assume everytime the programmer makes an import with an absolute path, they want something from the std lib
+			return System.getenv("JOLIE_HOME") + "/packages/" + strPath;
+		}
 		
-		// NOTE this is hardcoded, since I assume everytime the programmer makes an import with an absolute path, they want something from the std lib
-		return System.getenv("JOLIE_HOME") + "/packages/" + importPath.stream().collect(Collectors.joining("/")) + ".ol";
 	}
 
 	/**

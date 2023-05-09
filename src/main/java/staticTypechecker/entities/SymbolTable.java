@@ -34,6 +34,8 @@ public class SymbolTable {
 
 			this.table.put(SymbolTable.newPair(t.id(), SymbolType.TYPE), typeStruct);
 		}
+
+		this.table.put(SymbolTable.newPair("undefined", SymbolType.TYPE), new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, true));
 	}
 
 	public boolean containsKey(String key){

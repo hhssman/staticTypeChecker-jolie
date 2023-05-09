@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
-import staticTypechecker.utils.Bisimulator;
+import staticTypechecker.utils.Simulator;
 
 /**
  * Represents a choice type in Jolie, such as "type a: int | string", i.e. types which can have multiple values.
@@ -177,11 +177,11 @@ public class ChoiceType extends Type {
 			return false;
 		}
 
-		return Bisimulator.equivalent(this, (ChoiceType)other);
+		return Simulator.equivalent(this, (ChoiceType)other);
 	}
 
 	public boolean isSubtypeOf(Type other){
-		return Bisimulator.isSubtypeOf(this, other);
+		return Simulator.isSubtypeOf(this, other);
 	}
 
 	public ChoiceType shallowCopy(){

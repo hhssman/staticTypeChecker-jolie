@@ -1,9 +1,4 @@
-- Der er ikke styr på absolute paths endnu
-
 - embed-as case i embeddings, skal jeg lige lave færdig også. Husk at jeg har en note i hæftet om dette
 
 
 - fjern identity hashcodes fra pretty print
-
-
-- hvis der ikke er en variabel i return af en solicit? som i dumpState@runtime()() <--- normalt ville der stå en variabel i parentes #2
