@@ -9,14 +9,18 @@ service MyService{
 		interfaces: AssertionsInterface
 	}
 
-	embed Assertions in lolleren
+	embed Assertions as assertions
 
 	main {
-		x = 10
+		// x = 10
 
-		while(true){
-			x.y << x
-			assert@lolleren(x instanceof Weird)
-		}
+		// while(true){
+		// 	x.y << x
+		// 	assert@lolleren(x instanceof Weird)
+		// }
+
+		a = 10
+		a.x = "Hello"
+		assert@assertions(a instanceof int)
 	}
 }

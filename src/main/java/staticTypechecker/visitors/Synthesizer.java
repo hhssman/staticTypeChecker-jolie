@@ -254,7 +254,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			
 			Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
 			Type typeOfEx = expression.accept(this, T);
-			this.check(typeOfEx, type, n.context(), ToString.of(expression) + " does not have the same type as the typehint. Found type:\n" + typeOfEx.prettyString());
+			String nameOfExpression = ToString.of(expression);
+			this.check(typeOfEx, type, n.context(), nameOfExpression + " does not have the same type as the typehint. Type of " + nameOfExpression + ":\n" + typeOfEx.prettyString() + "\n\nExpected type:\n" + type.prettyString());
 
 			Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
 			Type T1 = T.shallowCopyExcept(path);

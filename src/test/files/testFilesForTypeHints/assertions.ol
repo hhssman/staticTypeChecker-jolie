@@ -4,8 +4,8 @@ interface AssertionsInterface{
 }
 
 service Assertions{
-	inputPort in {
-		Location: local
+	inputPort inport {
+		Location: "local"
 		Protocol: sodep
 		Interfaces: AssertionsInterface
 	}

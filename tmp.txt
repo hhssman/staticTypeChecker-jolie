@@ -3,88 +3,45 @@ STAGE 2: process types
 STAGE 3: process interfaces
 STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
------------------------------------------
-Module: runtimeTest.ol
-
-(EmbedMe, SERVICE):
-EmbedMe
-	InputPorts:
-		EmbedMeInputPort
-		EmbedMeInputPort2
-	OutputPorts:
-
-(MyService, SERVICE):
-MyService
-
-(lol, OUTPUT_PORT):
-lol at local via  using [staticTypechecker.entities.Interface@5fe55608]
-
-(undefined, TYPE):
-any (1134712904) { ? }
-
-(EmbedMeInterface, INTERFACE):
-EmbedMeInterface
-	OneWay:
-	RequestResponse:
-
-(EmbedMeInterface2, INTERFACE):
-EmbedMeInterface2
-	OneWay:
-	RequestResponse:
-______________
-Module: embedMe.ol
-
-(EmbedMeInputPort, INPUT_PORT):
-EmbedMeInputPort at local via sodep exposing [
--
-EmbedMeInterface
-	OneWay:
-	RequestResponse:
-]
-
-(EmbedMe, SERVICE):
-EmbedMe
-	InputPorts:
-		EmbedMeInputPort
-		EmbedMeInputPort2
-	OutputPorts:
-
-(EmbedMeInputPort2, INPUT_PORT):
-EmbedMeInputPort2 at locasl via sodep exposing [
--
-EmbedMeInterface2
-	OneWay:
-	RequestResponse:
-]
-
-(undefined, TYPE):
-any (985922955) { ? }
-
-(EmbedMeInterface, INTERFACE):
-EmbedMeInterface
-	OneWay:
-	RequestResponse:
-
-(EmbedMeInterface2, INTERFACE):
-EmbedMeInterface2
-	OneWay:
-	RequestResponse:
-______________
------------------------------------------
 STAGE 6: process behaviors
 
----- Processing behaviours for runtimeTest.ol--------
+---- Processing behaviours for main.ol--------
 a = 10
-void (142666848) {
-	a: int (920011586)
+void (1626877848) {
+	a: int (249515771)
 }
 
 --------------------------
 
-Final tree for module runtimeTest.ol:
-void (142666848) {
-	a: int (920011586)
+a.x = "Hello"
+void (796533847) {
+	a: int (1449621165) {
+		x: string (1811044090)
+	}
 }
 
 --------------------------
+
+assert@assertions(null)
+void (1032616650) {
+	a: int (586617651)
+}
+
+--------------------------
+
+Final tree for module main.ol:
+void (1032616650) {
+	a: int (586617651)
+}
+
+--------------------------
+
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForTypeHints/main.ol' on line 24:
+a does not have the same type as the typehint. Type of a:
+int (1449621165) {
+	x: string (1811044090)
+}
+
+Expected type:
+int (586617651)
 
