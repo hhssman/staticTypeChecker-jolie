@@ -1,5 +1,5 @@
 // from .importInterface import ImportedInterface
-// from .embedMe import EmbedMe
+from .embedMe import EmbedMe
 // from .otherservice import EmbedInService, EmbedAsService, EmbedMeInterface1, EmbedMeInterface2
 
 interface MyInterface {
@@ -14,6 +14,7 @@ type A: int { x: string }
 
 
 service MyService() {
+
 	outputPort out1 {
 		Location: "socket://localhost:8081"
 		Protocol: http { format = "json" }

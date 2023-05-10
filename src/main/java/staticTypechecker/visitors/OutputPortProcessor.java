@@ -256,12 +256,16 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			}
 		}
 		else{ // in the case of an "embed as" output port, create a new and add it to symbols
-			// TODO, figure out what it means to use the same interface as the input port of the embedded service, talk to marco, especially what happens if there are multiple input ports?
-			List<InputPort> inputPortsOfService = service.inputPorts().stream().map(ent -> ent.getValue()).collect(Collectors.toList());
-			InputPort portToUse = inputPortsOfService.get(0); // HERE
-			String location = portToUse.location();
-			String protocol = portToUse.protocol();
-			HashSet<Interface> interfaces = portToUse.interfaces();
+			List<InputPort> inputPortsOfService = service.inputPorts().stream().map(ent -> ent.getValue()).filter(m -> m.location().equals("local")).collect(Collectors.toList()); // retrieve all inputports with the location "local"
+			
+			String location = "local";
+			String protocol = "";
+			HashSet<Interface> interfaces = new HashSet<>();
+
+			// add all interfaces of all the input ports
+			for(InputPort i : inputPortsOfService){
+				interfaces.addAll(i.interfaces());
+			}
 
 			// add all operations to the symbol table
 			for(Interface inter : interfaces){

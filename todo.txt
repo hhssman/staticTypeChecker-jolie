@@ -1,4 +1,8 @@
 - embed-as case i embeddings, skal jeg lige lave færdig også. Husk at jeg har en note i hæftet om dette
 
+- lav unit tests for alle entities en aften hvor du keder dig
+ - også unit tests der tjekker at de rigtige faults er der
 
 - fjern identity hashcodes fra pretty print
+
+- lav en light weight type check af std lib filer, dvs. dem behøver vi ikke køre behvaiour visitor på

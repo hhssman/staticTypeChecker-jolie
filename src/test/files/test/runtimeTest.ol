@@ -1,16 +1,15 @@
-from runtime import Runtime
-from console import Console
-from math import Math
+// from runtime import Runtime
+// from console import Console
+from .embedMe import EmbedMe
 
 service MyService() {
-	embed Runtime as Runtime
-	embed Console as Console
-	embed Math as Math
+	// embed Runtime as Runtime
+	// embed Console as Console
+	embed EmbedMe as lol
 
 	main {
-		random@Math(  )(  )
-		
-		dumpState@Runtime()(s1)
-		print@Console(s1)()
+		a = 10
+		// dumpState@Runtime()(s1)
+		// print@Console(s1)()
 	}
 }

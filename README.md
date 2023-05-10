@@ -6,3 +6,11 @@ mvn archetype:generate -DgroupId=staticTypechecker -DartifactId=staticTypechecke
 ```
 
 **NOTE** this project was built using maven version 3.6.3
+
+
+# Packaging
+To package the project use the following command in the root folder:
+
+```
+mvn clean compile assembly:single
+```

@@ -53,7 +53,7 @@ public class Main {
 		InterfaceProcessor iProcessor = new InterfaceProcessor();
 		ModuleHandler.runVisitor(iProcessor);
 
-		printAllSymbols();
+		// printAllSymbols();
 
 		// stage 4: process service-parameters and input ports in all services
 		System.out.println("STAGE 4: process input ports and service parameters");
