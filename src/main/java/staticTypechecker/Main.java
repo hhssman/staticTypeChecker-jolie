@@ -77,7 +77,8 @@ public class Main {
 		HashMap<String, Type> trees = new HashMap<>();
 		
 		ModuleHandler.modules().values().forEach(m -> {
-			BehaviorProcessor bProcessor = new BehaviorProcessor(m.fullPath().equals(args[0]));
+			// BehaviorProcessor bProcessor = new BehaviorProcessor(m.fullPath().equals(args[0]));
+			BehaviorProcessor bProcessor = new BehaviorProcessor(true);
 			trees.put(m.name(), bProcessor.process(m));
 		});
 

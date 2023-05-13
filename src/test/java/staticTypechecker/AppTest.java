@@ -190,7 +190,7 @@ public class AppTest{
 			}
 
 			if(!Symbol.equals(targetSymbol, resultSymbol)){
-				System.out.println("FAIL on symbol " + symbolName + ":\n" + resultSymbol.prettyString() + "\n\nis not equal to\n\n" + targetSymbol.prettyString());
+				System.out.println("FAIL on symbol " + symbolName + ":\nresult:\n" + resultSymbol.prettyString() + "\n\nis not equal to expected:\n\n" + targetSymbol.prettyString());
 				return false;
 			}
 

@@ -10,7 +10,7 @@ interface ImportedInterface2 {
 
 service ImportService1(a: int){
 	inputPort InputPort1 {
-		Location: "socket://localhost:8082"
+		Location: "local"
 		Protocol: sodep
 		Interfaces: ImportedInterface1
 	}

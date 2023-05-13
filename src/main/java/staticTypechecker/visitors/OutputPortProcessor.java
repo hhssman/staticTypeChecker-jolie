@@ -255,7 +255,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				FaultHandler.throwFault(new PortsIncompatibleFault(bindingPort, service, scapeGoatOps), n.context(), false);
 			}
 		}
-		else{ // in the case of an "embed as" output port, create a new and add it to symbols
+		else{ // in the case of an "embed-as" output port, create a new and add it to symbols
 			List<InputPort> inputPortsOfService = service.inputPorts().stream().map(ent -> ent.getValue()).filter(m -> m.location().equals("local")).collect(Collectors.toList()); // retrieve all inputports with the location "local"
 			
 			String location = "local";

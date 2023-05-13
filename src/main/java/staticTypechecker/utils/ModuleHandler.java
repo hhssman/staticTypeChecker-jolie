@@ -23,6 +23,7 @@ public class ModuleHandler {
 
 	/**
 	 * Loads the Jolie module with the given name by parsing it and creating Module instances, which are saved in ModuleHandler. Also loads all dependency-modules (modules which are imported from this one). 
+	 * @return a List of the loaded modules
 	 * @param moduleName the name of the module to load
 	 */
 	public static List<Module> loadModule(String fullPath){

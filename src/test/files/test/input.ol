@@ -23,7 +23,8 @@ service MyService() {
 
 	main {
 		a = 10
-		helloReqRes@out1(a)()
+		a.x = "hello"
+		undef(a)
 	}
 }
 

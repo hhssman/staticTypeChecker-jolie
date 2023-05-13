@@ -246,11 +246,13 @@ public class ChoiceType extends Type {
 		
 		int newLevel = level + 1;
 		
-		String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
+		// String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
+		String toString = "\n" + "\t".repeat(newLevel);
 		toString += this.choices.stream()
 			.map(c -> {
 				if(recursive.containsKey(c)){
-					return "recursive edge to (" + System.identityHashCode(c) + ")";
+					// return "recursive edge to (" + System.identityHashCode(c) + ")";
+					return "recursive edge";
 				}
 				IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each choice
 				return c.prettyString(newLevel, rec);

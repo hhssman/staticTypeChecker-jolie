@@ -313,7 +313,7 @@ public class InlineType extends Type {
 			result += "no type";
 		}
 
-		result += " (" + System.identityHashCode(this) + ")";
+		// result += " (" + System.identityHashCode(this) + ")";
 
 		// print the children if any
 		if(this.children.size() != 0){
@@ -332,7 +332,8 @@ public class InlineType extends Type {
 				}
 
 				if(recursive.containsKey(child)){ // child have been printed before, it is recursive
-					result += "\n" + "\t".repeat(level+1) + childName + " (recursive edge to " + System.identityHashCode(child) + ")";
+					// result += "\n" + "\t".repeat(level+1) + childName + " (recursive edge to " + System.identityHashCode(child) + ")";
+					result += "\n" + "\t".repeat(level+1) + childName + " (recursive edge)";
 					continue;
 				}
 

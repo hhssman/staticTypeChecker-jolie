@@ -48,7 +48,7 @@ public class OutputPortProcessorTester {
 		HashSet<Interface> interfacesimport = new HashSet<>();
 		Interface i3 = new Interface("ImportedInterface1");
 		interfacesimport.add(i3);
-		OutputPort imported = new OutputPort("i3", "socket://localhost:8082", "sodep", interfacesimport);
+		OutputPort imported = new OutputPort("i3", "local", "", interfacesimport);
 
 		target.put(SymbolTable.newPair("i3", SymbolType.OUTPUT_PORT), imported);
 

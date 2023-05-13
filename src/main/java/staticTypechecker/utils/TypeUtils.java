@@ -252,7 +252,7 @@ public class TypeUtils {
 					}
 				}
 			}
-			else{ // 
+			else{ // more than one basic type
 				ChoiceType newChild = new ChoiceType();
 
 				if(parent.getChild(childName) instanceof InlineType){

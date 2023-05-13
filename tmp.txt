@@ -5,43 +5,47 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
----- Processing behaviours for main.ol--------
-a = 10
-void (1626877848) {
-	a: int (249515771)
+---- Processing behaviours for Binding.ol--------
+Final tree for module Binding.ol:
+void
+
+--------------------------
+
+---- Processing behaviours for IOException.ol--------
+Final tree for module IOException.ol:
+void
+
+--------------------------
+
+---- Processing behaviours for runtimeTest.ol--------
+void {
+	m: string
 }
 
 --------------------------
 
-a.x = "Hello"
-void (796533847) {
-	a: int (1449621165) {
-		x: string (1811044090)
-	}
+Final tree for module runtimeTest.ol:
+void {
+	m: string
 }
 
 --------------------------
 
-assert@assertions(null)
-void (1032616650) {
-	a: int (586617651)
-}
+---- Processing behaviours for JavaException.ol--------
+Final tree for module JavaException.ol:
+void
 
 --------------------------
 
-Final tree for module main.ol:
-void (1032616650) {
-	a: int (586617651)
-}
+---- Processing behaviours for runtime.ol--------
+Final tree for module runtime.ol:
+void
 
 --------------------------
 
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForTypeHints/main.ol' on line 24:
-a does not have the same type as the typehint. Type of a:
-int (1449621165) {
-	x: string (1811044090)
-}
+---- Processing behaviours for console.ol--------
+Final tree for module console.ol:
+void
 
-Expected type:
-int (586617651)
+--------------------------
 
