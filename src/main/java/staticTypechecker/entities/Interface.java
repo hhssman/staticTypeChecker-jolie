@@ -33,6 +33,10 @@ public class Interface implements Symbol {
 		return this.operations.get(name);
 	}
 
+	public boolean containsOperation(String name){
+		return this.operations.containsKey(name);
+	}
+
 	public Collection<Entry<String, Operation>> operations(){
 		return this.operations.entrySet();
 	}
@@ -76,11 +80,17 @@ public class Interface implements Symbol {
 
 	@Override
 	public String prettyString(){
+		return this.prettyString(0);
+	}
+
+	public String prettyString(int level){
+		String res = "\t".repeat(level);
+
 		if(this.name == null){
-			return "null";
+			return res + "null";
 		}
 
-		String ret = this.name;
+		res += this.name;
 
 		ArrayList<Operation> oneWay = new ArrayList<>();
 		ArrayList<Operation> reqRes = new ArrayList<>();
@@ -98,21 +108,21 @@ public class Interface implements Symbol {
 		}
 		
 		// add oneway operations if any
-		ret += "\n\tOneWay:";
+		res += "\n" + "\t".repeat(level+1) + "OneWay:";
 		if(!oneWay.isEmpty()){
 			for(Operation op : oneWay){
-				ret += "\n\t\t" + op.prettyString();
+				res += "\n" + op.prettyString(level+2);
 			}
 		}
 
 		// add req res operations if any
-		ret += "\n\tRequestResponse:";
+		res += "\n" + "\t".repeat(level+1) + "RequestResponse:";
 		if(!reqRes.isEmpty()){
 			for(Operation op : reqRes){
-				ret += "\n\t\t" + op.prettyString();
+				res += "\n" + op.prettyString(level+2);
 			}
 		}
 
-		return ret;
+		return res;
 	}
 }

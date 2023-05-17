@@ -35,6 +35,15 @@ public class Service implements Symbol {
 		return this.inputPorts.get(name);
 	}
 
+	public Operation getOperation(String name){
+		for(InputPort ip : this.inputPorts.values()){
+			if(ip.containsOperation(name)){
+				return ip.getOperation(name);
+			}
+		}
+		return null;
+	}
+
 	public OutputPort getOutputPort(String name){
 		return this.outputPorts.get(name);
 	}
@@ -60,23 +69,33 @@ public class Service implements Symbol {
 	}
 
 	public String prettyString(){
+		return this.prettyString(0);
+	}
+
+	public String prettyString(int level){
 		String ret = this.name;
 
 		if(this.parameter != null){
-			ret += "(\n\t" + this.parameter.prettyString(1) + "\n)";
-		}
-
-		if(!this.inputPorts.isEmpty()){
-			ret += "\n\tInputPorts:";
-			for(Entry<String, InputPort> ent : this.inputPorts.entrySet()){
-				ret += "\n\t\t" + ent.getKey();
+			String param = this.parameter.prettyString(level+1);
+			if(param.contains("\n")){
+				ret += "(\n" + "\t".repeat(level+1) + param + "\n" + "\t".repeat(level) + ")";
+			}
+			else{
+				ret += "(" + param + ")";
 			}
 		}
 
 		if(!this.inputPorts.isEmpty()){
-			ret += "\n\tOutputPorts:";
+			ret += "\n" + "\t".repeat(level+1) + "InputPorts:";
+			for(Entry<String, InputPort> ent : this.inputPorts.entrySet()){
+				ret += "\n" + ent.getValue().prettyString(level+2);
+			}
+		}
+
+		if(!this.inputPorts.isEmpty()){
+			ret += "\n" + "\t".repeat(level+1) + "OutputPorts:";
 			for(Entry<String, OutputPort> ent : this.outputPorts.entrySet()){
-				ret += "\n\t\t" + ent.getKey();
+				ret += "\n" + ent.getValue().prettyString(level+2);
 			}
 		}
 

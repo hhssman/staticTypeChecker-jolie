@@ -1,5 +1,6 @@
 package staticTypechecker.visitors;
 
+import java.util.Stack;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.OLVisitor;
@@ -158,14 +159,8 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 
 	private Operation getOperation(OperationDeclaration decl, SymbolTable symbols){
 		String name = decl.id();
-		Operation op = (Operation)symbols.get(name, SymbolType.OPERATION);
+		Operation op;
 
-		// operation has already been made, return it
-		if(op != null){
-			return op;
-		}
-
-		// otherwise create it
 		if(decl instanceof RequestResponseOperationDeclaration){ // req res
 			RequestResponseOperationDeclaration parsedDecl = (RequestResponseOperationDeclaration)decl;
 			String requestTypeName = parsedDecl.requestType().name();
@@ -180,7 +175,7 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			op = new Operation(name, (Type)symbols.get(requestTypeName, SymbolType.TYPE), null, OperationType.ONEWAY);
 		}
 
-		symbols.put(SymbolTable.newPair(name, SymbolType.OPERATION), op);
+		// symbols.put(SymbolTable.newPair(name, SymbolType.OPERATION), op);
 
 		return op;
 	}
@@ -197,13 +192,6 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 			if(p != null){ // we imported an interface
 				// add the interface to the symbol table
 				symbols.put(SymbolTable.newPair(alias, SymbolType.INTERFACE), p);
-
-				// add the operations of the interface to the symbol table
-				for(Entry<String, Operation> ent : ((Interface)p).operations()){
-					String operationName = ent.getKey();
-					Operation op = ent.getValue();
-					symbols.put(SymbolTable.newPair(operationName, SymbolType.OPERATION), op);
-				}
 			}
 		}
 

@@ -3,7 +3,6 @@ package staticTypechecker.faults;
 import java.util.ArrayList;
 
 import jolie.lang.parse.context.ParsingContext;
-import staticTypechecker.entities.SymbolTable.Pair;
 
 /**
  * Handles all faults which may occur during the type checking

@@ -7,6 +7,7 @@ package staticTypechecker.entities;
  */
 public interface Symbol {
 	public String prettyString();
+	public String prettyString(int level);
 
 	public static boolean equals(Symbol A, Symbol B){
 		if(A == B){

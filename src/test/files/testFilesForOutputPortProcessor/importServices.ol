@@ -1,11 +1,21 @@
+type A: any {
+	x: string
+	y: A
+}
+
+type B: string | int
+
 interface ImportedInterface1{
 	RequestResponse:
 	OneWay:
+		MyOneWay(string)
 }
 
 interface ImportedInterface2 {
 	RequestResponse:
+		MyReqRes2(A)(B)
 	OneWay:
+		MyOneWay2(int)
 }
 
 service ImportService1(a: int){
@@ -13,6 +23,12 @@ service ImportService1(a: int){
 		Location: "local"
 		Protocol: sodep
 		Interfaces: ImportedInterface1
+	}
+
+	inputPort InputPort2 {
+		Location: "local"
+		Protocol: sodep
+		Interfaces: ImportedInterface2
 	}
 }
 

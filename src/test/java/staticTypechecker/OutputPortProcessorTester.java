@@ -37,9 +37,11 @@ public class OutputPortProcessorTester {
 		Interface i2 = new Interface("MyInterface2");
 		InlineType A = Type.ANY().addChild("x", Type.STRING());
 		A.addChildUnsafe("y", A);
-		ChoiceType B = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING()); 
-		i2.addOperation(new Operation("MyReqRes2", A, B, OperationType.REQRES));
-		i2.addOperation(new Operation("MyOneWay2", Type.INT(), null, OperationType.ONEWAY));
+		ChoiceType B = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING());
+		Operation myReqRes2 = new Operation("MyReqRes2", A, B, OperationType.REQRES);
+		i2.addOperation(myReqRes2);
+		Operation myOneWay2 = new Operation("MyOneWay2", Type.INT(), null, OperationType.ONEWAY);
+		i2.addOperation(myOneWay2);
 		interfacesOutputPort2.add(i2);
 		OutputPort OutputPort2 = new OutputPort("OutputPort2", "socket://localhost:8081", "http", interfacesOutputPort2);
 
@@ -47,7 +49,12 @@ public class OutputPortProcessorTester {
 
 		HashSet<Interface> interfacesimport = new HashSet<>();
 		Interface i3 = new Interface("ImportedInterface1");
+		i3.addOperation(new Operation("MyOneWay", Type.STRING(), null, OperationType.ONEWAY));
+		Interface i4 = new Interface("ImportedInterface2");
+		i4.addOperation(myReqRes2);
+		i4.addOperation(myOneWay2);
 		interfacesimport.add(i3);
+		interfacesimport.add(i4);
 		OutputPort imported = new OutputPort("i3", "local", "", interfacesimport);
 
 		target.put(SymbolTable.newPair("i3", SymbolType.OUTPUT_PORT), imported);

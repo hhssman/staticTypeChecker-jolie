@@ -267,16 +267,6 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				interfaces.addAll(i.interfaces());
 			}
 
-			// add all operations to the symbol table
-			for(Interface inter : interfaces){
-				for(Entry<String, Operation> ent : inter.operations()){
-					String opName = ent.getKey();
-					Operation op = ent.getValue();
-
-					symbols.put(SymbolTable.newPair(opName, SymbolType.OPERATION), op);
-				}
-			}
-
 			symbols.put(SymbolTable.newPair(portName, SymbolType.OUTPUT_PORT), new OutputPort(portName, location, protocol, interfaces));
 		}
 

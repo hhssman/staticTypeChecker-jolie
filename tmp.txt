@@ -5,14 +5,108 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 5:
-no parameter passed to the service "EmbedMe". Expected type:
+---- Processing behaviours for unknownFunctionError.ol--------
+class jolie.lang.parse.ast.ServiceNode
+class jolie.lang.parse.ast.Program
+class jolie.lang.parse.ast.DefinitionNode
+class jolie.lang.parse.ast.SequenceStatement
+arg = 10
+10
 int
 
-Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 6:
-Type given to service: "EmbedMe" is not of expected type. Type given: 
+--------------------------
+
+void {
+	arg: int
+}
+
+--------------------------
+
+arg.x = "hi"
+"hi"
 string
 
-Type expected:
+--------------------------
+
+void {
+	arg: int {
+		x: string
+	}
+}
+
+--------------------------
+
+arg.y = 20
+20
 int
+
+--------------------------
+
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+reqResFunction(arg)(out)
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+Final tree for module unknownFunctionError.ol:
+void {
+	arg: int {
+		x: string
+		y: int
+	}
+}
+
+--------------------------
+
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/unknownFunctionError.ol' on line 7:
+The operation 'reqResFunction' is unknown in service 'MyService'. Maybe you forgot to give the service an inputPort with an interface which provides the operation?
 

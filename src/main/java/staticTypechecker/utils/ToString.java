@@ -104,35 +104,35 @@ public class ToString implements OLVisitor<Void, String> {
 	}
 
 	public String visit(Program p, Void v){
-		return null;
+		return p.getClass().toString();
 	}
 
 	public String visit(TypeInlineDefinition t, Void v){
-		return null;
+		return t.getClass().toString();
 	}
 
 	public String visit( OneWayOperationDeclaration decl, Void v ){
-		return null;
+		return decl.getClass().toString();
 	};
 
 	public String visit( RequestResponseOperationDeclaration decl, Void v ){
-		return null;
+		return decl.getClass().toString();
 	};
 
 	public String visit( DefinitionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ParallelStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( SequenceStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( NDChoiceStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( OneWayOperationStatement n, Void v ){
@@ -165,11 +165,11 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( LinkInStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( LinkOutStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( AssignStatement n, Void v ){
@@ -217,7 +217,7 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( DefinitionCallStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( WhileStatement n, Void v ){
@@ -333,43 +333,43 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( Scope n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InstallStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( CompensateStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ThrowStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ExitStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ExecutionInfo n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( CorrelationSetInfo n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InputPortInfo n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( OutputPortInfo n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( PointerStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( DeepCopyStatement n, Void v ){
@@ -380,7 +380,7 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( RunStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( UndefStatement n, Void v ){
@@ -389,47 +389,47 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( ValueVectorSizeExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( PreIncrementStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( PostIncrementStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( PreDecrementStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( PostDecrementStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ForStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ForEachSubNodeStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ForEachArrayItemStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( SpawnStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( IsTypeExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InstanceOfExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( TypeCastExpressionNode n, Void v ){
@@ -437,19 +437,19 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( SynchronizedStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( CurrentHandlerStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( EmbeddedServiceNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InstallFixedVariableExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( VariablePathNode n, Void v ){
@@ -458,67 +458,67 @@ public class ToString implements OLVisitor<Void, String> {
 	};
 
 	public String visit( TypeDefinitionLink n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InterfaceDefinition n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( DocumentationComment n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( FreshValueExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( CourierDefinitionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( CourierChoiceStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( NotificationForwardStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( SolicitResponseForwardStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InterfaceExtenderDefinition n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( InlineTreeExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( VoidExpressionNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ProvideUntilStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( TypeChoiceDefinition n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ImportStatement n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( ServiceNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 
 	public String visit( EmbedServiceNode n, Void v ){
-		return null;
+		return n.getClass().toString();
 	};
 }
 

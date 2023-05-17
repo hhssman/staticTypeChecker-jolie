@@ -22,8 +22,8 @@ public class SymbolCollectorTester {
 		target.put(SymbolTable.newPair("penguin", SymbolType.TYPE), null);
 		target.put(SymbolTable.newPair("EmbedMe", SymbolType.SERVICE), null);
 		target.put(SymbolTable.newPair("MyInterface", SymbolType.INTERFACE), null);
-		target.put(SymbolTable.newPair("helloReqRes", SymbolType.OPERATION), null);
-		target.put(SymbolTable.newPair("helloOneway", SymbolType.OPERATION), null);
+		// target.put(SymbolTable.newPair("helloReqRes", SymbolType.OPERATION), null);
+		// target.put(SymbolTable.newPair("helloOneway", SymbolType.OPERATION), null);
 		target.put(SymbolTable.newPair("Y", SymbolType.TYPE), null);
 		target.put(SymbolTable.newPair("X", SymbolType.TYPE), null);
 		target.put(SymbolTable.newPair("paramType", SymbolType.TYPE), null);

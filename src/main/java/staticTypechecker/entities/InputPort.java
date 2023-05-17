@@ -52,6 +52,24 @@ public class InputPort implements Symbol {
 		this.interfaces = interfaces;
 	}
 
+	public boolean containsOperation(String name){
+		for(Interface i : this.interfaces){
+			if(i.containsOperation(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Operation getOperation(String name){
+		for(Interface i : this.interfaces){
+			if(i.containsOperation(name)){
+				return i.getOperation(name);
+			}
+		}
+		return null;
+	}
+
 	public int hashCode(){
 		return (int)(this.name.hashCode() + 31 * this.location.hashCode() + Math.pow(31, 2) * this.protocol.hashCode() + Math.pow(31, 3) * this.interfaces.hashCode());
 	}
@@ -85,22 +103,27 @@ public class InputPort implements Symbol {
 	}
 	
 	public String prettyString(){
+		return this.prettyString(0);
+	}
+
+	public String prettyString(int level){
+		String res = "\t".repeat(level);
 		
 		if(this.name == null){
-			return "null";
+			return res + "null";
 		}
 		
-		String res = this.name + " at " + this.location + " via " + this.protocol + " exposing [";
+		res += this.name + " at " + this.location + " via " + this.protocol + " exposing [";
 
 		if(this.interfaces.size() == 0){
 			res += "]";
 		}
 		else{
 			for(Interface i : this.interfaces){
-				res += "\n-\n" + i.prettyString();
+				res += "\n" + i.prettyString(level+1);
 			}
 
-			res += "\n]";
+			res += "\n" + "\t".repeat(level) + "]";
 		}
 
 		return res;

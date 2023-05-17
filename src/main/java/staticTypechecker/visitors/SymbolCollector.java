@@ -92,6 +92,7 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable.Pair;
+import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.entities.Type;
 
 /**
@@ -178,10 +179,6 @@ public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeChecke
 
 	@Override
 	public Void visit(InterfaceDefinition n, SymbolTable symbols) {
-		n.operationsMap().keySet().forEach(opName -> {
-			symbols.put(SymbolTable.newPair(opName, SymbolType.OPERATION), null);
-		});
-
 		symbols.put(SymbolTable.newPair(n.name(), SymbolType.INTERFACE), null);
 
 		return null;

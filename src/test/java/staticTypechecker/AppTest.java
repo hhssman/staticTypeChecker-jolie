@@ -17,6 +17,7 @@ import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;
 import staticTypechecker.visitors.SymbolCollector;
+import staticTypechecker.visitors.Synthesizer;
 import staticTypechecker.visitors.TypeCheckerVisitor;
 import staticTypechecker.visitors.TypeProcessor;
 
@@ -161,7 +162,7 @@ public class AppTest{
 	 * Step 2: interface processor,
 	 * Step 3: input port processor,
 	 * Step 4: output port processor,
-	 * Step 5: behaviour processor 
+	 * Step 5: synthesizer
 	 */
 	public static void runProcessors(List<Module> modules, int steps){
 		TypeCheckerVisitor[] visitors = {
@@ -169,17 +170,22 @@ public class AppTest{
 			new TypeProcessor(),
 			new InterfaceProcessor(),
 			new InputPortProcessor(),
-			new OutputPortProcessor(),
-			new BehaviorProcessor(false)
+			new OutputPortProcessor()
 		};
 
-		for(int i = 0; i <= steps; i++){
+		for(int i = 0; i <= Math.min(steps, 4); i++){
 			for(Module m : modules){
 				visitors[i].process(m, false);
 			}
 
 			for(Module m : modules){
 				visitors[i].process(m, true);
+			}
+		}
+
+		if(steps == 5){
+			for(Module m : modules){
+				Synthesizer.get(m).synthesize();
 			}
 		}
 	}
@@ -197,7 +203,7 @@ public class AppTest{
 			}
 
 			if(!Symbol.equals(targetSymbol, resultSymbol)){
-				System.out.println("FAIL on symbol " + symbolName + ":\nresult:\n" + resultSymbol.prettyString() + "\n\nis not equal to expected:\n\n" + targetSymbol.prettyString());
+				System.out.println("FAIL on symbol " + symbolName + ":\nresult:\n" + resultSymbol.prettyString() + "\n\nis not equal to expected:\n" + targetSymbol.prettyString());
 				return false;
 			}
 

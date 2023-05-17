@@ -17,6 +17,7 @@ import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;
 import staticTypechecker.visitors.SymbolCollector;
+import staticTypechecker.visitors.Synthesizer;
 import staticTypechecker.visitors.TypeProcessor;
 
 public class Main {
@@ -78,8 +79,9 @@ public class Main {
 		
 		ModuleHandler.modules().values().forEach(m -> {
 			// BehaviorProcessor bProcessor = new BehaviorProcessor(m.fullPath().equals(args[0]));
-			BehaviorProcessor bProcessor = new BehaviorProcessor(false);
-			trees.put(m.name(), bProcessor.process(m));
+			// BehaviorProcessor bProcessor = new BehaviorProcessor(false);
+			Synthesizer synth = Synthesizer.get(m, true);
+			trees.put(m.name(), synth.synthesize());
 		});
 
 		// printAllSymbols(trees);
@@ -94,7 +96,7 @@ public class Main {
 			System.out.println("Module: " + m.name());
 
 			for(Entry<Pair<String, SymbolType>, Symbol> symbol : m.symbols().entrySet()){
-				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key())){ // we dont want to print the base types
+				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key()) && !symbol.getKey().key().equals("undefined")){ // we dont want to print the base types
 					if(symbol.getValue() != null && symbol.getValue() != null){ // the symbol object have been initialized and can thus be pretty printed
 						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().prettyString());
 					}
@@ -115,7 +117,7 @@ public class Main {
 			System.out.println("Module: " + m.name());
 
 			for(Entry<Pair<String, SymbolType>, Symbol> symbol : m.symbols().entrySet()){
-				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key())){ // we dont want to print the base types
+				if(!NativeType.isNativeTypeKeyword(symbol.getKey().key()) && symbol.getKey().key().equals("undefined")){ // we dont want to print the base types
 					if(symbol.getValue() != null && symbol.getValue() != null){ // the symbol object have been initialized and can thus be pretty printed
 						System.out.println("\n" + symbol.getKey() + ":\n" + symbol.getValue().prettyString());
 					}

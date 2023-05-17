@@ -123,7 +123,7 @@ public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisi
 
 	public Type process(Module module){
 		this.module = module;
-		this.synthesizer = Synthesizer.get(module);
+		this.synthesizer = Synthesizer.get(module, false);
 
 		if(this.print){
 			System.out.println("---- Processing behaviours for " + module.name() + "--------");

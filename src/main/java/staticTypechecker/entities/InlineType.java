@@ -338,7 +338,7 @@ public class InlineType extends Type {
 				}
 
 				IdentityHashMap<Type, Void> rec = new IdentityHashMap<>(recursive); // shallow copy to not pass the same to each chilf
-				result += "\n" + "\t".repeat(level+1) + childName + ": " + child.prettyString(level+1, rec);
+				result += "\n" + "\t".repeat(level+1) + childName + ": " + (child instanceof InlineType ? child.prettyString(level+1, rec) : child.prettyString(level+2, rec));
 			}
 
 			result += "\n" + "\t".repeat(level) + "}"; // close the bracket again

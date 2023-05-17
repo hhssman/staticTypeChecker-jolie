@@ -244,7 +244,8 @@ public class ChoiceType extends Type {
 	public String prettyString(int level, IdentityHashMap<Type, Void> recursive){
 		recursive.put(this, null);
 		
-		int newLevel = level + 1;
+		// int newLevel = level + 1;
+		int newLevel = level;
 		
 		// String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
 		String toString = "\n" + "\t".repeat(newLevel);

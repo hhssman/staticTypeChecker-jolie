@@ -178,10 +178,10 @@ public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 
 	@Override
 	public Void visit(InputPortInfo n, SymbolTable symbols) {
-		// ready the data
 		String portName = n.id();
 		String location;
 
+		// TODO not sure if it can be anything else than constant
 		if(n.location() instanceof ConstantStringExpression){
 			location = ((ConstantStringExpression)n.location()).value();
 		}

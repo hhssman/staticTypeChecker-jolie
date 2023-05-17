@@ -1,6 +1,5 @@
 package staticTypechecker;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,9 +7,8 @@ import java.util.Map.Entry;
 import jolie.lang.parse.ast.EmbedServiceNode;
 import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.lang.parse.ast.ServiceNode;
-import jolie.lang.parse.context.URIParsingContext;
 import staticTypechecker.utils.ModuleHandler;
-import staticTypechecker.visitors.BehaviorProcessor;
+import staticTypechecker.visitors.Synthesizer;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Module;
@@ -20,23 +18,24 @@ import staticTypechecker.faults.Fault;
 import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.NoServiceParameterFault;
 import staticTypechecker.faults.TypeFault;
+import staticTypechecker.faults.UnknownFunctionFault;
 
 public class BehaviourProcessorTester {
 	public static boolean testNil(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNil.ol";
-		List<Module> modules = ModuleHandler.loadModule(moduleName);
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 		Type target = Type.VOID();
-
+		
 		return result.equals(target);
 	}
 
 	public static boolean testSeq(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testSeq.ol";
-		List<Module> modules = ModuleHandler.loadModule(moduleName);
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 		InlineType a = Type.INT();
@@ -52,7 +51,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNotify.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 		InlineType inputType = Type.INT();
@@ -67,7 +66,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testOneWay.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 		InlineType inputType = Type.INT();
@@ -88,7 +87,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testSolicit.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 
@@ -111,7 +110,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testRequest.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 
@@ -134,14 +133,14 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testChoice.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 		
 		// first choice, tree1
 		InlineType tree1 = Type.VOID();
 		tree1.addChildUnsafe("arg", Type.INT().addChild("x", Type.STRING()).addChild("y", Type.INT()));
-		tree1.addChildUnsafe("out", Type.STRING().addChild("x", Type.STRING()));
+		tree1.addChildUnsafe("out", Type.STRING().addChild("x", Type.STRING()).addChild("y", Type.INT()));
 
 		// second choice, tree2
 		InlineType tree2 = Type.VOID();
@@ -165,7 +164,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhile.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -192,7 +191,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback1.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -211,7 +210,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback2.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -240,7 +239,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNestedWhile.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -263,7 +262,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNestedWhileFallback.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -289,7 +288,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testIf.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -315,7 +314,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNestedIf.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		ChoiceType target = new ChoiceType();
 
@@ -350,7 +349,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testAssign.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 
@@ -365,7 +364,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testUndef.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID().addChild("b", Type.STRING());
 
@@ -376,7 +375,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testDeepCopy.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 
@@ -403,7 +402,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testOperationAssign.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		InlineType result = (InlineType)new BehaviorProcessor(false).process(modules.get(0));
+		InlineType result = (InlineType)Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 
@@ -631,7 +630,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testTypeCasting.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 		
@@ -646,11 +645,13 @@ public class BehaviourProcessorTester {
 	
 	public static boolean testErrors(){
 		String[] moduleNames = {
+			"embedInterfaceError.ol",
 			"ifError.ol",
 			"notifyError.ol",
+			"paramError.ol",
 			"reqresError.ol",
 			"solicitError.ol",
-			"paramError.ol"
+			"unknownFunctionError.ol"
 		};
 
 		ArrayList<Module> modules = new ArrayList<>();
@@ -691,6 +692,7 @@ public class BehaviourProcessorTester {
 
 		TypeFault wrongParamError = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 6:\nType given to service: \"EmbedMe\" is not of expected type. Type given:\nstring\n\nType expected:\nint", null);;
 
+		UnknownFunctionFault unknownFuncError = new UnknownFunctionFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/unknownFunctionError.ol' on line 7:\nThe operation 'reqResFunction' is unknown in service 'MyService'. Maybe you forgot to give the service an inputPort with an interface which provides the operation?", null);
 
 		Fault[] faults = {
 			ifFault,
@@ -698,12 +700,12 @@ public class BehaviourProcessorTester {
 			reqresFault,
 			solicitError,
 			noParamError,
-			wrongParamError
+			wrongParamError,
+			unknownFuncError
 		};
 
 		for(Fault f : faults){
 			if(!FaultHandler.contains(f)){
-				// FaultHandler.printFaults();
 				System.out.println("fault is not present:\n" + f.getMessage());
 				return false;
 			}
@@ -717,7 +719,7 @@ public class BehaviourProcessorTester {
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileTypeHint.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
-		Type result = new BehaviorProcessor(false).process(modules.get(0));
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
 		InlineType target = Type.VOID();
 

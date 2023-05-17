@@ -95,14 +95,34 @@ public class Operation implements Symbol {
 	}
 
 	public String prettyString(){
+		return prettyString(0);
+	}
+
+	public String prettyString(int level){
+		String ret = "\t".repeat(level);
+
 		if(this.name == null){
-			return "null";
+			return ret + "null";
 		}
 
-		String ret = this.name + "\n\t\t(\n\t\t\t" + this.requestType().prettyString(3) + "\n\t\t)";
+		ret += this.name;
+
+		String request = this.requestType().prettyString(level+1);
+		if(request.contains("\n")){
+			ret += "\n" + "\t".repeat(level) + "(\n" + "\t".repeat(level+1) + request + "\n" + "\t".repeat(level) + ")";
+		}
+		else{
+			ret += "(" + request + ")";
+		}
 
 		if(this.operationType == OperationType.REQRES){
-			ret += "\n\t\t(\n\t\t\t" + this.responseType().prettyString(3) + "\n\t\t)";
+			String response = this.requestType().prettyString(level+1);
+			if(response.contains("\n")){
+				ret += "\n" + "\t".repeat(level) + "(\n" + "\t".repeat(level+1) + response + "\n" + "\t".repeat(level) + ")";
+			}
+			else{
+				ret += "(" + response + ")";
+			}
 		}
 
 		return ret;
