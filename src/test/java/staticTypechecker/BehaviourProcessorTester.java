@@ -1,14 +1,25 @@
 package staticTypechecker;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import jolie.lang.parse.ast.EmbedServiceNode;
+import jolie.lang.parse.ast.OLSyntaxNode;
+import jolie.lang.parse.ast.ServiceNode;
+import jolie.lang.parse.context.URIParsingContext;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Module;
+import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Type;
+import staticTypechecker.faults.Fault;
+import staticTypechecker.faults.FaultHandler;
+import staticTypechecker.faults.NoServiceParameterFault;
+import staticTypechecker.faults.TypeFault;
 
 public class BehaviourProcessorTester {
 	public static boolean testNil(){
@@ -633,7 +644,75 @@ public class BehaviourProcessorTester {
 		return result.equals(target);
 	}
 	
+	public static boolean testErrors(){
+		String[] moduleNames = {
+			"ifError.ol",
+			"notifyError.ol",
+			"reqresError.ol",
+			"solicitError.ol",
+			"paramError.ol"
+		};
 
+		ArrayList<Module> modules = new ArrayList<>();
+		for(String moduleName : moduleNames){
+			modules.addAll(ModuleHandler.loadModule(AppTest.BASE_PATH + "testFilesForErrors/" + moduleName));
+		}
+		AppTest.runProcessors(modules, 5);
+
+		TypeFault ifFault = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/ifError.ol' on line 6:\nGuard of if-statement is not subtype of bool { ? }. Found type:\nint {\n\tx: string\n}", null);
+
+		TypeFault notifyFault = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/notifyError.ol' on line 21:\nType given to \"sendMessage\" is different from what is expected. Given type:\nvoid {\n\tmessage: string\n\tsender: string\n}\n\nExpected type:\nvoid {\n\tsender: string\n\ttime: int\n\tmessage: string\n}", null);
+
+		TypeFault reqresFault = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/reqresError.ol' on line 20:\noperation \"sendMessage\" does not have the expected return type.\nActual return type:\nint\n\nExpected return type:\nbool", null);
+
+		TypeFault solicitError = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/notifyError.ol' on line 21:\nType given to \"sendMessage\" is different from what is expected. Given type:\nvoid {\n\tmessage: string\n\tsender: string\n}\n\nExpected type:\nvoid {\n\tsender: string\n\ttime: int\n\tmessage: string\n}", null);
+
+		Service embedMe = new Service();
+		embedMe.setName("EmbedMe");
+		embedMe.setParameter(Type.INT());
+		NoServiceParameterFault noParamError = null;
+
+		// find the parsing context of the embedding to use in the fault
+		for(Module m : modules){
+			if(m.name().equals("paramError.ol")){
+				for(OLSyntaxNode n : m.program().children()){
+					if(n instanceof ServiceNode && ((ServiceNode)n).name().equals("Main")){
+						ServiceNode s = (ServiceNode)n;
+						for(OLSyntaxNode c : s.program().children()){
+							if(c instanceof EmbedServiceNode && ((EmbedServiceNode)c).bindingPort().id().equals("lol")){
+								System.out.println();
+								noParamError = new NoServiceParameterFault(embedMe, c.context());
+							}
+						}
+					}
+				}
+			}
+		}
+
+		TypeFault wrongParamError = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 6:\nType given to service: \"EmbedMe\" is not of expected type. Type given:\nstring\n\nType expected:\nint", null);;
+
+
+		Fault[] faults = {
+			ifFault,
+			notifyFault,
+			reqresFault,
+			solicitError,
+			noParamError,
+			wrongParamError
+		};
+
+		for(Fault f : faults){
+			if(!FaultHandler.contains(f)){
+				// FaultHandler.printFaults();
+				System.out.println("fault is not present:\n" + f.getMessage());
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	// TODO
 	public static boolean testWhileTypeHint(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileTypeHint.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);

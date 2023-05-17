@@ -78,7 +78,7 @@ public class Main {
 		
 		ModuleHandler.modules().values().forEach(m -> {
 			// BehaviorProcessor bProcessor = new BehaviorProcessor(m.fullPath().equals(args[0]));
-			BehaviorProcessor bProcessor = new BehaviorProcessor(true);
+			BehaviorProcessor bProcessor = new BehaviorProcessor(false);
 			trees.put(m.name(), bProcessor.process(m));
 		});
 

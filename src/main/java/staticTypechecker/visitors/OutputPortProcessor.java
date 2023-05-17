@@ -199,7 +199,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			
 			// check that a parameter was actually provided
 			if(passingParameter == null){
-				FaultHandler.throwFault(new NoServiceParameterFault(service), n.context(), false);
+				FaultHandler.throwFault(new NoServiceParameterFault(service, n.context()), false);
 				return null;
 			}
 
@@ -209,7 +209,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 				providedType = Synthesizer.get(this.module).synthesize(passingParameter, null);
 			}
 
-			Synthesizer.get(this.module).check(providedType, expectedType, n.context(), "Type given to service: \"" + serviceName + "\" is not of expected type.\nType given: \n" + providedType.prettyString() + "\n\nType expected:\n" + expectedType.prettyString()); // check that it is a subtype
+			Synthesizer.get(this.module).check(providedType, expectedType, n.context(), "Type given to service: \"" + serviceName + "\" is not of expected type. Type given:\n" + providedType.prettyString() + "\n\nType expected:\n" + expectedType.prettyString()); // check that it is a subtype
 		}
 
 		if(!isNewPort){ // this is an "embed-in" case, where we use an existing output port, check if interfaces are compatible
@@ -252,7 +252,7 @@ public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCh
 			}
 
 			if(!portSatisfied){ // interface requirements are not met by the service
-				FaultHandler.throwFault(new PortsIncompatibleFault(bindingPort, service, scapeGoatOps), n.context(), false);
+				FaultHandler.throwFault(new PortsIncompatibleFault(bindingPort, service, scapeGoatOps, n.context()), false);
 			}
 		}
 		else{ // in the case of an "embed-as" output port, create a new and add it to symbols

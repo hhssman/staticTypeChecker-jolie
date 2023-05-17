@@ -5,8 +5,8 @@ type MessageType: void {
 }
 
 interface MessageInterface {
-	OneWay:
-		sendMessage( MessageType )
+	RequestResponse:
+		sendMessage( MessageType )( bool )
 }
 
 service MyService() {
@@ -17,7 +17,9 @@ service MyService() {
 	main {
 		msgObj.sender = "John Doe"
 		msgObj.message = "Hello World!"
+		sendMessage@messageSender(msgObj)(success)
 
-		sendMessage@messageSender(msgObj)
+		msgObj.time = true
+		sendMessage@messageSender(msgObj)(success)
 	}
 }

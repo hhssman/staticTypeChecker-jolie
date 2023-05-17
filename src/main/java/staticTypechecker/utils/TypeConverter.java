@@ -142,7 +142,7 @@ public class TypeConverter {
 			TypeDefinition linkedType = ((TypeDefinitionLink)type).linkedType();
 
 			if(linkedType == root){
-				FaultHandler.throwFault(new TypeDefinitionLinkLoopFault(root.name()), root.context(), true);
+				FaultHandler.throwFault(new TypeDefinitionLinkLoopFault(root.name(), root.context()), true);
 			}
 
 			TypeConverter.getChoicesRec(linkedType, list, root);

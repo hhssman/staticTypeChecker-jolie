@@ -12,6 +12,7 @@ import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
+import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;
@@ -148,6 +149,11 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testTypeCasting());
 	}
 
+	@Test
+	public void testErrors(){
+		assertTrue(BehaviourProcessorTester.testErrors());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,
@@ -163,7 +169,8 @@ public class AppTest{
 			new TypeProcessor(),
 			new InterfaceProcessor(),
 			new InputPortProcessor(),
-			new OutputPortProcessor()
+			new OutputPortProcessor(),
+			new BehaviorProcessor(false)
 		};
 
 		for(int i = 0; i <= steps; i++){

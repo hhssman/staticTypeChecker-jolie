@@ -5,47 +5,14 @@ STAGE 4: process input ports and service parameters
 STAGE 5: process output ports and embeddings
 STAGE 6: process behaviors
 
----- Processing behaviours for Binding.ol--------
-Final tree for module Binding.ol:
-void
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 5:
+no parameter passed to the service "EmbedMe". Expected type:
+int
 
---------------------------
+Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/paramError.ol' on line 6:
+Type given to service: "EmbedMe" is not of expected type. Type given: 
+string
 
----- Processing behaviours for IOException.ol--------
-Final tree for module IOException.ol:
-void
-
---------------------------
-
----- Processing behaviours for runtimeTest.ol--------
-void {
-	m: string
-}
-
---------------------------
-
-Final tree for module runtimeTest.ol:
-void {
-	m: string
-}
-
---------------------------
-
----- Processing behaviours for JavaException.ol--------
-Final tree for module JavaException.ol:
-void
-
---------------------------
-
----- Processing behaviours for runtime.ol--------
-Final tree for module runtime.ol:
-void
-
---------------------------
-
----- Processing behaviours for console.ol--------
-Final tree for module console.ol:
-void
-
---------------------------
+Type expected:
+int
 

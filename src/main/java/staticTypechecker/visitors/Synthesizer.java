@@ -243,13 +243,13 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		if(operationName.equals("assert") && outputPortName.equals(System.getProperty("typehint"))){
 			if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
-				FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression"), n.context(), true);
+				FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression", n.context()), true);
 			}
 			InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
 			OLSyntaxNode expression = parsedNode.expression();
 
 			if(!(expression instanceof VariableExpressionNode)){
-				FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable"), n.context(), true);
+				FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable", n.context()), true);
 			}
 			
 			Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
@@ -402,7 +402,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
 				Type typeOfEx = expression.accept(this, T);
-				this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not of type bool. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
+				this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not subtype of bool { ? }. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
 				Type T1 = body.accept(this, T);
 				resultType.addChoiceUnsafe(T1);
 			}
@@ -825,7 +825,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public void check(Type T, Type S, ParsingContext ctx, String faultMessage){
 		if(!T.isSubtypeOf(S)){
-			FaultHandler.throwFault(new TypeFault(faultMessage), ctx, false);
+			FaultHandler.throwFault(new TypeFault(faultMessage, ctx), false);
 		}
 	}
 }

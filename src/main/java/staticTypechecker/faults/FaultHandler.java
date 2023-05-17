@@ -3,6 +3,7 @@ package staticTypechecker.faults;
 import java.util.ArrayList;
 
 import jolie.lang.parse.context.ParsingContext;
+import staticTypechecker.entities.SymbolTable.Pair;
 
 /**
  * Handles all faults which may occur during the type checking
@@ -10,11 +11,11 @@ import jolie.lang.parse.context.ParsingContext;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class FaultHandler {
-	private static ArrayList<String> faults = new ArrayList<>();
+	private static ArrayList<Fault> faults = new ArrayList<>();
 
-	public static void throwFault(Fault fault, ParsingContext ctx, boolean terminate){
-		String message = "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n" + fault.getMessage();
-		FaultHandler.faults.add(message);
+	public static void throwFault(Fault fault, boolean terminate){
+		
+		FaultHandler.faults.add(fault);
 
 		if(terminate){
 			FaultHandler.printFaults();
@@ -26,10 +27,27 @@ public class FaultHandler {
 		return FaultHandler.faults.isEmpty();
 	}
 
+	public static boolean contains(Fault fault){
+		for(Fault f : FaultHandler.faults){
+			if(Fault.equals(f, fault)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static void printFaults(){
-		for(String f : FaultHandler.faults){
-			System.out.println(f);
+		for(Fault f : FaultHandler.faults){
+			System.out.println(f.getMessage());
 			System.out.println();
 		}
+	}
+
+	public static String getFaultContextMessage(ParsingContext ctx){
+		if(ctx == null){
+			return "";
+		}
+		
+		return "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n";
 	}
 }

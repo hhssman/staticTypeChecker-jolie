@@ -15,8 +15,8 @@ import staticTypechecker.entities.Type;
  */
 public class Simulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){
-		if(t2 == null){ // if t2 is null, then t1 must also be null
-			return t1 == null;
+		if(t1 == null || t2 == null){ // if any if them is null, then they must both be
+			return t1 == null && t2 == null;
 		}
 
 		return isSubtypeOfRec(t1, t2, new IdentityHashMap<>());
@@ -57,7 +57,7 @@ public class Simulator {
 				}
 			}
 			if(y.isClosed()){
-				if(!isSubSetOf(xLabels, yLabels) || x.isOpen()){
+				if(x.isOpen() || !isSubSetOf(xLabels, yLabels)){
 					return false;
 				}
 			}

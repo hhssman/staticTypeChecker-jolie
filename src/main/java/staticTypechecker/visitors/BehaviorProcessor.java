@@ -95,7 +95,7 @@ import staticTypechecker.entities.Path;
  * 
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
-public class BehaviorProcessor implements OLVisitor<Type, Type> {
+public class BehaviorProcessor implements OLVisitor<Type, Type>, TypeCheckerVisitor {
 	private Module module;
 	private Synthesizer synthesizer;
 	private boolean print = false;
@@ -115,6 +115,10 @@ public class BehaviorProcessor implements OLVisitor<Type, Type> {
 		if(this.print){
 			System.out.println(ToString.of(node));
 		}
+	}
+
+	public Type process(Module module, boolean imports){
+		return this.process(module);
 	}
 
 	public Type process(Module module){
