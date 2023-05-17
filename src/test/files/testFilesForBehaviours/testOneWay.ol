@@ -9,6 +9,12 @@ type inputType: int{
 }
 
 service MyService(){
+	inputPort in {
+		location: "local"
+		protocol: sodep
+		interfaces: MyInterface
+	}
+	
 	main{
 		inputType = 10
 		inputType.x = "hi"

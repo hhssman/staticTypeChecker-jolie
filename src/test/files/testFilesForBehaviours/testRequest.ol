@@ -13,12 +13,12 @@ type outputType: string {
 }
 
 service MyService(){
-	outputPort out {
+	inputPort in {
 		Location: "socket://localhost:8081"
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
-	
+
 	main{
 		arg = 10
 		arg.x = "hi"

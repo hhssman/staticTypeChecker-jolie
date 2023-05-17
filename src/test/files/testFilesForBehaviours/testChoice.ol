@@ -16,16 +16,18 @@ type outputType: string {
 }
 
 service MyService(){
-	outputPort out {
+	inputPort in {
 		Location: "socket://localhost:8081"
 		Protocol: http { format = "json" }
 		Interfaces: MyInterface
 	}
 	
 	main{
-		[reqResFunction(arg)(out)]{
+		[reqResFunction(arg)(out){
 			out = "hey"
 			out.x = "hi"
+		}]{
+			out.y = 10
 		}
 		[oneWayFunction(input)]{
 			out = 10
