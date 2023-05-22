@@ -7,6 +7,8 @@ package staticTypechecker.faults;
  */
 public interface Fault {
 	public String getMessage();
+	public int hashCode();
+	public boolean equals(Object other);
 
 	public static boolean equals(Fault f1, Fault f2){
 		if(f1 == f2){

@@ -17,6 +17,7 @@ import staticTypechecker.entities.Type;
 import staticTypechecker.faults.Fault;
 import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.NoServiceParameterFault;
+import staticTypechecker.faults.PortsIncompatibleFault;
 import staticTypechecker.faults.TypeFault;
 import staticTypechecker.faults.UnknownFunctionFault;
 
@@ -660,6 +661,8 @@ public class BehaviourProcessorTester {
 		}
 		AppTest.runProcessors(modules, 5);
 
+		PortsIncompatibleFault embedFault = new PortsIncompatibleFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/embedInterfaceError.ol' on line 44:\nservice 'EmbedMe' does not provide operations:\n\tmyOneWay(void)\nrequired by port 'mainPort'");
+
 		TypeFault ifFault = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/ifError.ol' on line 6:\nGuard of if-statement is not subtype of bool { ? }. Found type:\nint {\n\tx: string\n}", null);
 
 		TypeFault notifyFault = new TypeFault("Critical error in file '/mnt/c/Users/Kasper/Desktop/sdu/speciale/staticTypeChecker-jolie/./src/test/files/testFilesForErrors/notifyError.ol' on line 21:\nType given to \"sendMessage\" is different from what is expected. Given type:\nvoid {\n\tmessage: string\n\tsender: string\n}\n\nExpected type:\nvoid {\n\tsender: string\n\ttime: int\n\tmessage: string\n}", null);
@@ -701,7 +704,8 @@ public class BehaviourProcessorTester {
 			solicitError,
 			noParamError,
 			wrongParamError,
-			unknownFuncError
+			unknownFuncError,
+			embedFault
 		};
 
 		for(Fault f : faults){

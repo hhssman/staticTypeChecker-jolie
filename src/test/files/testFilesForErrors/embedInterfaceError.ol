@@ -1,14 +1,12 @@
 interface EmbedInt1 {
 	RequestResponse:
 	OneWay:
-		myOneWay(void)
+		myOneWay(string)
 }
 
 interface EmbedInt2 {
 	RequestResponse:
 		myReqRes(void)(void)
-	OneWay:
-		myOneWay(int)
 }
 
 service EmbedMe {

@@ -297,10 +297,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			return T;
 		}
 
-		// if the notify is inside a while-loop and it is an assertion, it is a typehint, so we must check 
 		String operationName = op.name();
 		String outputPortName = n.outputPortId();
-
+		
+		// if the notify is an assertion, it is a typehint
 		if(operationName.equals("assert") && outputPortName.equals(System.getProperty("typehint"))){
 			if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
 				FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression", n.context()), true);
@@ -323,6 +323,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			return T1;
 		}
 		
+		// else it is just a normal oneway invocation
 		Type T_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression() != null ? this.synthesize(n.outputExpression(), T) : Type.VOID(); // the type which is GIVEN to the oneway operation
 
@@ -466,12 +467,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			OLSyntaxNode expression = p.key();
 			OLSyntaxNode body = p.value();
 
-			if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
-				Type typeOfEx = this.synthesize(expression, T);
-				this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not subtype of bool { ? }. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
-				Type T1 = this.synthesize(body, T);
-				resultType.addChoiceUnsafe(T1);
-			}
+			Type typeOfEx = this.synthesize(expression, T);
+			this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not subtype of bool { ? }. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
+			Type T1 = this.synthesize(body, T);
+			resultType.addChoiceUnsafe(T1);
+			// if(!(expression instanceof InstanceOfExpressionNode)){ // COND-1, e is an expression of anything else than instanceof
+			// }
 		}
 
 		OLSyntaxNode elseProcess = n.elseProcess();
@@ -512,30 +513,22 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		mergedState.addChoiceUnsafe(originalState);
 
 		for(int i = 0; i < 10; i++){
-			// System.out.println("-------------- ITERATION " + i + " -----------------" );
-			// System.out.println("T:\n" + T.prettyString() + "\n");
-			
 			Type R = this.synthesize(body, T); // synthesize the type of the body after an iteration
 			typeOfCondition = this.synthesize(condition, R);
 			this.check(typeOfCondition, Type.BOOL(), n.context(), "Guard of while loop is not of type bool. Found type:\n" + typeOfCondition.prettyString()); // check that the initial condition is of type bool
-			// System.out.println("R:\n" + R.prettyString() + "\n");
 			
 			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
-				// System.out.println("subtype!");
 				result.addChoiceUnsafe(mergedState);
 				this.setInWhileStatus(false);
 				return result;
 			}
 
 			mergedState.addChoiceUnsafe(R);
-			// System.out.println("merged state:\n" + mergedState.prettyString() + "\n");
 			T = R;
 		}
 
 		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
-		// System.out.println("FALLBACK");
 		result.addChoiceUnsafe( TypeUtils.undefine(originalState, this.pathsAlteredInWhile.peek()) );
-		// System.out.println("\n\n");
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
 		

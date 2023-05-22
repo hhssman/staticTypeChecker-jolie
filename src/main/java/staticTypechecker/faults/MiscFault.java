@@ -3,13 +3,30 @@ package staticTypechecker.faults;
 import jolie.lang.parse.context.ParsingContext;
 
 public class MiscFault implements Fault {
-	private String faultMessage;
+	private String message;
 
-	public MiscFault(String faultMessage, ParsingContext ctx){
-		this.faultMessage = FaultHandler.getFaultContextMessage(ctx) + faultMessage;
+	public MiscFault(String message, ParsingContext ctx){
+		this.message = FaultHandler.getFaultContextMessage(ctx) + message;
 	}
 
 	public String getMessage(){
-		return this.faultMessage;
+		return this.message;
+	}
+
+	public int hashCode(){
+		return this.message.hashCode();
+	}
+
+	public boolean equals(Object other){
+		if(this == other){
+			return true;
+		}
+
+		if(!this.getClass().equals(other.getClass())){
+			return false;
+		}
+
+		Fault otherFault = (Fault)other;
+		return this.getMessage().equals(otherFault.getMessage());
 	}
 }

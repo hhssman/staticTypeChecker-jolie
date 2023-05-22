@@ -1,6 +1,6 @@
 package staticTypechecker.faults;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import jolie.lang.parse.context.ParsingContext;
 
@@ -10,11 +10,13 @@ import jolie.lang.parse.context.ParsingContext;
  * @author Kasper Bergstedt (kberg18@student.sdu.dk)
  */
 public class FaultHandler {
-	private static ArrayList<Fault> faults = new ArrayList<>();
+	private static HashSet<Fault> faults = new HashSet<>();
 
 	public static void throwFault(Fault fault, boolean terminate){
 		
-		FaultHandler.faults.add(fault);
+		if(!FaultHandler.faults.contains(fault)){
+			FaultHandler.faults.add(fault);
+		}
 
 		if(terminate){
 			FaultHandler.printFaults();

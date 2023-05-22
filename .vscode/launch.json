@@ -18,8 +18,8 @@
 			"projectName": "staticTypechecker",
 			// "vmArgs": "-Dtypehint=lolleren",
 			// "args": "./src/test/files/testFilesForTypeHints/main.ol > tmp.txt"
-			"args": "./src/test/files/testFilesForErrors/unknownFunctionError.ol > tmp.txt"
-			// "args": "./src/test/files/test/input.ol > tmp.txt"
+			"args": "./src/test/files/testFilesForErrors/embedInterfaceError.ol > tmp.txt"
+			// "args": "./src/test/files/test/test.ol > tmp.txt"
 			// "args": "./src/test/files/testFilesForBehaviours/testNotify.ol > tmp.txt"
 		}
 	]

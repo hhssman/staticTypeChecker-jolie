@@ -12,7 +12,6 @@ import staticTypechecker.entities.Module;
 import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
-import staticTypechecker.visitors.BehaviorProcessor;
 import staticTypechecker.visitors.InputPortProcessor;
 import staticTypechecker.visitors.InterfaceProcessor;
 import staticTypechecker.visitors.OutputPortProcessor;

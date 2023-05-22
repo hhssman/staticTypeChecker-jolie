@@ -21,10 +21,21 @@ service MyService() {
 		Interfaces: MyInterface
 	}
 
+	inputPort in1 {
+		location: "local"
+		protocol: sodep
+		interfaces: MyInterface
+	}
+
 	main {
 		a = 10
-		a.x = "hello"
-		undef(a)
+		[helloReqRes(i)(o){
+			nullProcess
+		}]{
+			[helloReqRes(y)(l){
+				nullProcess
+			}]
+		}
 	}
 }
 

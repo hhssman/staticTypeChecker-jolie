@@ -44,7 +44,7 @@ public class InputPortProcessorTester {
 		InputPort InputPort2 = new InputPort("InputPort2", "socket://localhost:8082", "http", interfacesInputPort2);
 
 		target.put(SymbolTable.newPair("InputPort2", SymbolType.INPUT_PORT), InputPort2);
-
+		
 		return AppTest.testSymbolsForEquality(result, target);
 	}
 }

@@ -71,7 +71,18 @@ public class OutputPort implements Symbol {
 	}
 
 	public int hashCode(){
-		return (int)(this.name.hashCode() + 31 * this.location.hashCode() + Math.pow(31, 2) * this.protocol.hashCode() + Math.pow(31, 3) * this.interfaces.hashCode());
+		int hashcode = this.name.hashCode();
+
+		if(this.location != null){
+			hashcode += 31 * this.location.hashCode();
+		}
+		if(this.protocol != null){
+			hashcode += Math.pow(31, 2) * this.protocol.hashCode();
+		}
+		if(this.interfaces != null){
+			hashcode += Math.pow(31, 3) * this.interfaces.hashCode();
+		}
+		return hashcode;
 	}
 
 	public boolean equals(Object other){
