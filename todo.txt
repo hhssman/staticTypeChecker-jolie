@@ -1,2 +1,1 @@
 - lav unit tests for alle entities en aften hvor du keder dig
- - også unit tests der tjekker at de rigtige faults er der

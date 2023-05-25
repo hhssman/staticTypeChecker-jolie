@@ -184,7 +184,7 @@ public class InlineType extends Type {
 
 	public Type getChild(String name){
 		if(name == "?" && this.isOpen()){
-			return Type.OPEN_RECORD();
+			return Type.UNDEFINED();
 		}
 
 		return this.children.get(name);

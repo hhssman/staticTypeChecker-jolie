@@ -82,6 +82,7 @@
 					<descriptorRef>jar-with-dependencies</descriptorRef>
 				</descriptorRefs>
 				<appendAssemblyId>false</appendAssemblyId>
+				<finalName>typechecker-main</finalName>
 			</configuration>
 		</plugin>
         <!-- <plugin>

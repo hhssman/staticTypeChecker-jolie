@@ -287,7 +287,7 @@ public class TypeUtils {
 				InlineType parent = p.key();
 				String childName = p.value();
 
-				parent.addChildUnsafe(childName, Type.OPEN_RECORD());
+				parent.addChildUnsafe(childName, Type.UNDEFINED());
 			}
 		}
 

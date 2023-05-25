@@ -115,6 +115,11 @@ public class AppTest{
 	}
 
 	@Test
+	public void testNestedWhileDoubleFallback(){
+		assertTrue(BehaviourProcessorTester.testNestedWhileDoubleFallback());
+	}
+
+	@Test
 	public void testIf(){
 		assertTrue(BehaviourProcessorTester.testIf());
 	}

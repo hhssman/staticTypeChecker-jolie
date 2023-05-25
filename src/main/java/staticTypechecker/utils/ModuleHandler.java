@@ -30,7 +30,7 @@ public class ModuleHandler {
 		ArrayList<Module> loadedModules = new ArrayList<>();
 
 		String moduleName = ModuleHandler.getModuleName(fullPath);
-		String pathToFolder = ModuleHandler.getPath(fullPath);
+		String pathToFolder = ModuleHandler.getPathToFolder(fullPath);
 
 		Module module = new Module(moduleName, pathToFolder);
 
@@ -55,11 +55,11 @@ public class ModuleHandler {
 		return loadedModules;
 	}
 
-	private static String getPath(String fullPath){
+	private static String getPathToFolder(String fullPath){
 		String[] split = fullPath.split("/");
 		
 		if(split.length == 1){ // working with path of just the filename
-			return fullPath;
+			return ".";
 		}
 		
 		// working with path like "a/b/c"
@@ -93,7 +93,6 @@ public class ModuleHandler {
 			return strPath;
 		}
 		else{ // from the std lib
-			// NOTE this is hardcoded, since I assume everytime the programmer makes an import with an absolute path, they want something from the std lib
 			return System.getenv("JOLIE_HOME") + "/packages/" + strPath;
 		}
 		

@@ -1,5 +1,3 @@
-
-
 service Main {
 	main {
 		a = 10

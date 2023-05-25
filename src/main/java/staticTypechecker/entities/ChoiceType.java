@@ -154,7 +154,8 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * @return the only possibility for this choice type, if it only contains one choice, else this object
+	 * Converts this ChoiceType to an InlineType, if it only contains one choice, otherwise does nothing.
+	 * @return the equivalent InlineType, if it only contains one choice, else this object
 	 */
 	public Type convertIfPossible(){
 		if(this.choices.size() == 1){

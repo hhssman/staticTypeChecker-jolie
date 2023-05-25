@@ -119,7 +119,6 @@ import staticTypechecker.faults.WarningHandler;
 public class Synthesizer implements OLVisitor<Type, Type> {
 	private static HashMap<String, Synthesizer> synths = new HashMap<>(); // maps module name to synthesizer
 	private Module module;
-	private boolean inWhileLoop = false;
 	private Stack<ArrayList<Path>> pathsAlteredInWhile = new Stack<>();
 	private Stack<Service> serviceStack = new Stack<>();
 	private boolean print;
@@ -246,8 +245,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = T.shallowCopyExcept(p_in);
 		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(p_in);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(p_in);
 		}
 
 		return T1;
@@ -362,8 +361,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type T1 = T.shallowCopyExcept(p_in);
 		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(p_in);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(p_in);
 		}
 
 		return T1;
@@ -388,8 +387,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
 		TypeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(path);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(path);
 		}
 
 		return T1;
@@ -455,8 +454,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		List<BasicTypeDefinition> newBasicTypes = BasicTypeUtils.deriveTypeOfOperation(opType, rightSide, expression, ctx);
 		TypeUtils.setBasicTypeOfNodeByPath(path, newBasicTypes, tree);
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(path);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(path);
 		}
 	}
 
@@ -495,7 +494,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	};
 
 	public Type visit( WhileStatement n, Type T ){
-		this.setInWhileStatus(true);
+		this.pathsAlteredInWhile.push(new ArrayList<>());
 
 		OLSyntaxNode condition = n.condition();
 		OLSyntaxNode body = n.body();
@@ -519,7 +518,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			
 			if(R.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
 				result.addChoiceUnsafe(mergedState);
-				this.setInWhileStatus(false);
+				this.pathsAlteredInWhile.pop();
 				return result;
 			}
 
@@ -532,20 +531,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
 		
-		this.setInWhileStatus(false);
+		this.pathsAlteredInWhile.pop();
 		return result.convertIfPossible();
 	};
-
-	private void setInWhileStatus(boolean status){
-		this.inWhileLoop = status;
-
-		if(status){
-			this.pathsAlteredInWhile.push(new ArrayList<>());
-		}
-		else{
-			this.pathsAlteredInWhile.pop();
-		}
-	}
 
 	public Type visit( OrConditionNode n, Type T ){
 		return Type.BOOL();
@@ -714,8 +702,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			}
 		}
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(leftPath);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(leftPath);
 		}
 
 		return T1;
@@ -735,8 +723,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			pair.key().removeChildUnsafe(pair.value());
 		}
 
-		if(this.inWhileLoop){
-			this.pathsAlteredInWhile.peek().add(path);
+		for(ArrayList<Path> a : this.pathsAlteredInWhile){
+			a.add(path);
 		}
 
 		return T1;

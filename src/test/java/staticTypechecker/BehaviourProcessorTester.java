@@ -201,7 +201,7 @@ public class BehaviourProcessorTester {
 		target.addChoiceUnsafe(option1);
 
 		// second option, enter the while loop, but fail to find a steady state, so fallback plan
-		InlineType option2 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.OPEN_RECORD())).addChild("i", Type.INT());
+		InlineType option2 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.UNDEFINED())).addChild("i", Type.INT());
 		target.addChoiceUnsafe(option2);
 
 		return result.equals(target);
@@ -225,11 +225,11 @@ public class BehaviourProcessorTester {
 
 		// enter the while loop, but fail to find a steady state, so fallback plan
 		// first choice of fallback
-		InlineType fallback1 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.OPEN_RECORD()).addChild("c", Type.OPEN_RECORD()));
+		InlineType fallback1 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.UNDEFINED()).addChild("c", Type.UNDEFINED()));
 		target.addChoiceUnsafe(fallback1);
 
 		// second choice of fallback
-		InlineType fallback2 = Type.VOID().addChild("a", Type.STRING().addChild("b", Type.OPEN_RECORD()).addChild("c", Type.OPEN_RECORD()));
+		InlineType fallback2 = Type.VOID().addChild("a", Type.STRING().addChild("b", Type.UNDEFINED()).addChild("c", Type.UNDEFINED()));
 
 		target.addChoiceUnsafe(fallback2);
 
@@ -278,9 +278,30 @@ public class BehaviourProcessorTester {
 		// third option, enter both whiles
 		InlineType option3 = Type.VOID();
 		option3.addChildUnsafe("a", Type.STRING());
-		option3.addChildUnsafe("b", Type.STRING().addChild("x", Type.OPEN_RECORD()));
-		option3.addChildUnsafe("c", Type.OPEN_RECORD());
+		option3.addChildUnsafe("b", Type.STRING().addChild("x", Type.UNDEFINED()));
+		option3.addChildUnsafe("c", Type.UNDEFINED());
 		target.addChoiceUnsafe(option3);
+
+		return result.equals(target);
+	}
+
+	public static boolean testNestedWhileDoubleFallback(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testNestedWhileDoubleFallback.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
+
+		ChoiceType target = new ChoiceType();
+
+		// first option, not entering the first while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, both while loops fail and do fallback
+		InlineType option2 = Type.VOID();
+		option2.addChildUnsafe("a", Type.UNDEFINED().addChild("x", Type.UNDEFINED()));
+		option2.addChildUnsafe("b", Type.UNDEFINED().addChild("x", Type.UNDEFINED()));
+		target.addChoiceUnsafe(option2);
 
 		return result.equals(target);
 	}

@@ -25,7 +25,7 @@ public abstract class Type implements Symbol {
 	private final static InlineType STRING = new InlineType(BasicTypeDefinition.of(NativeType.STRING), new Range(1, 1), null, false);
 	private final static InlineType VOID = new InlineType(BasicTypeDefinition.of(NativeType.VOID), new Range(1, 1), null, false);
 	private final static InlineType ANY = new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, false);
-	private final static InlineType OPEN_RECORD = new InlineType(BasicTypeDefinition.of(NativeType.ANY), null, null, true);
+	private final static InlineType UNDEFINED = new InlineType(BasicTypeDefinition.of(NativeType.ANY), null, null, true);
 
 	public static InlineType BOOL(){ return Type.BOOL.shallowCopy(); };
 	public static InlineType INT(){ return Type.INT.shallowCopy(); };
@@ -34,7 +34,7 @@ public abstract class Type implements Symbol {
 	public static InlineType STRING(){ return Type.STRING.shallowCopy(); };
 	public static InlineType VOID(){ return Type.VOID.shallowCopy(); };
 	public static InlineType ANY(){ return Type.ANY.shallowCopy(); };
-	public static InlineType OPEN_RECORD(){ return Type.OPEN_RECORD.shallowCopy(); };
+	public static InlineType UNDEFINED(){ return Type.UNDEFINED.shallowCopy(); };
 
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract boolean equals(Object other);
