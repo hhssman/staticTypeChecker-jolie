@@ -55,7 +55,7 @@ public class Main {
 		HashMap<String, Type> trees = new HashMap<>();
 		
 		ModuleHandler.modules().values().forEach(m -> {
-			Synthesizer synth = Synthesizer.get(m, false);
+			Synthesizer synth = Synthesizer.get(m);
 			trees.put(m.name(), synth.synthesize());
 		});
 

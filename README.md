@@ -3,6 +3,8 @@ This project contains a tool for checking type safety in Jolie modules staticall
 
 </br>
 
+---
+
 ## How to run
 ### Compile the project
 To run the type checker, first compile it using the `compile.sh` script in the root folder, like so:

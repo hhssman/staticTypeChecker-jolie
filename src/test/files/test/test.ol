@@ -1,11 +1,12 @@
 service Main {
 	main {
 		a = 10
-		i = 0
-		while(i < 3){
-			c = true
-			a.b << a
-			i++
-		}
+		a /= 4.0
+	}
+}
+
+service Main2{
+	main{
+		a= "gey"
 	}
 }
