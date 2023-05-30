@@ -91,9 +91,9 @@ import jolie.util.Pair;
 import staticTypechecker.entities.Path;
 
 /**
- * Visitor for pretty printing entities in Jolie
+ * Visitor for pretty printing entities in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class ToString implements OLVisitor<Void, String> {
 	private static ToString stringifier = new ToString();

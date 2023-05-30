@@ -21,13 +21,13 @@ import staticTypechecker.faults.TypeDefinitionLinkLoopFault;
 /**
  * A static converter for the existing Jolie types. Converts them to my custom types used in the static typechecking, namely InlineTypes and ChoiceTypes.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class TypeConverter {
 	/**
 	 * Creates a structure instance representing the structure of the given type.
-	 * @param type the type to create the structure from
-	 * @return the structure instance representing the specified type
+	 * @param type the type to create the structure from.
+	 * @return the structure instance representing the specified type.
 	 */
 	public static Type convert(TypeDefinition type, SymbolTable symbols){
 		return convert(type, new IdentityHashMap<>(), symbols);

@@ -3,14 +3,14 @@ package staticTypechecker.entities;
 import java.util.HashSet;
 
 /**
- * Represents an input port in Jolie
+ * Represents an input port in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class InputPort implements Symbol {
-	private String name; 				// the name of the port
-	private String location; 			// the location of the port
-	private String protocol; 			// the protocol of the port
+	private String name; 					// the name of the port
+	private String location; 				// the location of the port
+	private String protocol; 				// the protocol of the port
 	private HashSet<Interface> interfaces; 	// a list of the interfaces this input port uses
 
 	public InputPort(String name, String location, String protocol, HashSet<Interface> interfaces){
@@ -20,38 +20,71 @@ public class InputPort implements Symbol {
 		this.interfaces = interfaces;
 	}
 
+	/**
+	 * @return the name of this InputPort.
+	 */
 	public String name(){
 		return this.name;
 	}
 
+	/**
+	 * @return the location of this InputPort.
+	 */
 	public String location(){
 		return this.location;
 	}
 
+	/**
+	 * @return the protocol of this InputPort.
+	 */
 	public String protocol(){
 		return this.protocol;
 	}
 
+	/**
+	 * @return the interfaces of this InputPort.
+	 */
 	public HashSet<Interface> interfaces(){
 		return this.interfaces;
 	}
 
+	/**
+	 * Set the name of this InputPort.
+	 * @param name the new name.
+	 */
 	public void setName(String name){
 		this.name = name;
 	}
 
+	/**
+	 * Set the location of this InputPort.
+	 * @param location the new location.
+	 */
 	public void setLocation(String location){
 		this.location = location;
 	}
 
+	/**
+	 * Set the protocol of this InputPort.
+	 * @param protocol the new protocol.
+	 */
 	public void setProtocol(String protocol){
 		this.protocol = protocol;
 	}
 
+	/**
+	 * Set the interfaces of this InputPort.
+	 * @param interfaces the new interfaces.
+	 */
 	public void setInterfaces(HashSet<Interface> interfaces){
 		this.interfaces = interfaces;
 	}
 
+	/**
+	 * Checks if this InputPort contains an operation with the given name.
+	 * @param name the name to look for.
+	 * @return true if any of the interfaces in this InputPort contains an operation with the given name, false otherwise.
+	 */
 	public boolean containsOperation(String name){
 		for(Interface i : this.interfaces){
 			if(i.containsOperation(name)){
@@ -61,6 +94,10 @@ public class InputPort implements Symbol {
 		return false;
 	}
 
+	/**
+	 * @param name the operation name to look for.
+	 * @return the operation of this InputPort with the given name, if it is present, null otherwise.
+	 */
 	public Operation getOperation(String name){
 		for(Interface i : this.interfaces){
 			if(i.containsOperation(name)){
@@ -102,6 +139,9 @@ public class InputPort implements Symbol {
 		return true;
 	}
 	
+	/** 
+	* @return a nice textual representation of this InputPort.
+	*/
 	public String prettyString(){
 		return this.prettyString(0);
 	}

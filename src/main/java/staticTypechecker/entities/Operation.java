@@ -1,9 +1,9 @@
 package staticTypechecker.entities;
 
 /**
- * Represents an operation in Jolie
+ * Represents an operation in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Operation implements Symbol {
 	public enum OperationType{
@@ -22,34 +22,62 @@ public class Operation implements Symbol {
 		this.operationType = operationType;
 	}
 
+	/**
+	 * @return the name of this Operation.
+	 */
 	public String name(){
 		return this.name;
 	}
 
+	/**
+	 * @return the request type of this Operation.
+	 */
 	public Type requestType(){
 		return this.requestType;
 	}
 
+	/**
+	 * @return the response type of this Operation.
+	 */
 	public Type responseType(){
 		return this.responseType;
 	}
 
+	/**
+	 * @return the type of this Operation.
+	 */
 	public OperationType type(){
 		return this.operationType;
 	}
 
+	/**
+	 * Set the name of this Operation.
+	 * @param name the new name.
+	 */
 	public void setName(String name){
 		this.name = name;
 	}
 	
+	/**
+	 * Set the request type of this Operation.
+	 * @param requestType the new requestType.
+	 */
 	public void setRequestType(Type requestType){
 		this.requestType = requestType;
 	}
 
+	/**
+	 * Set the response type of this Operation.
+	 * @param responseType the new responseType.
+	 */
 	public void setResponseType(Type responseType){
 		this.responseType = responseType;
 	}
 
+	/**
+	 * Set the operation type of this Operation.
+	 * @param operationType the new operation type.
+	 */
 	public void setOperationType(OperationType operationType){
 		this.operationType = operationType;
 	}
@@ -80,6 +108,15 @@ public class Operation implements Symbol {
 		return isEqual;
 	}
 
+	/**
+	 * Checks for compatibility between the two Operations. This means that they fulfill the following conditions:
+	 * - same name
+	 * - same type
+	 * - request type of this Operation must be subtype of other's request type
+	 * - response type of this Operation must be subtype of other's response type (in case of REQ-RES)
+	 * @param other the Operation to check compatibility.
+	 * @return true if this Operation is compatible with the given Operation, false otherwise.
+	 */
 	public boolean isCompatibleWith(Operation other){
 		Operation parsedOther = (Operation)other;
 

@@ -99,9 +99,9 @@ import staticTypechecker.entities.Service;
 import staticTypechecker.entities.Symbol;
 
 /**
- * Type checks the input ports of the services, as well as the service parameter.
+ * Goes through an AST of a given Jolie module and converts the services and inputPorts.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class InputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;

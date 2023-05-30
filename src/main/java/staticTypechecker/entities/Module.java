@@ -13,9 +13,9 @@ import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
 
 /**
- * Represents a Jolie module (file)
+ * Represents a Jolie module (file).
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Module {
 	private String name;			// name of the module
@@ -23,6 +23,11 @@ public class Module {
 	private Program program;		// the Program parsed by the Jolie parser
 	private SymbolTable symbols;	// the symbol table of the module
 
+	/**
+	 * Creates a new Module.
+	 * @param name the name of the MODULE, e.g. "myModule.ol".
+	 * @param path the path to the FOLDER containing the module, e.g. "/some/path"
+	 */
 	public Module(String name, String path){
 		this.name = name;
 		this.path = path;
@@ -30,35 +35,56 @@ public class Module {
 		this.symbols = null;
 	}
 
+	/**
+	 * @return the name of this Module, e.g. "myModule.ol".
+	 */
 	public String name(){
 		return this.name;
 	}
 
+	/**
+	 * @return the path to the folder containing this Module, e.g. "/some/path".
+	 */
 	public String path(){
 		return this.path;
 	}
 
+	/**
+	 * @return the full path to this Module, e.g. "/some/path/myModule.ol"
+	 */
 	public String fullPath(){
 		return this.path + "/" + this.name;
 	}
 
+	/**
+	 * @return the Program of this Module.
+	 */
 	public Program program(){
 		return this.program;
 	}
 
+	/**
+	 * @return the SymbolTable of this Module.
+	 */
 	public SymbolTable symbols(){
 		return this.symbols;
 	}
 
+	/**
+	 * Set the SymbolTable of this Module.
+	 * @param newSymbols the new SymbolTable.
+	 */
 	public void setSymbols(SymbolTable newSymbols){
 		this.symbols = newSymbols;
 	}
 
 	/**
-	 * This function parses the jolie module with the given name
+	 * Parses the Jolie module at the given path.
+	 * @param path the full path to the module.
+	 * @return the Program of the module if the parsing was successfull.
 	 */
-	private static Program parseProgram(String name){
-		String[] args = {name};
+	private static Program parseProgram(String path){
+		String[] args = {path};
 
 		try{
 			final CommandLineParser cmdParser = new CommandLineParser(args, Module.class.getClassLoader());
@@ -87,7 +113,7 @@ public class Module {
 			return program;
 		}
 		catch(CommandLineException | IOException | ParserException | CodeCheckingException | ModuleException e){
-			System.out.println("Error parsing module: " + name + ":\n" + e);
+			System.out.println("Error parsing module: " + path + ":\n" + e);
 			System.exit(0);
 			return null;
 		}

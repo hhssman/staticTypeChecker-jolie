@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- * Represents a service in Jolie
+ * Represents a service in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Service implements Symbol {
 	private String name; 								// the name of the service
@@ -23,18 +23,33 @@ public class Service implements Symbol {
 		this.parameter = null;
 	}
 
+	/**
+	 * @return the name of this Service.
+	 */
 	public String name(){
 		return this.name;
 	}
 
+	/**
+	 * Set the name of this Service.
+	 * @param name the new name.
+	 */
 	public void setName(String name){
 		this.name = name;
 	}
 
+	/**
+	 * @param name the name of the InputPort to look for.
+	 * @return the InputPort in this Service with the given name if it is present, false otherwise.
+	 */
 	public InputPort getInputPort(String name){
 		return this.inputPorts.get(name);
 	}
 
+	/**
+	 * @param name the name of the Operation to look for.
+	 * @return the Operation with the given name in any InputPort of this Service.
+	 */
 	public Operation getOperation(String name){
 		for(InputPort ip : this.inputPorts.values()){
 			if(ip.containsOperation(name)){
@@ -44,26 +59,50 @@ public class Service implements Symbol {
 		return null;
 	}
 
+	/**
+	 * @param name the name of the OutputPort to look for.
+	 * @return the OutputPort of this Service with the given name if it is present, null otherwise.
+	 */
 	public OutputPort getOutputPort(String name){
 		return this.outputPorts.get(name);
 	}
 
+	/**
+	 * Adds the given InputPort with the given name.
+	 * @param name the name of the InputPort.
+	 * @param port the InputPort.
+	 */
 	public void addInputPort(String name, InputPort port){
 		this.inputPorts.put(name, port);
 	}
 
+	/**
+	 * Adds the given OutputPort with the given name.
+	 * @param name the name of the OutputPort.
+	 * @param port the OutputPort.
+	 */
 	public void addOutputPort(String name, OutputPort port){
 		this.outputPorts.put(name, port);
 	}
 
+	/**
+	 * @return the InputPorts of this Service.
+	 */
 	public Collection<Entry<String, InputPort>> inputPorts(){
 		return this.inputPorts.entrySet();
 	}
 
+	/**
+	 * @return the parameter of this Service.
+	 */
 	public Type parameter(){
 		return this.parameter;
 	}
 
+	/**
+	 * Set the parameter of this Service.
+	 * @param parameter the new parameter.
+	 */
 	public void setParameter(Type parameter){
 		this.parameter = parameter;
 	}

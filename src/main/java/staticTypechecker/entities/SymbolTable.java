@@ -12,9 +12,9 @@ import jolie.util.Range;
 import staticTypechecker.entities.Symbol.SymbolType;
 
 /**
- * Represents the symbol table for a module
+ * Represents the symbol table for a module.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class SymbolTable {
 	private HashMap<Pair<String, SymbolType>, Symbol> table; // maps the name of the symbol to a pair containing the type of the symbol and the symbol itself
@@ -38,16 +38,29 @@ public class SymbolTable {
 		this.table.put(SymbolTable.newPair("undefined", SymbolType.TYPE), new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, true));
 	}
 
-	public boolean containsKey(String key){
-		return this.table.containsKey(new Pair<>(key, null));
+	/**
+	 * @param name the name to look for.
+	 * @return true if the given name is present in this SymbolTable, regardless of type, false otherwise.
+	 */
+	public boolean containsKey(String name){
+		return this.table.containsKey(new Pair<>(name, null));
 	}
 
+	/**
+	 * @param key the key to look for.
+	 * @return true if the given key is present in this SymbolTable, false otherwise.
+	 */
 	public boolean containsKey(Pair<String, SymbolType> key){
 		return this.table.containsKey(key);
 	}
 
-	public Symbol get(String key, SymbolType type){
-		Pair<String, SymbolType> p = new Pair<>(key, type);
+	/**
+	 * @param name the name of the Symbol to look for.
+	 * @param type the type of the Symbol to look for.
+	 * @return the Symbol with the key and type given if it is present in this SymbolTable, null otherwise.
+	 */
+	public Symbol get(String name, SymbolType type){
+		Pair<String, SymbolType> p = new Pair<>(name, type);
 
 		if(!this.containsKey(p)){
 			return null;
@@ -56,6 +69,10 @@ public class SymbolTable {
 		return this.table.get(p);
 	}
 
+	/**
+	 * @param key the name and the type of the Symbol to look for.
+	 * @return the Symbol with the key given if it is present in this SymbolTable, null otherwise.
+	 */
 	public Symbol get(Pair<String, SymbolType> key){
 		if(!this.containsKey(key)){
 			return null;
@@ -64,6 +81,10 @@ public class SymbolTable {
 		return this.table.get(key);
 	}
 
+	/**
+	 * @param name the name of the Symbols to look for.
+	 * @return a List of all Symbols with the given name present in this SymbolTable.
+	 */
 	public List<Pair<Symbol, SymbolType>> getAllSymbols(String name){
 		ArrayList<Pair<Symbol, SymbolType>> ret = new ArrayList<>();
 
@@ -80,58 +101,21 @@ public class SymbolTable {
 		return ret;
 	}
 
-	// public SymbolType getType(String key){
-	// 	Pair<String, SymbolType> p = new Pair<>(key, null);
-
-	// 	if(!this.containsKey(p)){
-	// 		return null;
-	// 	}
-
-	// 	return this.table.get(p).key();
-	// }
-
-	// public Pair<SymbolType, Symbol> getPair(String key){
-	// 	Pair<String, SymbolType> p = new Pair<>(key, null);
-
-	// 	if(!this.containsKey(p)){
-	// 		return null;
-	// 	}
-	// 	return this.table.get(p);
-	// }
-
-	// public Pair<SymbolType, Symbol> getPair(String name, SymbolType type){
-	// 	Pair<String, SymbolType> key = SymbolTable.newPair(name, type);
-
-	// 	if(!this.containsKey(key)){
-	// 		return null;
-	// 	}
-
-	// 	return this.table.get(key);
-	// }
-
-
-
-	// public void put(String key, Pair<SymbolType, Symbol> struct){
-	// 	this.table.put(new Pair<>(key, null), struct);
-	// }
-
+	/**
+	 * Adds a new entry to this SymbolTable with the given key and object.
+	 * @param key the key to add.
+	 * @param symbol the Symbol to add.
+	 */
 	public void put(Pair<String, SymbolType> key, Symbol symbol){
 		this.table.put(key, symbol);
 	}
 
-	// filters out the SymbolTypes of the keys
+	/**
+	 * @return the entryset of Symbols in this SymbolTable.
+	 */
 	public Collection<Entry<Pair<String, SymbolType>, Symbol>> entrySet(){
 		return this.table.entrySet();
 	}
-
-	// public String toString(){
-	// 	String res = "";
-	// 	for(Entry<String, Pair<SymbolType,Symbol>> ent : this.entrySet()){
-	// 		res += ent.getKey() + " (" + ent.getValue().key() + ") = " + ent.getValue().value() + " (" + System.identityHashCode(ent.getValue()) + ")\n";
-	// 	}
-
-	// 	return res;
-	// }
 
 	public String toString(){
 		String res = "";

@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 import staticTypechecker.entities.Operation.OperationType;
 
 /**
- * Represents an interface in Jolie
+ * Represents an interface in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Interface implements Symbol {
 	private String name; // the name of the interface
@@ -21,30 +21,57 @@ public class Interface implements Symbol {
 		this.operations = new HashMap<>();
 	}
 
+	/**
+	 * Add an Operation to this interface with the given name.
+	 * @param opName the name of the Operation.
+	 * @param op the Operation.
+	 */
 	public void addOperation(String opName, Operation op){
 		this.operations.put(opName, op);
 	}
 
+	/**
+	 * Add an Operation to this interface with the name stored in the object.
+	 * @param op the Operation.
+	 */
 	public void addOperation(Operation op){
 		this.operations.put(op.name(), op);
 	}
 
+	/**
+	 * @param name the operation name to look for.
+	 * @return the Operation with the given name, if it is present in this Interface, null otherwise.
+	 */
 	public Operation getOperation(String name){
 		return this.operations.get(name);
 	}
 
+	/**
+	 * @param name the operation name to look for.
+	 * @return true if this Interface contains an Operation with the given name, false otherwise.
+	 */
 	public boolean containsOperation(String name){
 		return this.operations.containsKey(name);
 	}
 
+	/**
+	 * @return the Operations of this Interface.
+	 */
 	public Collection<Entry<String, Operation>> operations(){
 		return this.operations.entrySet();
 	}
 
+	/**
+	 * @return the name of this Interface.
+	 */
 	public String name(){
 		return this.name;
 	}
 
+	/**
+	 * Set the name of this Interface.
+	 * @param name the new name.
+	 */
 	public void setName(String name){
 		this.name = name;
 	}
@@ -78,7 +105,6 @@ public class Interface implements Symbol {
 		return true;
 	}
 
-	@Override
 	public String prettyString(){
 		return this.prettyString(0);
 	}

@@ -1,12 +1,11 @@
-service Main {
-	main {
-		a = 10
-		a /= 4.0
-	}
+type A: string
+
+type B: void {
+	A: int
 }
 
-service Main2{
-	main{
-		a= "gey"
+service Main(p: B) {
+	main {
+		nullProcess
 	}
 }

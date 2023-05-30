@@ -1,8 +1,6 @@
 package staticTypechecker.entities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map.Entry;
 
@@ -12,9 +10,9 @@ import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Range;
 
 /**
- * Represents a type in Jolie
+ * Represents a type in Jolie.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public abstract class Type implements Symbol {
 	// basic types
@@ -51,9 +49,9 @@ public abstract class Type implements Symbol {
 	public abstract String prettyString(int level, IdentityHashMap<Type, Void> recursive);
 
 	/**
-	 * Finds the type(s) of the given node
-	 * @param node the node to find the type(s) of
-	 * @return an ArrayList of BasicTypeDefinitions corresponding to the type(s) of the specified node
+	 * Finds the type(s) of the given node.
+	 * @param node the node to find the type(s) of.
+	 * @return an ArrayList of BasicTypeDefinitions corresponding to the type(s) of the specified node.
 	 */
 	public static ArrayList<BasicTypeDefinition> getBasicTypesOfNode(Type node){
 		ArrayList<BasicTypeDefinition> types = new ArrayList<>();
@@ -73,10 +71,10 @@ public abstract class Type implements Symbol {
 	}
 
 	/**
-	 * Returns the deep copied version of t2 onto t1, that is t1 << t2
-	 * @param t1
-	 * @param t2
-	 * @return the result of t1 << t2
+	 * Returns the deep copied version of t2 onto t1, that is t1 << t2.
+	 * @param t1 the Type on the left side of the deep copy.
+	 * @param t2 the Type on the right side of the deep copy.
+	 * @return the result of t1 << t2.
 	 */
 	public static Type deepCopy(Type t1, Type t2){
 		if(t1 == null){
@@ -101,170 +99,11 @@ public abstract class Type implements Symbol {
 
 			return result;
 		}
-		// else if(t1 instanceof InlineType && t2 instanceof ChoiceType){ // t1 is inline, t2 is choice type
-		// 	ChoiceType result = new ChoiceType();
-		// 	result.addChoiceUnsafe(t1);
-		// 	result.addChoiceUnsafe(t2);
-		// 	return result;
-		// }
-		// else if(t2 instanceof InlineType){ // t1 is choice and t2 is inline type
-		// 	ChoiceType result = new ChoiceType();
-		// 	result.addChoiceUnsafe(t1);
-		// 	result.addChoiceUnsafe(t2);
-		// 	return result;
-		// }
 		else{ // both are choice types
 			ChoiceType result = new ChoiceType();
 			result.addChoiceUnsafe(t1);
 			result.addChoiceUnsafe(t2);
 			return result;
 		}
-	}
-
-	/**
-	 * @param t1
-	 * @param t2
-	 * @return the result of merging t1 with t2
-	 */
-	public static Type merge(Type t1, Type t2){
-		return Type.mergeRec(t1, t2, new IdentityHashMap<>());
-	}
-	
-	private static Type mergeRec(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> seenNodes){
-		if(t1 == null){
-			return t2;
-		}
-		if(t2 == null){
-			return t1;
-		}
-
-		if(t1 instanceof InlineType && t2 instanceof InlineType){
-			InlineType x = (InlineType)t1;
-			InlineType y = (InlineType)t2;
-			
-			HashSet<String> childNames = new HashSet<String>();
-			childNames.addAll(x.children().keySet());
-			childNames.addAll(y.children().keySet());
-			
-			if(x.basicType().equals(y.basicType())){
-				InlineType ret = new InlineType(x.basicType(), null, null, false);
-				Type.addToHashMap(t1, t2, ret, seenNodes);
-				
-				for(String childName : childNames){
-					Type xChild = x.getChild(childName);
-					Type yChild = y.getChild(childName);
-
-					// if we have already merged the two child nodes, use the result of that
-					if(Type.mapContains(xChild, yChild, seenNodes)){
-						ret.addChildUnsafe(childName, Type.mapGetResult(xChild, yChild, seenNodes));
-					}
-					else{ // else merge
-						ret.addChildUnsafe(childName, Type.mergeRec(xChild, yChild, seenNodes));
-					}
-				}
-
-				return ret;
-			}
-
-			// base types does not match, create choice with each base type but with the same children
-			ChoiceType ret = new ChoiceType();
-			Type.addToHashMap(t1, t2, ret, seenNodes);
-			InlineType c1 = new InlineType(x.basicType(), null, null, false);
-			InlineType c2 = new InlineType(y.basicType(), null, null, false);
-
-			ret.addChoiceUnsafe(c1);
-			ret.addChoiceUnsafe(c2);
-
-			for(String childName : childNames){
-				Type xChild = x.getChild(childName);
-				Type yChild = y.getChild(childName);
-
-				Type merged;
-				
-				if(Type.mapContains(t1, t2, seenNodes)){ // again, if we already have a result, use that
-					merged = Type.mapGetResult(t1, t2, seenNodes);
-				}
-				else{ // else merge
-					merged = Type.mergeRec(xChild, yChild, seenNodes);
-				}
-				
-				c1.addChildUnsafe(childName, merged);
-				c2.addChildUnsafe(childName, merged);
-			}
-
-			return ret;
-		}
-		else if(t1 instanceof InlineType && t2 instanceof ChoiceType){
-			InlineType x = (InlineType)t1;
-			ChoiceType y = (ChoiceType)t2;
-
-			// merge the children of x and each choice of y
-			HashMap<String, Type> children = new HashMap<>();
-			children.putAll(x.children());
-			for(InlineType choice : y.choices()){ // for each choice in y
-				for(Entry<String, Type> ent : choice.children().entrySet()){ // for each child in the current choice
-					String childName = ent.getKey();
-					Type child = ent.getValue();
-
-					if(children.containsKey(childName)){ // already there, merge
-						children.put(childName, Type.mergeRec(children.get(childName), child, seenNodes));
-					}
-					else{ // not there, simply put the child
-						children.put(childName, child);
-					}
-				}
-			}
-
-			boolean multipleBasicTypes = !y.choices().stream().map(c -> c.basicType().equals(x.basicType())).reduce(true, (c1, c2) -> c1 && c2); // finds out if there is more than one basic type amongst x and the chocies of y
-
-			if(multipleBasicTypes){ // more than one basic type, return a choice type
-				ChoiceType ret = new ChoiceType();
-
-				ret.addChoiceUnsafe(x.setChildren(children));
-				for(InlineType choice : y.choices()){
-					ret.addChoiceUnsafe(choice.setChildren(children));
-				}
-
-				return ret;
-			}
-			else{ // only one basic type, return x with the updated children. Note the basictype must always be the one of x in this case
-				return x.setChildren(children);
-			}
-		}
-		else if(t1 instanceof ChoiceType && t2 instanceof InlineType){
-			return Type.mergeRec(t2, t1, seenNodes); // its the same as the other order
-		}
-		else{ // both are choice types
-			ChoiceType x = (ChoiceType)t1;
-			ChoiceType y = (ChoiceType)t2;
-
-			Type ret = null;
-
-			for(InlineType c1 : x.choices()){
-				ret = Type.mergeRec(ret, c1, seenNodes);
-			}
-
-			for(InlineType c2 : y.choices()){
-				ret = Type.mergeRec(ret, c2, seenNodes);
-			}
-
-			return ret;
-		}
-	}
-
-	private static void addToHashMap(Type t1, Type t2, Type t3, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
-		if(!map.containsKey(t1)){
-			map.put(t1, new IdentityHashMap<>());
-		}
-
-		map.get(t1).put(t2, t3);
-	}
-
-	private static boolean mapContains(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
-		return map.containsKey(t1) && map.get(t1).containsKey(t2);
-	}
-
-	private static Type mapGetResult(Type t1, Type t2, IdentityHashMap<Type, IdentityHashMap<Type, Type>> map){
-		return map.get(t1).get(t2);
 	}
 }

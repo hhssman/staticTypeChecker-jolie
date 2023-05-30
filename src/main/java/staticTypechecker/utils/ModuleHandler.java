@@ -14,17 +14,17 @@ import staticTypechecker.visitors.TypeCheckerVisitor;
 import staticTypechecker.entities.Module;
 
 /**
- * Handles the Module instances of all the necessary Jolie modules
+ * Handles the Module instances of all the necessary Jolie modules.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class ModuleHandler {
 	private static HashMap<String, Module> modules = new HashMap<>(); // maps module names to their Module instances
 
 	/**
 	 * Loads the Jolie module with the given name by parsing it and creating Module instances, which are saved in ModuleHandler. Also loads all dependency-modules (modules which are imported from this one). 
-	 * @return a List of the loaded modules
-	 * @param moduleName the name of the module to load
+	 * @return a List of the loaded modules.
+	 * @param moduleName the name of the module to load.
 	 */
 	public static List<Module> loadModule(String fullPath){
 		ArrayList<Module> loadedModules = new ArrayList<>();
@@ -74,9 +74,9 @@ public class ModuleHandler {
 	}
 
 	/**
-	 * Returns the full path to the module being imported in the given import statement
-	 * @param n the import statement
-	 * @return the full path
+	 * Returns the full path to the module being imported in the given import statement.
+	 * @param n the import statement.
+	 * @return the full path.
 	 */
 	public static String findFullPath(ImportStatement n, Module importer){
 		List<String> importPath = n.importTarget();
@@ -99,8 +99,8 @@ public class ModuleHandler {
 	}
 
 	/**
-	 * Runs the given visitor on all loaded modules twice. Firstly, it runs the visitor with the "processImports" set to false, secondly with it set to true
-	 * @param visitor the visitor to run
+	 * Runs the given visitor on all loaded modules twice. Firstly, it runs the visitor with the "processImports" set to false, secondly with it set to true.
+	 * @param visitor the visitor to run.
 	 */
 	public static void runVisitor(TypeCheckerVisitor visitor){
 		for(Module m : ModuleHandler.modules.values()){

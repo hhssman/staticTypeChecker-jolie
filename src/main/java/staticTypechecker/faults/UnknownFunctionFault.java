@@ -2,6 +2,11 @@ package staticTypechecker.faults;
 
 import jolie.lang.parse.context.ParsingContext;
 
+/**
+ * Fault thrown when trying to use an operation which has not been seen before.
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class UnknownFunctionFault implements Fault {
 	private String message;
 

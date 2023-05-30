@@ -104,9 +104,10 @@ import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 
 /**
- * Type checks the output ports of the services.
+ * Goes through an AST of a given Jolie module and converts the outputPorts and embeddings. 
+ * Also checks for compatibility between the interfaces in embed-in cases.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class OutputPortProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;

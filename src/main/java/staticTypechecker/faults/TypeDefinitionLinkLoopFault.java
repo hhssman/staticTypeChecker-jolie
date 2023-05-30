@@ -2,6 +2,15 @@ package staticTypechecker.faults;
 
 import jolie.lang.parse.context.ParsingContext;
 
+/**
+ * Fault thrown when a type contains itself in the top layer of the definition. 
+ * Examples:
+ * 	type A: A
+ * 
+ * 	type B: int | string | B
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class TypeDefinitionLinkLoopFault implements Fault {
 	private String typeName;
 	private ParsingContext ctx;

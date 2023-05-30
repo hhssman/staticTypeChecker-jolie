@@ -16,9 +16,9 @@ import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 
 /**
- * Utily functions for working with type trees
+ * Utily functions for working with type trees.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class TypeUtils {
 	/**
@@ -63,7 +63,7 @@ public class TypeUtils {
 		}
 	}
 
-	public static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
+	private static ArrayList<Pair<InlineType, String>> findParentAndName(Path path, Type root, boolean createPath){
 		return TypeUtils.findParentAndName(path, root, createPath, true);
 	}
 
@@ -115,17 +115,17 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Unfolds the Type root in place
-	 * @param path the path to follow. The unfolding will stop when reaching the end of this path
-	 * @param root the Type to unfold
-	 * @param rootCopy a deep copy of root 
-	 * @param seenNodes a Set<Type> of the nodes that already have been processed
+	 * Unfolds the Type root in place.
+	 * @param path the path to follow. The unfolding will stop when reaching the end of this path.
+	 * @param root the Type to unfold.
+	 * @param rootCopy a deep copy of root.
+	 * @param seenNodes a Set<Type> of the nodes that already have been processed.
 	 */
 	public static Type unfold(Path path, Type root){
 		return TypeUtils.unfoldRec(path, root.copy(), root.copy(), Collections.newSetFromMap(new IdentityHashMap<>()));
 	}
 	
-	public static Type unfoldRec(Path path, Type root, Type rootCopy, Set<Type> seenNodes){
+	private static Type unfoldRec(Path path, Type root, Type rootCopy, Set<Type> seenNodes){
 		seenNodes.add(root);
 		
 		if(root instanceof InlineType){
@@ -168,6 +168,7 @@ public class TypeUtils {
 			ChoiceType parsedRoot = (ChoiceType)root;
 			ChoiceType parsedRootCopy = (ChoiceType)rootCopy;
 
+			// for each choice in the root find the equivalent in the copy root and continue the unfolding there
 			for(InlineType choice : parsedRoot.choices()){
 				for(InlineType choiceCopy : parsedRootCopy.choices()){
 					if(choice.equals(choiceCopy)){
@@ -181,38 +182,11 @@ public class TypeUtils {
 		return root;
 	}
 
-	public static void fold(Type root){
-		if(root == null){
-			return;
-		}
-
-		if(root instanceof InlineType){
-			InlineType parsedRoot = (InlineType)root;
-			for(Entry<String, Type> ent : parsedRoot.children().entrySet()){
-				String childName = ent.getKey();
-				Type child = ent.getValue();
-
-				if(child.equals(parsedRoot)){
-					parsedRoot.addChildUnsafe(childName, parsedRoot);
-				}
-				else{
-					TypeUtils.fold(child);
-				}
-			}
-		}
-		else{ // choice types
-			ChoiceType parsedRoot = (ChoiceType)root;
-			for(InlineType choice : parsedRoot.choices()){
-				TypeUtils.fold(choice);
-			}
-		}
-	}
-
 	/**
 	 * Sets the type of the nodes at the end of the specified path by the given type.
-	 * @param path the path to follow
-	 * @param type the type to update all nodes at the end of the path to
-	 * @param tree the tree in which the nodes reside
+	 * @param path the path to follow.
+	 * @param type the type to update all nodes at the end of the path to.
+	 * @param tree the tree in which the nodes reside.
 	 */
 	public static void setTypeOfNodeByPath(Path path, Type type, Type tree){
 		ArrayList<Pair<InlineType,String>> nodesToUpdate = TypeUtils.findParentAndName(path, tree, true, true);
@@ -223,10 +197,10 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Updates the basic type of the nodes specified by the given path. NOTE: unfolds the type in case of a recursive type
-	 * @param path the path to follow
-	 * @param basicTypes the new basic types
-	 * @param tree the root of the tree in which to follow the path
+	 * Updates the basic type of the nodes specified by the given path. NOTE: unfolds the type in case of a recursive type.
+	 * @param path the path to follow.
+	 * @param basicTypes the new basic types.
+	 * @param tree the root of the tree in which to follow the path.
 	 */
 	public static void setBasicTypeOfNodeByPath(Path path, List<BasicTypeDefinition> basicTypes, Type tree){
 		TypeUtils.unfold(path, tree);
@@ -277,10 +251,16 @@ public class TypeUtils {
 		}
 	}
 
-	public static Type undefine(Type T0, ArrayList<Path> pathsAltered){
+	/**
+	 * Changes the nodes at the end of the given Paths to any{?}.
+	 * @param T0 the tree in which to follow the Paths. NOTE: this tree is not altered.
+	 * @param paths the paths to follow.
+	 * @return a copy of T0 with the paths undefined.
+	 */
+	public static Type undefine(Type T0, ArrayList<Path> paths){
 		Type copy = T0.copy();
 		
-		for(Path path : pathsAltered){
+		for(Path path : paths){
 			ArrayList<Pair<InlineType, String>> nodesToUndefine = TypeUtils.findParentAndName(path, copy, true);
 			
 			for(Pair<InlineType, String> p : nodesToUndefine){

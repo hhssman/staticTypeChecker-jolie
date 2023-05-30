@@ -92,13 +92,12 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.SymbolTable;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.entities.SymbolTable.Pair;
-import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.entities.Type;
 
 /**
  * This class collects all symbols in a given module. A symbol in this case means the name of any type, interface, service, port etc. used in this module. Note, that also symbols imported by this module will be in the symbol table for this module, even though they are not declared here.
  * 
- * @author Kasper Bergstedt, kberg18@student.sdu.dk
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class SymbolCollector implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;

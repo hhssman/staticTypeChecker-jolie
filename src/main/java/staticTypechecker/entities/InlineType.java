@@ -12,7 +12,7 @@ import staticTypechecker.utils.Simulator;
 /**
  * Represents an inline type in Jolie such as "type a: int { x: string }".
  * 
- * @author Kasper Bergstedt
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class InlineType extends Type {
 	private BasicTypeDefinition basicType; 	// the type of the root node
@@ -29,78 +29,93 @@ public class InlineType extends Type {
 		this.openRecord = openRecord;
 	}
 
+	/**
+	 * @return the basic type of this InlineType.
+	 */
 	public BasicTypeDefinition basicType(){
 		return this.basicType;
 	}
 
+	/**
+	 * @return the cardinality of this InlineType.
+	 */
 	public Range cardinality(){
 		return this.cardinality;
 	}
 
+	/**
+	 * @return the parsing context of this InlineType.
+	 */
 	public ParsingContext context(){
 		return this.context;
 	}
 
+	/**
+	 * @return true if this InlineType is an open record, false otherwise.
+	 */
 	public boolean isOpen(){
 		return this.openRecord;
 	}
 
+	/**
+	 * @return true if this InlineType is NOT an open record, false otherwise. Equivalent to !isOpen().
+	 */
 	public boolean isClosed(){
 		return !this.openRecord;
 	}
 
 	/**
-	 * Overwrites the basic type of this InlineType. WARNING: alters this object
-	 * @param basicType the new basic type 
+	 * Overwrites the basic type of this InlineType. WARNING: alters this object.
+	 * @param basicType the new basic type .
 	 */
 	public void setBasicTypeUnsafe(BasicTypeDefinition basicType){
 		this.basicType = basicType;
 	}
 
 	/**
-	 * Overwrites the children of this InlineType. WARNING: alters this object
-	 * @param children the new children
+	 * Overwrites the children of this InlineType. WARNING: alters this object.
+	 * @param children the new children.
 	 */
 	public void setChildrenUnsafe(HashMap<String, Type> children){
 		this.children = new HashMap<>(children);
 	}
 
 	/**
-	 * Adds the given children to this InlineType. WARNING: alters this object
-	 * @param children the children to add
+	 * Adds the given children to this InlineType. WARNING: alters this object.
+	 * @param children the children to add.
 	 */
 	public void addChildrenUnsafe(HashMap<String, Type> children){
 		this.children.putAll(children);
 	}
 
 	/**
-	 * Overwrites the cardinality of this InlineType. WARNING: alters this object
-	 * @param cardinality the new cardinality
+	 * Overwrites the cardinality of this InlineType. WARNING: alters this object.
+	 * @param cardinality the new cardinality.
 	 */
 	public void setCardinalityUnsafe(Range cardinality){
 		this.cardinality = cardinality;
 	}
 
 	/**
-	 * Overwrites the context of this InlineType. WARNING: alters this object
-	 * @param context the new context
+	 * Overwrites the context of this InlineType. WARNING: alters this object.
+	 * @param context the new context.
 	 */
 	public void setContextUnsafe(ParsingContext context){
 		this.context = context;
 	}
 
 	/**
-	 * Overwrites the open status of this InlineType. WARNING: alters this object
-	 * @param openRecord the new open status
+	 * Overwrites the open status of this InlineType. WARNING: alters this object.
+	 * @param openRecord the new open status.
 	 */
 	public void setOpenStatusUnsafe(boolean openStatus){
 		this.openRecord = openStatus;
 	}
 
 	/**
-	 * Does not alter this object
-	 * @param openStatus the new open status
-	 * @return a copy of this object with the open status changed to the given boolean
+	 * Sets the open status of this InlineType. NOTE: does not alter this object.
+	 * @param openStatus the new open status.
+	 * @return a shallow copy of this object with the open status changed to the given boolean.
 	 */
 	public InlineType setOpenStatus(boolean openStatus){
 		InlineType copy = this.shallowCopy();
@@ -109,35 +124,35 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * Adds the entry {name, child} to this node. Owerwrites existing entries. WARNING: alters this object
-	 * @param name the name of the child (what key to associate it to)
-	 * @param child the structure of the child
+	 * Adds the entry {name, child} to this node. Owerwrites existing entries. WARNING: alters this object.
+	 * @param name the name of the child (what key to associate it to).
+	 * @param child the structure of the child.
 	 */
 	public void addChildUnsafe(String name, Type child){
 		this.children.put(name, child);
 	}
 
 	/**
-	 * Adds the entry {name, child} to this node if they key does not already exist. WARNING: may alter this object
-	 * @param name the name of the child (what key to associate it to)
-	 * @param child the structure of the child
+	 * Adds the entry {name, child} to this node if they key does not already exist. WARNING: may alter this object.
+	 * @param name the name of the child (what key to associate it to).
+	 * @param child the structure of the child.
 	 */
 	public void addChildIfAbsentUnsafe(String name, Type child){
 		this.children.putIfAbsent(name, child);
 	}
 
 	/**
-	 * Removes the child with the given name from this InlineType. WARNING: alters this object
-	 * @param name the name of the child to remove
+	 * Removes the child with the given name from this InlineType. WARNING: alters this object.
+	 * @param name the name of the child to remove.
 	 */
 	public void removeChildUnsafe(String name){
 		this.children.remove(name);
 	}
 
 	/**
-	 * Does not alter this object
-	 * @param basicType the new basic type 
-	 * @return a copy of this InlineType with the given basicType
+	 * Set the basic type of this InlineType. NOTE: does not alter this object.
+	 * @param basicType the new basic type.
+	 * @return a shallow copy of this InlineType with the given basicType.
 	 */
 	public InlineType setBasicType(BasicTypeDefinition basicType){
 		InlineType copy = this.shallowCopy();
@@ -146,9 +161,9 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * Does not alter this object
-	 * @param children the children types
-	 * @return a copy of this InlineType with the children overwritten by the given children
+	 * Set the children of this InlineType, completely overwriting them. NOTE: does not alter this object.
+	 * @param children the children.
+	 * @return a shallow copy of this InlineType with the children overwritten by the given children.
 	 */
 	public InlineType setChildren(HashMap<String, Type> children){
 		InlineType copy = this.shallowCopy();
@@ -157,9 +172,9 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * Does not alter this object
-	 * @param child the child to add
-	 * @return a copy of this InlineType with the given children added
+	 * Adds a child to this InlineType. NOTE: does not alter this object.
+	 * @param child the child to add.
+	 * @return a shallow copy of this InlineType with the given children added.
 	 */
 	public InlineType addChild(String name, Type child){
 		InlineType copy = this.shallowCopy();
@@ -168,9 +183,9 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * Does not alter this object
-	 * @param children the children types
-	 * @return a copy of this InlineType with the given children added
+	 * Adds multiple children to this InlineType. NOTE: does not alter this object.
+	 * @param children the children to add.
+	 * @return a shallow copy of this InlineType with the given children added.
 	 */
 	public InlineType addChildren(HashMap<String, Type> children){
 		InlineType copy = this.shallowCopy();
@@ -178,10 +193,18 @@ public class InlineType extends Type {
 		return copy;
 	}
 
+	/**
+	 * @param name the name to look for.
+	 * @return true if this InlineType has a child with the given name, false otherwise.
+	 */
 	public boolean contains(String name){
 		return this.children.containsKey(name);
 	}
 
+	/**
+	 * @param name the child name to look for.
+	 * @return the child node, if it is present, null otherwise.
+	 */
 	public Type getChild(String name){
 		if(name == "?" && this.isOpen()){
 			return Type.UNDEFINED();
@@ -190,14 +213,17 @@ public class InlineType extends Type {
 		return this.children.get(name);
 	}
 
+	/**
+	 * @return the children of this InlineType.
+	 */
 	public HashMap<String, Type> children(){
 		return this.children;
 	}
 
 	/**
-	 * Checks for equality
-	 * @param other the other object
-	 * @return true if the objects are structural equivalent and false otherwise
+	 * Checks for equality.
+	 * @param other the other object.
+	 * @return true if the objects are structural equivalent and false otherwise.
 	 */
 	public boolean equals(Object other){
 		if(this == other){
@@ -219,12 +245,18 @@ public class InlineType extends Type {
 		return Simulator.isSubtypeOf(this, other);
 	}
 
+	/**
+	 * @return a shallow copy of this InlineType (different root node same children).
+	 */
 	public InlineType shallowCopy(){
 		InlineType copy = new InlineType(this.basicType, this.cardinality, this.context, this.openRecord);
 		copy.setChildrenUnsafe(this.children);
 		return copy;
 	}
 
+	/**
+	 * @return a shallow copy of this InlineType. All children are the same as this InlineType, EXCEPT for the nodes in the given Path - those are also shallow copied.
+	 */
 	public Type shallowCopyExcept(Path p){
 		if(p.isEmpty()){
 			this.shallowCopy();
@@ -241,8 +273,8 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * Creates a deep copy of this structure
-	 * @return the deep copy
+	 * Creates a deep copy of this structure.
+	 * @return the deep copy.
 	 */
 	public InlineType copy(){
 		return this.copy(new IdentityHashMap<>());
@@ -291,7 +323,7 @@ public class InlineType extends Type {
 	}
 
 	/**
-	 * @return a nice textual representation of this InlineType
+	 * @return a nice textual representation of this InlineType.
 	 */
 	public String prettyString(){
 		return this.prettyString(0, new IdentityHashMap<>());

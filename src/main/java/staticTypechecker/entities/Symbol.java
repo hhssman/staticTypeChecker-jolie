@@ -1,11 +1,14 @@
 package staticTypechecker.entities;
 
 /**
- * Represents any entity in Jolie, such as a type name, service name, port name etc.
+ * Represents any entity in Jolie, such as a type, service, port etc.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public interface Symbol {
+	/**
+	 * @return a nice textual representation of this Symbol.
+	 */
 	public String prettyString();
 	public String prettyString(int level);
 

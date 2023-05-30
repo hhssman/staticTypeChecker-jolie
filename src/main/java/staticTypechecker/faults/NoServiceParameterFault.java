@@ -3,6 +3,11 @@ package staticTypechecker.faults;
 import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.entities.Service;
 
+/**
+ * Fault thrown when a service is being embedded without a parameter.
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class NoServiceParameterFault implements Fault {
 	private Service service;
 	private ParsingContext ctx;

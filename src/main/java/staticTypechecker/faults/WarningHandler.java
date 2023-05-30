@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import jolie.lang.parse.context.ParsingContext;
 
 /**
- * Handles all warnings which may occur during the type checking
+ * Handles all warnings which may occur during the type checking.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class WarningHandler {
 	private static ArrayList<Warning> warnings = new ArrayList<>();

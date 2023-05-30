@@ -14,9 +14,9 @@ import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 
 /**
- * Utily functions for working with basic types
+ * Utily functions for working with basic types.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class BasicTypeUtils {
 	/**

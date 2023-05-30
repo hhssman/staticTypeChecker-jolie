@@ -7,6 +7,11 @@ import staticTypechecker.entities.Operation;
 import staticTypechecker.entities.OutputPort;
 import staticTypechecker.entities.Service;
 
+/**
+ * Fault thrown when two ports are incompatible. In particular, when a service is being embedded in an existing outputPort and the inputPorts of the embedded service is not compatible with the outputPort.
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class PortsIncompatibleFault implements Fault {
 	private OutputPort host;
 	private Service embeddedService;

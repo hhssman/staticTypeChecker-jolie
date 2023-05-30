@@ -2,6 +2,11 @@ package staticTypechecker.faults;
 
 import jolie.lang.parse.context.ParsingContext;
 
+/**
+ * Represents a miscellaneous Fault.
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class MiscFault implements Fault {
 	private String message;
 

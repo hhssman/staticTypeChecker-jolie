@@ -12,9 +12,9 @@ import jolie.lang.parse.context.ParsingContext;
 import staticTypechecker.utils.Simulator;
 
 /**
- * Represents a choice type in Jolie, such as "type a: int | string", i.e. types which can have multiple values.
+ * Represents a disjunction in Jolie, such as "type a: int | string", i.e. types which can have multiple values.
  * 
- * @author Kasper Bergstedt
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class ChoiceType extends Type {
 	private HashSet<InlineType> choices;	// the choices of this type
@@ -24,6 +24,9 @@ public class ChoiceType extends Type {
 		this.choices = new HashSet<>();
 	}
 
+	/**
+	 * @param choices the choices to use in this ChoiceType. InlineTypes are added directly, ChoiceTypes are added by adding all of its InlineType-choices. 
+	 */
 	public ChoiceType(ArrayList<Type> choices){
 		this.choices = new HashSet<>();
 
@@ -32,14 +35,17 @@ public class ChoiceType extends Type {
 		}
 	}
 
+	/**
+	 * @param choices the choices to use in this ChoiceType.
+	 */
 	public ChoiceType(HashSet<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
 
 	/**
-	 * Creates a new choice type with childless inline types of the given basic types
-	 * @param typesOfChoices the basic types to create the choices from
-	 * @return the new choice type
+	 * Creates a new choice type with childless inline types of the given basic types.
+	 * @param typesOfChoices the basic types to create the choices from.
+	 * @return the new choice type.
 	 */
 	public static ChoiceType fromBasicTypes(List<BasicTypeDefinition> typesOfChoices){
 		HashSet<InlineType> choices = new HashSet<>();
@@ -52,8 +58,8 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * Adds a new choice to this ChoiceType object. WARNING: alters the object
-	 * @param choice the choice to add
+	 * Adds a new choice to this ChoiceType object. WARNING: alters the object.
+	 * @param choice the choice to add.
 	 */
 	public void addChoiceUnsafe(Type choice){
 		if(choice instanceof InlineType){
@@ -67,8 +73,8 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * Removes the given choice from this ChoiceType object if it is present, else does nothing. WARNING: may alter the object
-	 * @param choice the choice to remove
+	 * Removes the given choice from this ChoiceType object if it is present, else does nothing. WARNING: may alter the object.
+	 * @param choice the choice to remove.
 	 */
 	public void removeChoiceUnsafe(Type choice){
 		if(choice instanceof InlineType){
@@ -82,31 +88,51 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * Overrides the choices of this ChoiceType object with the choices given. WARNING: alters the object
-	 * @param choices the choices to override with
+	 * Overrides the choices of this ChoiceType object with the choices given. WARNING: alters the object.
+	 * @param choices the choices to override with.
 	 */
 	public void setChoicesUnsafe(Set<InlineType> choices){
 		this.choices = new HashSet<>(choices);
 	}
 
+	/**
+	 * Set the parsing context of this ChoiceType.
+	 * @param ctx the context.
+	 */
 	public void setContext(ParsingContext ctx){
 		this.ctx = ctx;
 	}
 
+	/**
+	 * @return the parsing context of this ChoiceType.
+	 */
 	public ParsingContext context(){
 		return this.ctx;
 	}
 
+	/**
+	 * Adds the given type as choice to this ChoiceType. InlineTypes are added directly, while ChoiceTypes are added by adding all their choices. NOTE: does not alter this object.
+	 * @param choice the choice to add.
+	 * @return a shallow copy of this ChocieType with the new choice added.
+	 */
 	public ChoiceType addChoice(Type choice){
 		ChoiceType copy = (ChoiceType)this.shallowCopy();
 		copy.addChoiceUnsafe(choice);
 		return copy;
 	}
 
+	/**
+	 * @return the choices of this ChoiceType.
+	 */
 	public ArrayList<InlineType> choices(){
 		return new ArrayList<>(this.choices);
 	}
 
+	/**
+	 * Sets the basic type of all choices in this ChoiceType. NOTE does not alter this object or any of the choices.
+	 * @param newType the new basic type.
+	 * @return a shallow copy of this ChoiceType with each choice shallow copied as well and updated their basic types.
+	 */
 	public ChoiceType updateBasicTypeOfChoices(BasicTypeDefinition newType){
 		ChoiceType copy = new ChoiceType();
 		copy.setContext(this.ctx);
@@ -119,9 +145,9 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * Retrieves the choices of this structure which have a child with the provided name
-	 * @param childName the name of the child to look for
-	 * @return an ArrayList of TypeInlineStructures, all which have a child with the provided name
+	 * Retrieves the choices of this structure which have a child with the provided name.
+	 * @param childName the name of the child to look for.
+	 * @return an ArrayList of TypeInlineStructures, all which have a child with the provided name.
 	 */
 	public ArrayList<InlineType> choicesWithChild(String childName){
 		ArrayList<InlineType> ret = new ArrayList<>();
@@ -136,9 +162,9 @@ public class ChoiceType extends Type {
 	}
 
 	/**
-	 * Retrieves the children with the given name in all choices of this choice type
-	 * @param childName the name to search for
-	 * @return an arraylist of the children
+	 * Retrieves the children with the given name in all choices of this choice type.
+	 * @param childName the name to search for.
+	 * @return an arraylist of the children.
 	 */
 	public ChoiceType getChild(String childName){
 		ChoiceType ret = new ChoiceType();
@@ -155,7 +181,7 @@ public class ChoiceType extends Type {
 
 	/**
 	 * Converts this ChoiceType to an InlineType, if it only contains one choice, otherwise does nothing.
-	 * @return the equivalent InlineType, if it only contains one choice, else this object
+	 * @return the equivalent InlineType, if it only contains one choice, else this object.
 	 */
 	public Type convertIfPossible(){
 		if(this.choices.size() == 1){
@@ -165,6 +191,9 @@ public class ChoiceType extends Type {
 		return this;
 	}
 
+	/**
+	 * Removes all choices from this ChoiceType. WARNING: alters this object.
+	 */
 	public void clear(){
 		this.choices.clear();
 	}
@@ -185,10 +214,26 @@ public class ChoiceType extends Type {
 		return Simulator.isSubtypeOf(this, other);
 	}
 
+	public int hashCode(){
+		int hashcode = 0;
+		
+		for(InlineType choice : this.choices){
+			hashcode += choice.hashCode();
+		}
+
+		return hashcode;
+	}
+
+	/**
+	 * @return a shallow copy of this ChoiceType (different root node same children).
+	 */
 	public ChoiceType shallowCopy(){
 		return new ChoiceType(this.choices);
 	}
 
+	/**
+	 * @return a shallow copy of this ChoiceType. All children are the same as this ChoiceType, EXCEPT for the nodes in the given Path - those are also shallow copied.
+	 */
 	public Type shallowCopyExcept(Path p){
 		if(p.isEmpty()){
 			return this.shallowCopy();
@@ -201,6 +246,9 @@ public class ChoiceType extends Type {
 		return result;
 	}
 
+	/**
+	 * @return a deep copy of this ChoiceType.
+	 */
 	public ChoiceType copy(){
 		ChoiceType copy = new ChoiceType();
 		copy.setContext(this.ctx);
@@ -215,6 +263,10 @@ public class ChoiceType extends Type {
 		return copy;
 	}
 
+	/**
+	 * @param seenTypes a map of all previously seen nodes.
+	 * @return a deep copy of this ChoiceType.
+	 */
 	public ChoiceType copy(IdentityHashMap<Type, Type> seenTypes){
 		ChoiceType copy = new ChoiceType();
 		copy.setContext(this.ctx);
@@ -228,6 +280,9 @@ public class ChoiceType extends Type {
 		return copy;
 	}
 
+	/**
+	 * @return a nice textual representation of this ChoiceType.
+	 */
 	public String prettyString(){
 		IdentityHashMap<Type, Void> recursive = new IdentityHashMap<>();
 		recursive.put(this, null);
@@ -245,10 +300,8 @@ public class ChoiceType extends Type {
 	public String prettyString(int level, IdentityHashMap<Type, Void> recursive){
 		recursive.put(this, null);
 		
-		// int newLevel = level + 1;
 		int newLevel = level;
 		
-		// String toString = " " + System.identityHashCode(this) + "\n" + "\t".repeat(newLevel);
 		String toString = "\n" + "\t".repeat(newLevel);
 		toString += this.choices.stream()
 			.map(c -> {

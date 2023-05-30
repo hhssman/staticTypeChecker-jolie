@@ -19,6 +19,11 @@ import staticTypechecker.visitors.SymbolCollector;
 import staticTypechecker.visitors.Synthesizer;
 import staticTypechecker.visitors.TypeProcessor;
 
+/**
+ * The main flow of the type checker. Here we clearly see the stages of the pipeline.
+ * 
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
+ */
 public class Main {
 
 	public static void main( String[] args ) {
@@ -59,12 +64,13 @@ public class Main {
 			trees.put(m.name(), synth.synthesize());
 		});
 
-		// printTrees(trees);
-
 		WarningHandler.printWarnings();
 		FaultHandler.printFaults();
 	}
 
+	/**
+	 * Utility function, prints all symbols of all modules in a structured manner.
+	 */
 	private static void printAllSymbols(){
 		System.out.println("-----------------------------------------");
 		for(Module m : ModuleHandler.modules().values()){
@@ -86,6 +92,9 @@ public class Main {
 		System.out.println("-----------------------------------------");
 	}
 
+	/**
+	 * Utility function, prints all symbol trees of all modules in a structured manner.
+	 */
 	private static void printTrees(HashMap<String, Type> trees){
 		System.out.println("-----------------------------------------");
 		for(Entry<String, Type> ent : trees.entrySet()){

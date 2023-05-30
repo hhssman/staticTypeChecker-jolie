@@ -9,9 +9,9 @@ import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 
 /**
- * Class for checking equality and subtype status of two types
+ * Class for checking equality and subtype status of two types.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Simulator {
 	public static boolean isSubtypeOf(Type t1, Type t2){

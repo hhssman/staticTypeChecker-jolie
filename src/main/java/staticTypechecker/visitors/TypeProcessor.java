@@ -93,9 +93,9 @@ import staticTypechecker.utils.TypeConverter;
 import staticTypechecker.entities.Type;
 
 /**
- * Parses the types of a Jolie module to InlineTypes and ChoiceTypes.
+ * Goes through an AST of a given Jolie module and converts the types of a Jolie module to InlineTypes and ChoiceTypes.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;

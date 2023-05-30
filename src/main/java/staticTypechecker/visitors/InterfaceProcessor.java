@@ -1,6 +1,5 @@
 package staticTypechecker.visitors;
 
-import java.util.Stack;
 import java.util.Map.Entry;
 
 import jolie.lang.parse.OLVisitor;
@@ -99,9 +98,9 @@ import staticTypechecker.entities.Symbol;
 import staticTypechecker.entities.Interface;
 
 /**
- * Type checks the interfaces.
+ * Goes through an AST of a given Jolie module and converts the interfaces.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerVisitor {
 	private Module module;
@@ -146,10 +145,9 @@ public class InterfaceProcessor implements OLVisitor<SymbolTable, Void>, TypeChe
 		Interface inter = new Interface(n.name());
 
 		for(Entry<String, OperationDeclaration> ent : n.operationsMap().entrySet()){
-			String opName = ent.getKey();
 			Operation op = this.getOperation(ent.getValue(), symbols);
 			
-			inter.addOperation(opName, op); // add operation to the interface object
+			inter.addOperation(op); // add operation to the interface object
 		}
 
 		symbols.put(SymbolTable.newPair(n.name(), SymbolType.INTERFACE), inter);

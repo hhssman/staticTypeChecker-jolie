@@ -112,9 +112,9 @@ import staticTypechecker.faults.UnknownFunctionFault;
 import staticTypechecker.faults.WarningHandler;
 
 /**
- * Synthesizer for a parsed Jolie abstract syntax tree. Synthesizes the type of each node
+ * Synthesizer for a parsed Jolie abstract syntax tree. Synthesizes the type of each node.
  * 
- * @author Kasper Bergstedt, kberg18@student.sdu.dk
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public class Synthesizer implements OLVisitor<Type, Type> {
 	private static HashMap<String, Synthesizer> synths = new HashMap<>(); 	// a static map, which maps module paths to synthesizers

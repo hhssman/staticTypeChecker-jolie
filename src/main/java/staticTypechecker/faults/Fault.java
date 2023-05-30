@@ -1,9 +1,9 @@
 package staticTypechecker.faults;
 
 /**
- * Simple fault containing a fault message
+ * Simple interface for a fault used in the type checker.
  * 
- * @author Kasper Bergstedt (kberg18@student.sdu.dk)
+ * @author Kasper Bergstedt (kasper.bergstedt@hotmail.com)
  */
 public interface Fault {
 	public String getMessage();
