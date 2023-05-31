@@ -64,8 +64,6 @@ public class Main {
 			trees.put(m.name(), synth.synthesize());
 		});
 
-		printTrees(trees);
-
 		WarningHandler.printWarnings();
 		FaultHandler.printFaults();
 	}
