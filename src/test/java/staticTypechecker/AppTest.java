@@ -159,6 +159,17 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testErrors());
 	}
 
+	@Test
+	public void testRecursiveAssign(){
+		assertTrue(BehaviourProcessorTester.testRecursiveAssign());
+	}
+
+	@Test
+	public void testWhileTypeHint(){
+		System.setProperty("typehint", "assertions");
+		assertTrue(BehaviourProcessorTester.testWhileTypeHint());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,

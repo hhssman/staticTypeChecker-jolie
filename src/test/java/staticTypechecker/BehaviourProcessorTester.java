@@ -739,14 +739,71 @@ public class BehaviourProcessorTester {
 		return true;
 	}
 
-	// TODO
 	public static boolean testWhileTypeHint(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileTypeHint.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
 
 		Type result = Synthesizer.get(modules.get(0)).synthesize();
 
+		ChoiceType target = new ChoiceType();
+
+		// tree 1, original tree before while loop
+		InlineType t1 = Type.VOID().addChild("a", Type.INT());
+
+		// tree 2, the steady state of the while loop
+		InlineType t2 = Type.VOID();
+		ChoiceType a = new ChoiceType();
+		a.addChoiceUnsafe(Type.INT());
+		
+		InlineType recInt = Type.INT();
+		recInt.addChildUnsafe("x", a);
+		a.addChoiceUnsafe(recInt);
+		a.addChoiceUnsafe(Type.INT());
+		t2.addChildUnsafe("a", a);
+
+		target.addChoiceUnsafe(t1);
+		target.addChoiceUnsafe(t2);
+
+		return result.equals(target);
+	}
+
+	public static boolean testRecursiveAssign(){
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testRecursiveAssign.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
 		InlineType target = Type.VOID();
+
+		// parameter with the recursive children
+		InlineType p = Type.VOID();
+
+		// r1
+		InlineType r1 = Type.INT();
+		r1.addChildUnsafe("x", r1);
+
+		InlineType r1Copy = r1.copy();
+
+		r1.addChildUnsafe("x", Type.INT().addChild("x", Type.STRING().addChild("x", r1Copy)));
+		p.addChildUnsafe("r1", r1);
+
+		// r2
+		InlineType r2 = Type.INT();
+		r2.addChildUnsafe("y", r2);
+		ChoiceType r2X = new ChoiceType();
+		r2X.addChoiceUnsafe(Type.BOOL().addChild("r", r2X));
+		r2X.addChoiceUnsafe(Type.STRING().addChild("z", Type.STRING()));
+		r2.addChildUnsafe("x", r2X);
+
+		InlineType r2Copy = r2.copy();
+
+		r2.addChildUnsafe("y", r2Copy);
+		ChoiceType newR2X = new ChoiceType();
+		newR2X.addChoiceUnsafe(Type.BOOL().addChild("r", r2Copy.getChild("x")).addChild("z", Type.INT()));
+		newR2X.addChoiceUnsafe(Type.STRING().addChild("z", Type.INT()));
+		r2.addChildUnsafe("x", newR2X);
+		p.addChildUnsafe("r2", r2);
+
+		target.addChildUnsafe("p", p);
 
 		return result.equals(target);
 	}
