@@ -6,6 +6,12 @@ This project contains a tool for checking type safety in Jolie modules staticall
 ---
 
 ## How to run
+### Requirements
+To run the type checker you must have Java and Jolie installed.
+The type checker has been tested on Java version 11.0.17 and Jolie version 1.10.5.
+
+</br>
+
 ### Compile the project
 To run the type checker, first compile it using the `compile.sh` script in the root folder, like so:
 
