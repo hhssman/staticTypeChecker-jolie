@@ -21,7 +21,7 @@ To run the type checker, first compile it using the `compile.sh` script in the r
 ./compile.sh
 ```
 
-This will create a folder called `target` containing all the compiled files of the type checker. In the folder there will also be a `.jar` file with the name `typechecker-main.jar` - this is the main file.
+It will now download all the necessary dependencies for the type checker, and create a folder called `target` containing all the compiled files of the type checker. In the folder there will also be a `.jar` file with the name `typechecker-main.jar` - this is the main file.
 
 </br>
 
@@ -34,7 +34,7 @@ java -jar typechecker-main.jar myJolieFile.ol
 ### Execute with custom typehint keyword
 You can use a custom name for the typehint keyword by setting a Java Property with the key `typehint`. To do so, use Java's `-D` flag, like so:
 ```
-java -jar -Dtypehint=myCustonTypehintKeyword myJolieFile.ol
+java -jar -Dtypehint=myCustomTypehintKeyword myJolieFile.ol
 ```
 
 If the type checker finds any type errors, it will print them to stdout. otherwise, it will not print anything.
