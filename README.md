@@ -15,7 +15,11 @@ The type checker has been tested on **Ubuntu 20.04.5 LTS** with **Java 11.0.17**
 </br>
 
 ### Compile the project
-To run the type checker, first compile it using the `compile.sh` script in the root folder, like so:
+If you do not want to compile the project yourself, the target folder already contains a compiled `.jar` file, which you can use (just go to section **Execute the project below**).
+
+</br>
+
+To compile the type checker yourself run the `compile.sh` script from the root folder, like so:
 
 ```
 ./compile.sh
@@ -30,11 +34,15 @@ You can move this `.jar` file anywhere you want and run it. To run it, you must 
 ```
 java -jar typechecker-main.jar myJolieFile.ol
 ```
+</br>
+
+### Output
+If the type checker finds any type errors, it will print them to stdout. otherwise, it will not print anything.
+
+</br>
 
 ### Execute with custom typehint keyword
 You can use a custom name for the typehint keyword by setting a Java Property with the key `typehint`. To do so, use Java's `-D` flag, like so:
 ```
 java -jar -Dtypehint=myCustomTypehintKeyword myJolieFile.ol
 ```
-
-If the type checker finds any type errors, it will print them to stdout. otherwise, it will not print anything.
