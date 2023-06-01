@@ -6,7 +6,7 @@
 
   <groupId>staticTypechecker</groupId>
   <artifactId>staticTypechecker</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
 
   <name>staticTypechecker</name>
 
@@ -85,19 +85,6 @@
 				<finalName>typechecker-main</finalName>
 			</configuration>
 		</plugin>
-        <!-- <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-          <configuration>
-            <archive>
-              <manifest>
-                <addClasspath>true</addClasspath>
-                <classpathPrefix>lib/</classpathPrefix>
-                <mainClass>staticTypechecker.Main</mainClass>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin> -->
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>
