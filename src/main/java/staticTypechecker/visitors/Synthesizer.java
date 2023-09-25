@@ -223,8 +223,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_in = new Path(n.inputVarPath().path()); // the path to the node which is given as input to the operation
 
 		// update the node at the path to the input type
-		Type T1 = T.shallowCopyExcept(p_in);
-		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
+		Type T1 = setTypeOfNode(T, T_in, p_in);
 
 		for(ArrayList<Path> a : this.pathsAlteredInWhile){
 			a.add(p_in);
@@ -248,8 +247,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Path p_out = new Path(n.outputExpression().toString()); // the path to the node in which the OUTPUT of the operation is stored
 
 		// given that p_in is of type T_in find the type of the behaviour
-		Type T_update = T.shallowCopyExcept(p_in);
-		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T_update);
+		Type T_update = setTypeOfNode(T, T_in, p_in);
 		Type T1 = this.synthesize(n.process(), T_update);
 		
 		// check that p_out is a subtype of T_out 
