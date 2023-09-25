@@ -279,25 +279,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		
 		// if the notify is an assertion, it is a typehint
 		if(operationName.equals("assert") && outputPortName.equals(System.getProperty("typehint"))){
-			if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
-				FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression", n.context()), true);
-			}
-			InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
-			OLSyntaxNode expression = parsedNode.expression();
-
-			if(!(expression instanceof VariableExpressionNode)){
-				FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable", n.context()), true);
-			}
-			
-			Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
-			Type typeOfEx = this.synthesize(expression, T);
-			String nameOfExpression = ToString.of(expression);
-			this.check(typeOfEx, type, n.context(), "the type of '" + nameOfExpression + "' is not a subtype of the typehint. Type of " + nameOfExpression + ":\n" + typeOfEx.prettyString() + "\n\nTypehint given:\n" + type.prettyString(), true);
-
-			Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
-			Type T1 = T.shallowCopyExcept(path);
-			TypeUtils.setTypeOfNodeByPath(path, type, T1);
-			return T1;
+			return assertOperation(n, T);
 		}
 		
 		// else it is just a normal oneway invocation
@@ -307,7 +289,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(p_out, T_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + T_out.prettyString());
 
 		return T;
-	};
+	}
 
 	public Type visit( SolicitResponseOperationStatement n, Type T ){
 		OutputPort port = (OutputPort)this.module.symbols().get(n.outputPortId(), SymbolType.OUTPUT_PORT);
@@ -931,4 +913,26 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
 		return T1;
 	}
+
+	private Type assertOperation(NotificationOperationStatement n, Type T) {
+		if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
+			FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression", n.context()), true);
+		}
+		InstanceOfExpressionNode parsedNode = (InstanceOfExpressionNode)n.outputExpression();
+		OLSyntaxNode expression = parsedNode.expression();
+
+		if(!(expression instanceof VariableExpressionNode)){
+			FaultHandler.throwFault(new MiscFault("first argument of instanceof must be a path to a variable", n.context()), true);
+		}
+		
+		Type type = TypeConverter.convert(parsedNode.type(), this.module.symbols());
+		Type typeOfEx = this.synthesize(expression, T);
+		String nameOfExpression = ToString.of(expression);
+		this.check(typeOfEx, type, n.context(), "the type of '" + nameOfExpression + "' is not a subtype of the typehint. Type of " + nameOfExpression + ":\n" + typeOfEx.prettyString() + "\n\nTypehint given:\n" + type.prettyString(), true);
+
+		Path path = new Path(((VariableExpressionNode)expression).variablePath().path());
+		Type T1 = T.shallowCopyExcept(path);
+		TypeUtils.setTypeOfNodeByPath(path, type, T1);
+		return T1;
+	};
 }
