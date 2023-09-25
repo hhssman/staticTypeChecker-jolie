@@ -337,15 +337,14 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(p_out, T_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + T_out.prettyString());
 
 		// update type of p_in to T_in
-		Type T1 = T.shallowCopyExcept(p_in);
-		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
+		Type T1 = setTypeOfNode(T, T_in, p_in);
 
 		for(ArrayList<Path> a : this.pathsAlteredInWhile){
 			a.add(p_in);
 		}
 
 		return T1;
-	};
+	}
 
 	public Type visit( LinkInStatement n, Type T ){
 		return null;
@@ -362,16 +361,14 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		
 		// update the type of the node
 		Path path = new Path(n.variablePath().path());
-		Type T1 = T.shallowCopyExcept(path);
-		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
-		TypeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
+		Type T1 = setBasicTypeOfNode(T, T_e, path);
 
 		for(ArrayList<Path> a : this.pathsAlteredInWhile){
 			a.add(path);
 		}
 
 		return T1;
-	};
+	}
 
 	@Override
 	public Type visit(AddAssignStatement n, Type T) {
@@ -908,5 +905,32 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		if(!T.isSubtypeOf(S)){
 			FaultHandler.throwFault(new TypeFault(faultMessage, ctx), terminate);
 		}
+	}
+
+	/**
+	 * Set the basic type of a node given a path and a T_e (type expression).
+	 * @param T The current type tree for the program
+	 * @param T_e A type from an expression
+	 * @param path A path to a given node
+	 * @return The new type tree for the program
+	 */
+	private Type setBasicTypeOfNode(Type T, Type T_e, Path path) {
+		Type T1 = T.shallowCopyExcept(path);
+		ArrayList<BasicTypeDefinition> basicTypes = Type.getBasicTypesOfNode(T_e);
+		TypeUtils.setBasicTypeOfNodeByPath(path, basicTypes, T1);
+		return T1;
+	}
+
+	/**
+	 * Set the type of a node given a path and a T_e (type expression).
+	 * @param T The current type tree for the program
+	 * @param T_in The new type to insert
+	 * @param p_in The path to to a givin node
+	 * @return The new type tree for the program
+	 */
+	private Type setTypeOfNode(Type T, Type T_in, Path p_in) {
+		Type T1 = T.shallowCopyExcept(p_in);
+		TypeUtils.setTypeOfNodeByPath(p_in, T_in, T1);
+		return T1;
 	}
 }
