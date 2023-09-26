@@ -914,6 +914,9 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		return T1;
 	}
 
+	/**
+	 * This is a special case for notification operation statement where we are given a typehint
+	 */
 	private Type assertOperation(NotificationOperationStatement n, Type T) {
 		if(!(n.outputExpression() instanceof InstanceOfExpressionNode)){
 			FaultHandler.throwFault(new MiscFault("argument given to assert must be an instanceof expression", n.context()), true);
