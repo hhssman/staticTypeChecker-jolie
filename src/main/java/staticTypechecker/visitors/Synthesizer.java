@@ -902,10 +902,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	/**
-	 * Set the type of a node given a path and a T_e (type expression).
+	 * Set the type of a node given a path and a new Type to insert.
 	 * @param T The current type tree for the program
 	 * @param T_in The new type to insert
-	 * @param p_in The path to to a givin node
+	 * @param p_in The path to a givin node
 	 * @return The new type tree for the program
 	 */
 	private Type setTypeOfNode(Type T, Type T_in, Path p_in) {
