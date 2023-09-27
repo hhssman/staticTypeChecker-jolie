@@ -25,14 +25,14 @@ public abstract class Type implements Symbol {
 	private final static InlineType ANY = new InlineType(BasicTypeDefinition.of(NativeType.ANY), new Range(1, 1), null, false);
 	private final static InlineType UNDEFINED = new InlineType(BasicTypeDefinition.of(NativeType.ANY), null, null, true);
 
-	public static InlineType BOOL(){ return Type.BOOL.shallowCopy(); };
-	public static InlineType INT(){ return Type.INT.shallowCopy(); };
-	public static InlineType LONG(){ return Type.LONG.shallowCopy(); };
-	public static InlineType DOUBLE(){ return Type.DOUBLE.shallowCopy(); };
-	public static InlineType STRING(){ return Type.STRING.shallowCopy(); };
-	public static InlineType VOID(){ return Type.VOID.shallowCopy(); };
-	public static InlineType ANY(){ return Type.ANY.shallowCopy(); };
-	public static InlineType UNDEFINED(){ return Type.UNDEFINED.shallowCopy(); };
+	public static InlineType BOOL(){ return Type.BOOL.shallowCopy(); }
+	public static InlineType INT(){ return Type.INT.shallowCopy(); }
+	public static InlineType LONG(){ return Type.LONG.shallowCopy(); }
+	public static InlineType DOUBLE(){ return Type.DOUBLE.shallowCopy(); }
+	public static InlineType STRING(){ return Type.STRING.shallowCopy(); }
+	public static InlineType VOID(){ return Type.VOID.shallowCopy(); }
+	public static InlineType ANY(){ return Type.ANY.shallowCopy(); }
+	public static InlineType UNDEFINED(){ return Type.UNDEFINED.shallowCopy(); }
 
 	public abstract boolean isSubtypeOf(Type other);
 	public abstract boolean equals(Object other);

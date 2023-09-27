@@ -173,26 +173,26 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( OneWayOperationDeclaration decl, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( RequestResponseOperationDeclaration decl, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( DefinitionNode n, Type t ){
 		return this.synthesize(n.body(), t);
-	};
+	}
 
 	public Type visit( ParallelStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( SequenceStatement n, Type t ){
 		for(OLSyntaxNode child : n.children()){
 			t = this.synthesize(child, t);
 		}
 		return t;
-	};
+	}
 
 	public Type visit( NDChoiceStatement n, Type t ){
 		ArrayList<Type> trees = new ArrayList<>(n.children().size()); // save all the possible outcomes
@@ -209,7 +209,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		else{
 			return new ChoiceType(trees);		
 		}
-	};
+	}
 
 	public Type visit( OneWayOperationStatement n, Type t ){
 		Service service = this.service;
@@ -230,7 +230,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 
 		return t1;
-	};
+	}
 
 	public Type visit( RequestResponseOperationStatement n, Type t ){
 		Service service = this.service;
@@ -264,7 +264,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.check(p_out_type, t_out, n.context(), "operation \"" + op.name() + "\" does not have the expected return type.\nActual return type:\n" + p_out_type.prettyString() + "\n\nExpected return type:\n" + t_out.prettyString());
 
 		return t1;
-	};
+	}
 
 	public Type visit( NotificationOperationStatement n, Type t ){
 		OutputPort port = (OutputPort)this.module.symbols().get(n.outputPortId(), SymbolType.OUTPUT_PORT);
@@ -328,11 +328,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	public Type visit( LinkInStatement n, Type t ){
 		return null;
-	};
+	}
 
 	public Type visit( LinkOutStatement n, Type t ){
 		return null;
-	};
+	}
 
 	public Type visit( AssignStatement n, Type t ){
 		// retrieve the type of the expression
@@ -453,11 +453,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 			
 		return resultType;
-	};
+	}
 
 	public Type visit( DefinitionCallStatement n, Type t ){
 		return t;
-	};
+	}
 
 	/**
 	 * While statement
@@ -502,51 +502,51 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		
 		this.pathsAlteredInWhile.pop();
 		return result.convertIfPossible();
-	};
+	}
 
 	public Type visit( OrConditionNode n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( AndConditionNode n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( NotExpressionNode n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( CompareConditionNode n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( ConstantIntegerExpression n, Type t ){
 		return Type.INT();
-	};
+	}
 
 	public Type visit( ConstantDoubleExpression n, Type t ){
 		return Type.DOUBLE();
-	};
+	}
 
 	public Type visit( ConstantBoolExpression n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( ConstantLongExpression n, Type t ){
 		return Type.LONG();
-	};
+	}
 
 	public Type visit( ConstantStringExpression n, Type t ){
 		return Type.STRING();
-	};
+	}
 
 	public Type visit( ProductExpressionNode n, Type t ){
 		return this.getTypeOfSumOrProduct(n, t);
-	};
+	}
 
 	public Type visit( SumExpressionNode n, Type t ){
 		return this.getTypeOfSumOrProduct(n, t);
-	};
+	}
 
 	private Type getTypeOfSumOrProduct(OLSyntaxNode n, Type t){
 		List<Pair<OperandType, OLSyntaxNode>> operands;
@@ -593,51 +593,51 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		else{ // if more nodes were found, return the disjunction between them
 			return new ChoiceType(types);
 		}
-	};
+	}
 
 	public Type visit( NullProcessStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( Scope n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InstallStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( CompensateStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ThrowStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ExitStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ExecutionInfo n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( CorrelationSetInfo n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InputPortInfo n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( OutputPortInfo n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( PointerStatement n, Type t ){
 		return t;
-	};
+	}
 
 	/**
 	 * Deep copy
@@ -679,11 +679,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 
 		return t1;
-	};
+	}
 
 	public Type visit( RunStatement n, Type t ){
 		return t;
-	};
+	}
 
 	/**
 	 * Undef statement. Here we find the parent of the path and remove the child
@@ -703,71 +703,71 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		}
 
 		return t1;
-	};
+	}
 
 	public Type visit( ValueVectorSizeExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( PreIncrementStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( PostIncrementStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( PreDecrementStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( PostDecrementStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ForStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ForEachSubNodeStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ForEachArrayItemStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( SpawnStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( IsTypeExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InstanceOfExpressionNode n, Type t ){
 		return Type.BOOL();
-	};
+	}
 
 	public Type visit( TypeCastExpressionNode n, Type t ){
 		return new InlineType(BasicTypeDefinition.of(n.type()), null, null, false);
-	};
+	}
 
 	public Type visit( SynchronizedStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( CurrentHandlerStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( EmbeddedServiceNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InstallFixedVariableExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( VariablePathNode n, Type t ){
 		Path path = new Path(n.path());
@@ -779,63 +779,63 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		else{
 			return new ChoiceType(types);
 		}
-	};
+	}
 
 	public Type visit( TypeDefinitionLink n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InterfaceDefinition n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( DocumentationComment n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( FreshValueExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( CourierDefinitionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( CourierChoiceStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( NotificationForwardStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( SolicitResponseForwardStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InterfaceExtenderDefinition n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( InlineTreeExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( VoidExpressionNode n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ProvideUntilStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( TypeChoiceDefinition n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ImportStatement n, Type t ){
 		return t;
-	};
+	}
 
 	public Type visit( ServiceNode n, Type t ){
 		Type result;
@@ -855,11 +855,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		this.service = null;
 
 		return result;
-	};
+	}
 
 	public Type visit( EmbedServiceNode n, Type t ){
 		return t;
-	};
+	}
 
 	/**
 	 * Checks that the given t is a subtype of the given S. Throws a fault to FaultHandler if not.
@@ -937,5 +937,5 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type t1 = t.shallowCopyExcept(path);
 		TypeUtils.setTypeOfNodeByPath(path, type, t1);
 		return t1;
-	};
+	}
 }
