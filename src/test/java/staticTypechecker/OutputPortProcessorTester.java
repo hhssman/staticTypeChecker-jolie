@@ -35,10 +35,10 @@ public class OutputPortProcessorTester {
 
 		HashSet<Interface> interfacesOutputPort2 = new HashSet<>();
 		Interface i2 = new Interface("MyInterface2");
-		InlineType A = Type.ANY().addChild("x", Type.STRING());
-		A.addChildUnsafe("y", A);
-		ChoiceType B = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING());
-		Operation myReqRes2 = new Operation("MyReqRes2", A, B, OperationType.REQRES);
+		InlineType a = Type.ANY().addChild("x", Type.STRING());
+		a.addChildUnsafe("y", a);
+		ChoiceType b = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING());
+		Operation myReqRes2 = new Operation("MyReqRes2", a, b, OperationType.REQRES);
 		i2.addOperation(myReqRes2);
 		Operation myOneWay2 = new Operation("MyOneWay2", Type.INT(), null, OperationType.ONEWAY);
 		i2.addOperation(myOneWay2);

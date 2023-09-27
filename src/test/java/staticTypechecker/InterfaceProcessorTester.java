@@ -33,9 +33,9 @@ public class InterfaceProcessorTester {
 		
 		// ImportedInterface
 		Interface importedInterface = new Interface("ImportedInterface");
-		InlineType B = Type.INT();
-		B.addChildUnsafe("x", B);
-		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", Type.STRING().addChild("x", Type.INT()), B, OperationType.REQRES));
+		InlineType b = Type.INT();
+		b.addChildUnsafe("x", b);
+		importedInterface.addOperation("importedReqRes", new Operation("importedReqRes", Type.STRING().addChild("x", Type.INT()), b, OperationType.REQRES));
 		importedInterface.addOperation("importedOneWay", new Operation("importedOneWay", Type.INT(), null, OperationType.ONEWAY));
 
 		target.put(SymbolTable.newPair("ImportedInterface", SymbolType.INTERFACE), importedInterface);

@@ -253,12 +253,12 @@ public class TypeUtils {
 
 	/**
 	 * Changes the nodes at the end of the given Paths to any{?}.
-	 * @param T0 the tree in which to follow the Paths. NOTE: this tree is not altered.
+	 * @param t0 the tree in which to follow the Paths. NOTE: this tree is not altered.
 	 * @param paths the paths to follow.
 	 * @return a copy of T0 with the paths undefined.
 	 */
-	public static Type undefine(Type T0, ArrayList<Path> paths){
-		Type copy = T0.copy();
+	public static Type undefine(Type t0, ArrayList<Path> paths){
+		Type copy = t0.copy();
 		
 		for(Path path : paths){
 			ArrayList<Pair<InlineType, String>> nodesToUndefine = TypeUtils.findParentAndName(path, copy, true);

@@ -35,10 +35,10 @@ public class InputPortProcessorTester {
 
 		HashSet<Interface> interfacesInputPort2 = new HashSet<>();
 		Interface i2 = new Interface("MyInterface2");
-		InlineType A = Type.ANY().addChild("x", Type.STRING());
-		A.addChildUnsafe("y", A);
-		ChoiceType B = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING()); 
-		i2.addOperation(new Operation("MyReqRes2", A, B, OperationType.REQRES));
+		InlineType a = Type.ANY().addChild("x", Type.STRING());
+		a.addChildUnsafe("y", a);
+		ChoiceType b = new ChoiceType().addChoice(Type.INT()).addChoice(Type.STRING()); 
+		i2.addOperation(new Operation("MyReqRes2", a, b, OperationType.REQRES));
 		i2.addOperation(new Operation("MyOneWay2", Type.INT(), null, OperationType.ONEWAY));
 		interfacesInputPort2.add(i2);
 		InputPort InputPort2 = new InputPort("InputPort2", "socket://localhost:8082", "http", interfacesInputPort2);
