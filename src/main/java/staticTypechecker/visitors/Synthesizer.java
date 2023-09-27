@@ -213,7 +213,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( OneWayOperationStatement n, Type t ){
-		Service service = this.service;
 		Operation op = service.getOperation(n.id());
 		if(op == null){
 			FaultHandler.throwFault(new UnknownFunctionFault("The operation '" + n.id() + "' is unknown in service '" + service.name() + "'. Maybe you forgot to give the service an inputPort with an interface which provides the operation?", n.context()), false);
@@ -234,7 +233,6 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( RequestResponseOperationStatement n, Type t ){
-		Service service = this.service;
 		Operation op = service.getOperation(n.id());
 		if(op == null){
 			FaultHandler.throwFault(new UnknownFunctionFault("The operation '" + n.id() + "' is unknown in service '" + service.name() + "'. Maybe you forgot to give the service an inputPort with an interface which provides the operation?", n.context()), false);
