@@ -188,11 +188,10 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( SequenceStatement n, Type t ){
-		Type t1 = null;
 		for(OLSyntaxNode child : n.children()){
-			t1 = this.synthesize(child, t);
+			t = this.synthesize(child, t);
 		}
-		return t1 != null ? t1 : t;
+		return t;
 	}
 
 	public Type visit( NDChoiceStatement n, Type t ){
