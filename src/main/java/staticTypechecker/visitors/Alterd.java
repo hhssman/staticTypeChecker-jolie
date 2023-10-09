@@ -92,8 +92,10 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(Program n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        for(OLSyntaxNode child : n.children()) {
+            go(child, ctx);
+        }
+        return null;
     }
 
     @Override
@@ -164,14 +166,12 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(LinkInStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(LinkOutStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
@@ -214,8 +214,7 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(DefinitionCallStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
@@ -317,38 +316,32 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(ExitStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ExecutionInfo n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(CorrelationSetInfo n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InputPortInfo n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(OutputPortInfo n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(PointerStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
@@ -359,20 +352,18 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(RunStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(UndefStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        ctx.add(new Path(n.variablePath().path()));
+        return null;
     }
 
     @Override
     public Void visit(ValueVectorSizeExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
@@ -397,176 +388,148 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(ForStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ForEachSubNodeStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ForEachArrayItemStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(SpawnStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(IsTypeExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InstanceOfExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(TypeCastExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(SynchronizedStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(CurrentHandlerStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(EmbeddedServiceNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InstallFixedVariableExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(VariablePathNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(TypeInlineDefinition n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(TypeDefinitionLink n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InterfaceDefinition n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(DocumentationComment n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(FreshValueExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(CourierDefinitionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(CourierChoiceStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(NotificationForwardStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(SolicitResponseForwardStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InterfaceExtenderDefinition n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(InlineTreeExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(VoidExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ProvideUntilStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(TypeChoiceDefinition n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ImportStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ServiceNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        go(n.program(), ctx);
+        return null;
     }
 
     @Override
     public Void visit(EmbedServiceNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
     
 }
