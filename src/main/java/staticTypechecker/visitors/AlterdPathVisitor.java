@@ -221,9 +221,7 @@ public class AlterdPathVisitor implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(WhileStatement n, ArrayList<Path> ctx) {
-        for(int i = 0; i < 10; i++) {
-            go(n.body(), ctx);
-        }
+        go(n.body(), ctx);
         return null;
     }
 
