@@ -207,6 +207,25 @@ public class BehaviourProcessorTester {
 		return result.equals(target);
 	}
 
+	public static boolean testWhileFallback3() {
+		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback3.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);
+
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
+
+		ChoiceType target = new ChoiceType();
+
+		// first option, never entered the while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, enter the while loop, but fail to find a steady state, so fallback plan
+		InlineType option2 = Type.VOID().addChild("a", Type.INT().addChild("b", Type.UNDEFINED())).addChild("i", Type.INT()).addChild("b", Type.UNDEFINED());
+		target.addChoiceUnsafe(option2);
+
+		return result.equals(target);
+	}
+
 	public static boolean testWhileFallback2(){
 		String moduleName = AppTest.BASE_PATH + "testFilesForBehaviours/testWhileFallback2.ol";
 		List<Module> modules = BehaviourProcessorTester.readyModules(moduleName);

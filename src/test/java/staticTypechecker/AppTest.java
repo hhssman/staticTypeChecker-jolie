@@ -103,6 +103,11 @@ public class AppTest{
 	public void testWhileFallback2(){
 		assertTrue(BehaviourProcessorTester.testWhileFallback2());
 	}
+
+	@Test
+	public void testWhileFallback3() {
+		assertTrue(BehaviourProcessorTester.testWhileFallback3());
+	}
 	
 	@Test
 	public void testNestedWhile(){
