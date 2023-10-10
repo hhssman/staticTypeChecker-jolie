@@ -116,8 +116,7 @@ public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(ParallelStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
