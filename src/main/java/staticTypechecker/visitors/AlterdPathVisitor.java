@@ -129,8 +129,11 @@ public class AlterdPathVisitor implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(NDChoiceStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        for(Pair<OLSyntaxNode, OLSyntaxNode> child : n.children()) {
+            go(child.key(), ctx);
+            go(child.value(), ctx);
+        }
+        return null;
     }
 
     @Override
