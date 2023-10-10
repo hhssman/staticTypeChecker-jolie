@@ -494,8 +494,12 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 			t = r;
 		}
 
+		AlterdPathVisitor alterdPathVisitor = new AlterdPathVisitor();
+		ArrayList<Path> alterdPaths = new ArrayList<>();
+		alterdPathVisitor.visit(n, alterdPaths);
 		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
-		result.addChoiceUnsafe( TypeUtils.undefine(originalState, this.pathsAlteredInWhile.peek()) );
+		//result.addChoiceUnsafe( TypeUtils.undefine(originalState, this.pathsAlteredInWhile.peek()) );
+		result.addChoiceUnsafe(TypeUtils.undefine(originalState, alterdPaths));
 
 		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
 		
