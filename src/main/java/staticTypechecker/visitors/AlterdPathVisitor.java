@@ -88,7 +88,7 @@ import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Path;
 
-public class Alterd implements OLVisitor<ArrayList<Path>, Void>{
+public class AlterdPathVisitor implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(Program n, ArrayList<Path> ctx) {
