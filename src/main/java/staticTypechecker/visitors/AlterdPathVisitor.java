@@ -25,6 +25,7 @@ import jolie.lang.parse.ast.IfStatement;
 import jolie.lang.parse.ast.ImportStatement;
 import jolie.lang.parse.ast.InputPortInfo;
 import jolie.lang.parse.ast.InstallFixedVariableExpressionNode;
+import jolie.lang.parse.ast.InstallFunctionNode;
 import jolie.lang.parse.ast.InstallStatement;
 import jolie.lang.parse.ast.InterfaceDefinition;
 import jolie.lang.parse.ast.InterfaceExtenderDefinition;
@@ -292,26 +293,27 @@ public class AlterdPathVisitor implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(Scope n, ArrayList<Path> ctx) {
-        // TODO Not implemented in synthesizer
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        go(n.body(), ctx);
+        return null;
     }
 
     @Override
     public Void visit(InstallStatement n, ArrayList<Path> ctx) {
-        // TODO Not implemented in synthesizer
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        InstallFunctionNode handlerFunction = n.handlersFunction();
+        for(Pair<String, OLSyntaxNode> pair : handlerFunction.pairs()) {
+            go(pair.value(), ctx);
+        }
+        return null;
     }
 
     @Override
     public Void visit(CompensateStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(ThrowStatement n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
