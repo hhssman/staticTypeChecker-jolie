@@ -36,6 +36,18 @@ public class Module {
 	}
 
 	/**
+	 * Creates new new Module
+	 * @param name the name of the MODULE, e.g. "myModule.ol"
+	 * @param program the allready parsed jolie program for the module.
+	 */
+	public Module (String name, Program program) {
+		this.name = name;
+		this.path = null;
+		this.program = program;
+		this.symbols = null;
+	}
+
+	/**
 	 * @return the name of this Module, e.g. "myModule.ol".
 	 */
 	public String name(){
