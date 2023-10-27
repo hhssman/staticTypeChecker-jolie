@@ -37,12 +37,13 @@ public class Module {
 
 	/**
 	 * Creates new new Module
+	 * This is made purly to be used for testing
 	 * @param name the name of the MODULE, e.g. "myModule.ol"
 	 * @param program the allready parsed jolie program for the module.
 	 */
-	public Module (String name, Program program) {
+	public Module(String name, Program program) {
 		this.name = name;
-		this.path = null;
+		this.path = name;
 		this.program = program;
 		this.symbols = null;
 	}
