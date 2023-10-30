@@ -49,6 +49,7 @@ public class Parser {
                     semVerConfig,
                     true
                 );
+            return program;
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -176,6 +176,71 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testWhileTypeHint());
 	}
 
+	@Test
+	public void testAssignStmt() {
+		assertTrue(StatmentTester.assignStatement());
+	}
+
+	@Test
+	public void testParallelStmt() {
+		assertTrue(StatmentTester.parallelStatement());
+	}
+
+	@Test
+	public void testSeqStmt() {
+		assertTrue(StatmentTester.sequenceStatement());
+	}
+
+	@Test
+	public void testChoiceStmt() {
+		assertTrue(StatmentTester.choiceStatement());
+	}
+
+	@Test
+	public void testOneWayStmt() {
+		assertTrue(StatmentTester.oneWayStatement());
+	}
+
+	@Test
+	public void testRequestStmt() {
+		assertTrue(StatmentTester.requestStatement());
+	}
+
+	@Test
+	public void testNotifyStmt() {
+		assertTrue(StatmentTester.notifyStatement());
+	}
+
+	@Test
+	public void testSolicitStmt() {
+		assertTrue(StatmentTester.solicitStatement());
+	}
+
+	@Test
+	public void addAssignStmt() {
+		assertTrue(StatmentTester.addAssignStatement());
+	}
+
+	@Test
+	public void subtractAssignStmt() {
+		assertTrue(StatmentTester.subtractAssignStatement());
+	}
+
+	@Test
+	public void multiplyAssignStmt() {
+		assertTrue(StatmentTester.multiplyAssignStatement());
+	}
+
+	@Test
+	public void divideAssignStmt() {
+		assertTrue(StatmentTester.divideAssignStatement());
+	}
+
+	@Test
+	public void testIfStmt() {
+		assertTrue(StatmentTester.IfStatement());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,
