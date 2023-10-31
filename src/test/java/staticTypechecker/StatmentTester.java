@@ -52,6 +52,8 @@ public class StatmentTester {
         """;
         Module module = readyModule(code);
         Type result = Synthesizer.get(module).synthesize();
+
+        Type target = null;
         return false;
     }
 
@@ -117,7 +119,7 @@ public class StatmentTester {
                 }
             }        
         """;
-        Module module = readyModule(code, true);
+        Module module = readyModule(code, false);
         Type result = Synthesizer.get(module).synthesize();
 
         ChoiceType target = new ChoiceType();
@@ -173,7 +175,7 @@ public class StatmentTester {
                 }
             }
         """;
-        Module module = readyModule(code, true);
+        Module module = readyModule(code, false);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -227,7 +229,7 @@ public class StatmentTester {
                 }
             }   
         """;
-        Module module = readyModule(code, true);
+        Module module = readyModule(code, false);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -275,7 +277,7 @@ public class StatmentTester {
                 }
             }        
         """;
-        Module module = readyModule(code, true);
+        Module module = readyModule(code, false);
         Type result = Synthesizer.get(module).synthesize();
 
 		InlineType target = Type.VOID();
@@ -319,7 +321,7 @@ public class StatmentTester {
                 }
             }        
         """;
-        Module module = readyModule(code, true);
+        Module module = readyModule(code, false);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -346,7 +348,7 @@ public class StatmentTester {
             a += 1
             b += 0.1
         """;
-        Module module = readyModule(code, false);
+        Module module = readyModule(code, true);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -363,7 +365,7 @@ public class StatmentTester {
             a -= 1
             b -= 0.1
         """;
-        Module module = readyModule(code, false);
+        Module module = readyModule(code, true);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -380,7 +382,7 @@ public class StatmentTester {
             a *= 1
             b *= 0.1
         """;
-        Module module = readyModule(code, false);
+        Module module = readyModule(code, true);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -397,7 +399,7 @@ public class StatmentTester {
             a /= 1
             b /= 0.1
         """;
-        Module module = readyModule(code, false);
+        Module module = readyModule(code, true);
         Type result = Synthesizer.get(module).synthesize();
 
         InlineType target = Type.VOID();
@@ -421,27 +423,32 @@ public class StatmentTester {
 
             d = 20 
         """;
-        Module module1 = readyModule(code, false);
+        Module module1 = readyModule(code, true);
         Type result1 = Synthesizer.get(module1).synthesize();
 
         ChoiceType target1 = new ChoiceType();
 
 		// first option, not entering the if
-		InlineType option1 = Type.VOID();
-		option1.addChildUnsafe("a", Type.INT());
-		option1.addChildUnsafe("b", Type.STRING().addChild("x", Type.BOOL()));
-		option1.addChildUnsafe("d", Type.INT());
-		target1.addChoiceUnsafe(option1);
+		InlineType option11 = Type.VOID();
+		option11.addChildUnsafe("a", Type.INT());
+		option11.addChildUnsafe("b", Type.STRING().addChild("x", Type.BOOL()));
+		option11.addChildUnsafe("d", Type.INT());
+		target1.addChoiceUnsafe(option11);
 
 		// second option, entering the if
-		InlineType option2 = Type.VOID();
-		option2.addChildUnsafe("a", Type.INT().addChild("x", Type.BOOL()));
-		option2.addChildUnsafe("b", Type.INT().addChild("x", Type.BOOL()));
-		option2.addChildUnsafe("c", Type.STRING());
-		option2.addChildUnsafe("d", Type.INT());
-		target1.addChoiceUnsafe(option2);
+		InlineType option12 = Type.VOID();
+		option12.addChildUnsafe("a", Type.INT().addChild("x", Type.BOOL()));
+		option12.addChildUnsafe("b", Type.INT().addChild("x", Type.BOOL()));
+		option12.addChildUnsafe("c", Type.STRING());
+		option12.addChildUnsafe("d", Type.INT());
+		target1.addChoiceUnsafe(option12);
 
-        code = """
+        return result1.equals(target1);
+		
+    }
+
+    public static boolean nestedIfStatement() {
+        String code2 = """
             a = 10
             b = "h"
             b.x = true
@@ -462,28 +469,358 @@ public class StatmentTester {
 
             d = 20
         """;
-        Module module2 = readyModule(code, false);
+        Module module2 = readyModule(code2, true);
         Type result2 = Synthesizer.get(module2).synthesize();
 
         ChoiceType target2 = new ChoiceType();
 
 		// first option, not any if
-		target2.addChoiceUnsafe(option1);
+		InlineType option21 = Type.VOID();
+		option21.addChildUnsafe("a", Type.INT());
+		option21.addChildUnsafe("b", Type.STRING().addChild("x", Type.BOOL()));
+		option21.addChildUnsafe("d", Type.INT());
+		target2.addChoiceUnsafe(option21);
 
 		// second option, entering the first if, but not the second
-		target2.addChoiceUnsafe(option2);
+		InlineType option22 = Type.VOID();
+		option22.addChildUnsafe("a", Type.INT().addChild("x", Type.BOOL()));
+		option22.addChildUnsafe("b", Type.INT().addChild("x", Type.BOOL()));
+		option22.addChildUnsafe("c", Type.STRING());
+		option22.addChildUnsafe("d", Type.INT());
+		target2.addChoiceUnsafe(option22);
 
 		// third option, entering both ifs
-		InlineType option3 = Type.VOID();
-		option3.addChildUnsafe("a", Type.DOUBLE().addChild("x", Type.BOOL()));
-		option3.addChildUnsafe("b", Type.INT().addChild("x", Type.BOOL().addChild("y", Type.STRING())));
-		option3.addChildUnsafe("c", Type.STRING().addChild("x", Type.INT()));
-		option3.addChildUnsafe("d", Type.INT());
-		option3.addChildUnsafe("e", Type.INT());
-		target2.addChoiceUnsafe(option3);
+		InlineType option23 = Type.VOID();
+		option23.addChildUnsafe("a", Type.DOUBLE().addChild("x", Type.BOOL()));
+		option23.addChildUnsafe("b", Type.INT().addChild("x", Type.BOOL().addChild("y", Type.STRING())));
+		option23.addChildUnsafe("c", Type.STRING().addChild("x", Type.INT()));
+		option23.addChildUnsafe("d", Type.INT());
+		option23.addChildUnsafe("e", Type.INT());
+		target2.addChoiceUnsafe(option23);
 
-        return result1.equals(target1) && result2.equals(target2);
-		
+        return result2.equals(target2);
+    }
+
+    public static boolean definitionCallStatement() {
+        String code = """
+            service Main {
+                define test {
+                    x += 1
+                }
+
+                main {
+                    x = 0
+                    test
+                }
+            }        
+        """;
+
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+        
+        return false;
+    }
+
+    public static boolean nullProcessStatement() {
+        String code = """
+            nullProcess
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+
+        Type target = Type.VOID();
+
+        return result.equals(target);
+    }
+
+    public static boolean installStatement() {
+        String code = """
+            a = "string"
+            scope(c) {
+                install(testFault =>
+                    a = "string"
+                );
+                a = 10
+            }        
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+        return false;
+    }
+
+    public static boolean throwStatement() {
+        String code = """
+            scope(c) {
+                throw(testFault)
+            }
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return result.equals(Type.VOID());
+    }
+
+    public static boolean compensateStatement() {
+        String code = """
+            a = 10
+            install(testFault =>
+                a = "String";
+                comp(c)
+            )
+            scope(c) {
+                a = 1.1
+                install(this => 
+                    a = 10
+                )
+            }
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return false;
+    }
+
+    public static boolean exitStatement() {
+        String code = """
+            exit
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return result.equals(Type.VOID());
+    }
+
+    public static boolean pointerStatement() {
+        String code = """
+            a.x = 10
+            x -> a.x
+        """;
+        Module module = readyModule(code, true);
+        Type type = Synthesizer.get(module).synthesize();
+
+        return false;
+    }
+
+    public static boolean deepCopyStatement() {
+        String code = """
+            a = 10
+            a.x = "he"
+            a.y = 20
+            a.x.z = true
+
+            b << a
+            c << b
+            d << a.x
+        """;
+        Module module = readyModule(code, true);
+        Type result = Synthesizer.get(module).synthesize();
+
+        InlineType target = Type.VOID();
+
+		// a
+		InlineType a = Type.INT();
+		a.addChildUnsafe("x", Type.STRING().addChild("z", Type.BOOL()));
+		a.addChildUnsafe("y", Type.INT());
+		target.addChildUnsafe("a", a);
+
+		// b
+		target.addChildUnsafe("b", a);
+
+		// c
+		target.addChildUnsafe("c", a);
+
+		// d
+		InlineType d = Type.STRING().addChild("z", Type.BOOL());
+		target.addChildUnsafe("d", d);
+
+		return result.equals(target);
+    }
+
+    public static boolean undefStatement() {
+        String code = """
+            a = 10
+            b = "he"
+            b.x = 10
+            b.x.y = 10
+
+            undef(a)
+            undef(b.x)
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+		InlineType target = Type.VOID().addChild("b", Type.STRING());
+
+		return result.equals(target);
+    }
+
+    public static boolean incrementDecrementStatement() {
+        String code = """
+            a = 10
+            ++a
+            a++
+            --a
+            a--
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+        Type target = Type.VOID().addChild("a", Type.INT());
+
+        return result.equals(target);
+    }
+
+    public static boolean forStatement() {
+        String code = """
+            a = 10
+            for(i = 0, i < 10, i++) {
+                a.b << a
+            }
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return result.equals(result);
+    }
+
+    public static boolean forEachStatement() {
+        String code = """
+            for(i = 0, i < 10, i++) {
+                a[i] = i
+            }
+            for(e in a) {
+                e = "String"
+            }
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return false;
+    }
+
+    public static boolean spawnStatement() {
+        String code = """
+            spawn(i over 10) in resultA {
+                nullProcess
+            }
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return false;
+    }
+
+    public static boolean synchronizedStatement() {
+        String code = """
+            a = 10
+            synchronized(a) {
+                a = "string"
+            }
+        """;
+        Module module = readyModule(code);
+        Type result = Synthesizer.get(module).synthesize();
+
+        Type target = Type.VOID().addChild("a", Type.STRING());
+
+        return result.equals(target);
+    }
+
+    public static boolean courierStatement() {
+        String code = """
+            interface MyInterface{
+                RequestResponse:
+                    reqResFunction(inputType)(outputType)
+                OneWay:
+                    oneWayFunction(int),
+            }
+            
+            type inputType: int {
+                x: string
+                y: int
+            }
+            
+            type outputType: string {
+                x: string | int
+            }
+
+            service Main{
+                outputPort outPort {
+                    Location: "socket://localhost:8082"
+                    Protocol: http { format = "json" }
+                    Interfaces: MyInterface
+                }
+
+                inputPort inPort {
+                    Location: "socket://localhost:8081"
+                    Protocol: http { format = "json" }
+                    aggregates: outPort
+                }
+
+                courier inPort {
+                    [reqResFunction(request)(response)] {
+                        response = "test"
+                        response.x = 42
+                        
+                    }
+                    [oneWayFunction(request)] {
+                        a = request.x
+                    }
+                }
+
+            }
+        """;
+        Module module = readyModule(code, false);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return false;
+    }
+
+    public static boolean forwardStatement() {
+        String code = """
+            interface MyInterface{
+                RequestResponse:
+                    reqResFunction(inputType)(outputType)
+                OneWay:
+                    oneWayFunction(int),
+            }
+            
+            type inputType: int {
+                x: string
+                y: int
+            }
+            
+            type outputType: string {
+                x: string | int
+            }
+
+            service Main{
+                outputPort outPort {
+                    Location: "socket://localhost:8082"
+                    Protocol: http { format = "json" }
+                    Interfaces: MyInterface
+                }
+
+                inputPort inPort {
+                    Location: "socket://localhost:8081"
+                    Protocol: http { format = "json" }
+                    aggregates: outPort
+                }
+
+                courier inPort {
+                    [reqResFunction(request)(response)] {
+                        forward(request)(response)
+                    }
+                    [oneWayFunction(request)] {
+                        forward(request)
+                    }
+                }
+
+            }
+        """;
+        Module module = readyModule(code, false);
+        Type result = Synthesizer.get(module).synthesize();
+
+        return false;
     }
 
     private static Module readyModule(String jolieCode) {
@@ -498,8 +835,8 @@ public class StatmentTester {
         return module;
     }
 
-    private static Module readyModule(String jolieCode, boolean notSimpel) {
-        if(!notSimpel) return readyModule(jolieCode);
+    private static Module readyModule(String jolieCode, boolean simpel) {
+        if(simpel) return readyModule(jolieCode);
 
         Program program = Parser.parser(jolieCode);
 

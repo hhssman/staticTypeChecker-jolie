@@ -241,6 +241,86 @@ public class AppTest{
 		assertTrue(StatmentTester.IfStatement());
 	}
 
+	@Test
+	public void testNestedIfStmt() {
+		assertTrue(StatmentTester.nestedIfStatement());
+	}
+
+	@Test
+	public void testDefinitionCallStmt() {
+		assertTrue(StatmentTester.definitionCallStatement());
+	}
+
+	@Test
+	public void testNullProcessStmt() {
+		assertTrue(StatmentTester.nullProcessStatement());
+	}
+
+	@Test
+	public void testInstallStmt() {
+		assertTrue(StatmentTester.installStatement());
+	}
+
+	@Test
+	public void testThrowStmt() {
+		assertTrue(StatmentTester.throwStatement());
+	}
+
+	@Test
+	public void compensateStmt() {
+		assertTrue(StatmentTester.compensateStatement());
+	}
+
+	@Test
+	public void exitStmt() {
+		assertTrue(StatmentTester.exitStatement());
+	}
+
+	@Test
+	public void pointerStmt() {
+		assertTrue(StatmentTester.pointerStatement());
+	}
+
+	@Test
+	public void deepCopyStmt() {
+		assertTrue(StatmentTester.deepCopyStatement());
+	}
+
+	@Test
+	public void undefStmt() {
+		assertTrue(StatmentTester.undefStatement());
+	}
+
+	@Test
+	public void incrementDecrementStmt() {
+		assertTrue(StatmentTester.incrementDecrementStatement());
+	}
+
+	@Test
+	public void forEachStmt() {
+		assertTrue(StatmentTester.forEachStatement());
+	}
+
+	@Test
+	public void spawnStmt() {
+		assertTrue(StatmentTester.spawnStatement());
+	}
+
+	@Test
+	public void synchronizedStmt() {
+		assertTrue(StatmentTester.synchronizedStatement());
+	}
+
+	@Test
+	public void courierStmt() {
+		assertTrue(StatmentTester.courierStatement());
+	}
+
+	@Test
+	public void forwardStmt() {
+		assertTrue(StatmentTester.forwardStatement());
+	}
+
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.
 	 * Step 0: symbolcollector,
