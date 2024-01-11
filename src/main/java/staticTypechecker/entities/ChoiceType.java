@@ -316,4 +316,22 @@ public class ChoiceType extends Type {
 
 		return toString;
 	}
+
+	public void optimiseUnsafe() {
+		HashSet<InlineType> toRemove = new HashSet<>();
+
+		for(InlineType t1 : choices){
+			if(!toRemove.contains(t1)) {
+				for(InlineType t2 : choices){
+					if(!t1.equals(t2)) {
+						if(t2.isSubtypeOf(t1)) toRemove.add(t2);
+					}
+				}
+			}
+		}
+
+		for (InlineType type : toRemove) {
+			removeChoiceUnsafe(type);
+		}
+	}
 }
