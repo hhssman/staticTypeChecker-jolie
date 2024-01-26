@@ -5,3 +5,4 @@ src/test/files/test
 
 target/*
 !target/typechecker-main.jar
+todo.md
