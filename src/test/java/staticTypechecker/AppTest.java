@@ -159,7 +159,7 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testTypeCasting());
 	}
 
-	//TODO This test does not pass
+	//TODO This test does not pass bc it tied to where the file is
 	/* @Test
 	public void testErrors(){
 		assertTrue(BehaviourProcessorTester.testErrors());
