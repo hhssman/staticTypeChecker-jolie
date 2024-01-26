@@ -39,7 +39,7 @@ public class Intersection {
 					Type toAdd = intersection(choice1, t2, seen);
 					s.addChoiceUnsafe(toAdd);
 				}
-			}
+			} //TODO Need a check to make sure that s contains choices
 			return s;
 		} else if(t2 instanceof ChoiceType) {
 			ChoiceType tempT2 = (ChoiceType) t2;
@@ -48,7 +48,7 @@ public class Intersection {
 			for(Type choice : tempT2.choices()) {
 				Type toAdd = intersection(t1, choice, seen);
 				s.addChoiceUnsafe(toAdd);
-			}
+			} //TODO Need a check to make sure that s contains choices
 			return s;
 		}
 
@@ -56,13 +56,24 @@ public class Intersection {
 
 		InlineType s = basicIntersection((InlineType)t1, (InlineType)t2);
 		seen.put(pair, s);
-		if(s != null) {
 
+		InlineType iT1 = (InlineType)t1;
+		InlineType iT2 = (InlineType)t2;
+
+		if(s != null) {
+			for(String child : iT1.children().keySet()) {
+				if(iT2.contains(child)) {
+
+				} else if(iT2.isOpen()) {
+
+				} //Check if child is optinmal
+			}
 		}
 
 		return s;
 	}
 
+	//TODO Check for cardinality
 	private static InlineType basicIntersection(InlineType t1, InlineType t2) {
 		if(t1.basicType().checkBasicTypeEqualness(t2.basicType())) return new InlineType(t1.basicType(), t1.cardinality(), t1.context(), t1.isOpen());
 		else if(t1.basicType().checkBasicTypeEqualness(Type.ANY().basicType())) return new InlineType(t2.basicType(), t2.cardinality(), t2.context(), t2.isOpen());
