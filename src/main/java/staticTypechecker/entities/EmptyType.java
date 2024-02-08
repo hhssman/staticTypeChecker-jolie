@@ -6,6 +6,10 @@ import jolie.lang.parse.context.ParsingContext;
 
 public class EmptyType extends Type{
 
+    public static boolean isEmptyType(Type type) {
+        return type instanceof EmptyType;
+    }
+
     @Override
     public boolean isSubtypeOf(Type other) {
         return false;
