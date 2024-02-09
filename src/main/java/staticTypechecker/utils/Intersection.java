@@ -34,13 +34,21 @@ public class Intersection {
 					ChoiceType tempT2 = (ChoiceType) t2;
 					for(Type choice2 : tempT2.choices()) {
 						Type toAdd = intersection(choice1, choice2, seen);
-						s.addChoiceUnsafe(toAdd);
+						if(!(toAdd instanceof EmptyType)) {
+							s.addChoiceUnsafe(toAdd);
+						}
 					}
 				} else {
 					Type toAdd = intersection(choice1, t2, seen);
-					s.addChoiceUnsafe(toAdd);
+					if(!(toAdd instanceof EmptyType)) {
+						s.addChoiceUnsafe(toAdd);
+					}
 				}
-			} //TODO Need a check to make sure that s contains choices
+			}
+			if(s.choices().isEmpty()) {
+				seen.put(pair, new EmptyType());
+				return new EmptyType();
+			}
 			return s;
 		} else if(t2 instanceof ChoiceType) {
 			ChoiceType tempT2 = (ChoiceType) t2;
@@ -48,8 +56,14 @@ public class Intersection {
 			seen.put(pair, s);
 			for(Type choice : tempT2.choices()) {
 				Type toAdd = intersection(t1, choice, seen);
-				s.addChoiceUnsafe(toAdd);
-			} //TODO Need a check to make sure that s contains choices
+				if(!(toAdd instanceof EmptyType)) {
+					s.addChoiceUnsafe(toAdd);
+				}
+			}
+			if(s.choices().isEmpty()) {
+				seen.put(pair, new EmptyType());
+				return new EmptyType();
+			}
 			return s;
 		}
 
