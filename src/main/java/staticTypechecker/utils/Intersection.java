@@ -126,8 +126,7 @@ public class Intersection {
 		if(child instanceof InlineType) {
 			return ((InlineType)child).cardinality().min() == 0;
 		} else {
-			InlineType choiceChild = ((ChoiceType)child).choices().get(0);
-			return choiceChild.cardinality().min() == 0;
+			return ((ChoiceType)child).cardinality().min() == 0;
 		}
 	}
 }
