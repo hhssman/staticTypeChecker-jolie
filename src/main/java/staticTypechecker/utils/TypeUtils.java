@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -12,6 +13,7 @@ import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
 import staticTypechecker.entities.Path;
 import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.EmptyType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 
@@ -272,5 +274,117 @@ public class TypeUtils {
 		}
 
 		return copy;
+	}
+
+	/**
+	 * 
+	 * @param type A givin
+	 * @param optimize If true it can hcange the structure of the type
+	 * @return
+	 */
+	public static boolean hasValue(Type type, boolean optimize) {
+		if(optimize) {
+			Map<Type, Boolean> seenNodes = new IdentityHashMap<>();
+			if(hasValue(type, seenNodes, false)) {
+				List<Type> toRemove = new ArrayList<>();
+				for(Type t : seenNodes.keySet()) {
+					if(t instanceof InlineType) {
+						toRemove.add(type);
+					}
+				}
+				for(Type t : toRemove) {
+					seenNodes.remove(t);
+				}
+
+				hasValue(type, seenNodes, optimize);
+				optimize(type, seenNodes, new IdentityHashMap<>());
+				return true;
+			}
+
+			return false;
+		} else {
+			return hasValue(type, new IdentityHashMap<>(), false);
+		}
+	}
+
+	/**
+	 * 
+	 * @param type
+	 * @param seenNodes
+	 * @param optimize If true it can change the structure of the type
+	 * @return
+	 */
+	private static boolean hasValue(Type type, Map<Type,Boolean> seenNodes, boolean optimize) {
+		if(seenNodes.containsKey(type)) return seenNodes.get(type);
+
+		seenNodes.put(type, false);
+		if(type instanceof ChoiceType) {
+			for(InlineType choice : ((ChoiceType)type).choices()) {
+				if(hasValue(choice, seenNodes, optimize)) {
+					seenNodes.put(type, true);
+					return true;
+				}
+
+			}
+			return false;
+
+		} else if(type instanceof InlineType) {
+			InlineType iType = (InlineType)type;
+			//boolean endPoint = true;
+			for(String child : iType.children().keySet()) {
+				//If a child is optinal then it could change if it is a endpoint
+				if(!hasValue(iType.getChild(child), seenNodes, optimize)) {
+					if(optimize && Intersection.isOptinal(iType.getChild(child))) {
+						((InlineType)type).removeChildUnsafe(child);
+					} else if(!Intersection.isOptinal(iType.getChild(child))) {
+						return false;
+					}
+				}
+			}
+			seenNodes.put(type, true);
+			return true;
+		}
+
+		return false;
+	}
+
+	//TODO remove the if parts
+	private static void optimize(Type type, Map<Type, Boolean> valueMap, Map<Type, Void> seenNodes) {
+		if(seenNodes.containsKey(type)) return;
+
+		seenNodes.put(type, null);
+		if(type instanceof ChoiceType) {
+			if(!valueMap.get(type)) {
+				return;
+			} else {
+				List<InlineType> toRemove = new ArrayList<>();
+				for(InlineType t : ((ChoiceType)type).choices()) {
+					if(valueMap.get(t)) {
+						optimize(t, valueMap, seenNodes);
+					} else {
+						toRemove.add(t);
+					}
+				}
+				for(InlineType t : toRemove) {
+					((ChoiceType)type).removeChoiceUnsafe(t);
+				}
+			}
+		} else if(type instanceof InlineType) {
+			if(!valueMap.get(type)) {
+				return;
+			} else {
+				List<String> toRemove = new ArrayList<>();
+				for(String child : ((InlineType)type).children().keySet()) {
+					if(valueMap.get(((InlineType)type).getChild(child))) {
+						optimize(((InlineType)type).getChild(child), valueMap, seenNodes);
+					} else {
+						toRemove.add(child);
+					}
+				}
+				for(String child : toRemove) {
+					((InlineType)type).removeChildUnsafe(child);
+				}
+			}
+		}
 	}
 }

@@ -17,6 +17,9 @@ public class EmptyType extends Type{
 
     @Override
     public boolean equals(Object other) {
+        if(other instanceof ChoiceType && ((ChoiceType)other).choices().isEmpty()) {
+            return true;
+        }
         return other instanceof EmptyType;
     }
 

@@ -202,6 +202,14 @@ public class ChoiceType extends Type {
 		if(this == other){
 			return true;
 		}
+
+		if(other instanceof InlineType && this.choices().size() == 1) {
+			return Simulator.equivalent(this.choices().get(0), (InlineType)other);
+		}
+
+		/* if(other instanceof EmptyType && this.choices.isEmpty()) {
+			return true;
+		} */
 		
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;

@@ -92,11 +92,13 @@ import jolie.lang.parse.ast.types.TypeDefinitionLink;
 import jolie.lang.parse.ast.types.TypeInlineDefinition;
 import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
+import jolie.util.Range;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Symbol.SymbolType;
 import staticTypechecker.utils.BasicTypeUtils;
+import staticTypechecker.utils.Intersection;
 import staticTypechecker.utils.ToString;
 import staticTypechecker.utils.TypeUtils;
 import staticTypechecker.utils.TypeConverter;
@@ -429,14 +431,42 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public Type visit( IfStatement n, Type t ){
 		ChoiceType resultType = new ChoiceType();
 
+
 		for(Pair<OLSyntaxNode, OLSyntaxNode> p : n.children()){
 			OLSyntaxNode expression = p.key();
 			OLSyntaxNode body = p.value();
 
-			Type typeOfEx = this.synthesize(expression, t);
-			this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not subtype of bool { ? }. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
-			Type t1 = this.synthesize(body, t);
-			resultType.addChoiceUnsafe(t1);
+			if(expression instanceof InstanceOfExpressionNode && ((InstanceOfExpressionNode)expression).expression() instanceof VariableExpressionNode) {
+				InstanceOfExpressionNode instanceOfNode = (InstanceOfExpressionNode)expression;
+				VariableExpressionNode variableExpression = (VariableExpressionNode)instanceOfNode.expression();
+				Type typeDefinition = TypeConverter.convert(instanceOfNode.type(), module.symbols());
+
+				Path path = new Path(variableExpression.variablePath().path());
+				ArrayList<Type> types = TypeUtils.findNodesExact(path, t, false, false);
+				
+				Type variableType;
+				if(types.size() == 1) {
+					variableType = types.get(0);
+					if(variableType instanceof InlineType) {
+						((InlineType)variableType).setCardinalityUnsafe(new Range(1,1));
+					}
+				} else {
+					variableType = new ChoiceType(types);
+				}
+				Type s = t.shallowCopyExcept(path);
+				TypeUtils.setTypeOfNodeByPath(path, Intersection.intersection(variableType, typeDefinition), s);
+
+				Type t1 = this.synthesize(body, s);
+				resultType.addChoice(t1);
+				
+			} else {
+				Type typeOfEx = this.synthesize(expression, t);
+				this.check(typeOfEx, Type.BOOL(), n.context(), "Guard of if-statement is not subtype of bool { ? }. Found type:\n" + typeOfEx.prettyString()); // check that expression is of type bool
+	
+				Type t1 = this.synthesize(body, t);
+				resultType.addChoiceUnsafe(t1);
+			}
+
 		}
 
 		OLSyntaxNode elseProcess = n.elseProcess();

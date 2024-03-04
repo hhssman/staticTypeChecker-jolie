@@ -229,6 +229,10 @@ public class InlineType extends Type {
 		if(this == other){
 			return true;
 		}
+
+		if(other instanceof ChoiceType && ((ChoiceType)other).choices().size() == 1) {
+			return Simulator.equivalent(this, ((ChoiceType)other).choices().get(0));
+		}
 		
 		if(!other.getClass().equals(this.getClass())){ // of different classes, they cannot be equivalent
 			return false;

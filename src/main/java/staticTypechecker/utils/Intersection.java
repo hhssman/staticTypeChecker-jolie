@@ -12,6 +12,8 @@ import staticTypechecker.entities.SymbolTable.Pair;
 public class Intersection {
     
 	public static Type intersection(Type t1, Type t2) {
+		//Type t = intersection(t1, t2, new HashMap<>());
+		//TypeUtils.hasValue(t, true);
 		return intersection(t1, t2, new HashMap<>());
 	}
 
@@ -79,7 +81,7 @@ public class Intersection {
 			for(String child : iT1.children().keySet()) {
 				if(iT2.contains(child)) {
 					Type tempT = intersection(iT1.getChild(child), iT2.getChild(child), seen);
-					if(!(tempT instanceof EmptyType)) {
+					if(!(tempT instanceof EmptyType && !(tempT instanceof ChoiceType))) {
 						iS.addChildUnsafe(child, tempT);
 					} else if(!isOptinal(iT1.getChild(child)) || !isOptinal(iT2.getChild(child))) {
 						seen.put(pair, new EmptyType());
@@ -120,7 +122,7 @@ public class Intersection {
 		else return new EmptyType();
 	}
 
-	private static boolean isOptinal(Type child) {
+	public static boolean isOptinal(Type child) {
 		if(child instanceof InlineType) {
 			return ((InlineType)child).cardinality().min() == 0;
 		} else {
