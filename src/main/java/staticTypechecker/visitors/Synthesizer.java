@@ -111,6 +111,7 @@ import staticTypechecker.faults.FaultHandler;
 import staticTypechecker.faults.MiscFault;
 import staticTypechecker.faults.TypeFault;
 import staticTypechecker.faults.UnknownFunctionFault;
+import staticTypechecker.faults.Warning;
 import staticTypechecker.faults.WarningHandler;
 
 /**
@@ -287,7 +288,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type t_out = op.requestType(); // the type of the data which is EXPECTED of the oneway operation
 		Type p_out = n.outputExpression() != null ? this.synthesize(n.outputExpression(), t) : Type.VOID(); // the type which is GIVEN to the oneway operation
 
-		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString());
+		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString(),
+		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "But the intersection of them is not empty");
 
 		return t;
 	}
@@ -315,7 +317,8 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type p_out = n.outputExpression() != null ? this.synthesize(n.outputExpression(), t) : Type.VOID(); // the type which is GIVEN to the reqres operation
 		
 		// check that p_out is subtype of t_out
-		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString());
+		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString(),
+		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "But the intersection of them is not empty");
 
 		// update type of p_in to t_in
 		Type t1 = setTypeOfNode(t, t_in, p_in);
@@ -903,6 +906,15 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	public void check(Type t, Type s, ParsingContext ctx, String faultMessage){
 		if(!t.isSubtypeOf(s)){
 			FaultHandler.throwFault(new TypeFault(faultMessage, ctx), false);
+		}
+	}
+
+	public void check(Type t, Type s, ParsingContext ctx, String faultMessage, String warningMessage) {
+		Type intersection = Intersection.intersection(t, s);
+		if(!t.isSubtypeOf(s) && intersection.equals(Type.EMPTY())) {
+			FaultHandler.throwFault(new TypeFault(faultMessage, ctx), false);
+		} else if(!t.isSubtypeOf(s)) {
+			WarningHandler.throwWarning(new Warning(warningMessage));
 		}
 	}
 
