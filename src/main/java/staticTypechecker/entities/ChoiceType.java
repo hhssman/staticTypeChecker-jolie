@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Range;
 import staticTypechecker.utils.Simulator;
 
 /**
@@ -19,9 +20,11 @@ import staticTypechecker.utils.Simulator;
 public class ChoiceType extends Type {
 	private HashSet<InlineType> choices;	// the choices of this type
 	private ParsingContext ctx = null;		// the parsing context of this type
+	private Range cardinality;
 
 	public ChoiceType(){
 		this.choices = new HashSet<>();
+		this.cardinality = new Range(1, 1);
 	}
 
 	/**
@@ -29,6 +32,7 @@ public class ChoiceType extends Type {
 	 */
 	public ChoiceType(ArrayList<Type> choices){
 		this.choices = new HashSet<>();
+		this.cardinality = new Range(1, 1);
 
 		for(Type choice : choices){
 			this.addChoiceUnsafe(choice);
@@ -40,6 +44,7 @@ public class ChoiceType extends Type {
 	 */
 	public ChoiceType(HashSet<InlineType> choices){
 		this.choices = new HashSet<>(choices);
+		this.cardinality = new Range(1, 1);
 	}
 
 	/**
@@ -159,6 +164,14 @@ public class ChoiceType extends Type {
 		}
 
 		return ret;
+	}
+
+	public void setCardinality(Range cardinality) {
+		this.cardinality = cardinality;
+	}
+
+	public Range cardinality() {
+		return this.cardinality;
 	}
 
 	/**

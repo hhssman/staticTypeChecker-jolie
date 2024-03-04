@@ -94,6 +94,7 @@ public class TypeConverter {
 		}
 
 		ChoiceType result = new ChoiceType();
+		result.setCardinality(type.cardinality());
 		rec.put(type, result);
 
 		if(symbols.containsKey(type.name())){ // it is a known type
