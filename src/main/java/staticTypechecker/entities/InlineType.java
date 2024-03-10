@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.utils.Simulator;
 
@@ -17,7 +18,7 @@ import staticTypechecker.utils.Simulator;
 public class InlineType extends Type {
 	private BasicTypeDefinition basicType; 	// the type of the root node
 	private Range cardinality; 				// the cardinality of the root node
-	private HashMap<String, Type> children; // the children of the root node, maps child names to the type
+	private HashMap<String, Pair<Range, Type>> children; // the children of the root node, maps child names to the type
 	private boolean openRecord; 			// indicates whether this type is an open or closed record 
 	private ParsingContext context;			// the parsing context of this type
 
@@ -76,7 +77,7 @@ public class InlineType extends Type {
 	 * Overwrites the children of this InlineType. WARNING: alters this object.
 	 * @param children the new children.
 	 */
-	public void setChildrenUnsafe(HashMap<String, Type> children){
+	public void setChildrenUnsafe(HashMap<String, Pair<Range, Type>> children){
 		this.children = new HashMap<>(children);
 	}
 
@@ -84,7 +85,7 @@ public class InlineType extends Type {
 	 * Adds the given children to this InlineType. WARNING: alters this object.
 	 * @param children the children to add.
 	 */
-	public void addChildrenUnsafe(HashMap<String, Type> children){
+	public void addChildrenUnsafe(HashMap<String, Pair<Range, Type>> children){
 		this.children.putAll(children);
 	}
 
@@ -129,7 +130,7 @@ public class InlineType extends Type {
 	 * @param child the structure of the child.
 	 */
 	public void addChildUnsafe(String name, Type child){
-		this.children.put(name, child);
+		this.children.put(name, new Pair<Range,Type>(new Range(1,1), child));
 	}
 
 	/**
@@ -138,7 +139,7 @@ public class InlineType extends Type {
 	 * @param child the structure of the child.
 	 */
 	public void addChildIfAbsentUnsafe(String name, Type child){
-		this.children.putIfAbsent(name, child);
+		this.children.putIfAbsent(name, new Pair<Range,Type>(new Range(1,1), child));
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class InlineType extends Type {
 	 * @param children the children.
 	 * @return a shallow copy of this InlineType with the children overwritten by the given children.
 	 */
-	public InlineType setChildren(HashMap<String, Type> children){
+	public InlineType setChildren(HashMap<String, Pair<Range, Type>> children){
 		InlineType copy = this.shallowCopy();
 		copy.setChildrenUnsafe(children);
 		return copy;
@@ -187,7 +188,7 @@ public class InlineType extends Type {
 	 * @param children the children to add.
 	 * @return a shallow copy of this InlineType with the given children added.
 	 */
-	public InlineType addChildren(HashMap<String, Type> children){
+	public InlineType addChildren(HashMap<String, Pair<Range, Type>> children){
 		InlineType copy = this.shallowCopy();
 		copy.addChildrenUnsafe(children);
 		return copy;
@@ -210,13 +211,17 @@ public class InlineType extends Type {
 			return Type.UNDEFINED();
 		}
 
-		return this.children.get(name);
+		if(this.children.get(name) == null) {
+			return null;
+		}
+
+		return this.children.get(name).value();
 	}
 
 	/**
 	 * @return the children of this InlineType.
 	 */
-	public HashMap<String, Type> children(){
+	public HashMap<String, Pair<Range, Type>> children(){
 		return this.children;
 	}
 
@@ -293,7 +298,7 @@ public class InlineType extends Type {
 
 		this.children.entrySet().forEach(child -> {
 			String childName = child.getKey();
-			Type childStruct = child.getValue();
+			Type childStruct = child.getValue().value();
 
 			// run through the already seen types and see if we already copied this object, if so just use this copy
 			for(Entry<Type, Type> seenType : seenTypes.entrySet()){
@@ -359,9 +364,9 @@ public class InlineType extends Type {
 				result += "\n" + "\t".repeat(level+1) + "?";
 			}
 
-			for(Entry<String, Type> ent : this.children.entrySet()){
+			for(Entry<String, Pair<Range, Type>> ent : this.children.entrySet()){
 				String childName = ent.getKey();
-				Type child = ent.getValue();
+				Type child = ent.getValue().value();
 
 				if(childName == "?"){
 					continue;

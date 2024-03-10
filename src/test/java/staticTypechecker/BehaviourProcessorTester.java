@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import jolie.lang.parse.ast.EmbedServiceNode;
 import jolie.lang.parse.ast.OLSyntaxNode;
 import jolie.lang.parse.ast.ServiceNode;
+import jolie.util.Pair;
+import jolie.util.Range;
 import staticTypechecker.utils.ModuleHandler;
 import staticTypechecker.visitors.Synthesizer;
 import staticTypechecker.entities.ChoiceType;
@@ -653,9 +655,9 @@ public class BehaviourProcessorTester {
 		target.addChildUnsafe("smo6", Type.STRING());
 
 
-		for(Entry<String, Type> tarEnt : target.children().entrySet()){
+		for(Entry<String, Pair<Range, Type>> tarEnt : target.children().entrySet()){
 			String name = tarEnt.getKey();
-			Type tarChild = tarEnt.getValue();
+			Type tarChild = tarEnt.getValue().value();
 			Type resChild = result.getChild(name);
 
 			if(!tarChild.equals(resChild)){

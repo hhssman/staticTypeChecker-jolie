@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.lang.parse.context.ParsingContext;
+import jolie.util.Pair;
 import jolie.util.Range;
 
 /**
@@ -95,8 +96,8 @@ public abstract class Type implements Symbol {
 			InlineType p2 = (InlineType)t2;
 			InlineType result = p2;
 
-			for(Entry<String, Type> ent : p1.children().entrySet()){
-				result.addChildIfAbsentUnsafe(ent.getKey(), ent.getValue());
+			for(Entry<String, Pair<Range, Type>> ent : p1.children().entrySet()){
+				result.addChildIfAbsentUnsafe(ent.getKey(), ent.getValue().value());
 			}
 
 			return result;

@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import jolie.lang.NativeType;
 import jolie.lang.parse.ast.types.BasicTypeDefinition;
 import jolie.util.Pair;
+import jolie.util.Range;
 import staticTypechecker.entities.Path;
 import staticTypechecker.entities.ChoiceType;
 import staticTypechecker.entities.EmptyType;
@@ -135,8 +136,8 @@ public class TypeUtils {
 			InlineType parsedRootCopy = (InlineType)rootCopy;
 
 			if(path.isEmpty()){ // we do not need to unfold anymore, only update the children
-				for(Entry<String, Type> ent : parsedRootCopy.children().entrySet()){
-					parsedRoot.addChildUnsafe(ent.getKey(), ent.getValue());
+				for(Entry<String, Pair<Range, Type>> ent : parsedRootCopy.children().entrySet()){
+					parsedRoot.addChildUnsafe(ent.getKey(), ent.getValue().value());
 				}
 				return root;
 			}
