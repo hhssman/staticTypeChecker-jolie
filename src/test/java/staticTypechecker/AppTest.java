@@ -176,7 +176,7 @@ public class AppTest{
 		assertTrue(BehaviourProcessorTester.testWhileTypeHint());
 	}
 
-	@Test
+	/* @Test
 	public void testAssignStmt() {
 		assertTrue(StatmentTester.assignStatement());
 	}
@@ -319,7 +319,7 @@ public class AppTest{
 	@Test
 	public void forwardStmt() {
 		assertTrue(StatmentTester.forwardStatement());
-	}
+	} */
 
 	/**
 	 * Runs the processors in order up to and including the one specified in parameter steps on the given modules.

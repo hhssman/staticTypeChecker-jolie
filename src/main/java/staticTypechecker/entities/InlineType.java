@@ -132,6 +132,10 @@ public class InlineType extends Type {
 	public void addChildUnsafe(String name, Type child){
 		this.children.put(name, new Pair<Range,Type>(new Range(1,1), child));
 	}
+	
+	public void addChildUnsafe(String name, Range cardinality, Type child){
+		this.children.put(name, new Pair<Range,Type>(cardinality, child));
+	}
 
 	/**
 	 * Adds the entry {name, child} to this node if they key does not already exist. WARNING: may alter this object.
@@ -216,6 +220,14 @@ public class InlineType extends Type {
 		}
 
 		return this.children.get(name).value();
+	}
+
+	public Pair<Range, Type> getChildAndCard(String name) {
+		if(name == "?" && this.isOpen()){
+			return new Pair<>(new Range(1, 1), Type.UNDEFINED());
+		}
+
+		return this.children.get(name);
 	}
 
 	/**

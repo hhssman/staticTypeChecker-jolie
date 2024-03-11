@@ -3,6 +3,6 @@ type T: int | int{
     y?:T
 }
 
-type R: int{
-    x?:R
+type R: int | int {
+    x:R
 }

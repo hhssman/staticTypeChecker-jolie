@@ -854,7 +854,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( InlineTreeExpressionNode n, Type t ){
-		return t;
+		return Type.UNDEFINED();
 	}
 
 	public Type visit( VoidExpressionNode n, Type t ){

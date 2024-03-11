@@ -83,7 +83,7 @@ public class Intersection {
 					Type tempT = intersection(iT1.getChild(child), iT2.getChild(child), seen);
 					if(!(tempT instanceof EmptyType && !(tempT instanceof ChoiceType))) {
 						iS.addChildUnsafe(child, tempT);
-					} else if(!isOptinal(iT1.getChild(child)) || !isOptinal(iT2.getChild(child))) {
+					} else if(!(iT1.getChildAndCard(child).key().min() == 0) || !(iT2.getChildAndCard(child).key().min() == 0)) {
 						seen.put(pair, new EmptyType());
 						return new EmptyType();
 					}
@@ -91,7 +91,7 @@ public class Intersection {
 				} else if(iT2.isOpen()) {
 					iS.addChildUnsafe(child, iT1.getChild(child));
 
-				} else if(!isOptinal(iT1.getChild(child))) {
+				} else if(!(iT1.getChildAndCard(child).key().min() == 0)) {
 					seen.put(pair, new EmptyType());
 					return new EmptyType();
 				}
@@ -101,7 +101,7 @@ public class Intersection {
 				if(!iS.contains(child)) {
 					if(iT1.isOpen()) {
 						iS.addChildUnsafe(child, iT2.getChild(child));
-					} else if(!isOptinal(iT2.getChild(child))) {
+					} else if(!(iT2.getChildAndCard(child).key().min() == 0)) {
 						seen.put(pair, new EmptyType());
 						return new EmptyType();
 					}

@@ -80,7 +80,7 @@ public class TypeConverter {
 				String childName = ent.getKey();
 				Type child = TypeConverter.convert(ent.getValue(), rec, symbols);
 
-				result.addChildUnsafe(childName, child);
+				result.addChildUnsafe(childName, ent.getValue().cardinality(), child);
 			}
 			result.removeChildUnsafe(UUID);
 		}
