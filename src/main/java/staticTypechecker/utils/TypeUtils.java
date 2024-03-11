@@ -105,11 +105,11 @@ public class TypeUtils {
 				ret.add(new Pair<InlineType,String>(root, childNameToLookFor));
 
 				if(createChild){
-					root.addChildUnsafe(childNameToLookFor, newChild);
+					root.addChildUnsafe(childNameToLookFor, new Range(1, 1), newChild);
 				}
 			}
 			else{
-				root.addChildUnsafe(childNameToLookFor, newChild);
+				root.addChildUnsafe(childNameToLookFor, new Range(1, 1), newChild);
 				ret.addAll(TypeUtils.findParentAndNameRec(path.remainder(), newChild, createPath, createChild, seenNodes));
 			}
 		}
