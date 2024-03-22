@@ -67,6 +67,6 @@ public class FaultHandler {
 			return "";
 		}
 		
-		return "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n";
+		return "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.startLine() + ":\n";
 	}
 }

@@ -6,7 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
-import jolie.lang.CodeCheckingException;
+import jolie.lang.CodeCheckException;
 import jolie.lang.parse.ParserException;
 import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.ast.Program;
@@ -56,13 +56,13 @@ public class Parser {
         } catch (ParserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (CodeCheckingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (ModuleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (CodeCheckException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

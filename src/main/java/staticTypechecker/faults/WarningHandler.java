@@ -18,7 +18,7 @@ public class WarningHandler {
 
 	public static void throwWarning(String warningMessage, ParsingContext ctx){
 		if(ctx != null){
-			String message = "WARNING in file '" + ctx.sourceName() + "' on line " + ctx.line() + ":\n" + warningMessage;
+			String message = "WARNING in file '" + ctx.sourceName() + "' on line " + ctx.startLine() + ":\n" + warningMessage;
 			WarningHandler.warnings.add(new Warning(message));
 		}
 		else{

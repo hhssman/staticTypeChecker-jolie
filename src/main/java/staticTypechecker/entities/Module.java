@@ -5,11 +5,9 @@ import java.io.IOException;
 import jolie.Interpreter;
 import jolie.cli.CommandLineException;
 import jolie.cli.CommandLineParser;
-import jolie.lang.CodeCheckingException;
-import jolie.lang.parse.ParserException;
+import jolie.lang.CodeCheckException;
 import jolie.lang.parse.SemanticVerifier;
 import jolie.lang.parse.ast.Program;
-import jolie.lang.parse.module.ModuleException;
 import jolie.lang.parse.util.ParsingUtils;
 
 /**
@@ -125,7 +123,7 @@ public class Module {
 
 			return program;
 		}
-		catch(CommandLineException | IOException | ParserException | CodeCheckingException | ModuleException e){
+		catch(CommandLineException | IOException | CodeCheckException e){
 			System.out.println("Error parsing module: " + path + ":\n" + e);
 			System.exit(0);
 			return null;
