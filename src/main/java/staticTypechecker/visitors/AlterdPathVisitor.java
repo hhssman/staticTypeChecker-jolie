@@ -538,14 +538,12 @@ public class AlterdPathVisitor implements OLVisitor<ArrayList<Path>, Void>{
 
     @Override
     public Void visit(SolicitResponseExpressionNode n, ArrayList<Path> ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
 
     @Override
     public Void visit(IfExpressionNode n, ArrayList<Path> Ctx) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+        return null;
     }
     
 }

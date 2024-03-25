@@ -988,13 +988,11 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 
 	@Override
 	public Type visit(SolicitResponseExpressionNode n, Type ctx) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'visit'");
+		return Type.UNDEFINED();
 	}
 
 	@Override
 	public Type visit(IfExpressionNode n, Type Ctx) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'visit'");
+		return Type.UNDEFINED();
 	}
 }

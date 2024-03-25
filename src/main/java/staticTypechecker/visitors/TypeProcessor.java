@@ -554,13 +554,11 @@ public class TypeProcessor implements OLVisitor<SymbolTable, Void>, TypeCheckerV
 
 	@Override
 	public Void visit(SolicitResponseExpressionNode n, SymbolTable ctx) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'visit'");
+		return null;
 	}
 
 	@Override
 	public Void visit(IfExpressionNode n, SymbolTable Ctx) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'visit'");
+		return null;
 	}
 }
