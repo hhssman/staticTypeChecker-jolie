@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jolie.lang.parse.ast.OLSyntaxNode;
+import jolie.lang.parse.ast.expression.ConstantIntegerExpression;
 
 /**
  * Represents a path in a type. 
@@ -14,6 +15,7 @@ import jolie.lang.parse.ast.OLSyntaxNode;
  */
 public class Path {
 	private ArrayList<String> pathElems; // the names of each element on the path
+	private int index;
 
 	public Path(String path){
 		this.pathElems = new ArrayList<>();
@@ -22,23 +24,34 @@ public class Path {
 		for(String pathElem : elems){
 			this.pathElems.add(pathElem);
 		}
+
+		index = 0;
 	}
 
 	public Path(){
 		this.pathElems = new ArrayList<>();
+		index = 0;
 	}
 
 	public Path(List<jolie.util.Pair<OLSyntaxNode, OLSyntaxNode>> path){
 		this.pathElems = new ArrayList<>();
 		path.forEach(pair -> this.pathElems.add(pair.key().toString()));
+		OLSyntaxNode varIndex = path.get(path.size() - 1).value();
+
+		if(varIndex instanceof ConstantIntegerExpression) {
+			index = ((ConstantIntegerExpression)varIndex).value();
+		} else if(varIndex == null) index = 0; 
+		  else index = Integer.MAX_VALUE;
 	}
 
 	public Path(ArrayList<String> path){
 		this.pathElems = path;
+		index = 0;
 	}
 
 	public Path(Path other){
 		this.pathElems = new ArrayList<>(other.path());
+		index = other.index;
 	}
 
 	/**
@@ -71,6 +84,14 @@ public class Path {
 	 */
 	public ArrayList<String> path(){
 		return this.pathElems;
+	}
+
+	public int index() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 	/**

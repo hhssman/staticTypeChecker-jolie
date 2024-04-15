@@ -987,12 +987,36 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	@Override
-	public Type visit(SolicitResponseExpressionNode n, Type ctx) {
-		return Type.UNDEFINED();
+	public Type visit(SolicitResponseExpressionNode n, Type t) {
+		OutputPort port = (OutputPort)this.module.symbols().get(n.outputPortId(), SymbolType.OUTPUT_PORT);
+		Operation op = port.getOperation(n.id());
+		if(op == null){
+			FaultHandler.throwFault(new UnknownFunctionFault("The operation '" + n.id() + "' is unknown in outputPort '" + port.name(), n.context()), false);
+			return t;
+		}
+
+		Type t_in = op.responseType(); // the type of the data which is RETURNED by the reqres operation
+		Type t_out = op.requestType(); // the type of the data which is EXPECTED of the reqres operation
+
+		Type p_out = n.outputExpression() != null ? this.synthesize(n.outputExpression(), t) : Type.VOID(); // the type which is GIVEN to the reqres operation
+		
+		// check that p_out is subtype of t_out
+		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString(),
+		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "But the intersection of them is not empty");
+
+		return t_in;
 	}
 
 	@Override
-	public Type visit(IfExpressionNode n, Type Ctx) {
-		return Type.UNDEFINED();
+	public Type visit(IfExpressionNode n, Type t) {
+		ChoiceType resultType = new ChoiceType();
+
+		Type typeOfGuard = this.synthesize(n.guard(), t);
+		this.check(typeOfGuard, Type.BOOL(), n.context(), "Guard of if-expression is not subtype of bool { ? }. Found type:\n" + typeOfGuard.prettyString());
+
+		resultType.addChoiceUnsafe(this.synthesize(n.thenExpression(), t));
+		resultType.addChoiceUnsafe(this.synthesize(n.elseExpression(), t));
+
+		return resultType;
 	}
 }
