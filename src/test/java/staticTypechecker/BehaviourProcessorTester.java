@@ -829,6 +829,49 @@ public class BehaviourProcessorTester {
 		return result.equals(target);
 	}
 
+	public static boolean testForArray() {
+		String modileName = AppTest.BASE_PATH + "testFilesForBehaviours/testForArray.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(modileName);
+
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
+
+		ChoiceType target = new ChoiceType();
+
+		InlineType option1 = Type.VOID().addChild("xArray", Type.INT());
+		InlineType option2 = Type.VOID().addChild("xArray", Type.STRING()).addChild("x", Type.STRING());
+		target.addChoiceUnsafe(option1);
+		target.addChoiceUnsafe(option2);
+
+		return target.equals(result);
+	}
+
+	public static boolean testFor() {
+		String modileName = AppTest.BASE_PATH + "testFilesForBehaviours/testFor.ol";
+		List<Module> modules = BehaviourProcessorTester.readyModules(modileName);
+
+		Type result = Synthesizer.get(modules.get(0)).synthesize();
+
+		ChoiceType target = new ChoiceType();
+
+		// first option, not entering the while loop
+		InlineType option1 = Type.VOID().addChild("a", Type.INT()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option1);
+
+		// second option, 1st iteration of the while loop, not entering the if statement
+		InlineType option2 = Type.VOID().addChild("a", Type.INT()).addChild("b", Type.STRING()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option2);
+
+		// third option, 1st iteration of the while loop, entering the if statement
+		InlineType option3 = Type.VOID().addChild("a", Type.BOOL()).addChild("b", Type.STRING()).addChild("c", Type.BOOL()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option3);
+
+		// fourth option, 2nd iteration of the while loop, not entering the if statement
+		InlineType option4 = Type.VOID().addChild("a", Type.INT()).addChild("b", Type.STRING()).addChild("c", Type.BOOL()).addChild("i", Type.INT());
+		target.addChoiceUnsafe(option4);
+
+		return result.equals(target);
+	}
+
 	private static List<Module> readyModules(String moduleName){
 		List<Module> modules = ModuleHandler.loadModule(moduleName);
 		AppTest.runProcessors(modules, 4);

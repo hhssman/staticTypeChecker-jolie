@@ -54,6 +54,17 @@ public class Path {
 		index = other.index;
 	}
 
+	public Path(String path, int index) {
+		this.pathElems = new ArrayList<>();
+		String[] elems = path.split("\\.");
+
+		for(String pathElem : elems){
+			this.pathElems.add(pathElem);
+		}
+
+		this.index = index;
+	}
+
 	/**
 	 * Appends the given string at the end of this Path. NOTE: does not alter this Path.
 	 * @param next the element to this Path.

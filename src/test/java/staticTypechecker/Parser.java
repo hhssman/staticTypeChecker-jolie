@@ -1,11 +1,13 @@
 package staticTypechecker;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import jolie.Interpreter;
+import jolie.cli.CommandLineException;
+import jolie.cli.CommandLineParser;
 import jolie.lang.CodeCheckException;
 import jolie.lang.parse.ParserException;
 import jolie.lang.parse.SemanticVerifier;
@@ -32,22 +34,26 @@ public class Parser {
     }
 
     public static Program parser(String code) {
+        File file = new File("src/test/java/staticTypechecker/Parser.java");
         String[] none = {};
         String[] hardcodedPathToStdLib = {System.getenv("JOLIE_HOME") + "/packages"};
         SemanticVerifier.Configuration semVerConfig = new SemanticVerifier.Configuration( null );
 		semVerConfig.setCheckForMain( false );
         Program program = null;
         try {
+            String[] args = {"src/test/java/staticTypechecker/Parser.java"};
+            final CommandLineParser cmdParser = new CommandLineParser(args, Module.class.getClassLoader());
+            Interpreter.Configuration intConf = cmdParser.getInterpreterConfiguration();
             program = ParsingUtils.parseProgram(
                     new ByteArrayInputStream(code.getBytes()),
-                    new URI("urn:jolieString"),
-                    null,
-                    none,
+                    intConf.programFilepath().toURI(),
+                    intConf.charset(),
+                    intConf.includePaths(),
                     hardcodedPathToStdLib,
-                    null,
-                    new HashMap<>(),
+                    intConf.jolieClassLoader(),
+                    intConf.constants(),
                     semVerConfig,
-                    true
+                    true 
                 );
             return program;
         } catch (IOException e) {
@@ -59,10 +65,10 @@ public class Parser {
         } catch (ModuleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (URISyntaxException e) {
+        } catch (CodeCheckException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (CodeCheckException e) {
+        } catch (CommandLineException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

@@ -209,23 +209,27 @@ public class TypeUtils {
 		TypeUtils.unfold(path, tree);
 
 		ArrayList<Pair<InlineType,String>> nodesToUpdate = TypeUtils.findParentAndName(path, tree, true, true);
-		
+
 		for(Pair<InlineType,String> pair : nodesToUpdate){
 			InlineType parent = pair.key();
 			String childName = pair.value();
 
+			Range childRange = parent.getChildAndCard(childName).key();
+			Range range = new Range(childRange.min(), 
+				childRange.max() > path.index() ? childRange.max() : path.index());
+
 			if(basicTypes.size() == 1){ // only one basic type, update the child in the parent with a copy of the old child with a new basic type
 				if(parent.getChild(childName) instanceof InlineType){
-					parent.addChildUnsafe(childName, ((InlineType)parent.getChild(childName)).setBasicType(basicTypes.get(0)));
+					parent.addChildUnsafe(childName, range, ((InlineType)parent.getChild(childName)).setBasicType(basicTypes.get(0)));
 				}
 				else{
 					ChoiceType child = ((ChoiceType)parent.getChild(childName)).updateBasicTypeOfChoices(basicTypes.get(0));
 					// this check is necessary, since changing the basic type of all choices, may make some of them equivalent, and hence they will be removed. We may be in a situation of a choice type with only one choice (which we convert to an InlineType below)
 					if(child.choices().size() == 1){
-						parent.addChildUnsafe(childName, new InlineType(basicTypes.get(0), null, child.context(), false));
+						parent.addChildUnsafe(childName, range, new InlineType(basicTypes.get(0), null, child.context(), false));
 					}
 					else{
-						parent.addChildUnsafe(childName, child);
+						parent.addChildUnsafe(childName, range, child);
 					}
 				}
 			}

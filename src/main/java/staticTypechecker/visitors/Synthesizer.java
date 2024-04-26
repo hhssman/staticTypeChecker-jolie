@@ -764,15 +764,99 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( ForStatement n, Type t ){
-		return t;
+
+		t = this.synthesize(n.init(), t);
+
+		if(!(n.post() instanceof PostDecrementStatement || n.post() instanceof PostIncrementStatement || n.post() instanceof PreDecrementStatement || n.post() instanceof PreIncrementStatement || 
+			n.post() instanceof AddAssignStatement || n.post() instanceof SubtractAssignStatement)) {
+			return Type.UNDEFINED();
+		}
+
+		this.pathsAlteredInWhile.push(new ArrayList<>());
+
+		OLSyntaxNode condition = n.condition();
+		OLSyntaxNode body = n.body();
+
+		Type typeOfCondition = this.synthesize(condition, t);
+		this.check(typeOfCondition, Type.BOOL(), n.context(), "Guard of while loop is not of type bool. Found type:\n" + typeOfCondition.prettyString()); // check that the initial condition is of type bool
+
+		Type originalState = t; // saved here, since it is used in the fallback plan
+
+		// the return type is a conjunction between the original state and the one found through the iterations OR the fallback
+		ChoiceType result = new ChoiceType();
+		result.addChoiceUnsafe(originalState);
+
+		ChoiceType mergedState = new ChoiceType();
+		mergedState.addChoiceUnsafe(originalState);
+
+		for(int i = 0; i < 10; i++){
+			Type r = this.synthesize(body, t); // synthesize the type of the body after an iteration
+			typeOfCondition = this.synthesize(condition, r);
+			this.check(typeOfCondition, Type.BOOL(), n.context(), "Guard of while loop is not of type bool. Found type:\n" + typeOfCondition.prettyString()); // check that the initial condition is of type bool
+			
+			if(r.isSubtypeOf(mergedState)){ // the new state is a subtype of one of the previous states (we have a steady state)
+				result.addChoiceUnsafe(mergedState);
+				this.pathsAlteredInWhile.pop();
+				return result;
+			}
+
+			mergedState.addChoiceUnsafe(r);
+			t = r;
+		}
+
+		AlterdPathVisitor alterdPathVisitor = new AlterdPathVisitor();
+		ArrayList<Path> alterdPaths = new ArrayList<>();
+		alterdPathVisitor.visit(n, alterdPaths);
+		// we did not find a steady state in the while loop. Here we do the fallback plan, which is to undefine all variables changed in the while loop
+		//result.addChoiceUnsafe( TypeUtils.undefine(originalState, this.pathsAlteredInWhile.peek()) );
+		result.addChoiceUnsafe(TypeUtils.undefine(originalState, alterdPaths));
+
+		WarningHandler.throwWarning("could not determine the resulting type of the while loop, affected types may be incorrect from here", n.context());
+		
+		this.pathsAlteredInWhile.pop();
+		return result.convertIfPossible();
 	}
 
 	public Type visit( ForEachSubNodeStatement n, Type t ){
 		return t;
 	}
 
+	//TODO make certain that range is updated
 	public Type visit( ForEachArrayItemStatement n, Type t ){
-		return t;
+		Path aliasPathTarget = new Path(n.targetPath().path());
+		Path aliasPath = new Path(n.keyPath().path());
+		ArrayList<Type> aliasTypes = TypeUtils.findNodesExact(aliasPathTarget, t, false, false);
+
+		Type origianlType = t;
+
+		ChoiceType result = new ChoiceType();
+		result.addChoiceUnsafe(origianlType);
+
+		Type t1;
+		if(aliasTypes.size() == 0) { // There is no array so it will never run
+			return t;
+
+		} else if(aliasTypes.size() == 1) {
+			Type s = setTypeOfNode(t, aliasTypes.get(0), aliasPath);
+			t1 = this.synthesize(n.body(), s);
+
+			aliasTypes = TypeUtils.findNodesExact(aliasPath, t1, false, false);
+			ChoiceType choiceType = new ChoiceType(aliasTypes);
+			t1 = setTypeOfNode(t1, choiceType.convertIfPossible(), aliasPathTarget);
+
+		} else { //The array may have defferent types
+			Type choiceArray = new ChoiceType(aliasTypes);
+			Type s = setTypeOfNode(t, choiceArray, aliasPath);
+			t1 = this.synthesize(n.body(), s);
+
+			aliasTypes = TypeUtils.findNodesExact(aliasPath, t1, false, false);
+			ChoiceType choiceType = new ChoiceType(aliasTypes);
+			t1 = setTypeOfNode(t1, choiceType.convertIfPossible(), aliasPathTarget);
+		}
+		
+		result.addChoiceUnsafe(t1);
+
+		return result.convertIfPossible();
 	}
 
 	public Type visit( SpawnStatement n, Type t ){
