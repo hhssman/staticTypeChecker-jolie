@@ -96,6 +96,7 @@ import jolie.lang.parse.context.ParsingContext;
 import jolie.util.Pair;
 import jolie.util.Range;
 import staticTypechecker.entities.ChoiceType;
+import staticTypechecker.entities.EmptyType;
 import staticTypechecker.entities.InlineType;
 import staticTypechecker.entities.Type;
 import staticTypechecker.entities.Symbol.SymbolType;
@@ -291,7 +292,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		Type p_out = n.outputExpression() != null ? this.synthesize(n.outputExpression(), t) : Type.VOID(); // the type which is GIVEN to the oneway operation
 
 		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString(),
-		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "But the intersection of them is not empty");
+		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "\nBut the intersection of them is not empty");
 
 		return t;
 	}
@@ -320,7 +321,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 		
 		// check that p_out is subtype of t_out
 		this.check(p_out, t_out, n.context(), "Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString(),
-		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "But the intersection of them is not empty");
+		"Type given to \"" + op.name() + "\" is different from what is expected. Given type:\n" + p_out.prettyString() + "\n\nExpected type:\n" + t_out.prettyString() + "\nBut the intersection of them is not empty");
 
 		// update type of p_in to t_in
 		Type t1 = setTypeOfNode(t, t_in, p_in);
@@ -459,10 +460,14 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 					variableType = new ChoiceType(types);
 				}
 				Type s = t.shallowCopyExcept(path);
-				TypeUtils.setTypeOfNodeByPath(path, Intersection.intersection(variableType, typeDefinition), s);
+				Type intersectedVar = Intersection.intersection(variableType, typeDefinition);
 
-				Type t1 = this.synthesize(body, s);
-				resultType.addChoice(t1);
+				if(!(intersectedVar instanceof EmptyType)) {
+					TypeUtils.setTypeOfNodeByPath(path, Intersection.intersection(variableType, typeDefinition), s);
+
+					Type t1 = this.synthesize(body, s);
+					resultType.addChoice(t1);
+				}
 				
 			} else {
 				Type typeOfEx = this.synthesize(expression, t);
@@ -864,7 +869,7 @@ public class Synthesizer implements OLVisitor<Type, Type> {
 	}
 
 	public Type visit( IsTypeExpressionNode n, Type t ){
-		return t;
+		return Type.BOOL();
 	}
 
 	public Type visit( InstanceOfExpressionNode n, Type t ){

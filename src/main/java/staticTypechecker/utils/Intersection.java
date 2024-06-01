@@ -82,14 +82,15 @@ public class Intersection {
 				if(iT2.contains(child)) {
 					Type tempT = intersection(iT1.getChild(child), iT2.getChild(child), seen);
 					if(!(tempT instanceof EmptyType && !(tempT instanceof ChoiceType))) {
-						iS.addChildUnsafe(child, tempT);
+						Range card = findChildCard(iT1.getChildAndCard(child).key(), iT2.getChildAndCard(child).key());
+						iS.addChildUnsafe(child, card, tempT);
 					} else if(!(iT1.getChildAndCard(child).key().min() == 0) || !(iT2.getChildAndCard(child).key().min() == 0)) {
 						seen.put(pair, new EmptyType());
 						return new EmptyType();
 					}
 
 				} else if(iT2.isOpen()) {
-					iS.addChildUnsafe(child, iT1.getChild(child));
+					iS.addChildUnsafe(child, iT1.getChildAndCard(child).key(), iT1.getChild(child));
 
 				} else if(!(iT1.getChildAndCard(child).key().min() == 0)) {
 					seen.put(pair, new EmptyType());
@@ -100,7 +101,7 @@ public class Intersection {
 			for(String child : iT2.children().keySet()) {
 				if(!iS.contains(child)) {
 					if(iT1.isOpen()) {
-						iS.addChildUnsafe(child, iT2.getChild(child));
+						iS.addChildUnsafe(child, iT2.getChildAndCard(child).key(), iT2.getChild(child));
 					} else if(!(iT2.getChildAndCard(child).key().min() == 0)) {
 						seen.put(pair, new EmptyType());
 						return new EmptyType();
@@ -112,13 +113,14 @@ public class Intersection {
 		return s;
 	}
 
+	private static Range findChildCard(Range child1, Range child2) {
+		return new Range(child1.min() < child2.min() ? child1.min() : child2.min(), child1.max() > child2.max() ? child1.max() : child2.max());
+	}
+
 	private static Type basicIntersection(InlineType t1, InlineType t2) {
-		int min = t1.cardinality().min() < t2.cardinality().min() ? t2.cardinality().min() : t1.cardinality().min();
-		int max = t1.cardinality().max() > t2.cardinality().max() ? t2.cardinality().max() : t1.cardinality().max();
-		Range cardinality = new Range(min, max);
-		if(t1.basicType().checkBasicTypeEqualness(t2.basicType())) return new InlineType(t1.basicType(), cardinality, t1.context(), t1.isOpen() && t2.isOpen());
-		else if(t1.basicType().checkBasicTypeEqualness(Type.ANY().basicType())) return new InlineType(t2.basicType(), cardinality, t2.context(), t1.isOpen() && t2.isOpen());
-		else if(t2.basicType().checkBasicTypeEqualness(Type.ANY().basicType())) return new InlineType(t1.basicType(), cardinality, t1.context(), t1.isOpen() && t2.isOpen());
+		if(t1.basicType().checkBasicTypeEqualness(t2.basicType())) return new InlineType(t1.basicType(), null, t1.context(), t1.isOpen() && t2.isOpen());
+		else if(t1.basicType().checkBasicTypeEqualness(Type.ANY().basicType())) return new InlineType(t2.basicType(), null, t2.context(), t1.isOpen() && t2.isOpen());
+		else if(t2.basicType().checkBasicTypeEqualness(Type.ANY().basicType())) return new InlineType(t1.basicType(), null, t1.context(), t1.isOpen() && t2.isOpen());
 		else return new EmptyType();
 	}
 

@@ -22,6 +22,8 @@ import staticTypechecker.faults.NoServiceParameterFault;
 import staticTypechecker.faults.PortsIncompatibleFault;
 import staticTypechecker.faults.TypeFault;
 import staticTypechecker.faults.UnknownFunctionFault;
+import staticTypechecker.faults.Warning;
+import staticTypechecker.faults.WarningHandler;
 
 public class BehaviourProcessorTester {
 	public static boolean testNil(){
@@ -870,6 +872,38 @@ public class BehaviourProcessorTester {
 		target.addChoiceUnsafe(option4);
 
 		return result.equals(target);
+	}
+
+	public static boolean testWarnings() {
+		String[] moduleNames = {
+			"notifyWarning.ol",
+			"solicitWarning.ol"
+		};
+
+		ArrayList<Module> modules = new ArrayList<>();
+		for(String moduleName : moduleNames) {
+			modules.addAll(ModuleHandler.loadModule(AppTest.BASE_PATH + "testFilesForErrors/" + moduleName));
+		}
+		AppTest.runProcessors(modules, 5);
+
+		ArrayList<Warning> warnings = WarningHandler.warnings();
+
+		ArrayList<String> expectedWarnings = new ArrayList<>();
+		expectedWarnings.add("Type given to \"sendNumber\" is different from what is expected. Given type:\nstring\n|\nint\n\nExpected type:\nint\nBut the intersection of them is not empty");
+		expectedWarnings.add("Type given to \"sendNumberOneWay\" is different from what is expected. Given type:\nstring\n|\nint\n\nExpected type:\nint\nBut the intersection of them is not empty");
+		for(String warning : expectedWarnings) {
+			boolean found = false;
+			for(Warning w : warnings) {
+				if(w.message().contains(warning)) {
+					found = true;
+				}
+			}
+			if(!found) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private static List<Module> readyModules(String moduleName){

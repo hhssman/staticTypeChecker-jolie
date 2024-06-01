@@ -69,4 +69,8 @@ public class FaultHandler {
 		
 		return "Critical error in file '" + ctx.sourceName() + "' on line " + ctx.startLine() + ":\n";
 	}
+
+	public static HashSet<Fault> getFaults() {
+		return faults;
+	}
 }

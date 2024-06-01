@@ -160,10 +160,10 @@ public class AppTest{
 	}
 
 	//TODO This test does not pass bc it tied to where the file is
-	/* @Test
+	@Test
 	public void testErrors(){
 		assertTrue(BehaviourProcessorTester.testErrors());
-	} */
+	}
 
 	@Test
 	public void testRecursiveAssign(){
@@ -185,6 +185,11 @@ public class AppTest{
 	@Test
 	public void testFor() {
 		assertTrue(BehaviourProcessorTester.testFor());
+	}
+
+	@Test
+	public void testWarnings() {
+		assertTrue(BehaviourProcessorTester.testWarnings());
 	}
 
 	/* @Test
