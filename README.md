@@ -10,7 +10,7 @@ This project contains a tool for checking type safety in Jolie modules staticall
 ### Requirements
 To run the type checker you must have Java, Apache Maven and Jolie installed.</br>
 </br>
-The type checker has been tested on **Ubuntu 20.04.5 LTS** with **Java 11.0.17**, **Apache Maven 3.6.3** and **Jolie 1.10.5**.
+The type checker has been tested on **Ubuntu 20.04.5 LTS** with **Java 11.0.17**, **Apache Maven 3.6.3** and **Jolie 1.11.0**.
 
 </br>
 
